@@ -1,0 +1,180 @@
+{
+  "id": "quantum_spin",
+  "module": "Quantum Spin",
+  "unit": "Modern Physics",
+  "description": "The conceptual landscape of quantum spin, built around the Stern-Gerlach experiment as an anchor mystery.",
+  "anchor_questions": [
+    {
+      "id": "two_spots",
+      "text": "Why does Stern-Gerlach show two spots, not a continuous smear?",
+      "highlighted_path": ["classical_prediction", "angular_momentum", "magnetic_moment", "quantization", "spin"]
+    },
+    {
+      "id": "sequential",
+      "text": "Why does measuring x-spin erase the information about z-spin?",
+      "highlighted_path": ["vector_spaces", "dirac_notation", "pauli_matrices", "eigenstates", "superposition", "measurement", "sequential_measurement"]
+    },
+    {
+      "id": "pauli_q",
+      "text": "What do the Pauli matrices actually do?",
+      "highlighted_path": ["vector_spaces", "matrix_algebra", "dirac_notation", "pauli_matrices", "eigenstates"]
+    },
+    {
+      "id": "bloch_q",
+      "text": "How do we visualize a quantum state geometrically?",
+      "highlighted_path": ["dirac_notation", "superposition", "born_rule", "bloch_sphere"]
+    }
+  ],
+  "concepts": [
+    {
+      "id": "classical_prediction",
+      "name": "Classical Prediction",
+      "description": "Classical physics treats the magnetic moment of a silver atom as a continuous variable that can point in any direction. A non-uniform magnetic field exerts a force proportional to the z-component of the moment. Since atoms enter with random orientations, classical theory predicts a continuous vertical smear on the detector — not two spots.",
+      "latex": "F_z = \\mu_z \\frac{\\partial B_z}{\\partial z}, \\quad \\mu_z \\in [-|\\mu|, +|\\mu|] \\text{ (continuous)}",
+      "tags": ["experimental", "conceptual"],
+      "simulation_idea": "Simulate 300 classical atoms with randomly oriented magnetic moments entering a field gradient. Show where they land — a smear. Then show the actual Stern-Gerlach result (two spots) and ask: what assumption failed?",
+      "prerequisites": [],
+      "level": 0
+    },
+    {
+      "id": "vector_spaces",
+      "name": "Vector Spaces",
+      "description": "Quantum states live in a mathematical vector space — a set of objects that can be added together and scaled. For a spin-1/2 particle this space is 2-dimensional: every possible spin state is a linear combination of exactly two basis vectors. Understanding this structure is the mathematical foundation for all of quantum mechanics.",
+      "latex": "|\\psi\\rangle = \\alpha|{+}\\rangle + \\beta|{-}\\rangle, \\quad |\\alpha|^2 + |\\beta|^2 = 1",
+      "tags": ["mathematical"],
+      "simulation_idea": "Interactive 2D vector visualizer: show how any vector in the plane is a weighted sum of two basis arrows. Translate this to spin: |+⟩ and |−⟩ as basis, α and β as sliders. Enforce the normalization constraint live.",
+      "prerequisites": [],
+      "level": 0
+    },
+    {
+      "id": "angular_momentum",
+      "name": "Angular Momentum",
+      "description": "Angular momentum L = r × p describes rotational motion. A charged particle with angular momentum behaves like a tiny bar magnet — its circulating charge creates a magnetic dipole moment proportional to L. Classical physics expects this moment to be continuously adjustable. The Stern-Gerlach result shows it is not.",
+      "latex": "\\vec{L} = \\vec{r} \\times \\vec{p}, \\quad \\vec{\\mu} = \\gamma \\vec{L} = -\\frac{e}{2m_e}\\vec{L}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "Animate a charged particle in circular orbit. Show the resulting magnetic moment vector. Let students change orbit radius and speed continuously — L changes continuously. Then introduce the quantum version: only discrete values allowed.",
+      "prerequisites": ["classical_prediction"],
+      "level": 1
+    },
+    {
+      "id": "matrix_algebra",
+      "name": "Matrix Algebra",
+      "description": "A matrix is a linear transformation — it takes a vector as input and returns a new vector. Quantum mechanics represents every physical measurement as a matrix acting on state vectors. To understand the Pauli matrices, you first need to be comfortable with what matrix multiplication does geometrically and algebraically.",
+      "latex": "M\\vec{v} = \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}\\begin{pmatrix} x \\\\ y \\end{pmatrix} = \\begin{pmatrix} ax+by \\\\ cx+dy \\end{pmatrix}",
+      "tags": ["mathematical"],
+      "simulation_idea": "Interactive matrix transformer: user inputs a 2×2 matrix and a 2D vector, sees the transformation applied as an animation. Show the unit circle being warped. Then apply σ_z to show it's just a reflection — not mysterious at all.",
+      "prerequisites": ["vector_spaces"],
+      "level": 1
+    },
+    {
+      "id": "magnetic_moment",
+      "name": "Magnetic Moment in a Field",
+      "description": "A magnetic dipole in a non-uniform field experiences a force along the gradient direction proportional to its component along that axis. This is the operating principle of the Stern-Gerlach device: the inhomogeneous magnet separates atoms by their z-component of magnetic moment. The device is a measurement apparatus.",
+      "latex": "F_z = \\frac{\\partial}{\\partial z}(\\vec{\\mu} \\cdot \\vec{B}) \\approx \\mu_z \\frac{\\partial B_z}{\\partial z}",
+      "tags": ["experimental", "conceptual"],
+      "simulation_idea": "Animate a bar magnet passing through a field gradient. Show the field lines, the gradient direction, and the net force. Change the magnet orientation and watch the deflection change sign. This makes the measurement-by-deflection idea concrete.",
+      "prerequisites": ["angular_momentum"],
+      "level": 2
+    },
+    {
+      "id": "dirac_notation",
+      "name": "Dirac (Bra-Ket) Notation",
+      "description": "Physicists use a compact shorthand for quantum states: |ψ⟩ is a column vector called a 'ket'; ⟨ψ| is its conjugate transpose called a 'bra'. Their inner product ⟨φ|ψ⟩ is a complex number encoding how much the states overlap. This notation makes quantum calculations look clean, but it is just linear algebra in disguise.",
+      "latex": "|{+z}\\rangle = \\begin{pmatrix}1\\\\0\\end{pmatrix},\\ |{-z}\\rangle = \\begin{pmatrix}0\\\\1\\end{pmatrix},\\ \\langle{+z}|{-z}\\rangle = 0",
+      "tags": ["mathematical"],
+      "simulation_idea": "Build a notation translator: click any ket (|+z⟩, |−z⟩, |+x⟩, |−x⟩, |+y⟩, |−y⟩) and see its explicit column vector with complex entries. Show ⟨φ|ψ⟩ as a dot product with complex conjugate.",
+      "prerequisites": ["vector_spaces"],
+      "level": 2
+    },
+    {
+      "id": "quantization",
+      "name": "Quantization of Spin",
+      "description": "Unlike classical angular momentum, quantum spin is quantized: its components can only take discrete values. For a spin-1/2 particle (electrons, silver atoms), the z-component is always either +ℏ/2 or −ℏ/2 — never anything in between. This is the direct explanation for the two-spot result. The discreteness has no classical analog.",
+      "latex": "S_z \\in \\left\\{+\\frac{\\hbar}{2},\\ -\\frac{\\hbar}{2}\\right\\}, \\quad m_s = \\pm\\frac{1}{2}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "Side-by-side comparison: a classical deflection slider (continuous range) vs. a quantum switch (only two states). Run 500 atoms through each model and show the resulting histograms. Overlay them. Where do the two models diverge?",
+      "prerequisites": ["magnetic_moment"],
+      "level": 3
+    },
+    {
+      "id": "pauli_matrices",
+      "name": "Pauli Matrices",
+      "description": "The three Pauli matrices σ_x, σ_y, σ_z are the quantum operators for measuring spin along each axis. They are Hermitian (σ† = σ), have eigenvalues ±1, and satisfy commutation relations that define the algebra of angular momentum. The spin operator along any axis is Ŝ = (ℏ/2)σ.",
+      "latex": "\\sigma_z = \\begin{pmatrix}1&0\\\\0&-1\\end{pmatrix},\\ \\sigma_x = \\begin{pmatrix}0&1\\\\1&0\\end{pmatrix},\\ \\sigma_y = \\begin{pmatrix}0&-i\\\\i&0\\end{pmatrix}",
+      "tags": ["mathematical"],
+      "simulation_idea": "Pauli matrix explorer: input a quantum state as two complex numbers (with normalization enforced), select which Pauli matrix to apply, and see the output state vector with the matrix multiplication shown step by step. Confirm that σ_z|+z⟩ = +|+z⟩.",
+      "prerequisites": ["matrix_algebra", "dirac_notation"],
+      "level": 3
+    },
+    {
+      "id": "spin",
+      "name": "Quantum Spin",
+      "description": "Spin is an intrinsic form of angular momentum — it does not arise from the particle physically rotating. It is a purely quantum property with no classical analog. A spin-1/2 particle has total spin magnitude |S| = (√3/2)ℏ, but its component along any axis is always exactly ±ℏ/2. The direction is never fully defined.",
+      "latex": "\\hat{S} = \\frac{\\hbar}{2}\\vec{\\sigma}, \\quad \\hat{S}_z|{+}\\rangle = +\\frac{\\hbar}{2}|{+}\\rangle, \\quad \\hat{S}_z|{-}\\rangle = -\\frac{\\hbar}{2}|{-}\\rangle",
+      "tags": ["conceptual"],
+      "simulation_idea": "Compare a classically spinning ball (continuously adjustable angular momentum components) with a spin-1/2 quantum state (always ±ℏ/2 along any axis). Show that no classical rotation speed can reproduce the quantum result. What makes spin irreducibly quantum?",
+      "prerequisites": ["quantization", "pauli_matrices"],
+      "level": 4
+    },
+    {
+      "id": "eigenstates",
+      "name": "Eigenstates and Eigenvalues",
+      "description": "An eigenstate of an operator is a state the operator leaves unchanged in direction — it only scales it by a number called the eigenvalue. The eigenstates of σ_z are |+z⟩ and |−z⟩ with eigenvalues +1 and −1. Measuring always returns an eigenvalue and collapses the system into the corresponding eigenstate. This is why repeated measurements give the same result.",
+      "latex": "\\sigma_z|{+z}\\rangle = +1\\cdot|{+z}\\rangle, \\quad \\sigma_z|{-z}\\rangle = -1\\cdot|{-z}\\rangle",
+      "tags": ["mathematical", "conceptual"],
+      "simulation_idea": "Eigenvector visualizer: draw a 2×2 matrix as an arrow-transformation. Show that most vectors rotate when transformed. Find the special eigenvector directions — they only stretch or flip. Apply this to σ_z, σ_x, σ_y and show their eigenstates.",
+      "prerequisites": ["pauli_matrices"],
+      "level": 4
+    },
+    {
+      "id": "superposition",
+      "name": "Superposition",
+      "description": "Before measurement, a quantum state can be a superposition — a linear combination of basis states with complex amplitudes. The state |+x⟩ has definite x-spin but is a superposition of both z-spin outcomes: it has no definite z-spin value. Superposition is not ignorance about which state the particle is in — it is a genuinely different kind of state.",
+      "latex": "|{+x}\\rangle = \\frac{1}{\\sqrt{2}}|{+z}\\rangle + \\frac{1}{\\sqrt{2}}|{-z}\\rangle",
+      "tags": ["conceptual"],
+      "simulation_idea": "Amplitude sliders: control α and β (with |α|²+|β|²=1 enforced). Show the probabilities P(+z) = |α|² and P(−z) = |β|² update in real time. Add a 'measure' button that collapses to one outcome probabilistically and snaps the state.",
+      "prerequisites": ["spin", "eigenstates", "dirac_notation"],
+      "level": 5
+    },
+    {
+      "id": "born_rule",
+      "name": "The Born Rule",
+      "description": "The Born rule is the fundamental bridge between quantum amplitudes and experimental probabilities. If a state is |ψ⟩ = α|+⟩ + β|−⟩, the probability of measuring spin-up is |α|² and spin-down is |β|². The wave function does not directly describe physical reality — it describes the probabilities of outcomes when a measurement is made.",
+      "latex": "P(+) = |\\langle{+}|\\psi\\rangle|^2 = |\\alpha|^2, \\quad P(-) = |\\langle{-}|\\psi\\rangle|^2 = |\\beta|^2",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Statistical convergence demo: run 1, 10, 100, 1000 measurements on a fixed state |ψ⟩. Show the histogram of outcomes converging to the Born rule prediction. Let students change the amplitudes and watch the histogram shift. Compare to a biased coin toss.",
+      "prerequisites": ["superposition"],
+      "level": 6
+    },
+    {
+      "id": "measurement",
+      "name": "Measurement and Collapse",
+      "description": "Quantum measurement is not passive: it changes the state. After measuring z-spin and getting +ℏ/2, the particle is now definitely in state |+z⟩, regardless of what it was before. This collapse is why measuring the same quantity twice gives the same result — but it is also why measuring a different quantity in between can destroy that information.",
+      "latex": "|\\psi\\rangle \\xrightarrow{\\text{measure } S_z, \\text{ get }+} |{+z}\\rangle \\text{ with } P = |\\langle{+z}|\\psi\\rangle|^2",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "Build a measurement machine: input a state, click 'measure z'. See the probabilistic outcome and the new collapsed state. Measure again immediately — always the same result. Then build in a second measurement along x and show the z-information is now scrambled.",
+      "prerequisites": ["born_rule"],
+      "level": 7
+    },
+    {
+      "id": "bloch_sphere",
+      "name": "The Bloch Sphere",
+      "description": "Every pure state of a spin-1/2 particle corresponds to exactly one point on the surface of a unit sphere. The north pole is |+z⟩, the south pole is |−z⟩, and the equator contains |+x⟩, |−x⟩, |+y⟩, |−y⟩. Applying a Pauli matrix rotates the state around an axis. This is the most compact geometric picture of a qubit.",
+      "latex": "|\\psi\\rangle = \\cos\\!\\tfrac{\\theta}{2}|{+}\\rangle + e^{i\\phi}\\sin\\!\\tfrac{\\theta}{2}|{-}\\rangle",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Interactive 3D Bloch sphere: drag the state vector to any point on the surface. Display the corresponding |α|² and |β|² in real time. Add buttons for σ_x, σ_y, σ_z rotations. Show that Stern-Gerlach measurement projects the state onto the north or south pole.",
+      "prerequisites": ["superposition", "born_rule"],
+      "level": 7
+    },
+    {
+      "id": "sequential_measurement",
+      "name": "Sequential Measurements",
+      "description": "Measure z-spin and get |+z⟩. Now measure x-spin: you get |+x⟩ or |−x⟩ with 50-50 probability. Now measure z-spin again: you again get ±z with 50-50 probability — the original z-information is gone. The x-measurement collapsed the z-eigenstate into an x-eigenstate, which is a superposition of z-eigenstates. Measuring incompatible observables erases information.",
+      "latex": "|{+x}\\rangle = \\tfrac{1}{\\sqrt{2}}|{+z}\\rangle + \\tfrac{1}{\\sqrt{2}}|{-z}\\rangle \\implies P(\\pm z \\text{ after }x\\text{-meas.}) = \\tfrac{1}{2}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "Sequential Stern-Gerlach simulator: three apparatuses in a chain (Z → X → Z). Show the beam splitting at each stage. Let students rotate the middle device and watch how it scrambles the final z-distribution. What angle makes the z-information maximally uncertain after passing through?",
+      "prerequisites": ["measurement", "pauli_matrices", "eigenstates"],
+      "level": 8
+    }
+  ]
+}

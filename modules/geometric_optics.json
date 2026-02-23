@@ -1,0 +1,110 @@
+{
+  "id": "geometric_optics",
+  "module": "Geometric Optics",
+  "unit": "Unit 1",
+  "description": "The ray-optics picture of light: how it travels, bends, reflects, and forms images. Builds from wave basics through mirrors, lenses, and multi-element optical systems.",
+  "anchor_questions": [
+    {
+      "id": "bent_straw",
+      "text": "Why does a straw appear bent at the surface of a glass of water?",
+      "highlighted_path": ["wave_basics", "em_waves", "refraction"]
+    },
+    {
+      "id": "spoon_mirror",
+      "text": "Why does a spoon show an inverted image on the concave side and an upright image on the convex side?",
+      "highlighted_path": ["wave_basics", "em_waves", "reflection", "curved_mirrors"]
+    },
+    {
+      "id": "polarized_sunglasses",
+      "text": "How do polarized sunglasses reduce glare — and why does tilting them 90° let the glare back through?",
+      "highlighted_path": ["em_waves", "polarization"]
+    },
+    {
+      "id": "telescope_magnification",
+      "text": "How does a refracting telescope magnify distant objects, and why does a longer objective focal length help?",
+      "highlighted_path": ["wave_basics", "em_waves", "refraction", "thin_lenses", "optical_systems"]
+    }
+  ],
+  "concepts": [
+    {
+      "id": "wave_basics",
+      "name": "Wave Fundamentals",
+      "description": "A wave is a disturbance that transports energy without transporting matter. Transverse waves oscillate perpendicular to their direction of travel (e.g., light, water surface); longitudinal waves oscillate parallel to travel (e.g., sound). Every wave is characterized by its wavelength λ (spatial period), frequency f (oscillations per second), period T = 1/f, amplitude A (peak displacement), and wave speed v = fλ. These quantities are universal — the same framework describes sound, water, and light.",
+      "latex": "v = f\\lambda, \\quad T = \\frac{1}{f}, \\quad [v] = \\text{m/s},\\ [f] = \\text{Hz},\\ [\\lambda] = \\text{m}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Animated transverse wave on a string: sliders for frequency, amplitude, and wave speed. Show the wave moving and highlight one particle bobbing up and down. Add a second panel for a longitudinal wave (pressure wave) with the same controls. Let students verify v = fλ by measuring the time for one full wavelength to pass a point.",
+      "prerequisites": [],
+      "level": 0
+    },
+    {
+      "id": "em_waves",
+      "name": "Light as an Electromagnetic Wave",
+      "description": "Light is a transverse electromagnetic wave — oscillating electric and magnetic fields perpendicular to each other and to the direction of travel. In vacuum it travels at c ≈ 2.998×10⁸ m/s regardless of wavelength or source motion. When light enters a medium, its speed drops to v = c/n, where n ≥ 1 is the index of refraction. Crucially, frequency is unchanged across media — only wavelength changes: λₙ = λ₀/n. Visible light spans roughly 400 nm (violet) to 700 nm (red).",
+      "latex": "n = \\frac{c}{v}, \\quad \\lambda_n = \\frac{\\lambda_0}{n}, \\quad f \\text{ unchanged}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "A light pulse crossing from air into glass: show the wavefronts compressing (wavelength shrinks), the wave slowing, but the frequency staying constant. Display n, v, and λ numerically as the pulse enters. Let students dial n and watch the effect. Add a visible-spectrum color bar showing how wavelength maps to color in air.",
+      "prerequisites": ["wave_basics"],
+      "level": 1
+    },
+    {
+      "id": "polarization",
+      "name": "Polarization and Malus's Law",
+      "description": "Because light is a transverse wave, its electric field can oscillate in any direction perpendicular to travel. Unpolarized light has the field randomly cycling through all orientations. A linear polarizer transmits only the component along one axis — halving the intensity of unpolarized light (I = I₀/2). If a second polarizer (analyzer) is placed at angle θ to the first, Malus's Law gives the transmitted intensity: I = I₀cos²θ. At θ = 90° (crossed polarizers), no light passes. Multiple polarizers: apply Malus's Law sequentially at each stage.",
+      "latex": "I = I_0\\cos^2\\!\\theta, \\quad I_{\\text{unpol}\\to\\text{pol}} = \\frac{I_0}{2}",
+      "tags": ["conceptual", "experimental", "mathematical"],
+      "simulation_idea": "Two-polarizer interactive: a light beam with intensity I₀ hits a fixed polarizer (vertical), then an analyzer whose angle θ can be dragged. Show the transmitted intensity as a bright spot that dims and brightens following I₀cos²θ. Display the formula and numerical value live. Add a third polarizer between the first two — let students discover that inserting a 45° polarizer between crossed polarizers lets light through.",
+      "prerequisites": ["em_waves"],
+      "level": 2
+    },
+    {
+      "id": "reflection",
+      "name": "Reflection",
+      "description": "When light strikes a smooth surface, it reflects such that the angle of incidence equals the angle of reflection, both measured from the normal to the surface: θᵢ = θᵣ. This law holds for any wavelength and any smooth interface. Specular reflection (smooth surface) gives mirror-like images; diffuse reflection (rough surface) scatters light in all directions and lets us see non-shiny objects. Reflection is the basis for all mirrors and retroreflectors.",
+      "latex": "\\theta_i = \\theta_r \\quad (\\text{angles from normal})",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Click-to-aim: a ray gun that fires a beam at a flat mirror. Click anywhere on the mirror to set the incidence point. Drag to set the angle. Show the incident ray, normal line, and reflected ray with their angles labeled. Add a second mirror and trace the double reflection.",
+      "prerequisites": ["em_waves"],
+      "level": 2
+    },
+    {
+      "id": "refraction",
+      "name": "Refraction and Total Internal Reflection",
+      "description": "When light crosses an interface between two media with different indices of refraction, it bends. Snell's Law gives the exact relationship: n₁sinθ₁ = n₂sinθ₂. Going into a denser medium (n₂ > n₁), the ray bends toward the normal (θ₂ < θ₁); going into a less-dense medium it bends away. When going from dense to sparse, if the incidence angle exceeds the critical angle θ_c = arcsin(n₂/n₁), no refracted ray exists — total internal reflection (TIR) occurs. TIR is the principle behind optical fibers and the sparkle of diamonds.",
+      "latex": "n_1\\sin\\theta_1 = n_2\\sin\\theta_2, \\quad \\theta_c = \\arcsin\\!\\left(\\frac{n_2}{n_1}\\right) \\text{ (when } n_1 > n_2\\text{)}",
+      "tags": ["conceptual", "experimental", "mathematical"],
+      "simulation_idea": "Interactive Snell's Law explorer: a ray crosses from medium 1 to medium 2. Sliders for n₁, n₂, and θ₁. Show the refracted ray bending in real time, with angles labeled. When θ₁ > θ_c (only possible for n₁ > n₂), the refracted ray disappears and TIR is indicated. Add a fiber optic cable cross-section showing TIR guiding light along the fiber.",
+      "prerequisites": ["em_waves", "reflection"],
+      "level": 3
+    },
+    {
+      "id": "curved_mirrors",
+      "name": "Curved Mirrors",
+      "description": "A curved mirror obeys the law of reflection at every point on its surface. Concave (converging) mirrors have focal length f = R/2 > 0; convex (diverging) mirrors have f < 0. The mirror equation 1/dₒ + 1/dᵢ = 1/f relates object distance, image distance, and focal length. Magnification M = −dᵢ/dₒ: positive M means upright, negative means inverted. Real images (dᵢ > 0) form in front of the mirror; virtual images (dᵢ < 0) form behind it. Ray tracing uses three principal rays: parallel→through focus; through focus→parallel; through center→reflects back.",
+      "latex": "\\frac{1}{d_o} + \\frac{1}{d_i} = \\frac{1}{f}, \\quad M = -\\frac{d_i}{d_o}, \\quad f = \\frac{R}{2}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Drag-the-object mirror simulator: a concave or convex mirror drawn in cross section. An arrow object can be dragged left/right along the axis. All three principal rays are drawn in real time, and their intersection (or virtual extension) shows the image location. Display dₒ, dᵢ, f, and M numerically. Toggle between concave and convex. Show the special cases: object at C, at F, between F and mirror.",
+      "prerequisites": ["reflection"],
+      "level": 4
+    },
+    {
+      "id": "thin_lenses",
+      "name": "Thin Lenses",
+      "description": "A thin lens refracts light at two surfaces, but they are close enough to treat as a single interface. Converging (convex) lenses have f > 0 and bring parallel rays to a real focal point. Diverging (concave) lenses have f < 0 and spread rays — their focal point is virtual. The thin lens equation is identical to the mirror equation: 1/dₒ + 1/dᵢ = 1/f. Magnification M = −dᵢ/dₒ. Lens power P = 1/f measured in diopters (m⁻¹). The lens-maker's equation relates f to the radii of curvature and index of refraction of the glass.",
+      "latex": "\\frac{1}{d_o} + \\frac{1}{d_i} = \\frac{1}{f}, \\quad M = -\\frac{d_i}{d_o}, \\quad P = \\frac{1}{f}, \\quad \\frac{1}{f} = (n-1)\\!\\left(\\frac{1}{R_1}-\\frac{1}{R_2}\\right)",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Interactive lens ray diagram: an object arrow can be dragged. Three principal rays (parallel→f, through center, through near-f→parallel) are drawn live. Works for both converging and diverging lenses. Numerical readout of dₒ, dᵢ, M, P. Add a 'camera' mode: fix a screen at some distance and show how moving the lens focuses the image. Show how the real eye does this by changing lens curvature (accommodation).",
+      "prerequisites": ["refraction"],
+      "level": 4
+    },
+    {
+      "id": "optical_systems",
+      "name": "Optical Systems",
+      "description": "When two or more lenses (or mirrors) are combined, the image from the first element becomes the object for the second. Total magnification is the product M_total = M₁ × M₂. A refracting telescope uses a long-focal-length objective to collect light and a short-focal-length eyepiece to magnify: M_telescope = −f_obj/f_eye. A compound microscope uses a short-focal-length objective (to make a large real intermediate image) and an eyepiece for further magnification. Both instruments illustrate that angular magnification — how large the image appears to your eye — is the figure of merit, not just linear magnification.",
+      "latex": "M_{\\text{total}} = M_1 \\times M_2, \\quad M_{\\text{telescope}} = -\\frac{f_{\\text{obj}}}{f_{\\text{eye}}}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Two-lens system builder: place an object, then two lenses with adjustable focal lengths and positions. Trace rays through both lenses step by step: (1) find image from lens 1, (2) use that as object for lens 2, (3) find final image. Display M₁, M₂, and M_total. Add presets for 'telescope' (far object, f_obj ≫ f_eye) and 'microscope' (close object, f_obj very short). Let students discover why you want a long f_obj for a telescope but a short one for a microscope.",
+      "prerequisites": ["curved_mirrors", "thin_lenses"],
+      "level": 5
+    }
+  ]
+}

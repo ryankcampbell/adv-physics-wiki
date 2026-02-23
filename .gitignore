@@ -1,0 +1,9 @@
+# Never commit credentials
+.env
+
+# Mac clutter
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

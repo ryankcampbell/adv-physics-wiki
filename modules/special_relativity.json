@@ -1,0 +1,190 @@
+{
+  "id": "special_relativity",
+  "module": "Special Relativity",
+  "unit": "Unit 3",
+  "description": "The conceptual landscape of special relativity, from Galilean frames through the twin paradox and four-vectors. Built from the Unit 3 curriculum.",
+  "anchor_questions": [
+    {
+      "id": "twin_paradox",
+      "text": "Why does Alice age more than Bob in the Twin Paradox — and how do we know Bob is the one who ages less?",
+      "highlighted_path": ["galilean_frames", "galilean_velocity", "two_postulates", "clock_sync", "relativity_simultaneity", "lorentz_factor", "time_dilation", "spacetime_interval", "spacetime_diagrams", "proper_time", "lorentz_transformation", "twin_paradox_concept"]
+    },
+    {
+      "id": "slow_clocks",
+      "text": "Why do moving clocks run slow — and slow relative to what?",
+      "highlighted_path": ["galilean_frames", "galilean_velocity", "two_postulates", "clock_sync", "relativity_simultaneity", "lorentz_factor", "time_dilation"]
+    },
+    {
+      "id": "lorentz_q",
+      "text": "What does the Lorentz transformation actually transform, and why is it not just a Galilean boost?",
+      "highlighted_path": ["galilean_frames", "galilean_velocity", "two_postulates", "lorentz_factor", "spacetime_interval", "spacetime_diagrams", "lorentz_transformation"]
+    },
+    {
+      "id": "emc2",
+      "text": "What does E = mc² actually mean, and where does it come from?",
+      "highlighted_path": ["two_postulates", "lorentz_factor", "spacetime_interval", "lorentz_transformation", "four_vectors", "relativistic_energy"]
+    }
+  ],
+  "concepts": [
+    {
+      "id": "galilean_frames",
+      "name": "Reference Frames",
+      "description": "A reference frame is a coordinate system — a grid of rulers and clocks — used to assign spacetime coordinates (t, x, y, z) to events. An inertial frame is one in which Newton's first law holds: objects move in straight lines unless acted on by forces. The central question of relativity is how coordinates of the same event compare between two frames moving relative to each other.",
+      "latex": "x' = x - vt, \\quad t' = t \\quad \\text{(Galilean)}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Two trains passing each other. A ball is thrown on one train. Show the ball's trajectory as seen from each train's reference frame. Let students set the throw speed and train speed. The existing 3.1 app already has this — extend it to show the coordinate grids explicitly.",
+      "prerequisites": [],
+      "level": 0
+    },
+    {
+      "id": "galilean_velocity",
+      "name": "Galilean Velocity Addition",
+      "description": "In Galilean relativity, velocities simply add: if you move at v relative to the ground and throw something at u' relative to yourself, the ground sees it moving at u = u' + v. This works perfectly for everyday speeds. But applying it to light gives a contradiction: it predicts different observers measure different speeds for a light beam. That cannot be reconciled with Maxwell's equations, which give a fixed c regardless of source motion.",
+      "latex": "u = u' + v \\quad \\Longrightarrow \\quad \\text{light at } c \\text{ in one frame, } c+v \\text{ in another?}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "A spaceship fires a laser backward at c. A student on the ground applies Galilean addition. Show the absurd result: ground observers would measure light speed as c + v. Then show the Michelson-Morley result: light speed is always c regardless. This is the crisis that motivates SR.",
+      "prerequisites": ["galilean_frames"],
+      "level": 1
+    },
+    {
+      "id": "two_postulates",
+      "name": "The Two Postulates",
+      "description": "Einstein resolved the crisis with two postulates: (1) The laws of physics are the same in all inertial reference frames — there is no preferred 'rest' frame. (2) The speed of light in vacuum is c ≈ 3×10⁸ m/s in all inertial frames, regardless of the motion of the source or observer. Postulate 2 is what makes SR genuinely radical: it means simultaneity, lengths, and time intervals are all frame-dependent.",
+      "latex": "c = 299{,}792{,}458 \\text{ m/s} \\quad \\text{in every inertial frame}",
+      "tags": ["conceptual"],
+      "simulation_idea": "A light clock (two mirrors with a photon bouncing between them) seen from two frames: the rest frame of the clock and a frame moving past it. Show that both frames must agree on c — but then the path length is longer in the moving frame, so the time between ticks must differ. This is the visual seed of time dilation.",
+      "prerequisites": ["galilean_velocity"],
+      "level": 2
+    },
+    {
+      "id": "clock_sync",
+      "name": "Clock Synchronization",
+      "description": "Before comparing times in different places, we need all clocks in a frame to be synchronized. Einstein's method: flash light from the origin at t = 0; a clock at distance d should be preset to t = d/c when the flash arrives. This is the only operationally clean definition of simultaneity within a frame. It also reveals that synchronization is frame-dependent — clocks synchronized in one frame are out of sync in another.",
+      "latex": "t_{\\text{preset}} = \\frac{\\sqrt{x^2 + y^2 + z^2}}{c}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "An interactive clock-sync setup: place clocks at different positions, fire a light pulse from the origin, watch the arrival times, and calculate the preset values. Then boost the whole system to a moving frame and show that the 'synchronized' clocks are no longer synchronized.",
+      "prerequisites": ["galilean_frames"],
+      "level": 2
+    },
+    {
+      "id": "relativity_simultaneity",
+      "name": "Relativity of Simultaneity",
+      "description": "Two events that are simultaneous in one frame are generally not simultaneous in another. This is not an optical illusion or measurement error — it is a fundamental feature of spacetime. The classic example: lightning strikes both ends of a moving train simultaneously in the ground frame. A passenger in the center of the train sees the front strike first. Both observers are correct for their frames. Simultaneity is a frame-dependent concept.",
+      "latex": "\\Delta t' = \\gamma\\left(\\Delta t - \\frac{v\\,\\Delta x}{c^2}\\right)",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "The lightning-and-train scenario, interactive. Two lightning bolts strike the ends of a moving train. Toggle between ground frame and train frame and watch the time ordering of the events flip. The sr.html app from 3.2 has the seeds of this — extend it to make the simultaneity flip explicit.",
+      "prerequisites": ["two_postulates", "clock_sync"],
+      "level": 3
+    },
+    {
+      "id": "lorentz_factor",
+      "name": "The Lorentz Factor γ",
+      "description": "All relativistic effects are governed by a single dimensionless quantity: the Lorentz factor γ. It depends only on β = v/c, the speed as a fraction of c. At everyday speeds β ≈ 0 and γ ≈ 1 — Newtonian physics is recovered. As v → c, γ → ∞. The Lorentz factor appears in time dilation, length contraction, relativistic momentum, and the Lorentz transformation. It is the central quantity in all of SR.",
+      "latex": "\\gamma = \\frac{1}{\\sqrt{1-\\beta^2}}, \\quad \\beta = \\frac{v}{c}, \\quad \\gamma \\geq 1",
+      "tags": ["mathematical"],
+      "simulation_idea": "Interactive γ(β) curve: drag a slider for speed (in fractions of c) and watch γ shoot up. Mark the speeds of bullets, planes, the ISS, and the LHC protons. Show that γ = 2 requires v = 0.866c, and γ = 7 (cosmic ray) requires v = 0.990c. Make the non-linearity viscerally clear.",
+      "prerequisites": ["two_postulates"],
+      "level": 3
+    },
+    {
+      "id": "time_dilation",
+      "name": "Time Dilation",
+      "description": "A moving clock runs slow by a factor of γ. If a clock at rest ticks out a proper time interval Δτ (its own time, in its own frame), then observers in a frame moving at v relative to the clock measure a longer interval Δt = γΔτ. Moving clocks run slow. This is confirmed experimentally by muons from cosmic ray showers surviving to sea level, and by atomic clocks on GPS satellites requiring relativistic corrections.",
+      "latex": "\\Delta t = \\gamma\\,\\Delta\\tau, \\quad \\Delta\\tau = \\frac{\\Delta t}{\\gamma} < \\Delta t",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "Cosmic ray muon simulation: a muon is created 60 km up in the atmosphere, moving at β = 0.99995. Classically it decays in ~0.02 μs and travels ~6 km — it shouldn't reach the ground. But from the muon's frame, the atmosphere is length-contracted. From our frame, the muon's clock is time-dilated. Show both perspectives reaching the same answer: the muon survives.",
+      "prerequisites": ["lorentz_factor", "relativity_simultaneity"],
+      "level": 4
+    },
+    {
+      "id": "length_contraction",
+      "name": "Length Contraction",
+      "description": "A moving object is shorter along its direction of motion by a factor of γ. A rod of proper length L₀ (measured in its rest frame) has length L = L₀/γ in a frame where it moves at speed v. Length contraction is the spatial complement of time dilation — together they preserve the spacetime interval. Objects are not physically compressed; the measurement of length is frame-dependent because simultaneous endpoints must be measured, and simultaneity is frame-dependent.",
+      "latex": "L = \\frac{L_0}{\\gamma} = L_0\\sqrt{1-\\beta^2}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "A rocket of proper length 100 m passes a space station. Let students set β and watch the rocket shrink from the station's perspective — and watch the station shrink from the rocket's perspective. Then show the 'garage paradox' version: can a 100 m rocket fit in an 80 m garage? Show how both frames give a consistent (though surprising) answer.",
+      "prerequisites": ["time_dilation"],
+      "level": 5
+    },
+    {
+      "id": "spacetime_interval",
+      "name": "The Spacetime Interval",
+      "description": "While spatial distances and time intervals are frame-dependent, the spacetime interval Δs² = -(cΔt)² + Δx² + Δy² + Δz² is the same in all inertial frames — it is a Lorentz invariant. If Δs² < 0 the interval is timelike (a clock can connect the events), if Δs² > 0 it is spacelike (no signal can connect them), and if Δs² = 0 it is lightlike. The interval is the 'distance' of spacetime — analogous to the Pythagorean theorem but with a crucial sign difference.",
+      "latex": "\\Delta s^2 = -(c\\,\\Delta t)^2 + \\Delta x^2 + \\Delta y^2 + \\Delta z^2 \\quad \\text{(invariant)}",
+      "tags": ["mathematical", "conceptual"],
+      "simulation_idea": "Two events in spacetime. Let students move between frames using a slider. Watch Δt and Δx change. Show that Δs² stays constant. Add a classifier: highlight whether the interval is timelike, spacelike, or lightlike, and explain what each means for causality — can Event A have caused Event B?",
+      "prerequisites": ["time_dilation", "lorentz_factor"],
+      "level": 5
+    },
+    {
+      "id": "spacetime_diagrams",
+      "name": "Spacetime Diagrams",
+      "description": "A spacetime diagram (Minkowski diagram) plots ct on the vertical axis and x on the horizontal axis. Each observer traces a worldline — their path through spacetime. A stationary observer is a vertical line; a moving observer tilts toward the light cone. Lines of simultaneity (nowslices) for a moving observer tilt in the opposite direction, making the relativity of simultaneity geometric. Light rays always travel at 45° — the light cone — and no worldline can exceed this slope.",
+      "latex": "\\text{Worldline slope} = \\frac{c}{v} = \\frac{1}{\\beta} \\quad \\Longrightarrow \\quad v = c \\text{ means 45}^\\circ",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "An interactive spacetime diagram (the 3.4 spacetime.html app). Draw two frames: one stationary, one moving at β = 3/5. Show worldlines, nowslices, and how the same event gets different coordinates. Let students move a slider for β and watch the axes tilt. Add the light cone boundaries. This is exactly what your existing spacetime.html does — link directly.",
+      "prerequisites": ["relativity_simultaneity", "spacetime_interval"],
+      "level": 5
+    },
+    {
+      "id": "lorentz_transformation",
+      "name": "Lorentz Transformation",
+      "description": "The Lorentz transformation is the relativistically correct replacement for the Galilean transformation. It maps spacetime coordinates between inertial frames moving at relative velocity v. Written in matrix form, it is a rotation in spacetime — but with hyperbolic (not circular) trig functions, due to the minus sign in Δs². The transformation encodes simultaneity, time dilation, and length contraction all at once, and reduces to the Galilean transformation in the limit v ≪ c.",
+      "latex": "\\begin{pmatrix}ct' \\\\ x'\\end{pmatrix} = \\begin{pmatrix}\\gamma & -\\gamma\\beta \\\\ -\\gamma\\beta & \\gamma\\end{pmatrix}\\begin{pmatrix}ct \\\\ x\\end{pmatrix}",
+      "tags": ["mathematical"],
+      "simulation_idea": "The 3.5 lorentz.html app: input an event's (t, x) coordinates in frame S, set β, and see the transformed coordinates in S'. Extend it to visualize the event on both frames' spacetime diagrams simultaneously. Add a Mathematica/code panel showing the matrix multiplication step by step.",
+      "prerequisites": ["spacetime_interval", "lorentz_factor", "spacetime_diagrams"],
+      "level": 6
+    },
+    {
+      "id": "rel_velocity_addition",
+      "name": "Relativistic Velocity Addition",
+      "description": "In SR, velocities do not simply add. If frame S' moves at v relative to S, and an object moves at u' in S', then S measures the object's speed as u = (u' + v)/(1 + u'v/c²). The denominator prevents the result from ever exceeding c. When u' = c (a light beam), the formula gives u = c regardless of v — exactly as required by the second postulate. This formula can be derived directly from the Lorentz transformation.",
+      "latex": "u = \\frac{u' + v}{1 + \\dfrac{u'v}{c^2}}",
+      "tags": ["mathematical", "conceptual"],
+      "simulation_idea": "Three scenario sliders: (1) everyday speeds — show that Galilean and relativistic addition agree. (2) Fragment A going left at 0.8c, Fragment B going right at 0.7c — what does A measure for B's speed? (3) A laser fired from a moving ship — show it's always c. These are the exact HW 3.2 problems turned into an interactive.",
+      "prerequisites": ["lorentz_transformation"],
+      "level": 7
+    },
+    {
+      "id": "proper_time",
+      "name": "Proper Time",
+      "description": "Proper time τ is the time measured by a clock that travels with an object along its worldline. It is the Lorentz-invariant 'length' of a worldline segment: dτ² = dt² - dx²/c². Two observers who start at the same event and reunite at another will generally have accumulated different proper times depending on their paths through spacetime. Crucially, the straight worldline (constant velocity, no acceleration) has the maximum proper time — opposite to Euclidean geometry where a straight line is the shortest path.",
+      "latex": "\\tau = \\int d\\tau = \\int \\sqrt{1 - \\frac{v(t)^2}{c^2}}\\, dt",
+      "tags": ["mathematical", "conceptual"],
+      "simulation_idea": "Two worldlines between the same two events: one straight (constant velocity), one bent (outbound + return trip). Compute the proper time along each numerically by integrating. Show that the straight worldline always wins — it accumulates more proper time. Let students adjust the bent path's shape and watch τ change. This IS the twin paradox quantitatively.",
+      "prerequisites": ["spacetime_interval", "time_dilation"],
+      "level": 7
+    },
+    {
+      "id": "twin_paradox_concept",
+      "name": "The Twin Paradox",
+      "description": "Alice stays home; Bob travels to Alpha Centauri and returns. Bob ages less. The 'paradox' seems to be: can't Bob claim Alice was moving relative to him, so Alice should age less? The resolution: the situation is not symmetric. Alice remains in a single inertial frame for the whole journey. Bob must change inertial frames at the turnaround — a physical event with measurable consequences. On a spacetime diagram, Bob's kinked worldline has less proper time than Alice's straight worldline. The turnaround is the key asymmetry.",
+      "latex": "\\tau_{\\text{Bob}} = \\frac{2d}{\\gamma v} < \\tau_{\\text{Alice}} = \\frac{2d}{v} \\quad \\text{(symmetric legs)}",
+      "tags": ["conceptual", "experimental"],
+      "simulation_idea": "An interactive twin paradox simulator: set Bob's speed and destination distance. Show both worldlines on a spacetime diagram. Compute and display Alice's age and Bob's age at reunion. Add a 'radio message' layer — show when each twin receives signals from the other, and how the Doppler shift changes at turnaround. This makes the asymmetry completely concrete and visual.",
+      "prerequisites": ["proper_time", "spacetime_diagrams", "lorentz_transformation"],
+      "level": 8
+    },
+    {
+      "id": "four_vectors",
+      "name": "Four-Vectors",
+      "description": "A four-vector is any set of four quantities (one time-like, three space-like) that transforms under the Lorentz transformation the same way spacetime coordinates (ct, x, y, z) do. Four-vectors have Lorentz-invariant magnitudes — their 'length' is the same in all inertial frames. The spacetime displacement (cΔt, Δx, Δy, Δz) is the prototype. The power of four-vectors is that conservation laws written in four-vector form are automatically valid in all frames.",
+      "latex": "A^\\mu = (A^t,\\, A^x,\\, A^y,\\, A^z), \\quad |A|^2 = -(A^t)^2 + (A^x)^2 + \\text{(invariant)}",
+      "tags": ["mathematical"],
+      "simulation_idea": "A four-vector transformer: input the components of a four-vector in frame S, set β, and get the components in S' via the Lorentz transformation. Compute |A|² in both frames and show it's the same. Do this for the spacetime displacement vector and the four-momentum vector. This is exactly the Mathematica problem from HW 3.7 made visual.",
+      "prerequisites": ["lorentz_transformation", "spacetime_interval"],
+      "level": 8
+    },
+    {
+      "id": "relativistic_energy",
+      "name": "Relativistic Momentum and Energy",
+      "description": "Relativistic momentum is p = γmv — not mv. Total relativistic energy is E = γmc². At rest (v = 0, γ = 1), E₀ = mc²: mass is a form of energy. Kinetic energy is KE = (γ−1)mc², which reduces to ½mv² for v ≪ c (via the binomial approximation). The four-momentum P = (E/c, pₓ, p_y, p_z) is a four-vector with invariant magnitude |P|² = −(mc)², which gives the energy-momentum relation E² = (pc)² + (mc²)².",
+      "latex": "E^2 = (pc)^2 + (m c^2)^2, \\quad E_0 = mc^2, \\quad p = \\gamma mv",
+      "tags": ["mathematical", "conceptual"],
+      "simulation_idea": "Particle decay visualizer: a stationary particle of mass 3M decays into two daughter particles (the HW 3.7 worksheet problem). Show the four-momentum of each particle before and after. Verify conservation of four-momentum. Show that |P|² is the same for each particle in every frame. Let students set the decay parameters and find the output speeds.",
+      "prerequisites": ["lorentz_factor", "four_vectors"],
+      "level": 9
+    }
+  ]
+}
