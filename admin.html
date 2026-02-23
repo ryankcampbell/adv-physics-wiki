@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Admin Panel — Adv Physics Wiki</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; min-height: 100vh; }
+
+    #header {
+      background: #1e3a5f; color: white; padding: 14px 24px;
+      display: flex; align-items: center; gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    #header h1 { font-size: 1rem; font-weight: 600; }
+    #header a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.82rem; margin-left: auto; }
+    #header a:hover { color: white; }
+
+    #main { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+
+    .section-title {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #64748b; margin-bottom: 14px;
+    }
+
+    /* Module selector */
+    .module-bar {
+      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 16px 20px; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .module-bar label { font-size: 0.83rem; font-weight: 600; color: #475569; }
+    .module-bar select {
+      border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 10px;
+      font-size: 0.85rem; background: white; cursor: pointer;
+    }
+    .module-bar button {
+      background: #1e3a5f; color: white; border: none; border-radius: 6px;
+      padding: 7px 14px; font-size: 0.82rem; cursor: pointer;
+    }
+    .module-bar button:hover { background: #1e4a8f; }
+
+    /* Concept table */
+    .concept-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .concept-table th {
+      background: #f8fafc; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #64748b; padding: 10px 14px; text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .concept-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 0.83rem; vertical-align: middle; }
+    .concept-table tr:last-child td { border-bottom: none; }
+    .concept-table tr:hover td { background: #f8fafc; }
+
+    .concept-name { font-weight: 600; color: #0f172a; }
+    .concept-id { font-size: 0.72rem; color: #94a3b8; font-family: monospace; }
+
+    select.status-sel {
+      border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 8px;
+      font-size: 0.8rem; cursor: pointer; width: 150px;
+    }
+    input.text-inp {
+      border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 8px;
+      font-size: 0.8rem; width: 180px;
+    }
+
+    .status-dot {
+      display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+      margin-right: 5px; vertical-align: middle;
+    }
+
+    /* Export section */
+    #export-section { margin-top: 28px; }
+    #export-btn {
+      background: #16a34a; color: white; border: none; border-radius: 7px;
+      padding: 10px 20px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #export-btn:hover { background: #15803d; }
+    #json-output {
+      display: none; margin-top: 16px; background: #1e293b; color: #a3e635;
+      font-family: monospace; font-size: 0.78rem; padding: 16px 18px;
+      border-radius: 8px; white-space: pre; overflow-x: auto; line-height: 1.6;
+      max-height: 400px; overflow-y: auto;
+    }
+    #copy-btn {
+      display: none; margin-top: 10px; background: #2563eb; color: white;
+      border: none; border-radius: 6px; padding: 7px 14px;
+      font-size: 0.82rem; cursor: pointer;
+    }
+    #copy-btn:hover { background: #1d4ed8; }
+    .instructions {
+      background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+      padding: 14px 18px; margin-top: 14px; font-size: 0.82rem;
+      color: #1e40af; line-height: 1.6; display: none;
+    }
+
+    /* Loading */
+    #loading { text-align: center; padding: 60px; color: #94a3b8; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>PM Admin Panel</h1>
+  <span style="font-size:0.78rem;color:rgba(255,255,255,0.5)">Manage node states · Advanced Physics Wiki</span>
+  <a href="index.html">← Back to Navigator</a>
+</div>
+
+<div id="main">
+
+  <div class="module-bar">
+    <label>Module:</label>
+    <select id="module-sel" onchange="loadModule(this.value)">
+      <option value="modules/special_relativity.json">Special Relativity</option>
+      <option value="modules/quantum_spin.json">Quantum Spin</option>
+      <option value="modules/geometric_optics.json">Geometric Optics</option>
+      <option value="modules/physical_optics.json">Physical Optics</option>
+    </select>
+    <button onclick="loadModule(document.getElementById('module-sel').value)">Reload</button>
+    <span id="load-status" style="font-size:0.78rem;color:#64748b;margin-left:8px"></span>
+  </div>
+
+  <div id="loading">Loading module…</div>
+
+  <div id="table-wrap" style="display:none">
+    <div class="section-title">Concept States</div>
+    <table class="concept-table" id="concept-table">
+      <thead>
+        <tr>
+          <th style="width:220px">Concept</th>
+          <th style="width:150px">Status</th>
+          <th style="width:200px">Claimed By</th>
+          <th style="width:220px">Adversarial Team</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <div id="export-section" style="display:none">
+    <button id="export-btn" onclick="exportJSON()">⬇ Generate state.json</button>
+    <pre id="json-output"></pre>
+    <button id="copy-btn" onclick="copyJSON()">Copy to clipboard</button>
+    <div class="instructions" id="instructions">
+      <strong>Next step:</strong> Copy the JSON above, then go to
+      <a href="https://github.com/ryankcampbell/adv-physics-wiki/edit/main/state/state.json" target="_blank">
+        github.com → adv-physics-wiki → state/state.json
+      </a>
+      → click the pencil icon → replace the contents → click <strong>Commit changes</strong>.
+      The navigator updates within 60 seconds.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STATUS_COLORS = {
+  unclaimed:      '#475569',
+  wanted:         '#ca8a04',
+  claimed:        '#ea580c',
+  submitted:      '#7c3aed',
+  in_review:      '#7c3aed',
+  needs_revision: '#dc2626',
+  certified:      '#16a34a'
+};
+
+const STATUS_OPTIONS = ['unclaimed','wanted','claimed','submitted','in_review','needs_revision','certified'];
+
+let currentMod = null;
+let currentStates = {};
+let currentContribs = [];
+
+async function loadModule(url) {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('table-wrap').style.display = 'none';
+  document.getElementById('export-section').style.display = 'none';
+  document.getElementById('json-output').style.display = 'none';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('instructions').style.display = 'none';
+
+  try {
+    const [mRes, sRes, cRes] = await Promise.allSettled([
+      fetch(url),
+      fetch('state/state.json'),
+      fetch('contributions.json')
+    ]);
+
+    currentMod = await mRes.value.json();
+
+    // Build state lookup
+    currentStates = {};
+    if (sRes.status === 'fulfilled') {
+      const arr = await sRes.value.json();
+      arr.forEach(s => { currentStates[s.concept_id] = s; });
+    }
+
+    currentContribs = [];
+    if (cRes.status === 'fulfilled') {
+      currentContribs = await cRes.value.json();
+    }
+
+    buildTable();
+    document.getElementById('load-status').textContent = `${currentMod.concepts.length} concepts loaded`;
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Failed to load: ' + e.message;
+    return;
+  }
+}
+
+function buildTable() {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+
+  currentMod.concepts.forEach(c => {
+    const s = currentStates[c.id] || {};
+    const isCertified = currentContribs.some(x => x.concept_id === c.id);
+    const currentStatus = isCertified ? 'certified' : (s.status || 'unclaimed');
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <div class="concept-name">${c.name}</div>
+        <div class="concept-id">${c.id}</div>
+      </td>
+      <td>
+        <select class="status-sel" data-id="${c.id}" ${isCertified ? 'disabled' : ''}>
+          ${STATUS_OPTIONS.map(opt =>
+            `<option value="${opt}" ${opt === currentStatus ? 'selected' : ''}>
+              ${opt.replace('_',' ')}
+            </option>`
+          ).join('')}
+        </select>
+      </td>
+      <td><input class="text-inp claimed-inp" data-id="${c.id}" type="text"
+        placeholder="First Last, First Last"
+        value="${s.claimed_by || ''}" ${isCertified ? 'disabled' : ''}></td>
+      <td><input class="text-inp adv-inp" data-id="${c.id}" type="text"
+        placeholder="First Last, First Last"
+        value="${Array.isArray(s.adversarial_team) ? s.adversarial_team.join(', ') : (s.adversarial_team || '')}"
+        ${isCertified ? 'disabled' : ''}></td>
+    `;
+    tbody.appendChild(row);
+  });
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('table-wrap').style.display = 'block';
+  document.getElementById('export-section').style.display = 'block';
+}
+
+function exportJSON() {
+  const rows = document.querySelectorAll('#table-body tr');
+  const output = [];
+
+  rows.forEach(row => {
+    const statusSel = row.querySelector('.status-sel');
+    const claimedInp = row.querySelector('.claimed-inp');
+    const advInp = row.querySelector('.adv-inp');
+    if (!statusSel) return;
+
+    const id = statusSel.dataset.id;
+    const status = statusSel.value;
+    if (status === 'unclaimed' || status === 'certified') return;
+
+    const entry = { concept_id: id, status };
+    const claimed = claimedInp.value.trim();
+    if (claimed) {
+      entry.claimed_by = claimed;
+      entry.team = claimed.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    const adv = advInp.value.trim();
+    if (adv) {
+      entry.adversarial_team = adv.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    output.push(entry);
+  });
+
+  const json = JSON.stringify(output, null, 2);
+  const box = document.getElementById('json-output');
+  box.textContent = json;
+  box.style.display = 'block';
+  document.getElementById('copy-btn').style.display = 'inline-block';
+  document.getElementById('instructions').style.display = 'block';
+}
+
+function copyJSON() {
+  const text = document.getElementById('json-output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    document.getElementById('copy-btn').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('copy-btn').textContent = 'Copy to clipboard'; }, 2000);
+  });
+}
+
+// Auto-load SR module on open
+loadModule('modules/special_relativity.json');
+</script>
+</body>
+</html>

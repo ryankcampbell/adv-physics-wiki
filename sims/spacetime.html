@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacetime Diagram</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: center;
+            padding: 8px 0;
+            font-size: 20px;
+            background: linear-gradient(180deg, #1a1a2e, #16162a);
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            gap: 0;
+            overflow: hidden;
+        }
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #080818;
+            overflow: hidden;
+        }
+        #spacetimeCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        .coord-readout {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(20, 20, 40, 0.85);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 11px;
+            color: #aac;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(126, 184, 218, 0.15);
+            line-height: 1.5;
+        }
+        .controls {
+            width: 310px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 8px;
+            background: #16162a;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 1px solid #2a2a4a;
+        }
+        .controls::-webkit-scrollbar { width: 5px; }
+        .controls::-webkit-scrollbar-track { background: transparent; }
+        .controls::-webkit-scrollbar-thumb { background: #3a3a5a; border-radius: 3px; }
+        .panel {
+            background: #252540;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .panel h3 {
+            margin: 0 0 8px 0;
+            color: #7eb8da;
+            font-size: 12px;
+            border-bottom: 1px solid #3a3a5a;
+            padding-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+        .mode-selector {
+            display: flex;
+            gap: 4px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 7px 4px;
+            border: 1px solid #3a3a5a;
+            background: rgba(58, 58, 90, 0.3);
+            color: #999;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .mode-btn:hover { background: rgba(58, 58, 90, 0.6); color: #ccc; }
+        .mode-btn.active { background: #4a6fa5; color: #fff; border-color: #6a8fc5; }
+        .beta-presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+            margin-bottom: 8px;
+        }
+        .beta-btn {
+            padding: 5px 2px;
+            border: 1px solid #3a3a5a;
+            background: rgba(58, 58, 90, 0.3);
+            color: #bbb;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 9px;
+            font-family: 'SF Mono', monospace;
+            transition: all 0.15s;
+            text-align: center;
+        }
+        .beta-btn:hover { background: rgba(74, 111, 165, 0.4); color: #fff; }
+        .beta-btn.active { background: #4a6fa5; color: #fff; border-color: #6a8fc5; }
+        .slider-group {
+            margin-bottom: 6px;
+        }
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 2px;
+            color: #bbb;
+        }
+        .slider-group .value {
+            color: #7eb8da;
+            font-family: 'SF Mono', monospace;
+            cursor: pointer;
+            padding: 1px 4px;
+            border-radius: 3px;
+            transition: background 0.15s;
+        }
+        .slider-group .value:hover {
+            background: rgba(74, 111, 165, 0.3);
+        }
+        .slider-group .value-input {
+            width: 70px;
+            background: #1a1a2e;
+            border: 1px solid #4a6fa5;
+            color: #7eb8da;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: 'SF Mono', monospace;
+            outline: none;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            height: 16px;
+            accent-color: #4a6fa5;
+        }
+        input[type="number"] {
+            width: 70px;
+            background: #1a1a2e;
+            border: 1px solid #3a3a5a;
+            color: #eee;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: 'SF Mono', monospace;
+        }
+        input[type="number"]:focus { outline: none; border-color: #4a6fa5; }
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+        .toggle-row input[type="checkbox"] {
+            accent-color: #4a6fa5;
+            cursor: pointer;
+        }
+        .toggle-row label { cursor: pointer; color: #ccc; }
+        .toggle-section-label {
+            font-size: 10px;
+            color: #7eb8da;
+            margin: 6px 0 3px 0;
+            font-weight: 600;
+        }
+        .wl-list, .ev-list {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .wl-item, .ev-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 6px;
+            margin-bottom: 3px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 4px;
+            font-size: 10px;
+            position: relative;
+        }
+        .wl-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .wl-info, .ev-info {
+            flex: 1;
+            color: #ccc;
+            font-family: 'SF Mono', monospace;
+        }
+        .wl-btn, .ev-btn {
+            padding: 2px 6px;
+            border: none;
+            background: rgba(74, 111, 165, 0.3);
+            color: #aaa;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 9px;
+            transition: all 0.15s;
+        }
+        .wl-btn:hover, .ev-btn:hover { background: rgba(74, 111, 165, 0.6); color: #fff; }
+        .wl-btn.observer-active { background: #e8a838; color: #000; font-weight: 700; }
+        .wl-btn.delete:hover { background: rgba(220, 80, 80, 0.6); }
+        .new-wl-btn {
+            width: 100%;
+            padding: 6px;
+            border: 1px dashed #3a3a5a;
+            background: transparent;
+            color: #888;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            margin-top: 4px;
+            transition: all 0.15s;
+        }
+        .new-wl-btn:hover { border-color: #7eb8da; color: #7eb8da; }
+        .observer-info {
+            background: rgba(232, 168, 56, 0.1);
+            border: 1px solid rgba(232, 168, 56, 0.25);
+            border-radius: 5px;
+            padding: 6px 8px;
+            margin-bottom: 6px;
+            font-size: 10px;
+            font-family: 'SF Mono', monospace;
+            color: #e8a838;
+            line-height: 1.5;
+        }
+        .instructions-bar {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 40, 0.85);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #999;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(126, 184, 218, 0.1);
+            white-space: nowrap;
+        }
+        .formula-box {
+            background: #1a1a2e;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-align: center;
+            margin-top: 6px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Spacetime Diagram</h1>
+    <div class="main-container">
+        <div class="canvas-container">
+            <canvas id="spacetimeCanvas"></canvas>
+            <div class="instructions-bar" id="instrBar">Scroll to zoom · Drag to pan</div>
+            <div class="coord-readout" id="coordReadout">x: 0 &nbsp; t: 0</div>
+        </div>
+        <div class="controls">
+            <!-- Mode -->
+            <div class="panel">
+                <h3>Mode</h3>
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="pan" id="modePan">Pan</button>
+                    <button class="mode-btn" data-mode="worldline" id="modeWL">Worldline</button>
+                    <button class="mode-btn" data-mode="event" id="modeEv">Event</button>
+                </div>
+            </div>
+            <!-- Units -->
+            <div class="panel">
+                <h3>Units</h3>
+                <div class="mode-selector">
+                    <button class="unit-btn mode-btn active" data-unit="sec">sec</button>
+                    <button class="unit-btn mode-btn" data-unit="min">min</button>
+                    <button class="unit-btn mode-btn" data-unit="yr">yr</button>
+                </div>
+            </div>
+            <!-- Observer / Beta -->
+            <div class="panel">
+                <h3>Observer (S′ frame)</h3>
+                <div id="observerInfo" class="observer-info" style="display:none;"></div>
+                <div class="toggle-section-label">β Presets (Pythagorean)</div>
+                <div class="beta-presets" id="betaPresets"></div>
+                <div class="slider-group">
+                    <label>β <span class="value" id="betaVal">0.000</span></label>
+                    <input type="range" id="betaSlider" min="-0.999" max="0.999" step="0.001" value="0">
+                </div>
+                <div class="slider-group">
+                    <label>x₀ <span class="value" id="x0Val">0.00</span></label>
+                    <input type="range" id="x0Slider" min="-20" max="20" step="0.1" value="0">
+                </div>
+            </div>
+            <!-- Toggles -->
+            <div class="panel">
+                <h3>Display</h3>
+                <div class="toggle-section-label">Rest Frame (S)</div>
+                <div class="toggle-row"><input type="checkbox" id="togGrid" checked><label for="togGrid">Grid</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togLightLines"><label for="togLightLines">Light cone (±45°)</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togLightCone"><label for="togLightCone">Light-cone grid</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togNowS"><label for="togNowS">Now slices (t = const)</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togWhereS"><label for="togWhereS">Where slices (x = const)</label></div>
+                <div class="toggle-section-label">Moving Frame (S′)</div>
+                <div class="toggle-row"><input type="checkbox" id="togPrimedAxes"><label for="togPrimedAxes">t′ and x′ axes</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togPrimedGrid"><label for="togPrimedGrid">Primed grid</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togNowSp"><label for="togNowSp">Now slices (t′ = const)</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togWhereSp"><label for="togWhereSp">Where slices (x′ = const)</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togHyper"><label for="togHyper">Hyperbolic calibration</label></div>
+                <div class="toggle-section-label">Worldlines</div>
+                <div class="toggle-row"><input type="checkbox" id="togDistinctColors"><label for="togDistinctColors">Distinct colors</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togEventReadoffS" checked><label for="togEventReadoffS">Event readoff (S)</label></div>
+                <div class="toggle-row"><input type="checkbox" id="togEventReadoffSp"><label for="togEventReadoffSp">Event readoff (S′)</label></div>
+            </div>
+            <!-- Worldlines -->
+            <div class="panel">
+                <h3>Worldlines</h3>
+                <div class="wl-list" id="wlList"></div>
+                <button class="new-wl-btn" id="newWlBtn">+ New Worldline</button>
+            </div>
+            <!-- Events -->
+            <div class="panel">
+                <h3>Events</h3>
+                <div class="ev-list" id="evList"></div>
+            </div>
+            <!-- Spacetime Interval -->
+            <div class="panel" id="intervalPanel" style="display:none;">
+                <h3>Spacetime Interval</h3>
+                <div id="intervalInfo" class="formula-box"></div>
+            </div>
+            <!-- Proper Time -->
+            <div class="panel" id="properTimePanel" style="display:none;">
+                <h3>Proper Time</h3>
+                <div id="properTimeInfo" class="formula-box"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ============================= STATE =============================
+const S = {
+    center: { x: 0, t: 0 },
+    zoom: 60,          // pixels per world unit
+    mode: 'pan',       // pan | worldline | event
+    units: 'sec',
+
+    worldlines: [],    // [{points:[{x,t}], color}]
+    currentWL: -1,
+
+    events: [],        // [{x, t, id, label}]
+    nextEventId: 1,
+    selectedEvIdx: -1,
+    selectedEvIdx2: -1,    // second event for interval calculation
+    hoveredEvIdx: -1,
+    dragEvIdx: -1,
+
+    hoveredWLVertex: null, // {wlIdx, ptIdx} or null
+    dragWLVertex: null,    // {wlIdx, ptIdx} or null
+    dragExtWL: -1,         // index of extended worldline being dragged
+    dragExtStartX: 0,      // mouse world-x at drag start
+    dragExtOrigPts: null,   // original points at drag start
+    dragObserver: false,    // dragging S' frame origin
+    dragObsStartX: 0,      // mouse world-x at drag start
+    dragObsOrigX0: 0,      // original x0 at drag start
+
+    observer: { beta: 0, x0: 0, gamma: 1, active: false },
+
+    // interaction
+    isPanning: false,
+    panStart: null,
+    panStartCenter: null,
+    mouseScreen: { x: 0, y: 0 },
+    mouseWorld: { x: 0, t: 0 },
+
+    // canvas
+    W: 0, H: 0, dpr: 1,
+};
+
+const COLORS = ['#4ecdc4','#ff6b6b','#45b7d1','#f9ca24','#a55eea','#26de81','#fd9644','#fc5c65','#778ca3','#20bf6b'];
+const DEFAULT_WL_COLOR = '#4ecdc4';
+const EVENT_COLOR = '#ffd700';
+const PRIMED_COLOR = '#e8a838';
+const AXIS_COLOR = '#5a9fd4';
+const LIGHT_CONE_COLOR = '#c8a84e';
+
+// ============================= CANVAS ============================
+const canvas = document.getElementById('spacetimeCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    S.dpr = window.devicePixelRatio || 1;
+    S.W = rect.width;
+    S.H = rect.height;
+    canvas.width = S.W * S.dpr;
+    canvas.height = S.H * S.dpr;
+    ctx.setTransform(S.dpr, 0, 0, S.dpr, 0, 0);
+    render();
+}
+window.addEventListener('resize', resizeCanvas);
+
+// ======================== COORD TRANSFORMS =======================
+function worldToScreen(wx, wt) {
+    return {
+        x: S.W / 2 + (wx - S.center.x) * S.zoom,
+        y: S.H / 2 - (wt - S.center.t) * S.zoom   // t goes UP
+    };
+}
+function screenToWorld(sx, sy) {
+    return {
+        x: S.center.x + (sx - S.W / 2) / S.zoom,
+        t: S.center.t - (sy - S.H / 2) / S.zoom
+    };
+}
+function snapToGrid(val) {
+    const rounded = Math.round(val);
+    // Snap if within ~5% of a pixel-grid unit or 0.15 world units, whichever is smaller
+    const thresh = Math.min(0.15, 8 / S.zoom);
+    return Math.abs(val - rounded) < thresh ? rounded : val;
+}
+function snapPt(w) {
+    return { x: snapToGrid(w.x), t: snapToGrid(w.t) };
+}
+// Snap to nearest S' grid intersection if close enough (screen-pixel based)
+function snapToPrimedGrid(w) {
+    if (!S.observer.active) return null;
+    const beta = S.observer.beta, x0 = S.observer.x0;
+    if (Math.abs(beta) < 1e-9) return null; // S' ≈ S, regular grid snap suffices
+    const step = niceStep(S.zoom);
+    const primed = lorentz(w.t, w.x, beta, x0);
+    const tpRound = Math.round(primed.t / step) * step;
+    const xpRound = Math.round(primed.x / step) * step;
+    const candidate = invLorentz(tpRound, xpRound, beta, x0);
+    // Check screen-pixel distance
+    const spEv = worldToScreen(w.x, w.t);
+    const spCand = worldToScreen(candidate.x, candidate.t);
+    const dist = Math.sqrt((spEv.x - spCand.x) ** 2 + (spEv.y - spCand.y) ** 2);
+    if (dist < 12) {
+        return { x: candidate.x, t: candidate.t };
+    }
+    return null;
+}
+
+// Snap a point onto a nearby extended worldline at nearest τ tick (or t-grid with shift)
+function snapToWorldlineIfNear(w, shiftKey) {
+    const WL_SNAP_DIST = 15; // screen pixels
+    const sx = worldToScreen(w.x, w.t);
+    const step = niceStep(S.zoom);
+
+    for (let i = 0; i < S.worldlines.length; i++) {
+        const wl = S.worldlines[i];
+        if (!wl.extended || wl.points.length !== 2) continue;
+        if (!hitTestExtendedLine(wl, sx.x, sx.y, WL_SNAP_DIST)) continue;
+
+        const p0 = wl.points[0], p1 = wl.points[1];
+        const dx = p1.x - p0.x, dt = p1.t - p0.t;
+        if (Math.abs(dt) < 1e-12) continue;
+        const beta = dx / dt;
+        if (Math.abs(beta) >= 1) continue;
+        const gamma = 1 / Math.sqrt(1 - beta * beta);
+        const x0 = p0.x - beta * p0.t;
+
+        // Project mouse onto worldline: find t along worldline closest to (w.x, w.t)
+        // Worldline parametrically: X(s) = x0 + beta*s, T(s) = s
+        // Minimize (X(s)-w.x)² + (T(s)-w.t)² → s = (w.t + beta*(w.x - x0)) / (1 + beta²)
+        const s = (w.t + beta * (w.x - x0)) / (1 + beta * beta);
+
+        if (shiftKey) {
+            // Snap to nearest integer rest-frame t on the worldline
+            const tSnapped = Math.round(s / step) * step;
+            return { x: x0 + beta * tSnapped, t: tSnapped, snapped: true };
+        } else {
+            // Snap to nearest integer τ on the worldline
+            // τ = t / γ, so t = γτ. Nearest τ tick: τ = round(s/γ / step) * step
+            const tau = s / gamma;
+            const tauSnapped = Math.round(tau / step) * step;
+            const tSnapped = gamma * tauSnapped;
+            return { x: x0 + beta * tSnapped, t: tSnapped, snapped: true };
+        }
+    }
+    return null; // no nearby worldline
+}
+
+function lorentz(t, x, beta, x0) {
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    const dx = x - x0;
+    return { t: g * (t - beta * dx), x: g * (dx - beta * t) };
+}
+function invLorentz(tp, xp, beta, x0) {
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    return { t: g * (tp + beta * xp), x: x0 + g * (xp + beta * tp) };
+}
+
+// ========================== GRID MATH ============================
+function niceStep(pixelsPerUnit) {
+    const raw = 80 / pixelsPerUnit;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    let step;
+    if (norm < 1.5) step = 1;
+    else if (norm < 3.5) step = 2;
+    else if (norm < 7.5) step = 5;
+    else step = 10;
+    return step * mag;
+}
+
+// =========================== RENDER ==============================
+function render() {
+    ctx.clearRect(0, 0, S.W, S.H);
+
+    // Background
+    ctx.fillStyle = '#080818';
+    ctx.fillRect(0, 0, S.W, S.H);
+
+    // Visible world bounds
+    const tl = screenToWorld(0, 0);
+    const br = screenToWorld(S.W, S.H);
+    const xMin = tl.x, xMax = br.x, tMin = br.t, tMax = tl.t;
+
+    const step = niceStep(S.zoom);
+    const minorStep = step / 5;
+
+    // ---------- REST FRAME GRID ----------
+    if (document.getElementById('togGrid').checked) {
+        drawGrid(xMin, xMax, tMin, tMax, step, minorStep);
+    }
+
+    // ---------- LIGHT CONE LINES (solid ±45°) ----------
+    if (document.getElementById('togLightLines').checked) {
+        drawLightConeLines(xMin, xMax, tMin, tMax);
+    }
+
+    // ---------- LIGHT CONE GRID ----------
+    if (document.getElementById('togLightCone').checked) {
+        drawLightConeGrid(xMin, xMax, tMin, tMax, step);
+    }
+
+    // ---------- PRIMED GRID / SLICES ----------
+    const beta = S.observer.beta;
+    const x0 = S.observer.x0;
+    const hasObserver = S.observer.active && Math.abs(beta) > 1e-9;
+
+    if (hasObserver && document.getElementById('togPrimedGrid').checked) {
+        drawPrimedGrid(xMin, xMax, tMin, tMax, step, beta, x0);
+    }
+    if (hasObserver && document.getElementById('togNowSp').checked) {
+        drawPrimedSlices(xMin, xMax, tMin, tMax, step, beta, x0, 'now');
+    }
+    if (hasObserver && document.getElementById('togWhereSp').checked) {
+        drawPrimedSlices(xMin, xMax, tMin, tMax, step, beta, x0, 'where');
+    }
+
+    // ---------- REST AXES ----------
+    drawAxes(xMin, xMax, tMin, tMax, step);
+
+    // ---------- PRIMED AXES ----------
+    if (hasObserver && document.getElementById('togPrimedAxes').checked) {
+        drawPrimedAxes(xMin, xMax, tMin, tMax, step, beta, x0);
+    }
+
+    // ---------- NOW / WHERE SLICES (REST) ----------
+    if (document.getElementById('togNowS').checked) {
+        drawRestSlices(xMin, xMax, tMin, tMax, step, 'now');
+    }
+    if (document.getElementById('togWhereS').checked) {
+        drawRestSlices(xMin, xMax, tMin, tMax, step, 'where');
+    }
+
+    // ---------- HYPERBOLIC CALIBRATION ----------
+    if (hasObserver && document.getElementById('togHyper').checked) {
+        drawHyperbolicCalibration(xMin, xMax, tMin, tMax, step, beta, x0);
+    }
+
+    // ---------- WORLDLINES ----------
+    drawWorldlines();
+
+    // ---------- EVENTS ----------
+    drawEvents(xMin, xMax, tMin, tMax, beta, x0, hasObserver);
+
+    // ---------- INTERVAL LINE ----------
+    drawIntervalLine();
+
+    // ---------- COORDINATE READOUT ----------
+    updateReadout(hasObserver, beta, x0);
+}
+
+// ======================== GRID DRAWING ===========================
+function drawGrid(xMin, xMax, tMin, tMax, step, minorStep) {
+    // Minor grid
+    ctx.strokeStyle = 'rgba(100,120,180,0.07)';
+    ctx.lineWidth = 0.5;
+    let start = Math.floor(xMin / minorStep) * minorStep;
+    for (let v = start; v <= xMax; v += minorStep) {
+        const sx = worldToScreen(v, 0).x;
+        ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, S.H); ctx.stroke();
+    }
+    start = Math.floor(tMin / minorStep) * minorStep;
+    for (let v = start; v <= tMax; v += minorStep) {
+        const sy = worldToScreen(0, v).y;
+        ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(S.W, sy); ctx.stroke();
+    }
+    // Major grid
+    ctx.strokeStyle = 'rgba(100,130,200,0.15)';
+    ctx.lineWidth = 0.8;
+    start = Math.floor(xMin / step) * step;
+    for (let v = start; v <= xMax; v += step) {
+        const sx = worldToScreen(v, 0).x;
+        ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, S.H); ctx.stroke();
+    }
+    start = Math.floor(tMin / step) * step;
+    for (let v = start; v <= tMax; v += step) {
+        const sy = worldToScreen(0, v).y;
+        ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(S.W, sy); ctx.stroke();
+    }
+}
+
+function drawLightConeLines(xMin, xMax, tMin, tMax) {
+    // Solid 45° lines through the origin: t = x and t = -x
+    ctx.save();
+    ctx.shadowColor = LIGHT_CONE_COLOR;
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = LIGHT_CONE_COLOR;
+    ctx.lineWidth = 1.5;
+    // t = x (rightward future light ray)
+    let p1 = worldToScreen(xMin, xMin);
+    let p2 = worldToScreen(xMax, xMax);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    // t = -x (leftward future light ray)
+    p1 = worldToScreen(xMin, -xMin);
+    p2 = worldToScreen(xMax, -xMax);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    ctx.restore();
+}
+
+function drawLightConeGrid(xMin, xMax, tMin, tMax, step) {
+    ctx.strokeStyle = 'rgba(200,168,78,0.18)';
+    ctx.lineWidth = 0.6;
+    // Lines at 45°: t - x = const and t + x = const
+    const dMin = tMin - xMax, dMax = tMax - xMin;
+    let start = Math.floor(dMin / step) * step;
+    for (let d = start; d <= dMax; d += step) {
+        // t = x + d → line from (xMin, xMin+d) to (xMax, xMax+d)
+        const p1 = worldToScreen(xMin, xMin + d);
+        const p2 = worldToScreen(xMax, xMax + d);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    }
+    const sMin = tMin + xMin, sMax = tMax + xMax;
+    start = Math.floor(sMin / step) * step;
+    for (let s = start; s <= sMax; s += step) {
+        // t = -x + s → line from (xMin, -xMin+s) to (xMax, -xMax+s)
+        const p1 = worldToScreen(xMin, -xMin + s);
+        const p2 = worldToScreen(xMax, -xMax + s);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    }
+}
+
+function drawPrimedGrid(xMin, xMax, tMin, tMax, step, beta, x0) {
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    const range = Math.max(Math.abs(tMax), Math.abs(tMin), Math.abs(xMax - x0), Math.abs(xMin - x0));
+    const nMax = Math.ceil(range / step * g) + 2;
+
+    ctx.strokeStyle = 'rgba(232,168,56,0.15)';
+    ctx.lineWidth = 0.8;
+
+    for (let n = -nMax; n <= nMax; n++) {
+        const val = n * step;
+        // Lines of constant t' = val (parallel to x' axis)
+        // Anchor on t' axis where t' = val: inverse Lorentz (t'=val, x'=0) → (γval, x0+βγval)
+        let anchorT = g * val;
+        let anchorX = x0 + beta * g * val;
+        drawSlopeLine(anchorX, anchorT, beta, xMin, xMax, tMin, tMax, ctx);
+
+        // Lines of constant x' = val (parallel to t' axis)
+        // Anchor on x' axis where x' = val: inverse Lorentz (t'=0, x'=val) → (βγval, x0+γval)
+        anchorT = beta * g * val;
+        anchorX = x0 + g * val;
+        if (Math.abs(beta) > 1e-9) {
+            drawSlopeLine(anchorX, anchorT, 1 / beta, xMin, xMax, tMin, tMax, ctx);
+        }
+    }
+}
+
+function drawPrimedSlices(xMin, xMax, tMin, tMax, step, beta, x0, type) {
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    const range = Math.max(Math.abs(tMax), Math.abs(tMin), Math.abs(xMax - x0), Math.abs(xMin - x0));
+    const nMax = Math.ceil(range / step * g) + 2;
+
+    ctx.save();
+    ctx.setLineDash([6, 4]);
+    if (type === 'now') {
+        ctx.strokeStyle = 'rgba(232,168,56,0.35)';
+        ctx.lineWidth = 1;
+        for (let n = -nMax; n <= nMax; n++) {
+            const val = n * step;
+            const at = g * val, ax = x0 + beta * g * val;
+            drawSlopeLine(ax, at, beta, xMin, xMax, tMin, tMax, ctx);
+        }
+    } else {
+        ctx.strokeStyle = 'rgba(232,168,56,0.35)';
+        ctx.lineWidth = 1;
+        for (let n = -nMax; n <= nMax; n++) {
+            const val = n * step;
+            const at = beta * g * val, ax = x0 + g * val;
+            if (Math.abs(beta) > 1e-9) drawSlopeLine(ax, at, 1 / beta, xMin, xMax, tMin, tMax, ctx);
+        }
+    }
+    ctx.restore();
+}
+
+function drawRestSlices(xMin, xMax, tMin, tMax, step, type) {
+    ctx.save();
+    ctx.setLineDash([8, 4]);
+    ctx.strokeStyle = 'rgba(90,159,212,0.30)';
+    ctx.lineWidth = 1;
+    if (type === 'now') {
+        let start = Math.floor(tMin / step) * step;
+        for (let v = start; v <= tMax; v += step) {
+            const sy = worldToScreen(0, v).y;
+            ctx.beginPath(); ctx.moveTo(0, sy); ctx.lineTo(S.W, sy); ctx.stroke();
+        }
+    } else {
+        let start = Math.floor(xMin / step) * step;
+        for (let v = start; v <= xMax; v += step) {
+            const sx = worldToScreen(v, 0).x;
+            ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, S.H); ctx.stroke();
+        }
+    }
+    ctx.restore();
+}
+
+function drawSlopeLine(anchorX, anchorT, slope, xMin, xMax, tMin, tMax, c) {
+    // Line: t - anchorT = slope * (x - anchorX)
+    // Find intersections with visible bounds
+    const pts = [];
+    // left edge x = xMin
+    let t = anchorT + slope * (xMin - anchorX);
+    if (t >= tMin - 1 && t <= tMax + 1) pts.push({ x: xMin, t });
+    // right edge x = xMax
+    t = anchorT + slope * (xMax - anchorX);
+    if (t >= tMin - 1 && t <= tMax + 1) pts.push({ x: xMax, t });
+    // bottom edge t = tMin
+    if (Math.abs(slope) > 1e-12) {
+        let x = anchorX + (tMin - anchorT) / slope;
+        if (x >= xMin - 1 && x <= xMax + 1) pts.push({ x, t: tMin });
+    }
+    // top edge t = tMax
+    if (Math.abs(slope) > 1e-12) {
+        let x = anchorX + (tMax - anchorT) / slope;
+        if (x >= xMin - 1 && x <= xMax + 1) pts.push({ x, t: tMax });
+    }
+    if (pts.length >= 2) {
+        const p1 = worldToScreen(pts[0].x, pts[0].t);
+        const p2 = worldToScreen(pts[1].x, pts[1].t);
+        c.beginPath(); c.moveTo(p1.x, p1.y); c.lineTo(p2.x, p2.y); c.stroke();
+    }
+}
+
+// =========================== AXES ================================
+function drawAxes(xMin, xMax, tMin, tMax, step) {
+    const origin = worldToScreen(0, 0);
+    const unitLabel = { sec: ['t (sec)', 'x (ls)'], min: ['t (min)', 'x (lmin)'], yr: ['t (yr)', 'x (lyr)'] }[S.units];
+
+    // Glow
+    ctx.save();
+    ctx.shadowColor = AXIS_COLOR;
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = AXIS_COLOR;
+    ctx.lineWidth = 1.5;
+    // x-axis
+    ctx.beginPath(); ctx.moveTo(0, origin.y); ctx.lineTo(S.W, origin.y); ctx.stroke();
+    // t-axis
+    ctx.beginPath(); ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, S.H); ctx.stroke();
+    ctx.restore();
+
+    // Tick labels
+    ctx.fillStyle = 'rgba(140,170,210,0.8)';
+    ctx.font = '10px SF Mono, Fira Code, monospace';
+    ctx.textAlign = 'center';
+    let start = Math.floor(xMin / step) * step;
+    for (let v = start; v <= xMax; v += step) {
+        if (Math.abs(v) < step * 0.01) continue;
+        const sx = worldToScreen(v, 0).x;
+        ctx.fillText(fmtNum(v), sx, origin.y + 14);
+        // tick mark
+        ctx.strokeStyle = AXIS_COLOR;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(sx, origin.y - 3); ctx.lineTo(sx, origin.y + 3); ctx.stroke();
+    }
+    ctx.textAlign = 'right';
+    start = Math.floor(tMin / step) * step;
+    for (let v = start; v <= tMax; v += step) {
+        if (Math.abs(v) < step * 0.01) continue;
+        const sy = worldToScreen(0, v).y;
+        ctx.fillText(fmtNum(v), origin.x - 8, sy + 4);
+        ctx.strokeStyle = AXIS_COLOR;
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(origin.x - 3, sy); ctx.lineTo(origin.x + 3, sy); ctx.stroke();
+    }
+
+    // Axis labels
+    ctx.fillStyle = '#7eb8da';
+    ctx.font = '600 12px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(unitLabel[1], S.W - 70, origin.y - 10);
+    ctx.save();
+    ctx.translate(origin.x + 18, 30);
+    ctx.fillText(unitLabel[0], 0, 0);
+    ctx.restore();
+
+    // Origin dot
+    ctx.beginPath();
+    ctx.arc(origin.x, origin.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+}
+
+function drawPrimedAxes(xMin, xMax, tMin, tMax, step, beta, x0) {
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    const slopeT = (Math.abs(beta) > 1e-9) ? 1 / beta : 1e12;
+    const slopeX = beta;
+
+    ctx.save();
+    ctx.shadowColor = PRIMED_COLOR;
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = PRIMED_COLOR;
+    ctx.lineWidth = 1.5;
+    // t' axis
+    drawSlopeLine(x0, 0, slopeT, xMin, xMax, tMin, tMax, ctx);
+    // x' axis
+    drawSlopeLine(x0, 0, slopeX, xMin, xMax, tMin, tMax, ctx);
+    ctx.restore();
+
+    // Tick marks on t' axis — always use correct hyperbolic calibration
+    const range = Math.max(Math.abs(tMax), Math.abs(tMin), Math.abs(xMax - x0), Math.abs(xMin - x0));
+    const nMax = Math.ceil(range / step * g) + 2;
+    ctx.fillStyle = 'rgba(232,168,56,0.7)';
+    ctx.font = '9px SF Mono, Fira Code, monospace';
+
+    for (let n = -nMax; n <= nMax; n++) {
+        if (n === 0) continue;
+        const val = n * step;
+        // t' = val → rest frame: t = γ*val, x = x0 + βγ*val
+        const tt = g * val, tx = x0 + beta * g * val;
+        const sp = worldToScreen(tx, tt);
+        if (sp.x < -20 || sp.x > S.W + 20 || sp.y < -20 || sp.y > S.H + 20) continue;
+        // small tick perpendicular to t' axis
+        const len = 4;
+        const dir = Math.sqrt(1 + beta * beta);
+        const nx = -1 / dir, ny = -beta / dir;
+        ctx.strokeStyle = PRIMED_COLOR;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sp.x + nx * len, sp.y + ny * len);
+        ctx.lineTo(sp.x - nx * len, sp.y - ny * len);
+        ctx.stroke();
+        ctx.textAlign = 'left';
+        ctx.fillText(fmtNum(val), sp.x + 6, sp.y - 4);
+    }
+
+    // Tick marks on x' axis — always use correct hyperbolic calibration
+    for (let n = -nMax; n <= nMax; n++) {
+        if (n === 0) continue;
+        const val = n * step;
+        // x' = val → rest frame: t = βγ*val, x = x0 + γ*val
+        const tt = beta * g * val, tx = x0 + g * val;
+        const sp = worldToScreen(tx, tt);
+        if (sp.x < -20 || sp.x > S.W + 20 || sp.y < -20 || sp.y > S.H + 20) continue;
+        const len = 4;
+        const dir = Math.sqrt(1 + beta * beta);
+        const nx2 = beta / dir, ny2 = -1 / dir;
+        ctx.strokeStyle = PRIMED_COLOR;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sp.x + nx2 * len, sp.y + ny2 * len);
+        ctx.lineTo(sp.x - nx2 * len, sp.y - ny2 * len);
+        ctx.stroke();
+        ctx.textAlign = 'left';
+        ctx.fillText(fmtNum(val), sp.x + 6, sp.y + 12);
+    }
+
+    // Axis labels
+    ctx.fillStyle = PRIMED_COLOR;
+    ctx.font = '600 12px -apple-system, sans-serif';
+    // Place labels near the edge of visible area along each axis
+    const labelPosT = worldToScreen(x0 + beta * (tMax * 0.85), tMax * 0.85);
+    if (labelPosT.x > 0 && labelPosT.x < S.W) {
+        ctx.textAlign = 'left';
+        ctx.fillText("t′", labelPosT.x + 8, labelPosT.y);
+    }
+    const labelPosX = worldToScreen(x0 + xMax * 0.85, beta * (xMax - x0) * 0.85);
+    if (labelPosX.y > 0 && labelPosX.y < S.H) {
+        ctx.textAlign = 'left';
+        ctx.fillText("x′", labelPosX.x, labelPosX.y - 8);
+    }
+
+    // Origin marker for S'
+    const oSp = worldToScreen(x0, 0);
+    ctx.beginPath();
+    ctx.arc(oSp.x, oSp.y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = PRIMED_COLOR;
+    ctx.fill();
+}
+
+// ==================== HYPERBOLIC CALIBRATION =====================
+function drawHyperbolicCalibration(xMin, xMax, tMin, tMax, step, beta, x0) {
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    const range = Math.max(Math.abs(tMax), Math.abs(tMin), Math.abs(xMax - x0), Math.abs(xMin - x0));
+    const nMax = Math.ceil(range / step) + 1;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(232,168,56,0.20)';
+    ctx.lineWidth = 0.8;
+
+    for (let n = 1; n <= nMax; n++) {
+        const r = n * step;
+        // Timelike hyperbola: t² - (x-x0)² = r²  → t = ±sqrt(r² + (x-x0)²)
+        drawHyperbola(x0, r, 'time', xMin, xMax, tMin, tMax);
+        // Spacelike hyperbola: (x-x0)² - t² = r² → x = x0 ± sqrt(r² + t²)
+        drawHyperbola(x0, r, 'space', xMin, xMax, tMin, tMax);
+    }
+    ctx.restore();
+}
+
+function drawHyperbola(x0, r, type, xMin, xMax, tMin, tMax) {
+    const nPts = 200;
+    if (type === 'time') {
+        // upper branch: t = sqrt(r² + (x-x0)²)
+        for (let branch = -1; branch <= 1; branch += 2) {
+            ctx.beginPath();
+            let first = true;
+            for (let i = 0; i <= nPts; i++) {
+                const x = xMin + (xMax - xMin) * i / nPts;
+                const dx = x - x0;
+                const val = r * r + dx * dx;  // wait, for timelike: t² - dx² = r², so t = sqrt(r²+dx²)...
+                // Actually: t² - (x-x0)² = r² → t² = r² + (x-x0)² → t = ±sqrt(r² + (x-x0)²)
+                // Hmm wait, that's wrong. t² - dx² = r² means t = ±sqrt(r² + dx²) which is always > r.
+                // Actually t² = r² + dx², so t = sqrt(r² + dx²) ≥ r. That's correct for the timelike invariant hyperbola.
+                const t = branch * Math.sqrt(r * r + dx * dx);
+                if (t < tMin || t > tMax) { first = true; continue; }
+                const sp = worldToScreen(x, t);
+                if (first) { ctx.moveTo(sp.x, sp.y); first = false; }
+                else ctx.lineTo(sp.x, sp.y);
+            }
+            ctx.stroke();
+        }
+    } else {
+        // right branch: x = x0 + sqrt(r² + t²)
+        for (let branch = -1; branch <= 1; branch += 2) {
+            ctx.beginPath();
+            let first = true;
+            for (let i = 0; i <= nPts; i++) {
+                const t = tMin + (tMax - tMin) * i / nPts;
+                const x = x0 + branch * Math.sqrt(r * r + t * t);
+                if (x < xMin || x > xMax) { first = true; continue; }
+                const sp = worldToScreen(x, t);
+                if (first) { ctx.moveTo(sp.x, sp.y); first = false; }
+                else ctx.lineTo(sp.x, sp.y);
+            }
+            ctx.stroke();
+        }
+    }
+}
+
+// ========================= WORLDLINES ============================
+// Get the extrapolated line endpoints (in world coords) for a 2-point worldline
+function getExtrapLine(wl) {
+    const p0 = wl.points[0], p1 = wl.points[1];
+    const dx = p1.x - p0.x, dt = p1.t - p0.t;
+    const len = Math.sqrt(dx * dx + dt * dt);
+    if (len < 1e-12) return null;
+    const ux = dx / len, ut = dt / len;
+    const FAR = 10000;
+    return {
+        x1: p0.x - ux * FAR, t1: p0.t - ut * FAR,
+        x2: p0.x + ux * FAR, t2: p0.t + ut * FAR
+    };
+}
+
+// Test if screen point (sx, sy) is near the extrapolated line (but NOT near the solid segment)
+function hitTestGhostLine(wl, sx, sy, threshold) {
+    const ext = getExtrapLine(wl);
+    if (!ext) return false;
+    const a = worldToScreen(ext.x1, ext.t1);
+    const b = worldToScreen(ext.x2, ext.t2);
+    // Distance from point to line segment a→b
+    const abx = b.x - a.x, aby = b.y - a.y;
+    const apx = sx - a.x, apy = sy - a.y;
+    const t = (apx * abx + apy * aby) / (abx * abx + aby * aby);
+    const cx = a.x + t * abx, cy = a.y + t * aby;
+    const dist = Math.hypot(sx - cx, sy - cy);
+    if (dist > threshold) return false;
+    // Exclude the solid segment between the two actual points
+    const s0 = worldToScreen(wl.points[0].x, wl.points[0].t);
+    const s1 = worldToScreen(wl.points[1].x, wl.points[1].t);
+    if (Math.hypot(sx - s0.x, sy - s0.y) < 20 || Math.hypot(sx - s1.x, sy - s1.y) < 20) return false;
+    return true;
+}
+
+// Hit-test the full extended line (for dragging)
+function hitTestExtendedLine(wl, sx, sy, threshold) {
+    if (!wl.extended || wl.points.length !== 2) return false;
+    const ext = getExtrapLine(wl);
+    if (!ext) return false;
+    const a = worldToScreen(ext.x1, ext.t1);
+    const b = worldToScreen(ext.x2, ext.t2);
+    const abx = b.x - a.x, aby = b.y - a.y;
+    const apx = sx - a.x, apy = sy - a.y;
+    const t = (apx * abx + apy * aby) / (abx * abx + aby * aby);
+    const cx = a.x + t * abx, cy = a.y + t * aby;
+    return Math.hypot(sx - cx, sy - cy) <= threshold;
+}
+
+function isNearExtendedWL(wlIdx) {
+    // Is mouse near this extended worldline (line or vertices)?
+    // Suppress when dragging an event or the observer frame
+    if (S.dragEvIdx >= 0 || S.dragObserver) return false;
+    const wl = S.worldlines[wlIdx];
+    if (!wl.extended || wl.points.length !== 2) return false;
+    const sx = S.mouseScreen.x, sy = S.mouseScreen.y;
+    // Near a vertex?
+    if (S.hoveredWLVertex && S.hoveredWLVertex.wlIdx === wlIdx) return true;
+    // Near the line itself?
+    return hitTestExtendedLine(wl, sx, sy, 20);
+}
+
+function hitTestObserverAxes(sx, sy, threshold) {
+    if (!S.observer.active || Math.abs(S.observer.beta) < 1e-9) return false;
+    const beta = S.observer.beta, x0 = S.observer.x0;
+    const slopeT = 1 / beta, slopeX = beta;
+    // Test t' axis: line through (x0,0) with slope 1/beta
+    // and x' axis: line through (x0,0) with slope beta
+    const w = screenToWorld(sx, sy);
+    // Distance from point to line in world coords, then convert
+    // t' axis: t = (x - x0)/beta → t*beta - x + x0 = 0 → a=beta, b=-1, c=x0
+    // dist = |a*x + b*t + c| / sqrt(a²+b²) ... but in screen pixels
+    const o = worldToScreen(x0, 0);
+    // t' axis direction in screen: dx_s = beta*zoom, dy_s = -zoom (t up)
+    const tdx = beta * S.zoom, tdy = -S.zoom;
+    const tlen = Math.sqrt(tdx * tdx + tdy * tdy);
+    const tDist = Math.abs((sx - o.x) * (-tdy / tlen) + (sy - o.y) * (tdx / tlen));
+    if (tDist < threshold) return true;
+    // x' axis direction in screen: dx_s = zoom, dy_s = -beta*zoom
+    const xdx = S.zoom, xdy = -beta * S.zoom;
+    const xlen = Math.sqrt(xdx * xdx + xdy * xdy);
+    const xDist = Math.abs((sx - o.x) * (-xdy / xlen) + (sy - o.y) * (xdx / xlen));
+    if (xDist < threshold) return true;
+    return false;
+}
+
+function drawWorldlineTicks(wl, color) {
+    const p0 = wl.points[0], p1 = wl.points[1];
+    const dt = p1.t - p0.t, dx = p1.x - p0.x;
+    if (Math.abs(dt) < 1e-12) return; // spacelike, no proper time ticks
+    const beta = dx / dt;
+    if (Math.abs(beta) >= 1) return; // lightlike/superluminal
+    const gamma = 1 / Math.sqrt(1 - beta * beta);
+
+    // Where this worldline crosses t=0
+    const x0 = p0.x - beta * p0.t;
+
+    // Direction along worldline (in world coords): (beta, 1) normalized in screen
+    // Perpendicular in screen coords for tick marks
+    const dirSx = beta * S.zoom;
+    const dirSy = -1 * S.zoom; // t goes up, y goes down
+    const dirLen = Math.sqrt(dirSx * dirSx + dirSy * dirSy);
+    const perpSx = -dirSy / dirLen; // perpendicular
+    const perpSy = dirSx / dirLen;
+
+    // Determine grid step (same as main grid)
+    const step = niceStep(S.zoom);
+
+    // Visible range: figure out which τ values are on screen
+    const tl = screenToWorld(0, 0);
+    const br = screenToWorld(S.W, S.H);
+    const tMin = br.t, tMax = tl.t;
+
+    // τ = n*step → coordinate t = gamma * n * step
+    // Need gamma * n * step in [tMin, tMax]
+    const nMin = Math.floor(tMin / (gamma * step)) - 1;
+    const nMax = Math.ceil(tMax / (gamma * step)) + 1;
+
+    const TICK_LEN = 4;
+
+    ctx.fillStyle = color;
+    ctx.font = '10px SF Mono, Fira Code, monospace';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+
+    for (let n = nMin; n <= nMax; n++) {
+        if (n === 0) continue;
+        const tau = n * step;
+        // Rest-frame position of this tick: t = gamma * tau, x = x0 + beta * gamma * tau
+        const wt = gamma * tau;
+        const wx = x0 + beta * gamma * tau;
+        const sp = worldToScreen(wx, wt);
+
+        if (sp.x < -30 || sp.x > S.W + 30 || sp.y < -30 || sp.y > S.H + 30) continue;
+
+        // Draw tick mark perpendicular to worldline
+        ctx.beginPath();
+        ctx.moveTo(sp.x - perpSx * TICK_LEN, sp.y - perpSy * TICK_LEN);
+        ctx.lineTo(sp.x + perpSx * TICK_LEN, sp.y + perpSy * TICK_LEN);
+        ctx.stroke();
+
+        // Label: offset to the side
+        ctx.globalAlpha = 0.8;
+        const labelOffX = perpSx * 10;
+        const labelOffY = perpSy * 10;
+        // Choose side: prefer left of worldline for labels
+        const lx = sp.x - Math.abs(labelOffX) - 4;
+        const ly = sp.y + 4;
+        ctx.textAlign = 'right';
+        ctx.fillText(fmtNum(tau), lx, ly);
+        ctx.globalAlpha = 1;
+    }
+
+    // Label "τ" near top of visible worldline
+    const topTau = Math.ceil(tMax / (gamma * step)) * step;
+    const topT = gamma * topTau;
+    const topX = x0 + beta * gamma * topTau;
+    const topSp = worldToScreen(topX, topT);
+    ctx.fillStyle = color;
+    ctx.font = '600 12px -apple-system, sans-serif';
+    ctx.globalAlpha = 0.9;
+    ctx.textAlign = 'left';
+    if (topSp.x > 0 && topSp.x < S.W) {
+        ctx.fillText('τ', topSp.x + 8, topSp.y + 4);
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawPiecewiseTicks(wl, color) {
+    const step = niceStep(S.zoom);
+    const TICK_LEN = 6;
+    let tauAccum = 0; // accumulated proper time from start
+
+    ctx.fillStyle = color;
+    ctx.font = '10px SF Mono, Fira Code, monospace';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+
+    // Track which integer tick we're looking for next
+    let nextTick = step;
+
+    for (let i = 0; i < wl.points.length - 1; i++) {
+        const pA = wl.points[i], pB = wl.points[i + 1];
+        const dt = pB.t - pA.t, dx = pB.x - pA.x;
+        const ds2 = dt * dt - dx * dx;
+
+        if (ds2 <= 0) {
+            // Spacelike segment: no proper time accumulation, skip
+            continue;
+        }
+
+        const segTau = Math.sqrt(ds2);
+        const tauStart = tauAccum;
+        const tauEnd = tauAccum + segTau;
+
+        // Direction perpendicular to this segment (in screen coords)
+        const dirSx = (pB.x - pA.x) * S.zoom;
+        const dirSy = -(pB.t - pA.t) * S.zoom; // t up, y down
+        const dirLen = Math.sqrt(dirSx * dirSx + dirSy * dirSy);
+        const perpSx = -dirSy / dirLen;
+        const perpSy = dirSx / dirLen;
+
+        // Place ticks at τ = n*step within this segment
+        while (nextTick <= tauEnd + 1e-9) {
+            const localTau = nextTick - tauStart; // proper time into this segment
+            const frac = localTau / segTau;       // fraction along segment
+
+            if (frac >= -0.001 && frac <= 1.001) {
+                const wx = pA.x + frac * dx;
+                const wt = pA.t + frac * dt;
+                const sp = worldToScreen(wx, wt);
+
+                if (sp.x > -30 && sp.x < S.W + 30 && sp.y > -30 && sp.y < S.H + 30) {
+                    // Tick mark
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(sp.x - perpSx * TICK_LEN, sp.y - perpSy * TICK_LEN);
+                    ctx.lineTo(sp.x + perpSx * TICK_LEN, sp.y + perpSy * TICK_LEN);
+                    ctx.stroke();
+
+                    // Label
+                    ctx.fillStyle = color;
+                    ctx.globalAlpha = 0.9;
+                    ctx.textAlign = 'right';
+                    const lx = sp.x - Math.abs(perpSx * 8) - 4;
+                    const ly = sp.y + 4;
+                    ctx.fillText(fmtNum(nextTick), lx, ly);
+                    ctx.globalAlpha = 1;
+                }
+            }
+            nextTick += step;
+        }
+
+        tauAccum = tauEnd;
+    }
+
+    // Add τ label near the last point of the worldline
+    if (wl.points.length >= 2 && tauAccum > 0) {
+        const lastPt = wl.points[wl.points.length - 1];
+        const topSp = worldToScreen(lastPt.x, lastPt.t);
+        ctx.fillStyle = color;
+        ctx.font = '600 12px -apple-system, sans-serif';
+        ctx.globalAlpha = 0.9;
+        ctx.textAlign = 'left';
+        if (topSp.x > 0 && topSp.x < S.W && topSp.y > 0 && topSp.y < S.H) {
+            ctx.fillText('τ', topSp.x + 8, topSp.y - 8);
+        }
+        ctx.globalAlpha = 1;
+    }
+}
+
+function drawWorldlines() {
+    const distinct = document.getElementById('togDistinctColors').checked;
+
+    S.worldlines.forEach((wl, idx) => {
+        if (wl.points.length === 0) return;
+        const color = distinct ? COLORS[idx % COLORS.length] : DEFAULT_WL_COLOR;
+        const isExtended = wl.extended && wl.points.length === 2;
+        const hoveringExt = isExtended && isNearExtendedWL(idx);
+
+        // Ghost / extended line for 2-point worldlines
+        if (wl.points.length === 2) {
+            const ext = getExtrapLine(wl);
+            if (ext) {
+                const p1 = worldToScreen(ext.x1, ext.t1);
+                const p2 = worldToScreen(ext.x2, ext.t2);
+                ctx.save();
+                if (isExtended && !hoveringExt) {
+                    // Axis mode: looks like a real axis with glow
+                    ctx.shadowColor = color;
+                    ctx.shadowBlur = 8;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                } else if (isExtended && hoveringExt) {
+                    // Hovering on extended: show full line but slightly dimmer
+                    ctx.strokeStyle = color;
+                    ctx.globalAlpha = 0.35;
+                    ctx.lineWidth = 1.5;
+                } else {
+                    // Ghost: dashed (not yet extended)
+                    ctx.setLineDash([6, 6]);
+                    ctx.strokeStyle = color;
+                    ctx.globalAlpha = 0.25;
+                    ctx.lineWidth = 1;
+                }
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        // For extended worldlines NOT being hovered: axis mode with proper-time ticks
+        if (isExtended && !hoveringExt) {
+            wl.points.forEach(p => { p._delBtn = null; });
+            drawWorldlineTicks(wl, color);
+            return;
+        }
+
+        // Draw segments (timelike = solid, spacelike = dashed red)
+        if (wl.points.length >= 2) {
+            for (let i = 0; i < wl.points.length - 1; i++) {
+                const pA = wl.points[i], pB = wl.points[i + 1];
+                const dt = pB.t - pA.t, dx = pB.x - pA.x;
+                const spacelike = dt * dt - dx * dx < 0;
+                const sA = worldToScreen(pA.x, pA.t);
+                const sB = worldToScreen(pB.x, pB.t);
+                ctx.save();
+                if (spacelike) {
+                    ctx.strokeStyle = '#ff5555';
+                    ctx.setLineDash([5, 4]);
+                    ctx.lineWidth = 1.5;
+                } else {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                }
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                ctx.moveTo(sA.x, sA.y);
+                ctx.lineTo(sB.x, sB.y);
+                ctx.stroke();
+                ctx.restore();
+
+                // Arrow at midpoint
+                const mx = (sA.x + sB.x) / 2, my = (sA.y + sB.y) / 2;
+                const angle = Math.atan2(sB.y - sA.y, sB.x - sA.x);
+                ctx.save();
+                ctx.translate(mx, my);
+                ctx.rotate(angle);
+                ctx.fillStyle = spacelike ? '#ff5555' : color;
+                ctx.beginPath();
+                ctx.moveTo(5, 0);
+                ctx.lineTo(-3, -3);
+                ctx.lineTo(-3, 3);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Proper time ticks along piecewise worldline
+        if (wl.points.length >= 2) {
+            drawPiecewiseTicks(wl, color);
+        }
+
+        // Vertices
+        wl.points.forEach((p, i) => {
+            const sp = worldToScreen(p.x, p.t);
+            const isHovered = S.hoveredWLVertex && S.hoveredWLVertex.wlIdx === idx && S.hoveredWLVertex.ptIdx === i;
+            ctx.beginPath();
+            ctx.arc(sp.x, sp.y, isHovered ? 5 : 3.5, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = isHovered ? 1.5 : 0.8;
+            ctx.stroke();
+
+            // Delete X button on hover
+            if (isHovered) {
+                const xbx = sp.x + 9, xby = sp.y - 18;
+                ctx.fillStyle = 'rgba(220,80,80,0.8)';
+                ctx.beginPath();
+                ctx.arc(xbx + 5, xby + 5, 7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(xbx + 2, xby + 2); ctx.lineTo(xbx + 8, xby + 8); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(xbx + 8, xby + 2); ctx.lineTo(xbx + 2, xby + 8); ctx.stroke();
+                p._delBtn = { x: xbx + 5, y: xby + 5, r: 7 };
+            } else {
+                p._delBtn = null;
+            }
+        });
+    });
+}
+
+// =========================== EVENTS ==============================
+function drawEvents(xMin, xMax, tMin, tMax, beta, x0, hasObserver) {
+    const showReadoffS = document.getElementById('togEventReadoffS').checked;
+    const showReadoffSp = document.getElementById('togEventReadoffSp').checked && hasObserver;
+
+    S.events.forEach((ev, idx) => {
+        const sp = worldToScreen(ev.x, ev.t);
+        const isSelected = idx === S.selectedEvIdx;
+        const isHovered = idx === S.hoveredEvIdx;
+
+        // Readoff lines for selected or hovered event
+        if (isSelected || isHovered) {
+            if (showReadoffS) {
+                drawReadoffRest(ev, sp);
+            }
+            if (showReadoffSp) {
+                drawReadoffPrimed(ev, sp, beta, x0, xMin, xMax, tMin, tMax);
+            }
+        }
+
+        // Event dot
+        const r = isSelected ? 6 : (isHovered ? 5.5 : 4.5);
+        ctx.save();
+        if (isSelected || isHovered) {
+            ctx.shadowColor = EVENT_COLOR;
+            ctx.shadowBlur = 12;
+        }
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = EVENT_COLOR;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+
+        // Label
+        ctx.fillStyle = '#fff';
+        ctx.font = '600 11px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('E' + subscript(ev.id), sp.x + 9, sp.y - 6);
+
+        // Delete X on hover
+        if (isHovered) {
+            const xbx = sp.x + 9, xby = sp.y - 18;
+            ctx.fillStyle = 'rgba(220,80,80,0.8)';
+            ctx.beginPath();
+            ctx.arc(xbx + 5, xby + 5, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(xbx + 2, xby + 2); ctx.lineTo(xbx + 8, xby + 8); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xbx + 8, xby + 2); ctx.lineTo(xbx + 2, xby + 8); ctx.stroke();
+            // Store delete button position for click detection
+            ev._delBtn = { x: xbx + 5, y: xby + 5, r: 7 };
+        } else {
+            ev._delBtn = null;
+        }
+    });
+}
+
+function drawReadoffRest(ev, sp) {
+    const origin = worldToScreen(0, 0);
+    const evScreen = sp;
+    ctx.save();
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(90,159,212,0.5)';
+    ctx.lineWidth = 1;
+    // Horizontal line to t-axis
+    ctx.beginPath();
+    ctx.moveTo(evScreen.x, evScreen.y);
+    ctx.lineTo(origin.x, evScreen.y);
+    ctx.stroke();
+    // Vertical line to x-axis
+    ctx.beginPath();
+    ctx.moveTo(evScreen.x, evScreen.y);
+    ctx.lineTo(evScreen.x, origin.y);
+    ctx.stroke();
+
+    // Labels at axes
+    ctx.fillStyle = 'rgba(90,159,212,0.8)';
+    ctx.font = '9px SF Mono, monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('t=' + fmtNum(ev.t), origin.x - 4, evScreen.y - 3);
+    ctx.textAlign = 'center';
+    ctx.fillText('x=' + fmtNum(ev.x), evScreen.x, origin.y + 13);
+    ctx.restore();
+}
+
+function drawReadoffPrimed(ev, sp, beta, x0, xMin, xMax, tMin, tMax) {
+    const primed = lorentz(ev.t, ev.x, beta, x0);
+    const slopeT = (Math.abs(beta) > 1e-9) ? 1 / beta : 1e12;
+    const slopeX = beta;
+
+    ctx.save();
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(232,168,56,0.5)';
+    ctx.lineWidth = 1;
+
+    // Line parallel to x' through event (slope = beta) → meets t' axis
+    // t' axis: t = (x - x0) / beta (if beta != 0)
+    // Parallel to x': t - ev.t = beta*(x - ev.x) → t = beta*x + (ev.t - beta*ev.x)
+    // Intersection with t' axis: (x-x0)/beta = beta*x + (ev.t - beta*ev.x)... compute:
+    if (Math.abs(beta) > 1e-9) {
+        const c1 = ev.t - beta * ev.x; // intercept of parallel-to-x' line
+        // t' axis: t = (x - x0) * slopeT = (x - x0)/beta
+        // (x-x0)/beta = beta*x + c1
+        // x/beta - x0/beta = beta*x + c1
+        // x(1/beta - beta) = x0/beta + c1
+        const xInt = (x0 / beta + c1) / (1 / beta - beta);
+        const tInt = (xInt - x0) / beta;
+        const intSp = worldToScreen(xInt, tInt);
+        ctx.beginPath();
+        ctx.moveTo(sp.x, sp.y);
+        ctx.lineTo(intSp.x, intSp.y);
+        ctx.stroke();
+        // Label
+        ctx.fillStyle = 'rgba(232,168,56,0.8)';
+        ctx.font = '9px SF Mono, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText("t'=" + fmtNum(primed.t), intSp.x - 4, intSp.y - 3);
+    }
+
+    // Line parallel to t' through event (slope = 1/beta) → meets x' axis
+    // x' axis: t = beta*(x - x0)
+    // Parallel to t': t - ev.t = (1/beta)*(x - ev.x)
+    if (Math.abs(beta) > 1e-9) {
+        const c2 = ev.t - ev.x / beta;
+        // beta*(x-x0) = x/beta + c2
+        // beta*x - beta*x0 = x/beta + c2
+        // x(beta - 1/beta) = beta*x0 + c2
+        const xInt = (beta * x0 + c2) / (beta - 1 / beta);
+        const tInt = beta * (xInt - x0);
+        const intSp = worldToScreen(xInt, tInt);
+        ctx.beginPath();
+        ctx.moveTo(sp.x, sp.y);
+        ctx.lineTo(intSp.x, intSp.y);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(232,168,56,0.8)';
+        ctx.font = '9px SF Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText("x'=" + fmtNum(primed.x), intSp.x + 4, intSp.y + 12);
+    }
+
+    ctx.restore();
+}
+
+// ======================== PROPER TIME ============================
+function computeProperTime(wl) {
+    let total = 0;
+    let allTimelike = true;
+    const segments = [];
+    for (let i = 0; i < wl.points.length - 1; i++) {
+        const dt = wl.points[i + 1].t - wl.points[i].t;
+        const dx = wl.points[i + 1].x - wl.points[i].x;
+        const ds2 = dt * dt - dx * dx;
+        if (ds2 < 0) {
+            allTimelike = false;
+            segments.push({ dt, dx, dtau: null, spacelike: true });
+        } else {
+            const dtau = Math.sqrt(ds2);
+            total += dtau;
+            segments.push({ dt, dx, dtau, spacelike: false });
+        }
+    }
+    return { total, segments, allTimelike };
+}
+
+// ========================= UTILITIES =============================
+function fmtNum(v) {
+    if (Math.abs(v) < 1e-9) return '0';
+    if (Math.abs(v) >= 100 || Math.abs(v) < 0.01) return v.toPrecision(3);
+    if (Number.isInteger(v)) return v.toString();
+    return v.toFixed(2);
+}
+
+function subscript(n) {
+    const subs = '₀₁₂₃₄₅₆₇₈₉';
+    return String(n).split('').map(c => subs[parseInt(c)] || c).join('');
+}
+
+// ======================== READOUT ================================
+function updateReadout(hasObserver, beta, x0) {
+    const el = document.getElementById('coordReadout');
+    const mx = S.mouseWorld.x, mt = S.mouseWorld.t;
+    let html = `<span style="color:#7eb8da">x</span>: ${fmtNum(mx)}  <span style="color:#7eb8da">t</span>: ${fmtNum(mt)}`;
+    if (hasObserver) {
+        const p = lorentz(mt, mx, beta, x0);
+        html += `<br><span style="color:${PRIMED_COLOR}">x′</span>: ${fmtNum(p.x)}  <span style="color:${PRIMED_COLOR}">t′</span>: ${fmtNum(p.t)}`;
+    }
+    if (S.selectedEvIdx >= 0) {
+        const ev = S.events[S.selectedEvIdx];
+        html += `<br>─── E${subscript(ev.id)} ───`;
+        html += `<br><span style="color:#7eb8da">(x, t)</span> = (${fmtNum(ev.x)}, ${fmtNum(ev.t)})`;
+        if (hasObserver) {
+            const p = lorentz(ev.t, ev.x, beta, x0);
+            html += `<br><span style="color:${PRIMED_COLOR}">(x′, t′)</span> = (${fmtNum(p.x)}, ${fmtNum(p.t)})`;
+        }
+    }
+    el.innerHTML = html;
+}
+
+// ====================== SIDEBAR UPDATES ==========================
+function updateWorldlineList() {
+    const list = document.getElementById('wlList');
+    const distinct = document.getElementById('togDistinctColors').checked;
+    let html = '';
+    S.worldlines.forEach((wl, idx) => {
+        const color = distinct ? COLORS[idx % COLORS.length] : DEFAULT_WL_COLOR;
+        const nPts = wl.points.length;
+        const isObserver = (S.observer.active && S.observer.fromWL === idx);
+        let info = `WL${idx + 1}: ${nPts} pt${nPts !== 1 ? 's' : ''}`;
+
+        // Beta for 2-point worldlines
+        if (nPts === 2) {
+            const dt = wl.points[1].t - wl.points[0].t;
+            const dx = wl.points[1].x - wl.points[0].x;
+            if (Math.abs(dt) > 1e-12) {
+                info += ` β=${fmtNum(dx / dt)}`;
+            }
+        }
+
+        // Proper time
+        if (nPts >= 2) {
+            const pt = computeProperTime(wl);
+            info += ` Δτ=${fmtNum(pt.total)}`;
+            if (!pt.allTimelike) info += ' ⚠';
+        }
+
+        const obsBtn = nPts === 2
+            ? `<button class="wl-btn${isObserver ? ' observer-active' : ''}" onclick="setObserverFromWL(${idx})">${isObserver ? '★' : 'Obs'}</button>`
+            : '';
+
+        html += `<div class="wl-item">
+            <div class="wl-color" style="background:${color}"></div>
+            <div class="wl-info">${info}</div>
+            ${obsBtn}
+            <button class="wl-btn delete" onclick="deleteWorldline(${idx})">✕</button>
+        </div>`;
+    });
+    list.innerHTML = html;
+
+    // Proper time panel
+    const panel = document.getElementById('properTimePanel');
+    const ptInfo = document.getElementById('properTimeInfo');
+    const wlWithPts = S.worldlines.filter(w => w.points.length >= 2);
+    if (wlWithPts.length > 0) {
+        panel.style.display = 'block';
+        let html2 = '';
+        wlWithPts.forEach((wl, i) => {
+            const realIdx = S.worldlines.indexOf(wl);
+            const pt = computeProperTime(wl);
+            const color = document.getElementById('togDistinctColors').checked ? COLORS[realIdx % COLORS.length] : DEFAULT_WL_COLOR;
+            html2 += `<div style="color:${color};margin-bottom:3px;">WL${realIdx + 1}: Δτ = ${fmtNum(pt.total)}`;
+            if (!pt.allTimelike) html2 += ' <span style="color:#f66">(has spacelike segments)</span>';
+            html2 += '</div>';
+            pt.segments.forEach((seg, j) => {
+                html2 += `<div style="color:#999;font-size:9px;margin-left:10px;">seg ${j + 1}: Δt=${fmtNum(seg.dt)} Δx=${fmtNum(seg.dx)} → `;
+                if (seg.spacelike) html2 += '<span style="color:#f66">spacelike</span>';
+                else html2 += `Δτ=${fmtNum(seg.dtau)}`;
+                html2 += '</div>';
+            });
+        });
+        ptInfo.innerHTML = html2;
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function drawIntervalLine() {
+    const i1 = S.selectedEvIdx, i2 = S.selectedEvIdx2;
+    if (i1 < 0 || i2 < 0 || i1 >= S.events.length || i2 >= S.events.length) return;
+    const e1 = S.events[i1], e2 = S.events[i2];
+    const s1 = worldToScreen(e1.x, e1.t), s2 = worldToScreen(e2.x, e2.t);
+
+    const dt = e2.t - e1.t, dx = e2.x - e1.x;
+    const ds2 = dt * dt - dx * dx;
+    const type = ds2 > 1e-9 ? 'timelike' : (ds2 < -1e-9 ? 'spacelike' : 'lightlike');
+    const lineColor = type === 'timelike' ? '#4ecdc4' : (type === 'spacelike' ? '#ff5555' : '#ffd700');
+
+    ctx.save();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = lineColor;
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = lineColor;
+    ctx.shadowBlur = 4;
+    ctx.beginPath();
+    ctx.moveTo(s1.x, s1.y);
+    ctx.lineTo(s2.x, s2.y);
+    ctx.stroke();
+    ctx.restore();
+
+    // Label at midpoint
+    const mx = (s1.x + s2.x) / 2, my = (s1.y + s2.y) / 2;
+    ctx.fillStyle = lineColor;
+    ctx.font = '600 11px SF Mono, Fira Code, monospace';
+    ctx.textAlign = 'center';
+    const label = `Δs²=${fmtNum(ds2)}`;
+    ctx.fillText(label, mx, my - 8);
+}
+
+function updateIntervalPanel() {
+    const panel = document.getElementById('intervalPanel');
+    const info = document.getElementById('intervalInfo');
+    const i1 = S.selectedEvIdx, i2 = S.selectedEvIdx2;
+    if (i1 < 0 || i2 < 0 || i1 >= S.events.length || i2 >= S.events.length) {
+        panel.style.display = 'none';
+        return;
+    }
+    panel.style.display = 'block';
+    const e1 = S.events[i1], e2 = S.events[i2];
+    const dt = e2.t - e1.t, dx = e2.x - e1.x;
+    const ds2 = dt * dt - dx * dx;
+    const type = ds2 > 1e-9 ? 'timelike' : (ds2 < -1e-9 ? 'spacelike' : 'lightlike');
+    const typeColor = type === 'timelike' ? '#4ecdc4' : (type === 'spacelike' ? '#ff5555' : '#ffd700');
+
+    let html = `<div style="text-align:left;line-height:1.8;">`;
+    html += `E${subscript(e1.id)} → E${subscript(e2.id)}<br>`;
+    html += `Δt = ${fmtNum(e2.t)} − ${fmtNum(e1.t)} = <b>${fmtNum(dt)}</b><br>`;
+    html += `Δx = ${fmtNum(e2.x)} − ${fmtNum(e1.x)} = <b>${fmtNum(dx)}</b><br>`;
+    html += `Δs² = Δt² − Δx² = ${fmtNum(dt * dt)} − ${fmtNum(dx * dx)} = <b style="color:${typeColor}">${fmtNum(ds2)}</b><br>`;
+    html += `<span style="color:${typeColor}">${type}</span>`;
+    if (type === 'timelike') {
+        html += ` · Δτ = √(Δs²) = <b>${fmtNum(Math.sqrt(ds2))}</b>`;
+    } else if (type === 'spacelike') {
+        html += ` · Δℓ = √(−Δs²) = <b>${fmtNum(Math.sqrt(-ds2))}</b>`;
+    }
+
+    // Show in primed frame too
+    if (S.observer.active && Math.abs(S.observer.beta) > 1e-9) {
+        const p1 = lorentz(e1.t, e1.x, S.observer.beta, S.observer.x0);
+        const p2 = lorentz(e2.t, e2.x, S.observer.beta, S.observer.x0);
+        const dtp = p2.t - p1.t, dxp = p2.x - p1.x;
+        const ds2p = dtp * dtp - dxp * dxp;
+        html += `<br><span style="color:${PRIMED_COLOR}">S′: Δt′=${fmtNum(dtp)} Δx′=${fmtNum(dxp)}</span>`;
+        html += `<br><span style="color:${PRIMED_COLOR}">Δs²=${fmtNum(ds2p)}</span> (invariant ✓)`;
+    }
+    html += `</div>`;
+    info.innerHTML = html;
+}
+
+function updateEventList() {
+    const list = document.getElementById('evList');
+    const hasObs = S.observer.active && Math.abs(S.observer.beta) > 1e-9;
+    let html = '';
+    S.events.forEach((ev, idx) => {
+        let info = `E${subscript(ev.id)}: (${fmtNum(ev.x)}, ${fmtNum(ev.t)})`;
+        if (hasObs) {
+            const p = lorentz(ev.t, ev.x, S.observer.beta, S.observer.x0);
+            info += ` → (${fmtNum(p.x)}, ${fmtNum(p.t)})′`;
+        }
+        const sel = (idx === S.selectedEvIdx || idx === S.selectedEvIdx2) ? 'border:1px solid #ffd700;' : '';
+        html += `<div class="ev-item" style="${sel}" onclick="selectEvent(${idx}, event.shiftKey)">
+            <div class="wl-color" style="background:${EVENT_COLOR}"></div>
+            <div class="ev-info">${info}</div>
+            <button class="ev-btn delete" onclick="event.stopPropagation();deleteEvent(${idx})">✕</button>
+        </div>`;
+    });
+    list.innerHTML = html;
+}
+
+function updateObserverInfo() {
+    const el = document.getElementById('observerInfo');
+    if (S.observer.active) {
+        const b = S.observer.beta;
+        const g = S.observer.gamma;
+        el.style.display = 'block';
+        el.innerHTML = `β = ${fmtNum(b)}<br>γ = ${fmtNum(g)}<br>x₀ = ${fmtNum(S.observer.x0)}`;
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+// =================== OBSERVER MANAGEMENT =========================
+function setObserver(beta, x0, fromWL) {
+    if (Math.abs(beta) >= 1) return;
+    S.observer.beta = beta;
+    S.observer.x0 = x0;
+    S.observer.gamma = 1 / Math.sqrt(1 - beta * beta);
+    S.observer.active = true;
+    S.observer.fromWL = fromWL !== undefined ? fromWL : -1;
+    updateObserverInfo();
+    updateWorldlineList();
+    updateEventList();
+    render();
+}
+
+function setObserverFromWL(idx) {
+    const wl = S.worldlines[idx];
+    if (!wl || wl.points.length !== 2) return;
+    const dt = wl.points[1].t - wl.points[0].t;
+    const dx = wl.points[1].x - wl.points[0].x;
+    if (Math.abs(dt) < 1e-12) return;
+    const beta = dx / dt;
+    if (Math.abs(beta) >= 1) return;
+    // x0: where worldline crosses t=0
+    const x0 = wl.points[0].x - beta * wl.points[0].t;
+    document.getElementById('betaSlider').value = beta;
+    document.getElementById('betaVal').textContent = beta.toFixed(3);
+    document.getElementById('x0Slider').value = x0;
+    document.getElementById('x0Val').textContent = x0.toFixed(2);
+    setObserver(beta, x0, idx);
+}
+
+function clearObserver() {
+    S.observer.active = false;
+    S.observer.fromWL = -1;
+    updateObserverInfo();
+    updateWorldlineList();
+    updateEventList();
+    render();
+}
+
+// ================== WORLDLINE MANAGEMENT =========================
+function startNewWorldline() {
+    S.worldlines.push({ points: [] });
+    S.currentWL = S.worldlines.length - 1;
+    updateWorldlineList();
+}
+
+function deleteWorldline(idx) {
+    if (S.observer.fromWL === idx) clearObserver();
+    else if (S.observer.fromWL > idx) S.observer.fromWL--;
+    S.worldlines.splice(idx, 1);
+    if (S.currentWL >= S.worldlines.length) S.currentWL = S.worldlines.length - 1;
+    updateWorldlineList();
+    render();
+}
+
+// =================== EVENT MANAGEMENT ============================
+function addEvent(x, t) {
+    S.events.push({ x, t, id: S.nextEventId++ });
+    S.selectedEvIdx = S.events.length - 1;
+    updateEventList();
+    render();
+}
+
+function deleteEvent(idx) {
+    S.events.splice(idx, 1);
+    if (S.selectedEvIdx === idx) S.selectedEvIdx = -1;
+    else if (S.selectedEvIdx > idx) S.selectedEvIdx--;
+    if (S.selectedEvIdx2 === idx) S.selectedEvIdx2 = -1;
+    else if (S.selectedEvIdx2 > idx) S.selectedEvIdx2--;
+    S.hoveredEvIdx = -1;
+    updateEventList();
+    updateIntervalPanel();
+    render();
+}
+
+function selectEvent(idx, shiftKey) {
+    if (shiftKey && S.selectedEvIdx >= 0 && S.selectedEvIdx !== idx) {
+        // Shift+click: select pair for interval
+        S.selectedEvIdx2 = idx;
+    } else {
+        // Normal click: select/deselect, clear pair
+        S.selectedEvIdx = (S.selectedEvIdx === idx) ? -1 : idx;
+        S.selectedEvIdx2 = -1;
+    }
+    updateEventList();
+    updateIntervalPanel();
+    render();
+}
+
+// ================ MOUSE / INTERACTION ============================
+const SNAP_RADIUS = 12; // pixels
+
+function getWLVertexAtScreen(sx, sy) {
+    for (let w = S.worldlines.length - 1; w >= 0; w--) {
+        for (let p = S.worldlines[w].points.length - 1; p >= 0; p--) {
+            const pt = S.worldlines[w].points[p];
+            const sp = worldToScreen(pt.x, pt.t);
+            // Check proximity to vertex itself
+            if (Math.hypot(sp.x - sx, sp.y - sy) < SNAP_RADIUS) return { wlIdx: w, ptIdx: p };
+            // Also check proximity to delete button (so it stays visible while clicking it)
+            if (pt._delBtn && Math.hypot(sx - pt._delBtn.x, sy - pt._delBtn.y) < pt._delBtn.r + 4) {
+                return { wlIdx: w, ptIdx: p };
+            }
+        }
+    }
+    return null;
+}
+
+function deleteWLVertex(wlIdx, ptIdx) {
+    const wl = S.worldlines[wlIdx];
+    wl.points.splice(ptIdx, 1);
+    if (wl.points.length === 0) {
+        deleteWorldline(wlIdx);
+    } else {
+        if (S.observer.fromWL === wlIdx && wl.points.length !== 2) clearObserver();
+        updateWorldlineList();
+    }
+    S.hoveredWLVertex = null;
+    render();
+}
+
+function getEventAtScreen(sx, sy) {
+    for (let i = S.events.length - 1; i >= 0; i--) {
+        const ev = S.events[i];
+        const sp = worldToScreen(ev.x, ev.t);
+        if (Math.hypot(sp.x - sx, sp.y - sy) < SNAP_RADIUS) return i;
+        // Also check proximity to delete button so it stays visible
+        if (ev._delBtn && Math.hypot(sx - ev._delBtn.x, sy - ev._delBtn.y) < ev._delBtn.r + 4) return i;
+    }
+    return -1;
+}
+
+canvas.addEventListener('mousedown', e => {
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    const w = screenToWorld(sx, sy);
+
+    // ---- Delete button clicks work in ALL modes ----
+    // Check event delete buttons
+    for (let i = S.events.length - 1; i >= 0; i--) {
+        const btn = S.events[i]._delBtn;
+        if (btn && Math.hypot(sx - btn.x, sy - btn.y) < btn.r) {
+            deleteEvent(i);
+            return;
+        }
+    }
+    // Check worldline vertex delete buttons
+    for (const wl of S.worldlines) {
+        for (const p of wl.points) {
+            if (p._delBtn && Math.hypot(sx - p._delBtn.x, sy - p._delBtn.y) < p._delBtn.r) {
+                deleteWLVertex(S.worldlines.indexOf(wl), wl.points.indexOf(p));
+                return;
+            }
+        }
+    }
+
+    // ---- Drag extended worldlines (pan/worldline mode only) ----
+    if (S.mode !== 'event') {
+        for (let i = 0; i < S.worldlines.length; i++) {
+            const wl = S.worldlines[i];
+            if (wl.extended && hitTestExtendedLine(wl, sx, sy, 8)) {
+                const v = getWLVertexAtScreen(sx, sy);
+                if (v && v.wlIdx === i) continue;
+                S.dragExtWL = i;
+                S.dragExtStartX = w.x;
+                S.dragExtOrigPts = wl.points.map(p => ({ x: p.x, t: p.t }));
+                canvas.style.cursor = 'ew-resize';
+                return;
+            }
+        }
+    }
+
+    // ---- Drag S' frame origin (pan/worldline mode only) ----
+    if (S.mode !== 'event' && S.observer.active && hitTestObserverAxes(sx, sy, 8)) {
+        S.dragObserver = true;
+        S.dragObsStartX = w.x;
+        S.dragObsOrigX0 = S.observer.x0;
+        canvas.style.cursor = 'ew-resize';
+        return;
+    }
+
+    // ---- Mode-specific actions ----
+    if (S.mode === 'pan') {
+        S.isPanning = true;
+        S.panStart = { x: sx, y: sy };
+        S.panStartCenter = { ...S.center };
+        canvas.style.cursor = 'grabbing';
+        return;
+    }
+
+    if (S.mode === 'event') {
+        // Check if clicking an existing event
+        const idx = getEventAtScreen(sx, sy);
+        if (idx >= 0) {
+            if (e.shiftKey && S.selectedEvIdx >= 0 && S.selectedEvIdx !== idx) {
+                // Shift+click: select pair for interval
+                S.selectedEvIdx2 = idx;
+                updateEventList();
+                updateIntervalPanel();
+                render();
+                return;
+            }
+            S.dragEvIdx = idx;
+            S.selectedEvIdx = idx;
+            S.selectedEvIdx2 = -1;
+            canvas.style.cursor = 'grabbing';
+            updateEventList();
+            updateIntervalPanel();
+            render();
+            return;
+        }
+        // Place new event (snap to worldline → S' grid → S grid)
+        const wlSnap = snapToWorldlineIfNear(w, e.shiftKey);
+        if (wlSnap) {
+            addEvent(wlSnap.x, wlSnap.t);
+        } else {
+            const spSnap = snapToPrimedGrid(w);
+            if (spSnap) {
+                addEvent(spSnap.x, spSnap.t);
+            } else {
+                const es = snapPt(w);
+                addEvent(es.x, es.t);
+            }
+        }
+        return;
+    }
+
+    if (S.mode === 'worldline') {
+        // Check if clicking a vertex to drag it
+        const vtx = getWLVertexAtScreen(sx, sy);
+        if (vtx) {
+            S.dragWLVertex = vtx;
+            canvas.style.cursor = 'grabbing';
+            return;
+        }
+        // Check if clicking a ghost line to extend it
+        for (let i = 0; i < S.worldlines.length; i++) {
+            const wl = S.worldlines[i];
+            if (wl.points.length === 2 && !wl.extended && hitTestGhostLine(wl, sx, sy, 8)) {
+                wl.extended = true;
+                updateWorldlineList();
+                render();
+                return;
+            }
+        }
+        // Start new worldline if none active
+        if (S.currentWL < 0 || S.currentWL >= S.worldlines.length) {
+            startNewWorldline();
+        }
+        const ws = snapPt(w);
+        S.worldlines[S.currentWL].points.push({ x: ws.x, t: ws.t });
+        updateWorldlineList();
+        render();
+    }
+});
+
+canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    S.mouseScreen = { x: sx, y: sy };
+    S.mouseWorld = screenToWorld(sx, sy);
+
+    if (S.isPanning) {
+        const dx = sx - S.panStart.x;
+        const dy = sy - S.panStart.y;
+        S.center.x = S.panStartCenter.x - dx / S.zoom;
+        S.center.t = S.panStartCenter.t + dy / S.zoom;
+        render();
+        return;
+    }
+
+    if (S.dragExtWL >= 0) {
+        const wl = S.worldlines[S.dragExtWL];
+        const deltaX = S.mouseWorld.x - S.dragExtStartX;
+        const snappedDelta = snapToGrid(S.dragExtOrigPts[0].x + deltaX) - S.dragExtOrigPts[0].x;
+        wl.points[0].x = S.dragExtOrigPts[0].x + snappedDelta;
+        wl.points[0].t = S.dragExtOrigPts[0].t;
+        wl.points[1].x = S.dragExtOrigPts[1].x + snappedDelta;
+        wl.points[1].t = S.dragExtOrigPts[1].t;
+        // Update observer if this worldline is the active observer
+        if (S.observer.fromWL === S.dragExtWL) {
+            const dt = wl.points[1].t - wl.points[0].t;
+            const dx = wl.points[1].x - wl.points[0].x;
+            const beta = dx / dt;
+            const x0new = wl.points[0].x - beta * wl.points[0].t;
+            S.observer.x0 = x0new;
+            document.getElementById('x0Slider').value = x0new;
+            document.getElementById('x0Val').textContent = x0new.toFixed(2);
+            updateObserverInfo();
+        }
+        updateWorldlineList();
+        render();
+        return;
+    }
+
+    if (S.dragWLVertex) {
+        const wl = S.worldlines[S.dragWLVertex.wlIdx];
+        if (wl) {
+            const pt = wl.points[S.dragWLVertex.ptIdx];
+            if (pt) {
+                const snapped = snapPt(S.mouseWorld);
+                pt.x = snapped.x;
+                pt.t = snapped.t;
+                // Update observer if this worldline is the active observer
+                if (S.observer.fromWL === S.dragWLVertex.wlIdx && wl.points.length === 2) {
+                    const dt = wl.points[1].t - wl.points[0].t;
+                    const dx = wl.points[1].x - wl.points[0].x;
+                    if (Math.abs(dt) > 1e-12) {
+                        const beta = dx / dt;
+                        if (Math.abs(beta) < 1) {
+                            const x0new = wl.points[0].x - beta * wl.points[0].t;
+                            S.observer.beta = beta;
+                            S.observer.x0 = x0new;
+                            S.observer.gamma = 1 / Math.sqrt(1 - beta * beta);
+                            document.getElementById('betaSlider').value = beta;
+                            document.getElementById('betaVal').textContent = beta.toFixed(3);
+                            document.getElementById('x0Slider').value = x0new;
+                            document.getElementById('x0Val').textContent = x0new.toFixed(2);
+                            updateObserverInfo();
+                        }
+                    }
+                }
+                updateWorldlineList();
+                updateEventList();
+                render();
+            }
+        }
+        return;
+    }
+
+    if (S.dragObserver) {
+        const deltaX = S.mouseWorld.x - S.dragObsStartX;
+        const newX0 = snapToGrid(S.dragObsOrigX0 + deltaX);
+        S.observer.x0 = newX0;
+        document.getElementById('x0Slider').value = newX0;
+        document.getElementById('x0Val').textContent = newX0.toFixed(2);
+        updateObserverInfo();
+        updateEventList();
+        render();
+        return;
+    }
+
+    if (S.dragEvIdx >= 0) {
+        // Try snapping: worldline → S' grid → S grid
+        const wlSnap = snapToWorldlineIfNear(S.mouseWorld, e.shiftKey);
+        if (wlSnap) {
+            S.events[S.dragEvIdx].x = wlSnap.x;
+            S.events[S.dragEvIdx].t = wlSnap.t;
+        } else {
+            const spSnap = snapToPrimedGrid(S.mouseWorld);
+            if (spSnap) {
+                S.events[S.dragEvIdx].x = spSnap.x;
+                S.events[S.dragEvIdx].t = spSnap.t;
+            } else {
+                const ds = snapPt(S.mouseWorld);
+                S.events[S.dragEvIdx].x = ds.x;
+                S.events[S.dragEvIdx].t = ds.t;
+            }
+        }
+        updateEventList();
+        render();
+        return;
+    }
+
+    // Hover detection for worldline vertices
+    const prevWLHover = S.hoveredWLVertex;
+    S.hoveredWLVertex = getWLVertexAtScreen(sx, sy);
+    const wlHoverChanged = (prevWLHover === null) !== (S.hoveredWLVertex === null) ||
+        (prevWLHover && S.hoveredWLVertex && (prevWLHover.wlIdx !== S.hoveredWLVertex.wlIdx || prevWLHover.ptIdx !== S.hoveredWLVertex.ptIdx));
+
+    // Always re-render if there are extended worldlines (for axis↔edit transition)
+    const hasExtended = S.worldlines.some(wl => wl.extended);
+
+    // Hover detection for events
+    const prevHover = S.hoveredEvIdx;
+    S.hoveredEvIdx = getEventAtScreen(sx, sy);
+    if (S.hoveredEvIdx !== prevHover || wlHoverChanged || hasExtended) render();
+    else {
+        // Just update readout without full render
+        const hasObs = S.observer.active && Math.abs(S.observer.beta) > 1e-9;
+        updateReadout(hasObs, S.observer.beta, S.observer.x0);
+    }
+});
+
+canvas.addEventListener('mouseup', () => {
+    S.isPanning = false;
+    S.dragEvIdx = -1;
+    S.dragExtWL = -1;
+    S.dragExtOrigPts = null;
+    S.dragObserver = false;
+    S.dragWLVertex = null;
+    canvas.style.cursor = S.mode === 'pan' ? 'grab' : 'crosshair';
+});
+
+canvas.addEventListener('mouseleave', () => {
+    S.isPanning = false;
+    S.dragEvIdx = -1;
+    S.dragExtWL = -1;
+    S.dragExtOrigPts = null;
+    S.dragObserver = false;
+    S.dragWLVertex = null;
+});
+
+canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    const wBefore = screenToWorld(sx, sy);
+
+    const factor = e.deltaY > 0 ? 0.9 : 1.1;
+    S.zoom = Math.max(5, Math.min(500, S.zoom * factor));
+
+    // Zoom toward mouse position
+    const wAfter = screenToWorld(sx, sy);
+    S.center.x -= (wAfter.x - wBefore.x);
+    S.center.t -= (wAfter.t - wBefore.t);
+
+    render();
+}, { passive: false });
+
+// ================= MODE & UI CONTROLS ============================
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        S.mode = btn.dataset.mode;
+        canvas.style.cursor = S.mode === 'pan' ? 'grab' : 'crosshair';
+        updateInstructions();
+    });
+});
+
+document.querySelectorAll('.unit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        S.units = btn.dataset.unit;
+        render();
+    });
+});
+
+function updateInstructions() {
+    const bar = document.getElementById('instrBar');
+    if (S.mode === 'pan') bar.textContent = 'Scroll to zoom · Drag to pan';
+    else if (S.mode === 'worldline') bar.textContent = 'Click to add vertices · Click dashed line to extend as axis · "New Worldline" for another';
+    else bar.textContent = 'Click to place event · Drag to move · Hover for ✕ delete';
+}
+
+// Beta presets
+const BETA_PRESETS = [
+    { label: '3/5', value: 3/5 },
+    { label: '4/5', value: 4/5 },
+    { label: '5/13', value: 5/13 },
+    { label: '12/13', value: 12/13 },
+    { label: '8/17', value: 8/17 },
+    { label: '15/17', value: 15/17 },
+    { label: '7/25', value: 7/25 },
+    { label: '24/25', value: 24/25 },
+    { label: '0.9', value: 0.9 },
+    { label: '0.99', value: 0.99 },
+    { label: '0.999', value: 0.999 },
+    { label: '−3/5', value: -3/5 },
+];
+
+function setupBetaPresets() {
+    const container = document.getElementById('betaPresets');
+    BETA_PRESETS.forEach(p => {
+        const btn = document.createElement('button');
+        btn.className = 'beta-btn';
+        btn.textContent = p.label;
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.beta-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('betaSlider').value = p.value;
+            document.getElementById('betaVal').textContent = p.value.toFixed(3);
+            setObserver(p.value, parseFloat(document.getElementById('x0Slider').value));
+        });
+        container.appendChild(btn);
+    });
+}
+
+document.getElementById('betaSlider').addEventListener('input', e => {
+    const beta = parseFloat(e.target.value);
+    document.getElementById('betaVal').textContent = beta.toFixed(3);
+    document.querySelectorAll('.beta-btn').forEach(b => b.classList.remove('active'));
+    if (Math.abs(beta) > 1e-6) {
+        setObserver(beta, parseFloat(document.getElementById('x0Slider').value));
+    } else {
+        clearObserver();
+    }
+});
+
+document.getElementById('x0Slider').addEventListener('input', e => {
+    const x0 = parseFloat(e.target.value);
+    document.getElementById('x0Val').textContent = x0.toFixed(2);
+    if (S.observer.active) {
+        setObserver(S.observer.beta, x0);
+    }
+});
+
+// Click-to-edit for β and x₀ value labels
+function makeEditable(spanId, onCommit) {
+    const span = document.getElementById(spanId);
+    span.addEventListener('click', () => {
+        const currentVal = span.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'value-input';
+        input.value = currentVal;
+        span.replaceWith(input);
+        input.focus();
+        input.select();
+        const commit = () => {
+            let val = input.value.trim();
+            // Support fraction input like "3/5" or "-12/13"
+            if (val.includes('/')) {
+                const parts = val.split('/');
+                if (parts.length === 2) {
+                    const num = parseFloat(parts[0]), den = parseFloat(parts[1]);
+                    if (!isNaN(num) && !isNaN(den) && den !== 0) val = (num / den).toString();
+                }
+            }
+            const numVal = parseFloat(val);
+            const newSpan = document.createElement('span');
+            newSpan.className = 'value';
+            newSpan.id = spanId;
+            input.replaceWith(newSpan);
+            if (!isNaN(numVal)) {
+                onCommit(numVal);
+            } else {
+                newSpan.textContent = currentVal;
+            }
+            // Re-attach click handler
+            makeEditable(spanId, onCommit);
+        };
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+            if (e.key === 'Escape') { input.value = currentVal; input.blur(); }
+        });
+    });
+}
+
+makeEditable('betaVal', val => {
+    const beta = Math.max(-0.999, Math.min(0.999, val));
+    document.getElementById('betaVal').textContent = beta.toFixed(3);
+    document.getElementById('betaSlider').value = beta;
+    document.querySelectorAll('.beta-btn').forEach(b => b.classList.remove('active'));
+    if (Math.abs(beta) > 1e-6) {
+        setObserver(beta, parseFloat(document.getElementById('x0Slider').value));
+    } else {
+        clearObserver();
+    }
+});
+
+makeEditable('x0Val', val => {
+    document.getElementById('x0Val').textContent = val.toFixed(2);
+    document.getElementById('x0Slider').value = val;
+    if (S.observer.active) {
+        setObserver(S.observer.beta, val);
+    }
+});
+
+// Toggle checkboxes
+document.querySelectorAll('.toggle-row input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+        render();
+        updateEventList();
+    });
+});
+
+// New worldline button
+document.getElementById('newWlBtn').addEventListener('click', () => {
+    startNewWorldline();
+    // Switch to worldline mode
+    S.mode = 'worldline';
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('modeWL').classList.add('active');
+    canvas.style.cursor = 'crosshair';
+    updateInstructions();
+});
+
+// ===================== KEYBOARD ==================================
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        S.selectedEvIdx = -1;
+        S.mode = 'pan';
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('modePan').classList.add('active');
+        canvas.style.cursor = 'grab';
+        updateInstructions();
+        updateEventList();
+        render();
+    }
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (document.activeElement.tagName === 'INPUT') return;
+        // Delete hovered worldline vertex
+        if (S.hoveredWLVertex) {
+            deleteWLVertex(S.hoveredWLVertex.wlIdx, S.hoveredWLVertex.ptIdx);
+            e.preventDefault();
+            return;
+        }
+        // Delete selected event
+        if (S.selectedEvIdx >= 0) {
+            deleteEvent(S.selectedEvIdx);
+            e.preventDefault();
+        }
+    }
+});
+
+// ====================== INIT =====================================
+function init() {
+    setupBetaPresets();
+    resizeCanvas();
+    canvas.style.cursor = 'grab';
+    updateInstructions();
+    render();
+}
+
+init();
+</script>
+</body>
+</html>

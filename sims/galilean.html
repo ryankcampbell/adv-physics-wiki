@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.1 – Galilean Relativity</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: center;
+            padding: 7px 0;
+            font-size: 17px;
+            background: linear-gradient(180deg, #1a1a2e, #16162a);
+            flex-shrink: 0;
+            letter-spacing: 1px;
+            color: #7eb8da;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            background: #080818;
+            overflow: hidden;
+        }
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        .hud {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15,15,35,0.88);
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 16px;
+            color: #eee;
+            border: 1px solid rgba(126,184,218,0.25);
+            pointer-events: none;
+            white-space: nowrap;
+            backdrop-filter: blur(4px);
+        }
+        .controls {
+            width: 310px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 10px;
+            background: #16162a;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 1px solid #2a2a4a;
+        }
+        .controls::-webkit-scrollbar { width: 5px; }
+        .controls::-webkit-scrollbar-track { background: transparent; }
+        .controls::-webkit-scrollbar-thumb { background: #3a3a5a; border-radius: 3px; }
+        .panel {
+            background: #252540;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .panel h3 {
+            margin: 0 0 8px 0;
+            color: #7eb8da;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            border-bottom: 1px solid #3a3a5a;
+            padding-bottom: 5px;
+        }
+        .problem-text {
+            font-size: 12px;
+            color: #ccc;
+            line-height: 1.6;
+        }
+        .problem-text .hi { color: #e8c84a; font-weight: 600; }
+        .mode-selector { display: flex; gap: 4px; }
+        .mode-btn {
+            flex: 1;
+            padding: 7px 4px;
+            border: 1px solid #3a3a5a;
+            background: rgba(58,58,90,0.3);
+            color: #999;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .mode-btn:hover { background: rgba(58,58,90,0.6); color: #ccc; }
+        .mode-btn.active { background: #4a6fa5; color: #fff; border-color: #6a8fc5; }
+        .play-btn {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border: 1px solid #4a6fa5;
+            background: rgba(74,111,165,0.2);
+            color: #7eb8da;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .play-btn:hover { background: rgba(74,111,165,0.4); }
+        .play-btn.playing { background: rgba(232,168,56,0.2); border-color: #e8a838; color: #e8a838; }
+        .drag-hint {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+            margin-top: 6px;
+        }
+        .slider-group { margin-top: 8px; }
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 2px;
+            color: #bbb;
+        }
+        .slider-group .val { color: #7eb8da; font-family: 'SF Mono', monospace; }
+        input[type="range"] { width: 100%; cursor: pointer; accent-color: #4a6fa5; height: 16px; }
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        .toggle-row:last-child { margin-bottom: 0; }
+        .toggle-row input[type="checkbox"] { accent-color: #4a6fa5; cursor: pointer; width: 14px; height: 14px; }
+        .toggle-row label { cursor: pointer; color: #ccc; }
+        .cs { color: #4a9eda; font-weight: 700; }
+        .csp { color: #e8a838; font-weight: 700; }
+        .coord-box {
+            background: rgba(8,8,24,0.5);
+            border-radius: 5px;
+            padding: 8px 10px;
+            font-family: 'SF Mono', monospace;
+            font-size: 12px;
+        }
+        .coord-frame-label {
+            font-size: 10px;
+            color: #777;
+            margin-bottom: 3px;
+            margin-top: 5px;
+        }
+        .coord-frame-label:first-child { margin-top: 0; }
+        .coord-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .coord-key { color: #777; }
+        .coord-val-s { color: #4a9eda; font-weight: 600; }
+        .coord-val-sp { color: #e8a838; font-weight: 600; }
+        .event-notation {
+            margin-top: 8px;
+            background: rgba(232,168,56,0.08);
+            border: 1px solid rgba(232,168,56,0.25);
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-family: 'SF Mono', monospace;
+            font-size: 11px;
+            color: #e8c060;
+            line-height: 1.7;
+        }
+        .eq-row { display: flex; justify-content: center; margin: 4px 0; }
+        .calc-row { display: flex; justify-content: center; margin: 3px 0; }
+        .eq-divider { border: none; border-top: 1px solid #3a3a5a; margin: 6px 0; }
+    </style>
+</head>
+<body>
+    <h1>3.1 – Galilean Relativity</h1>
+    <div class="main-container">
+        <div class="canvas-container" id="canvasContainer">
+            <canvas id="canvas"></canvas>
+            <div class="hud" id="hud">t = 0.00 s</div>
+        </div>
+        <div class="controls">
+
+            <div class="panel">
+                <h3>Problem</h3>
+                <p class="problem-text">
+                    A car drives east at <span class="hi">v = 30 m/s</span> and passes
+                    a boy at t = 0. The boy sets off a firecracker that explodes at
+                    <span class="hi">x = 50 m, t = 2 s</span>.<br><br>
+                    Where does the <em>driver</em> say the firecracker goes off?
+                </p>
+            </div>
+
+            <div class="panel">
+                <h3>Animation</h3>
+                <div class="mode-selector">
+                    <button class="mode-btn active" id="btnAuto" onclick="setMode('auto')">Auto</button>
+                    <button class="mode-btn" id="btnDrag" onclick="setMode('drag')">Drag S'</button>
+                </div>
+                <button class="play-btn" id="playBtn" onclick="togglePlay()">&#9654; Play</button>
+                <div class="drag-hint" id="dragHint" style="display:none">
+                    Drag canvas left/right to move the S' frame
+                </div>
+                <div class="slider-group">
+                    <label>Speed v <span class="val" id="vLabel">30 m/s</span></label>
+                    <input type="range" id="vSlider" min="5" max="60" step="1" value="30"
+                           oninput="updateV(this.value)">
+                </div>
+                <div class="slider-group">
+                    <label>Time t <span class="val" id="tLabel">0.00 s</span></label>
+                    <input type="range" id="tSlider" min="0" max="3.5" step="0.01" value="0"
+                           oninput="scrubT(parseFloat(this.value))">
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Display</h3>
+                <div class="toggle-row">
+                    <input type="checkbox" id="chkS" checked onchange="draw()">
+                    <label for="chkS"><span class="cs">S</span> frame axes</label>
+                </div>
+                <div class="toggle-row">
+                    <input type="checkbox" id="chkSP" checked onchange="draw()">
+                    <label for="chkSP"><span class="csp">S'</span> frame axes</label>
+                </div>
+                <div class="toggle-row">
+                    <input type="checkbox" id="chkMeasure" checked onchange="draw()">
+                    <label for="chkMeasure">Measurement arrows</label>
+                </div>
+                <div class="toggle-row">
+                    <input type="checkbox" id="chkVt" checked onchange="draw()">
+                    <label for="chkVt">vt displacement arrow</label>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Firecracker Event</h3>
+                <div class="coord-box">
+                    <div class="coord-frame-label">Frame <span class="cs">S</span> (boy's frame)</div>
+                    <div class="coord-row">
+                        <span class="coord-key">x</span>
+                        <span class="coord-val-s" id="sX">50.0 m</span>
+                    </div>
+                    <div class="coord-row">
+                        <span class="coord-key">t</span>
+                        <span class="coord-val-s">2.0 s</span>
+                    </div>
+                    <div class="coord-frame-label">Frame <span class="csp">S'</span> (driver's frame)</div>
+                    <div class="coord-row">
+                        <span class="coord-key">x'</span>
+                        <span class="coord-val-sp" id="spX">– m</span>
+                    </div>
+                    <div class="coord-row">
+                        <span class="coord-key">t'</span>
+                        <span class="coord-val-sp">2.0 s</span>
+                    </div>
+                </div>
+                <div class="event-notation" id="eventNote" style="display:none">
+                    E(t, x) = (2, 50)<br>
+                    E(t', x') = (2, −10)
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Galilean Transformation</h3>
+                <div id="eqTransform"></div>
+                <hr class="eq-divider">
+                <div style="font-size:10px; color:#777; margin-bottom:4px;">For this problem:</div>
+                <div id="eqCalc"></div>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+// ─── Constants ────────────────────────────────────────────────────────────────
+const EVENT_X  = 50;   // m — firecracker position in S
+const EVENT_T  = 2;    // s — firecracker explosion time
+const T_MAX    = 3.5;  // s — max animation time
+const X_MIN    = -30;  // m — left edge of view
+const X_MAX    = 120;  // m — right edge of view
+
+const S_COLOR  = '#4a9eda';           // blue — frame S
+const SP_COLOR = '#e8a838';           // amber — frame S'
+const EV_COLOR = '#ff5555';           // red — event
+const VT_COLOR = 'rgba(170,170,255,0.75)';
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let t         = 0;    // current simulation time (s)
+let v         = 30;   // car speed (m/s)
+let animating = false;
+let mode      = 'auto';
+let animRaf   = null;
+let animStartTS  = null;
+let animStartT   = 0;
+// Drag state
+let isDragging   = false;
+let dragStartMX  = 0;
+let dragStartT   = 0;
+
+// ─── Canvas ───────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('canvas');
+const ctx    = canvas.getContext('2d');
+
+function resize() {
+    const c = document.getElementById('canvasContainer');
+    canvas.width  = c.clientWidth;
+    canvas.height = c.clientHeight;
+    draw();
+}
+window.addEventListener('resize', resize);
+
+// ─── Coordinate helpers ───────────────────────────────────────────────────────
+function getScale() {
+    const usable = canvas.width * (1 - 0.11 - 0.05);
+    return usable / (X_MAX - X_MIN);
+}
+function toCanvasX(physX) {
+    return canvas.width * 0.11 + (physX - X_MIN) * getScale();
+}
+function fromCanvasX(cpx) {
+    return X_MIN + (cpx - canvas.width * 0.11) / getScale();
+}
+function getSY()  { return canvas.height * 0.67; }
+function getSPY() { return canvas.height * 0.28; }
+
+// ─── Drawing helpers ──────────────────────────────────────────────────────────
+function arrowHead(x, y, angle, len, color) {
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - len * Math.cos(angle - 0.38), y - len * Math.sin(angle - 0.38));
+    ctx.lineTo(x - len * Math.cos(angle + 0.38), y - len * Math.sin(angle + 0.38));
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawHArrow(x1, y, x2, color, lineW) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle   = color;
+    ctx.lineWidth   = lineW || 1.8;
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.stroke();
+    const dir = x2 > x1 ? 0 : Math.PI;
+    arrowHead(x2, y, dir, 10, color);
+    ctx.restore();
+}
+
+// Draw a number axis. originPx: canvas x of x=0 for this frame.
+// Ticks are at multiples of step in the frame's own coords.
+function drawAxis(originPx, axisY, color, axisLabel, tickMin, tickMax, step) {
+    const sc    = getScale();
+    const leftX = toCanvasX(X_MIN);
+    const rightX = toCanvasX(X_MAX);
+
+    // Axis line
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(leftX, axisY);
+    ctx.lineTo(rightX, axisY);
+    ctx.stroke();
+    // Arrow at right
+    arrowHead(rightX, axisY, 0, 12, color);
+
+    // Axis label (x (m) or x' (m))
+    ctx.fillStyle = color;
+    ctx.font = 'bold 13px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(axisLabel + ' (m)', rightX + 6, axisY);
+
+    // Ticks
+    for (let xf = tickMin; xf <= tickMax; xf += step) {
+        const cpx = originPx + xf * sc;
+        if (cpx < leftX - 2 || cpx > rightX + 2) continue;
+        ctx.globalAlpha = 0.75;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cpx, axisY - 7);
+        ctx.lineTo(cpx, axisY + 7);
+        ctx.stroke();
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = color;
+        ctx.font = '11px SF Mono, Fira Code, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(xf, cpx, axisY + 9);
+        ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+}
+
+// Origin circle + label
+function drawOriginLabel(label, cpx, axisY, color, above) {
+    const ly = above ? axisY - 18 : axisY + 18;
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.font = 'bold 13px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const tw = ctx.measureText(label).width;
+    const r  = Math.max(tw / 2 + 7, 12);
+    ctx.beginPath();
+    ctx.arc(cpx, ly, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillText(label, cpx, ly);
+    ctx.restore();
+}
+
+// |---| style measurement bracket
+// axisY: y of the reference axis (connector start); lineY: y of the horizontal bar
+function drawBracket(x1, x2, axisY, lineY, color, label) {
+    if (Math.abs(x2 - x1) < 4) return;
+    const mid   = (x1 + x2) / 2;
+    const tickH = 6;
+    const above = lineY < axisY;
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle   = color;
+    ctx.lineWidth   = 1.5;
+    ctx.globalAlpha = 0.88;
+
+    // Vertical connectors from near-axis to lineY
+    [x1, x2].forEach(xp => {
+        ctx.beginPath();
+        ctx.moveTo(xp, axisY + (above ? -9 : 9));
+        ctx.lineTo(xp, lineY);
+        ctx.stroke();
+    });
+    // Horizontal line
+    ctx.beginPath();
+    ctx.moveTo(x1, lineY);
+    ctx.lineTo(x2, lineY);
+    ctx.stroke();
+    // | tick marks at both ends
+    [x1, x2].forEach(xp => {
+        ctx.beginPath();
+        ctx.moveTo(xp, lineY - tickH);
+        ctx.lineTo(xp, lineY + tickH);
+        ctx.stroke();
+    });
+
+    ctx.globalAlpha = 1;
+    ctx.font = 'bold 12px SF Mono, Fira Code, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = above ? 'bottom' : 'top';
+    ctx.fillText(label, mid, lineY + (above ? -(tickH + 2) : (tickH + 2)));
+    ctx.restore();
+}
+
+// Simple car shape, car base at (cx, baseY), facing right
+function drawCar(cx, baseY) {
+    const bW = 44, bH = 17, rW = 28, rH = 13;
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = SP_COLOR;
+    // Body
+    ctx.fillRect(cx - bW/2, baseY - bH, bW, bH);
+    // Roof
+    ctx.fillRect(cx - rW/2, baseY - bH - rH, rW, rH);
+    // Window
+    ctx.fillStyle = '#0e1a2a';
+    ctx.fillRect(cx - rW/2 + 2, baseY - bH - rH + 2, rW - 4, rH - 3);
+    // Wheels
+    [cx - 14, cx + 14].forEach(wx => {
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(wx, baseY, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#555';
+        ctx.beginPath();
+        ctx.arc(wx, baseY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+    });
+    ctx.restore();
+}
+
+// Stick figure boy at (cx, feetY)
+function drawBoy(cx, feetY) {
+    const r = 7;
+    const headY = feetY - 46;
+    ctx.save();
+    ctx.strokeStyle = S_COLOR;
+    ctx.fillStyle   = S_COLOR;
+    ctx.lineWidth   = 1.8;
+    ctx.globalAlpha = 0.9;
+    // Head
+    ctx.beginPath();
+    ctx.arc(cx, headY, r, 0, Math.PI * 2);
+    ctx.stroke();
+    // Body
+    ctx.beginPath();
+    ctx.moveTo(cx, headY + r);
+    ctx.lineTo(cx, headY + r + 18);
+    ctx.stroke();
+    // Arms
+    ctx.beginPath();
+    ctx.moveTo(cx - 10, headY + r + 7);
+    ctx.lineTo(cx + 10, headY + r + 7);
+    ctx.stroke();
+    // Legs
+    ctx.beginPath();
+    ctx.moveTo(cx, headY + r + 18);
+    ctx.lineTo(cx - 8, feetY);
+    ctx.moveTo(cx, headY + r + 18);
+    ctx.lineTo(cx + 8, feetY);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+}
+
+// Firecracker (pre-explosion) or explosion at canvas (cx, cy)
+function drawFirecracker(cx, cy, exploded, flashFrac) {
+    ctx.save();
+    if (!exploded) {
+        // Body
+        ctx.fillStyle = '#cc3333';
+        ctx.fillRect(cx - 5, cy - 16, 10, 16);
+        // Gold stripes
+        ctx.fillStyle = '#ffcc00';
+        for (let i = 0; i < 3; i++) {
+            ctx.fillRect(cx - 5, cy - 16 + i * 5 + 1, 10, 2);
+        }
+        // Fuse
+        ctx.strokeStyle = '#aaa';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 16);
+        ctx.quadraticCurveTo(cx + 7, cy - 24, cx + 4, cy - 30);
+        ctx.stroke();
+        // Spark on fuse
+        ctx.fillStyle = '#ffdd44';
+        ctx.beginPath();
+        ctx.arc(cx + 4, cy - 30, 3, 0, Math.PI * 2);
+        ctx.fill();
+    } else {
+        // Flash glow
+        if (flashFrac > 0) {
+            const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, 90 * flashFrac);
+            grd.addColorStop(0, `rgba(255,220,80,${0.45 * flashFrac})`);
+            grd.addColorStop(1, 'rgba(255,150,0,0)');
+            ctx.fillStyle = grd;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 90 * flashFrac, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Rays
+        const nRay = 12;
+        for (let i = 0; i < nRay; i++) {
+            const ang  = (i / nRay) * Math.PI * 2;
+            const len1 = 9, len2 = 26;
+            ctx.strokeStyle = i % 2 === 0 ? '#ffcc00' : '#ff8800';
+            ctx.lineWidth   = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(ang) * len1, cy + Math.sin(ang) * len1);
+            ctx.lineTo(cx + Math.cos(ang) * len2, cy + Math.sin(ang) * len2);
+            ctx.stroke();
+        }
+        // Core
+        ctx.beginPath();
+        ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+        ctx.fillStyle = '#ff4400';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffee88';
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+// ─── Main draw ────────────────────────────────────────────────────────────────
+function draw() {
+    if (!canvas.width || !canvas.height) return;
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#08081a';
+    ctx.fillRect(0, 0, W, H);
+
+    const showS   = document.getElementById('chkS').checked;
+    const showSP  = document.getElementById('chkSP').checked;
+    const showM   = document.getElementById('chkMeasure').checked;
+    const showVt  = document.getElementById('chkVt').checked;
+
+    const sc      = getScale();
+    const SY      = getSY();
+    const SPY     = getSPY();
+    const midY    = (SY + SPY) / 2;
+
+    const sOrig   = toCanvasX(0);          // S origin (fixed)
+    const spOrig  = toCanvasX(v * t);      // S' origin (moves)
+    const evPx    = toCanvasX(EVENT_X);    // Event canvas x (fixed in S)
+
+    const exploded  = t >= EVENT_T;
+    const flashFrac = Math.max(0, 1 - Math.abs(t - EVENT_T) / 0.25);
+
+    // Subtle neutral vertical grid
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+    ctx.lineWidth   = 1;
+    for (let xg = Math.ceil(X_MIN / 10) * 10; xg <= X_MAX; xg += 10) {
+        const gx = toCanvasX(xg);
+        ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+    }
+    ctx.restore();
+
+    // Colored reference grid lines from each frame's tick marks
+    const leftX = toCanvasX(X_MIN), rightX = toCanvasX(X_MAX);
+    ctx.save();
+    ctx.lineWidth = 1;
+    // S' ticks → faint orange lines extending DOWN from S' axis
+    if (showSP) {
+        ctx.strokeStyle = SP_COLOR;
+        for (let xf = -30; xf <= 70; xf += 10) {
+            const cpx = spOrig + xf * sc;
+            if (cpx < leftX || cpx > rightX) continue;
+            ctx.globalAlpha = 0.12;
+            ctx.beginPath(); ctx.moveTo(cpx, SPY); ctx.lineTo(cpx, H); ctx.stroke();
+        }
+    }
+    // S ticks → faint blue lines extending UP from S axis
+    if (showS) {
+        ctx.strokeStyle = S_COLOR;
+        for (let xf = 0; xf <= 100; xf += 10) {
+            const cpx = sOrig + xf * sc;
+            if (cpx < leftX || cpx > rightX) continue;
+            ctx.globalAlpha = 0.12;
+            ctx.beginPath(); ctx.moveTo(cpx, SY); ctx.lineTo(cpx, 0); ctx.stroke();
+        }
+    }
+    ctx.restore();
+
+    // ── vt displacement bracket (|---|) ──────────────────────
+    if (showVt && v * t > 0.5) {
+        const vtTickH = 7;
+        ctx.save();
+        ctx.strokeStyle = VT_COLOR;
+        ctx.fillStyle   = VT_COLOR;
+        ctx.lineWidth   = 1.8;
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath(); ctx.moveTo(sOrig, midY); ctx.lineTo(spOrig, midY); ctx.stroke();
+        [sOrig, spOrig].forEach(xp => {
+            ctx.beginPath();
+            ctx.moveTo(xp, midY - vtTickH);
+            ctx.lineTo(xp, midY + vtTickH);
+            ctx.stroke();
+        });
+        ctx.globalAlpha  = 1;
+        ctx.font         = '12px SF Mono, monospace';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`vt = (${v})(${t.toFixed(2)}) = ${(v * t).toFixed(1)} m`,
+                     (sOrig + spOrig) / 2, midY - vtTickH - 2);
+        ctx.restore();
+    }
+
+    // ── S frame ──────────────────────────────────────────────
+    if (showS) {
+        drawAxis(sOrig, SY, S_COLOR, 'x', 0, 100, 10);
+        drawBoy(sOrig, SY + 52);
+        ctx.save();
+        ctx.fillStyle = S_COLOR;
+        ctx.font = 'bold 13px -apple-system, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('S', leftX - 6, SY);
+        ctx.restore();
+    }
+
+    // ── S' frame ─────────────────────────────────────────────
+    if (showSP) {
+        drawAxis(spOrig, SPY, SP_COLOR, "x'", -30, 70, 10);
+        drawCar(spOrig, SPY - 15);
+        ctx.save();
+        ctx.fillStyle = SP_COLOR;
+        ctx.font = "bold 13px -apple-system, sans-serif";
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText("S'", leftX - 6, SPY);
+        ctx.restore();
+    }
+
+    // ── Event vertical dashed line ───────────────────────────
+    ctx.save();
+    ctx.strokeStyle   = EV_COLOR;
+    ctx.lineWidth     = 1.5;
+    ctx.globalAlpha   = exploded ? 0.85 : 0.35;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(evPx, SPY - 50);
+    ctx.lineTo(evPx, SY + 20);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Firecracker / explosion ───────────────────────────────
+    drawFirecracker(evPx, midY, exploded, flashFrac);
+
+    // ── Measurement brackets (|---|) ─────────────────────────
+    if (showM) {
+        if (showS) {
+            // line below boy's feet (feet at SY+52)
+            drawBracket(sOrig, evPx, SY, SY + 72, S_COLOR, `x = ${EVENT_X} m`);
+        }
+        if (showSP) {
+            // line above car roof (car top ≈ SPY-45)
+            const xprime = EVENT_X - v * t;
+            drawBracket(spOrig, evPx, SPY, SPY - 62, SP_COLOR, `x' = ${xprime.toFixed(1)} m`);
+        }
+    }
+
+    // ── "BOOM" label after explosion ─────────────────────────
+    if (exploded) {
+        ctx.save();
+        ctx.fillStyle = '#ffcc00';
+        ctx.font      = 'bold 14px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.globalAlpha = Math.min(1, 0.5 + flashFrac * 0.5);
+        ctx.fillText('BOOM!', evPx, midY - 32);
+        ctx.restore();
+    }
+
+    updatePanel();
+}
+
+// ─── Update side-panel readout ────────────────────────────────────────────────
+function updatePanel() {
+    const xp = (EVENT_X - v * EVENT_T).toFixed(1);
+    document.getElementById('spX').textContent = xp + ' m';
+    document.getElementById('hud').textContent = `t = ${t.toFixed(2)} s`;
+    document.getElementById('tLabel').textContent = `${t.toFixed(2)} s`;
+    document.getElementById('tSlider').value = t;
+    document.getElementById('eventNote').style.display = (t >= EVENT_T) ? 'block' : 'none';
+    // Update calc equations to reflect current v
+    renderCalc();
+}
+
+// ─── Animation ────────────────────────────────────────────────────────────────
+function togglePlay() {
+    animating ? stopAnim() : startAnim();
+}
+
+function startAnim() {
+    animating     = true;
+    animStartTS   = null;
+    animStartT    = (t >= T_MAX - 0.05) ? 0 : t;
+    if (t >= T_MAX - 0.05) t = 0;
+    document.getElementById('playBtn').textContent = '⏸ Pause';
+    document.getElementById('playBtn').classList.add('playing');
+    animRaf = requestAnimationFrame(animStep);
+}
+
+function stopAnim() {
+    animating = false;
+    if (animRaf) cancelAnimationFrame(animRaf);
+    document.getElementById('playBtn').textContent = '▶ Play';
+    document.getElementById('playBtn').classList.remove('playing');
+}
+
+function animStep(ts) {
+    if (!animating) return;
+    if (animStartTS === null) { animStartTS = ts; animStartT = t; }
+    const elapsed = (ts - animStartTS) / 1000;    // s of wall-clock time
+    t = Math.min(animStartT + elapsed * 0.75, T_MAX);  // 0.75× real-time
+    draw();
+    if (t >= T_MAX) {
+        draw();
+        setTimeout(() => {
+            if (animating) { t = 0; animStartTS = null; animRaf = requestAnimationFrame(animStep); }
+        }, 1800);
+        return;
+    }
+    animRaf = requestAnimationFrame(animStep);
+}
+
+// ─── Mode ─────────────────────────────────────────────────────────────────────
+function setMode(m) {
+    mode = m;
+    stopAnim();
+    document.getElementById('btnAuto').classList.toggle('active', m === 'auto');
+    document.getElementById('btnDrag').classList.toggle('active', m === 'drag');
+    document.getElementById('playBtn').style.display    = (m === 'auto') ? 'block' : 'none';
+    document.getElementById('dragHint').style.display   = (m === 'drag') ? 'block' : 'none';
+    canvas.style.cursor = (m === 'drag') ? 'ew-resize' : 'default';
+}
+
+// ─── Drag interaction ─────────────────────────────────────────────────────────
+canvas.addEventListener('mousedown', e => {
+    if (mode !== 'drag') return;
+    isDragging   = true;
+    dragStartMX  = e.clientX;
+    dragStartT   = t;
+});
+window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx    = e.clientX - dragStartMX;
+    const dPhys = dx / getScale();        // meters
+    const dt    = dPhys / v;
+    t = Math.max(0, Math.min(T_MAX, dragStartT + dt));
+    draw();
+});
+window.addEventListener('mouseup', () => { isDragging = false; });
+// Touch
+canvas.addEventListener('touchstart', e => {
+    if (mode !== 'drag') return;
+    isDragging = true; dragStartMX = e.touches[0].clientX; dragStartT = t;
+    e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx    = e.touches[0].clientX - dragStartMX;
+    const dPhys = dx / getScale();
+    t = Math.max(0, Math.min(T_MAX, dragStartT + dPhys / v));
+    draw(); e.preventDefault();
+}, { passive: false });
+window.addEventListener('touchend', () => { isDragging = false; });
+
+// ─── Sliders ──────────────────────────────────────────────────────────────────
+function scrubT(val) {
+    stopAnim();
+    t = val;
+    draw();
+}
+
+function updateV(val) {
+    v = parseFloat(val);
+    document.getElementById('vLabel').textContent = `${v} m/s`;
+    renderCalc();
+    draw();
+}
+
+// ─── KaTeX rendering ──────────────────────────────────────────────────────────
+function renderTransform() {
+    const container = document.getElementById('eqTransform');
+    container.innerHTML = '';
+    const eqs = ["x' = x - vt", "y' = y", "z' = z", "t' = t"];
+    eqs.forEach(eq => {
+        const row = document.createElement('div');
+        row.className = 'eq-row';
+        katex.render(eq, row, { throwOnError: false, displayMode: false });
+        container.appendChild(row);
+    });
+}
+
+function renderCalc() {
+    if (typeof katex === 'undefined') return;
+    const xp  = EVENT_X - v * EVENT_T;
+    const container = document.getElementById('eqCalc');
+    container.innerHTML = '';
+    const calcs = [
+        `x' = x - vt = ${EVENT_X} - (${v})(${EVENT_T}) = ${xp}\\text{ m}`,
+        `t' = t = ${EVENT_T}\\text{ s}`,
+    ];
+    calcs.forEach(eq => {
+        const row = document.createElement('div');
+        row.className = 'calc-row';
+        katex.render(eq, row, { throwOnError: false, displayMode: false });
+        container.appendChild(row);
+    });
+    // Also update panel x' readout
+    document.getElementById('spX').textContent = xp.toFixed(1) + ' m';
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    resize();
+    const tryKatex = () => {
+        if (typeof katex !== 'undefined') {
+            renderTransform();
+            renderCalc();
+        } else {
+            setTimeout(tryKatex, 100);
+        }
+    };
+    tryKatex();
+});
+</script>
+</body>
+</html>
