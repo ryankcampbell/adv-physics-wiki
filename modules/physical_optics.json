@@ -1,0 +1,110 @@
+{
+  "id": "physical_optics",
+  "module": "Physical Optics",
+  "unit": "Unit 2",
+  "description": "The wave nature of light: superposition, interference, diffraction, and their applications. Reveals where the ray-optics picture breaks down and waves must be treated as waves.",
+  "anchor_questions": [
+    {
+      "id": "soap_bubble_colors",
+      "text": "Why do soap bubbles show vivid colors — and why do the colors change as the film drains?",
+      "highlighted_path": ["superposition", "wave_interference", "thin_film"]
+    },
+    {
+      "id": "double_slit_proof",
+      "text": "How does the double-slit experiment prove that light is a wave, not a stream of particles?",
+      "highlighted_path": ["superposition", "wave_interference", "one_d_interference", "double_slit"]
+    },
+    {
+      "id": "single_slit_paradox",
+      "text": "Why does making the slit narrower make the diffraction pattern wider — and why is there a bright spot in the center instead of a dark one?",
+      "highlighted_path": ["superposition", "wave_interference", "double_slit", "single_slit"]
+    },
+    {
+      "id": "grating_colors",
+      "text": "How does a diffraction grating separate white light into a spectrum — and why is it sharper than a prism?",
+      "highlighted_path": ["superposition", "wave_interference", "double_slit", "single_slit", "diffraction_applications"]
+    }
+  ],
+  "concepts": [
+    {
+      "id": "superposition",
+      "name": "The Superposition Principle",
+      "description": "When two or more waves occupy the same region of space, the total displacement at any point and time is the algebraic sum of the individual displacements: D_total = D₁ + D₂ + ⋯. This is the superposition principle. It holds for all linear waves — including light, sound, and waves on strings. The individual waves pass through each other unchanged; the superposition is only temporary at the overlap region. Constructive interference occurs when crests meet crests (displacements add); destructive interference when crests meet troughs (displacements cancel).",
+      "latex": "D_{\\text{total}} = D_1 + D_2, \\quad \\Delta\\phi = 0,\\pm 2\\pi,\\ldots \\Rightarrow \\text{constructive}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Two sinusoidal wave pulses on a string heading toward each other. Watch them pass through and reconstruct — the superposition is visible as the sum during overlap. Add controls for the amplitude and phase of each wave so students can set up perfect constructive and destructive interference. Animate the sum wave in a third panel.",
+      "prerequisites": [],
+      "level": 0
+    },
+    {
+      "id": "wave_interference",
+      "name": "Phase Difference and Interference",
+      "description": "When two waves from coherent sources (same frequency, stable phase relationship) overlap, the result depends on their phase difference Δφ. If Δφ = 0, ±2π, ±4π, … the waves are in phase: constructive interference gives amplitude A_total = A₁ + A₂. If Δφ = ±π, ±3π, … the waves are out of phase: destructive interference gives A_total = |A₁ − A₂|. For equal amplitudes, destructive gives zero. Phase difference arises from two sources: path length difference (Δr contributes Δφ = 2πΔr/λ) and any intrinsic source phase offset Δφ₀.",
+      "latex": "\\Delta\\phi = \\frac{2\\pi\\,\\Delta r}{\\lambda} + \\Delta\\phi_0, \\quad A = 2a\\cos\\!\\left(\\frac{\\Delta\\phi}{2}\\right)",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Phasor addition visualizer: two phasor arrows of adjustable amplitude and phase. Show their vector sum. Display the resulting amplitude and phase numerically and as a wave. Drag Δφ from 0 to 2π and watch the resultant amplitude trace through maximum → zero → maximum — the signature of interference.",
+      "prerequisites": ["superposition"],
+      "level": 1
+    },
+    {
+      "id": "standing_waves",
+      "name": "Standing Waves",
+      "description": "When two identical traveling waves move in opposite directions on the same medium, their superposition produces a standing wave: a pattern that oscillates in place rather than traveling. Nodes are points of permanent zero displacement (destructive interference at all times); antinodes are points of maximum oscillation. For a string of length L fixed at both ends, only discrete wavelengths fit: λₙ = 2L/n, giving harmonic frequencies fₙ = nv/(2L). Mode n has n antinodes and n+1 nodes. The fundamental (n=1) is the lowest allowed frequency.",
+      "latex": "D(x,t) = 2A\\sin\\!\\left(\\frac{n\\pi x}{L}\\right)\\cos(\\omega_n t), \\quad f_n = \\frac{nv}{2L}, \\quad \\lambda_n = \\frac{2L}{n}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "Animated standing wave simulator: a string of fixed length with mode selector (n = 1 through 6). Show the envelope (max displacement) and animate the oscillation. Mark nodes with dots and antinodes with crosses. Overlay the two traveling waves in lighter colors so students see how they produce the standing wave. Slider for wave speed v (or tension T, computing v = √(T/μ)).",
+      "prerequisites": ["superposition"],
+      "level": 2
+    },
+    {
+      "id": "one_d_interference",
+      "name": "1D Interference from Two Sources",
+      "description": "Two coherent point sources separated by distance d emit waves of wavelength λ. At any point P in the medium, the waves have traveled different distances r₁ and r₂. The path length difference Δr = |r₁ − r₂| determines the phase difference Δφ = 2πΔr/λ + Δφ₀ (where Δφ₀ accounts for any intrinsic source offset). Constructive interference: Δr = mλ (integer wavelengths). Destructive: Δr = (m + ½)λ. The result is an interference pattern — alternating bright and dark regions — that maps the geometry of the wave field.",
+      "latex": "\\Delta r = m\\lambda \\Rightarrow \\text{constructive}, \\quad \\Delta r = \\left(m+\\tfrac{1}{2}\\right)\\lambda \\Rightarrow \\text{destructive}",
+      "tags": ["conceptual", "mathematical"],
+      "simulation_idea": "2D ripple tank with two point sources: circular wavefronts emanate from each source. Color the medium by the instantaneous superposed amplitude — hyperbolic constructive-interference lines radiate outward. Click any point to read off r₁, r₂, Δr, Δφ, and the resulting amplitude. Adjust source separation, wavelength, and source phase offset and watch the pattern reshape in real time.",
+      "prerequisites": ["wave_interference"],
+      "level": 3
+    },
+    {
+      "id": "thin_film",
+      "name": "Thin Film Interference",
+      "description": "Light reflects off both the top and bottom surfaces of a thin transparent film, creating two reflected rays that interfere. The optical path difference is 2n₂t (where n₂ is the film index and t is the thickness) because the light traverses the film twice. A critical extra effect: reflection off a medium with higher index causes a π phase shift (half-wavelength flip); reflection off lower index does not. Count the net number of π shifts (0 or 1 after cancellation between the two surfaces) to determine whether the base condition is constructive or destructive. Applications: soap bubbles, antireflection coatings (AR), oil slicks.",
+      "latex": "\\text{opt. path diff} = 2n_2 t, \\quad \\pi\\text{-shift at higher-}n\\text{ interface only}",
+      "tags": ["conceptual", "experimental", "mathematical"],
+      "simulation_idea": "Thin film explorer: sliders for film thickness t, film index n₂, and light wavelength λ₀. Draw the two reflected rays and annotate the π-shift arrows. Compute and display the net phase difference and whether the result is constructive or destructive for the chosen wavelength. Add a full-spectrum sweep: for a fixed t and n₂, plot reflectance vs. wavelength across 400–700 nm and show the resulting perceived color as a swatch — reproducing the soap bubble color phenomenon.",
+      "prerequisites": ["wave_interference"],
+      "level": 4
+    },
+    {
+      "id": "double_slit",
+      "name": "Double-Slit Interference (Young's Experiment)",
+      "description": "Two narrow slits separated by distance d act as coherent sources. A screen at distance L ≫ d shows alternating bright and dark fringes. The path difference from the two slits to a point at angle θ is d sinθ. Bright fringes: d sinθ = mλ. Dark fringes: d sinθ = (m + ½)λ. In the small-angle limit (sinθ ≈ y/L), bright fringe positions are y_m = mλL/d, giving a fringe spacing Δy = λL/d. Young's original 1801 experiment used this to measure the wavelength of light, establishing its wave nature definitively.",
+      "latex": "d\\sin\\theta = m\\lambda\\ (\\text{bright}), \\quad y_m = \\frac{m\\lambda L}{d}, \\quad \\Delta y = \\frac{\\lambda L}{d}",
+      "tags": ["conceptual", "experimental", "mathematical"],
+      "simulation_idea": "The double_slit.html app already in the course is the ideal simulation. Interactive controls for d, λ, and L. Show the wavefronts from both slits and the resulting intensity pattern on the screen. Click any fringe to read off m, y, and θ. Overlay the theoretical fringe positions and verify they match. Also include a mode that shows what happens when one slit is covered — the fringes disappear and a single-slit diffraction envelope appears.",
+      "prerequisites": ["one_d_interference"],
+      "level": 4
+    },
+    {
+      "id": "single_slit",
+      "name": "Single-Slit Diffraction",
+      "description": "Even a single slit of finite width a produces a diffraction pattern, because different parts of the wavefront within the slit interfere with each other. The central maximum is wide and bright. Dark fringes appear at a sinθ = mλ (m = ±1, ±2, …, m ≠ 0). The central maximum has angular half-width λ/a; its full spatial width on a screen is 2λL/a. Narrowing the slit (smaller a) widens the pattern — the opposite of the intuitive ray-optics expectation. The single-slit envelope always modulates the double-slit pattern in real experiments.",
+      "latex": "a\\sin\\theta = m\\lambda\\ (\\text{dark},\\ m \\neq 0), \\quad \\text{central max width} = \\frac{2\\lambda L}{a}",
+      "tags": ["conceptual", "experimental", "mathematical"],
+      "simulation_idea": "The single_slit.html app in the course covers this. Slider for slit width a: as a decreases, the central maximum visibly widens. Show the intensity formula I ∝ sinc²(πa sinθ/λ) and animate how it changes. Add a split view: the actual wavefront Huygens-construction on the left, the resulting intensity on the right. Mark the dark fringes and verify a sinθ = mλ for each.",
+      "prerequisites": ["double_slit"],
+      "level": 5
+    },
+    {
+      "id": "diffraction_applications",
+      "name": "Diffraction Gratings and X-ray Diffraction",
+      "description": "A diffraction grating has N slits equally spaced by d. The grating equation d sinθ = mλ gives bright maxima — identical to the double-slit formula, but the maxima are much sharper because all N slits must constructively interfere simultaneously. The resolving power R = mN determines how well the grating separates two nearby wavelengths: R = λ/Δλ. Bragg's Law 2d sinθ = mλ describes the same physics for X-rays reflecting off crystal planes spaced by d — the basis of X-ray crystallography and the tool used to determine DNA's double-helix structure.",
+      "latex": "d\\sin\\theta = m\\lambda\\ (\\text{grating}), \\quad R = mN = \\frac{\\lambda}{\\Delta\\lambda}, \\quad 2d\\sin\\theta = m\\lambda\\ (\\text{Bragg})",
+      "tags": ["conceptual", "experimental", "mathematical"],
+      "simulation_idea": "The diffraction.html app in the course. Show white light (400–700 nm) hitting a grating of adjustable N and d — display the first and second order spectra as colored fans on a screen. Compute R and show whether two closely spaced wavelengths (e.g., sodium doublet at 589.0 and 589.6 nm) are resolved. For Bragg: an interactive crystal lattice with adjustable d-spacing; change θ and show when the Bragg condition is met (bright reflection) or missed.",
+      "prerequisites": ["single_slit"],
+      "level": 6
+    }
+  ]
+}

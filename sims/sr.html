@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special Relativity – L3.2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  min-height:100vh; color:#e0e0e0;
+}
+.top-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 20px;
+  background:rgba(0,0,0,0.3);
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  height:50px;
+}
+.top-bar h1 {
+  font-size:1.2rem;
+  background:linear-gradient(90deg,#00d4ff,#7b2cbf);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.tab-bar { display:flex; gap:4px; }
+.tab {
+  padding:7px 16px; border:none; border-radius:6px 6px 0 0;
+  font-size:0.78rem; font-weight:600; cursor:pointer;
+  text-transform:uppercase; letter-spacing:0.5px;
+  background:rgba(255,255,255,0.07); color:#aaa; transition:all 0.2s;
+}
+.tab:hover { background:rgba(255,255,255,0.12); color:#ddd; }
+.tab.active { background:rgba(0,212,255,0.18); color:#00d4ff; border-bottom:2px solid #00d4ff; }
+.section { display:none; height:calc(100vh - 50px); overflow:hidden; }
+.section.active { display:flex; }
+
+/* LAYOUT */
+.layout { flex:1; display:flex; gap:10px; padding:10px; overflow:hidden; }
+.canvas-wrap {
+  flex:1; background:rgba(0,0,0,0.3); border-radius:10px; padding:8px;
+  border:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column;
+  position:relative; min-width:0;
+}
+.canvas-wrap canvas { flex:1; border-radius:6px; background:#0a0a1a; display:block; width:100%; height:100%; }
+.sidebar {
+  width:350px; background:rgba(0,0,0,0.3); border-radius:10px; padding:10px;
+  border:1px solid rgba(255,255,255,0.1); overflow-y:auto;
+  display:flex; flex-direction:column; gap:8px; flex-shrink:0;
+}
+
+/* CARDS */
+.card { background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; }
+.card-title { font-size:0.68rem; text-transform:uppercase; letter-spacing:1px; color:#00d4ff; margin-bottom:7px; font-weight:600; }
+
+/* SLIDERS */
+.slider-row { margin:5px 0 2px; }
+.slider-label { display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:3px; }
+.slider-val { color:#00d4ff; font-weight:600; }
+input[type="range"] { width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,0.1); outline:none; -webkit-appearance:none; cursor:pointer; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:linear-gradient(135deg,#00d4ff,#0099cc); cursor:pointer; }
+
+/* TEXT INPUTS */
+input[type="text"], input[type="number"] {
+  background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.2);
+  border-radius:4px; padding:4px 8px; color:#e0e0e0; font-size:0.8rem; outline:none;
+  transition:border-color 0.2s;
+}
+input[type="text"]:focus, input[type="number"]:focus { border-color:#00d4ff; }
+input[type="number"]::-webkit-inner-spin-button { opacity:0.5; }
+
+/* MATH BOXES */
+.math-box {
+  background:rgba(0,0,0,0.3); border-radius:6px; padding:9px 11px;
+  font-size:0.85rem; line-height:1.9; border-left:3px solid #7b2cbf;
+}
+.math-box.cyan  { border-left-color:#00d4ff; }
+.math-box.green { border-left-color:#00e676; }
+.math-box.yellow{ border-left-color:#ffc107; }
+.math-box.orange{ border-left-color:#ff9800; }
+
+/* CALLOUTS */
+.callout {
+  background:rgba(0,212,255,0.07); border:1px solid rgba(0,212,255,0.22);
+  border-radius:6px; padding:9px; font-size:0.76rem; line-height:1.65;
+}
+.callout.purple { background:rgba(123,44,191,0.09); border-color:rgba(123,44,191,0.28); }
+.callout.green  { background:rgba(0,230,118,0.07); border-color:rgba(0,230,118,0.25); }
+.callout.yellow { background:rgba(255,193,7,0.07); border-color:rgba(255,193,7,0.25); }
+
+/* BUTTONS */
+.btn {
+  padding:6px 12px; border:none; border-radius:6px;
+  font-size:0.71rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-transform:uppercase;
+}
+.btn-toggle { background:rgba(123,44,191,0.25); color:#ccc; border:1px solid rgba(123,44,191,0.45); }
+.btn-toggle:hover { background:rgba(123,44,191,0.4); }
+.btn-toggle.on { background:linear-gradient(135deg,#7b2cbf,#9d4edd); color:#fff; border-color:transparent; }
+.btn-primary { background:linear-gradient(135deg,#00d4ff,#0099cc); color:#0a0a1a; }
+.btn-primary:hover { filter:brightness(1.1); }
+.btn-danger { background:rgba(255,82,82,0.22); color:#ff5252; border:1px solid rgba(255,82,82,0.38); }
+.btn-danger:hover { background:rgba(255,82,82,0.38); }
+.btn-success { background:rgba(0,230,118,0.22); color:#00e676; border:1px solid rgba(0,230,118,0.38); }
+.btn-success:hover { background:rgba(0,230,118,0.38); }
+.btn-row { display:flex; gap:6px; flex-wrap:wrap; }
+
+/* RESULT BOXES */
+.result-box {
+  border-radius:6px; padding:9px; font-size:0.8rem; line-height:1.6; text-align:center;
+  border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04);
+}
+.result-box.proper-time   { background:rgba(0,230,118,0.1); border-color:rgba(0,230,118,0.3); }
+.result-box.proper-length { background:rgba(123,44,191,0.12); border-color:rgba(123,44,191,0.35); }
+.result-box.neither       { background:rgba(255,193,7,0.09); border-color:rgba(255,193,7,0.28); }
+
+/* VEL TAB SPECIFIC */
+.vel-input-row { display:flex; align-items:center; gap:6px; margin-top:4px; }
+.vel-input-row input[type="range"] { flex:1; }
+.vel-input-row input[type="text"] { width:68px; }
+
+/* FRAME TAB EVENT BUTTONS */
+.ev-btn {
+  flex:1; padding:6px 10px; border:none; border-radius:5px;
+  font-size:0.73rem; font-weight:600; cursor:pointer; transition:all 0.2s;
+}
+.ev-btn.a { background:rgba(255,100,100,0.25); color:#ff6464; border:1px solid rgba(255,100,100,0.4); }
+.ev-btn.a.active { background:rgba(255,100,100,0.5); border-color:#ff6464; }
+.ev-btn.b { background:rgba(0,212,255,0.2); color:#00d4ff; border:1px solid rgba(0,212,255,0.35); }
+.ev-btn.b.active { background:rgba(0,212,255,0.45); border-color:#00d4ff; }
+
+/* PROGRESS BAR */
+.progress-bar { height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; margin-top:5px; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#00d4ff,#00e676); border-radius:3px; transition:width 0.4s; }
+
+/* COLORS */
+.cc { color:#00d4ff; } .cg { color:#00e676; } .cy { color:#ffc107; }
+.cr { color:#ff5252; } .cp { color:#9d4edd; } .co { color:#ff9800; }
+
+.katex { font-size:1.0em; }
+.katex-display { margin:0.3em 0; }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Special Relativity</h1>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="vel">1. Velocity Addition</button>
+    <button class="tab" data-tab="frame">2. Reference Frames</button>
+    <button class="tab" data-tab="sync">3. Clock Sync</button>
+  </div>
+</div>
+
+<!-- ===================== TAB 1: VELOCITY ADDITION ===================== -->
+<div class="section active" id="sec-vel">
+  <div class="layout">
+    <div class="canvas-wrap">
+      <canvas id="velCanvas"></canvas>
+    </div>
+    <div class="sidebar">
+
+      <div class="card">
+        <div class="card-title">Frame Velocities</div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>\(v\) = speed of S′ relative to S</span>
+            <span class="slider-val" id="vLbl">+0.60 c</span>
+          </div>
+          <div class="vel-input-row">
+            <input type="range" id="vSlider" min="-0.99" max="0.99" step="0.01" value="0.60">
+            <input type="text" id="vText" value="0.60">
+          </div>
+        </div>
+        <div class="slider-row" style="margin-top:8px">
+          <div class="slider-label">
+            <span>\(u\) = object speed in S′</span>
+            <span class="slider-val" id="uLbl">+0.50 c</span>
+          </div>
+          <div class="vel-input-row">
+            <input type="range" id="uSlider" min="-0.99" max="0.99" step="0.01" value="0.50">
+            <input type="text" id="uText" value="0.50">
+          </div>
+        </div>
+        <div style="margin-top:8px;">
+          <button class="btn btn-toggle" id="galBtn">Galilean Overlay: OFF</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Relativistic Result</div>
+        <div class="math-box cyan" id="relBox"></div>
+      </div>
+
+      <div class="card" id="galCard" style="display:none">
+        <div class="card-title">Galilean Comparison</div>
+        <div class="math-box yellow" id="galBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">The Intuition Trick</div>
+        <div class="callout">
+          Look at the numerator: <span class="cc">\(u + v\)</span>.
+          That is <em>exactly</em> what your gut says to write.
+          Pick the signs of \(u\) and \(v\) to match your physical intuition —
+          same direction → both positive, opposite → one negative.
+          Then be <strong>consistent</strong> with those same signs for \(\beta_u\) and \(\beta_v\)
+          in the denominator. The denominator automatically enforces \(|w| < c\). It never fails.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Boost Interpretation</div>
+        <div class="callout purple">
+          A <em>boost into S′</em> = we jump into a frame moving at
+          <span class="cc">\(+v\)</span> relative to S.
+          The addition formula converts an object's velocity \(u\) measured in S′
+          into \(w\) measured in S.<br><br>
+          The <em>inverse transformation</em> is a boost into a frame moving at
+          <span class="cr">\(-v\)</span> — just replace \(v \to -v\) everywhere.
+          That takes you from S back to S′.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB 2: REFERENCE FRAMES ===================== -->
+<div class="section" id="sec-frame">
+  <div class="layout">
+    <div class="canvas-wrap">
+      <canvas id="frameCanvas" style="cursor:crosshair"></canvas>
+    </div>
+    <div class="sidebar">
+
+      <div class="card">
+        <div class="card-title">Place Events</div>
+        <div style="font-size:0.75rem;color:#999;margin-bottom:8px;">
+          Click a clock node to place events. Each event is recorded by the clock at that node.
+        </div>
+        <div class="btn-row" style="margin-bottom:10px;">
+          <button class="ev-btn a active" id="placeABtn">● Place Event A</button>
+          <button class="ev-btn b" id="placeBBtn">● Place Event B</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:#ff6464;width:90px;">Event A time:</span>
+            <input type="number" id="tA" value="0.0" step="0.5" style="width:75px;">
+            <span style="font-size:0.72rem;color:#777;">μs</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:#00d4ff;width:90px;">Event B time:</span>
+            <input type="number" id="tB" value="2.0" step="0.5" style="width:75px;">
+            <span style="font-size:0.72rem;color:#777;">μs</span>
+          </div>
+        </div>
+        <div style="margin-top:8px;">
+          <button class="btn btn-danger" id="clearEvBtn" style="width:100%">Clear Events</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Measurement Analysis</div>
+        <div class="result-box" id="frameResult">Place both events to see the analysis.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Proper Time \(\Delta\tau\)</div>
+        <div class="callout green">
+          Two events at the <strong>same node</strong> (same spatial location).
+          A single clock at that node records both — no travel, no ambiguity.
+          This gives the <em>minimum</em> time interval between the events
+          that any frame will ever measure: \(\Delta\tau = |t_B - t_A|\).
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Proper Length \(L_0\)</div>
+        <div class="callout purple">
+          Two events at <strong>different nodes</strong> but at the <strong>same local clock time</strong>
+          (simultaneous in this frame). The ruler laid between the two nodes gives
+          the proper length — the <em>maximum</em> spatial separation
+          that any frame will measure.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Grid Scale</div>
+        <div class="callout yellow" style="font-size:0.73rem;">
+          Node spacing = <span class="cc">300 m</span> (= 1 light-μs).
+          Clocks are Einstein-synchronized. All read the same time simultaneously in this frame.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB 3: CLOCK SYNC ===================== -->
+<div class="section" id="sec-sync">
+  <div class="layout">
+    <div class="canvas-wrap" id="syncWrap">
+      <canvas id="syncCanvas" style="cursor:crosshair"></canvas>
+    </div>
+    <div class="sidebar">
+
+      <div class="card">
+        <div class="card-title">Mission</div>
+        <div class="callout" style="font-size:0.74rem;line-height:1.7;">
+          The <span class="cy">★ master clock</span> fires a light pulse at \(t = 0\).
+          Light travels at <span class="cc">1 grid square per μs</span> (300 m/μs = \(c\)).
+          <br><br>
+          Pre-set each clock so that when the pulse arrives, it starts ticking
+          already reading the correct time — and all clocks tick in unison.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Controls</div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="sendBtn" style="flex:1">▶ Send Signal</button>
+          <button class="btn btn-toggle" id="rulerBtn">📏 Ruler</button>
+        </div>
+        <div class="btn-row" style="margin-top:6px;">
+          <button class="btn btn-success" id="revealBtn" style="flex:1">Reveal All</button>
+          <button class="btn btn-danger" id="resetBtn">Reset</button>
+        </div>
+        <div id="rulerInfo" style="display:none;margin-top:7px;font-size:0.74rem;color:#aaa;padding:5px 0;">
+          Click-drag on canvas to measure distances.
+        </div>
+        <div id="rulerResult" style="display:none;margin-top:4px;" class="math-box cyan"></div>
+      </div>
+
+      <div class="card" id="setClockCard" style="display:none;">
+        <div class="card-title">Set Clock</div>
+        <div id="setClockInfo" style="font-size:0.75rem;margin-bottom:7px;line-height:1.5;"></div>
+        <div style="display:flex;align-items:center;gap:7px;">
+          <input type="number" id="clockInput" step="0.01" placeholder="? .?? μs" style="width:95px;font-family:monospace;">
+          <span style="font-size:0.73rem;color:#777;">μs</span>
+          <button class="btn btn-primary" id="setClockBtn">Set</button>
+        </div>
+        <div id="clockFeedback" style="font-size:0.74rem;min-height:18px;margin-top:5px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Progress</div>
+        <div id="syncProgressTxt" style="font-size:0.75rem;color:#aaa;margin-bottom:5px;">0 / 62 clocks set</div>
+        <div class="progress-bar"><div class="progress-fill" id="syncProgressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Hint</div>
+        <div class="callout" style="font-size:0.73rem;line-height:1.65;">
+          A clock at grid distance \(d\) from the master (in grid squares)
+          should be preset to \(t = d\) μs, because \(d\) grid squares × 1 μs/square
+          = light travel time. When the signal arrives the clock reads \(d\) μs
+          and starts counting — exactly in sync with the master.
+          <br><br>
+          Use the ruler to measure \(d\) from the master to any clock.
+          Remember: \(d = \sqrt{\Delta x^2 + \Delta y^2}\).
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
+function ks(latex) { return katex.renderToString(latex, {throwOnError:false}); }
+function fmt(x, d=2) { return (x>=0?'+':'')+x.toFixed(d); }
+function fmtAbs(x, d=2) { return x.toFixed(d); }
+function clamp(x,a,b) { return Math.max(a,Math.min(b,x)); }
+
+function drawArrow(ctx, x1,y1,x2,y2, color, lw=2, headLen=10) {
+  const a = Math.atan2(y2-y1, x2-x1);
+  ctx.save();
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headLen*Math.cos(a-0.38), y2 - headLen*Math.sin(a-0.38));
+  ctx.lineTo(x2 - headLen*Math.cos(a+0.38), y2 - headLen*Math.sin(a+0.38));
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+// polyfill roundRect for older Safari
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r) {
+    this.beginPath();
+    this.moveTo(x+r,y); this.lineTo(x+w-r,y);
+    this.quadraticCurveTo(x+w,y,x+w,y+r); this.lineTo(x+w,y+h-r);
+    this.quadraticCurveTo(x+w,y+h,x+w-r,y+h); this.lineTo(x+r,y+h);
+    this.quadraticCurveTo(x,y+h,x,y+h-r); this.lineTo(x,y+r);
+    this.quadraticCurveTo(x,y,x+r,y);
+    this.closePath();
+  };
+}
+
+// ─── TAB SWITCHING ───────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  const id = 'sec-'+t.dataset.tab;
+  document.getElementById(id).classList.add('active');
+  if (t.dataset.tab==='vel')   { resizeCanvas(velCanvas); drawVel(); }
+  if (t.dataset.tab==='frame') { resizeCanvas(frameCanvas); drawFrame(); }
+  if (t.dataset.tab==='sync')  { resizeCanvas(syncCanvas); drawSync(); updateSyncOverlay(); }
+}));
+
+function resizeCanvas(canvas) {
+  const p = canvas.parentElement;
+  canvas.width  = p.clientWidth  - 16;
+  canvas.height = p.clientHeight - 16;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB 1 — VELOCITY ADDITION
+// ─────────────────────────────────────────────────────────────────────────────
+const velCanvas = document.getElementById('velCanvas');
+const vc = velCanvas.getContext('2d');
+let VS = { u:0.50, v:0.60, gal:false };
+
+function relW() { return (VS.u+VS.v)/(1+VS.u*VS.v); }
+function galW() { return clamp(VS.u+VS.v,-0.999,0.999); }
+
+// Bind sliders + text inputs
+function bindVelControl(sliderId, textId, lblId, key) {
+  const sl = document.getElementById(sliderId);
+  const tx = document.getElementById(textId);
+  const lb = document.getElementById(lblId);
+  const update = (val) => {
+    VS[key] = val;
+    sl.value = val; tx.value = val.toFixed(2);
+    lb.textContent = fmt(val)+' c';
+    updateVelMath(); drawVel();
+  };
+  sl.addEventListener('input', () => update(parseFloat(sl.value)));
+  tx.addEventListener('change', () => {
+    let n = parseFloat(tx.value.replace('c',''));
+    if (!isNaN(n)) update(clamp(n,-0.99,0.99));
+  });
+}
+bindVelControl('vSlider','vText','vLbl','v');
+bindVelControl('uSlider','uText','uLbl','u');
+
+document.getElementById('galBtn').addEventListener('click', function() {
+  VS.gal = !VS.gal;
+  this.textContent = 'Galilean Overlay: '+(VS.gal?'ON':'OFF');
+  this.classList.toggle('on', VS.gal);
+  document.getElementById('galCard').style.display = VS.gal?'':'none';
+  updateVelMath(); drawVel();
+});
+
+function updateVelMath() {
+  const {u,v} = VS;
+  const w = relW(), wG = galW();
+  document.getElementById('relBox').innerHTML =
+    ks('w = \\dfrac{u + v}{1 + uv/c^2}') + '<br>' +
+    ks(`= \\dfrac{${fmt(u,2)}c \\;+\\; ${fmt(v,2)}c}{1 + (${fmt(u,2)})(${fmt(v,2)})}`) + '<br>' +
+    `<span class="cc" style="font-size:1.1em;font-weight:700;">${ks('w = '+fmt(w,4)+'\\,c')}</span>`;
+
+  if (VS.gal) {
+    const exceed = Math.abs(VS.u+VS.v) > 1;
+    document.getElementById('galBox').innerHTML =
+      ks('w_{\\rm Gal} = u + v = '+fmt(galW(),4)+'\\,c') + '<br>' +
+      (exceed ? '<span class="cr" style="font-size:0.78em;">⚠ exceeds c — impossible!</span><br>' : '') +
+      `<span style="font-size:0.78em;color:#aaa;">` +
+      ks(`\\Delta w = ${fmtAbs(Math.abs(w-galW()),4)}\\,c`) +
+      ` (${(Math.abs(w-galW())/(Math.abs(w)||0.001)*100).toFixed(1)}% discrepancy)</span>`;
+  }
+}
+
+function drawVel() {
+  const W=velCanvas.width, H=velCanvas.height;
+  if(W<=0||H<=0) return;
+  const {u,v} = VS;
+  const w = relW(), wG = galW();
+
+  vc.fillStyle='#0a0a1a'; vc.fillRect(0,0,W,H);
+
+  // ── TOP: Physical diagram (top 56%) ──
+  const splitY = Math.floor(H*0.56);
+  const groundY = splitY - 24;
+
+  // Ground line
+  vc.strokeStyle='rgba(255,255,255,0.32)'; vc.lineWidth=2;
+  vc.beginPath(); vc.moveTo(30,groundY); vc.lineTo(W-30,groundY); vc.stroke();
+  // Hatching
+  vc.strokeStyle='rgba(255,255,255,0.09)'; vc.lineWidth=1;
+  for(let x=30;x<W-30;x+=18){vc.beginPath();vc.moveTo(x,groundY);vc.lineTo(x+12,groundY+9);vc.stroke();}
+
+  vc.fillStyle='rgba(255,255,255,0.5)'; vc.font='bold 15px Segoe UI'; vc.fillText('S',10,groundY-6);
+
+  // S' box
+  const carW=Math.min(W*0.52, 360), carH=groundY*0.38;
+  const carX=W/2-carW/2, carY=groundY-carH-2;
+  vc.fillStyle='rgba(0,212,255,0.06)'; vc.strokeStyle='rgba(0,212,255,0.52)'; vc.lineWidth=2;
+  vc.roundRect(carX,carY,carW,carH,6); vc.fill(); vc.stroke();
+  vc.fillStyle='#00d4ff'; vc.font='bold 14px Segoe UI'; vc.fillText("S′",carX+8,carY+17);
+
+  // Object inside S'
+  const objX = W/2 + u*0.22*carW;
+  const objY = carY+carH*0.5, objR=13;
+  // glow
+  const gr=vc.createRadialGradient(objX,objY,0,objX,objY,objR*2.5);
+  gr.addColorStop(0,'rgba(0,230,118,0.28)'); gr.addColorStop(1,'rgba(0,230,118,0)');
+  vc.beginPath(); vc.arc(objX,objY,objR*2.5,0,Math.PI*2); vc.fillStyle=gr; vc.fill();
+  vc.beginPath(); vc.arc(objX,objY,objR,0,Math.PI*2);
+  vc.fillStyle='#00e676'; vc.fill();
+  vc.strokeStyle='rgba(0,230,118,0.8)'; vc.lineWidth=2; vc.stroke();
+
+  // u arrow
+  if(Math.abs(u)>0.02){
+    const ud=Math.sign(u), uLen=Math.abs(u)*60+18;
+    const uSx=objX+ud*(objR+3), uEx=clamp(uSx+ud*uLen,carX+4,carX+carW-4);
+    drawArrow(vc,uSx,objY,uEx,objY,'#00e676',2.5,10);
+    vc.fillStyle='#00e676'; vc.font='bold 11px Segoe UI';
+    vc.textAlign=ud>0?'left':'right';
+    vc.fillText(`u=${fmt(u,2)}c`,uEx+ud*4,objY+14);
+  }
+  // v arrow
+  if(Math.abs(v)>0.02){
+    const vd=Math.sign(v), vLen=Math.abs(v)*70+22;
+    const vAy=carY+carH+10;
+    const vSx=vd>0?carX+carW:carX, vEx=vSx+vd*vLen;
+    drawArrow(vc,vSx+vd*4,vAy,vEx,vAy,'#ffc107',2.5,10);
+    vc.fillStyle='#ffc107'; vc.font='bold 11px Segoe UI';
+    vc.textAlign=vd>0?'left':'right';
+    vc.fillText(`v=${fmt(v,2)}c`,vEx+vd*4,vAy+1);
+  }
+  vc.textAlign='left';
+
+  // w label
+  const wStr=`w = ${fmt(w,4)} c  (object in S)`;
+  vc.fillStyle='#00d4ff'; vc.font='bold 12px Segoe UI';
+  vc.textAlign='center'; vc.fillText(wStr,W/2,groundY+16); vc.textAlign='left';
+
+  // ── BOTTOM: Number line (bottom 44%) ──
+  const nlTop=splitY+8, nlBot=H-14;
+  const nlMid=nlTop+(nlBot-nlTop)*0.45;
+  const nlPadL=62, nlPadR=62;
+  const nlL=nlPadL, nlR=W-nlPadR;
+  const vToX=val=>nlL+(clamp(val,-1,1)+1)/2*(nlR-nlL);
+
+  vc.fillStyle='rgba(0,0,0,0.18)'; vc.roundRect(8,nlTop-4,W-16,nlBot-nlTop+8,7); vc.fill();
+
+  // title
+  vc.fillStyle='rgba(255,255,255,0.3)'; vc.font='11px Segoe UI';
+  vc.textAlign='center'; vc.fillText('velocity comparison',W/2,nlTop+11); vc.textAlign='left';
+
+  // forbidden zones
+  vc.fillStyle='rgba(255,82,82,0.07)';
+  vc.fillRect(nlL-30,nlMid-32,30,64);
+  vc.fillRect(nlR,nlMid-32,30,64);
+
+  // axis
+  vc.strokeStyle='rgba(255,255,255,0.38)'; vc.lineWidth=2;
+  vc.beginPath(); vc.moveTo(nlL,nlMid); vc.lineTo(nlR,nlMid); vc.stroke();
+
+  // ticks
+  [-1,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1].forEach(t=>{
+    const tx=vToX(t), major=Math.abs(t)===0||Math.abs(t)===0.5||Math.abs(t)===1;
+    vc.strokeStyle=major?'rgba(255,255,255,0.38)':'rgba(255,255,255,0.18)';
+    vc.lineWidth=1;
+    vc.beginPath(); vc.moveTo(tx,nlMid-(major?7:4)); vc.lineTo(tx,nlMid+(major?7:4)); vc.stroke();
+    if(major){
+      vc.fillStyle='rgba(255,255,255,0.45)'; vc.font='11px Segoe UI'; vc.textAlign='center';
+      const lb=t===0?'0':t===1?'+c':t===-1?'−c':t>0?`+${t}c`:`${t}c`;
+      vc.fillText(lb,tx,nlMid+18);
+    }
+  });
+  vc.textAlign='left';
+
+  // markers: stacked vertically above axis
+  const markers=[
+    {val:v,  color:'#ffc107', sym:'v',   row:0, diamond:false},
+    {val:u,  color:'#00e676', sym:'u',   row:1, diamond:false},
+    {val:w,  color:'#00d4ff', sym:'w',   row:2, diamond:true},
+  ];
+  if(VS.gal) markers.push({val:wG, color:'#ff9800', sym:'w_G', row:3, diamond:true});
+
+  const rowOff=[-26,-44,-62,-80];
+  markers.forEach(m=>{
+    const mx=vToX(m.val), my=nlMid+rowOff[m.row], R=7;
+    // stem
+    vc.strokeStyle=m.color+'65'; vc.lineWidth=1.5;
+    vc.setLineDash([3,2]);
+    vc.beginPath(); vc.moveTo(mx,nlMid-3); vc.lineTo(mx,my+R+2); vc.stroke();
+    vc.setLineDash([]);
+    // shape
+    vc.fillStyle=m.color;
+    if(m.diamond){
+      vc.beginPath(); vc.moveTo(mx,my-R); vc.lineTo(mx+R,my); vc.lineTo(mx,my+R); vc.lineTo(mx-R,my); vc.closePath(); vc.fill();
+    } else {
+      vc.beginPath(); vc.arc(mx,my,R,0,Math.PI*2); vc.fill();
+    }
+    // symbol label
+    vc.fillStyle=m.color; vc.font='bold 11px Segoe UI'; vc.textAlign='center';
+    vc.fillText(m.sym,mx,my-R-4);
+    // numeric value
+    vc.font='10px Segoe UI'; vc.fillStyle=m.color+'aa';
+    vc.fillText(fmt(m.val,3)+'c',mx,my+R+13);
+  });
+  vc.textAlign='left';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB 2 — REFERENCE FRAMES
+// ─────────────────────────────────────────────────────────────────────────────
+const frameCanvas = document.getElementById('frameCanvas');
+const fc = frameCanvas.getContext('2d');
+
+const FG = { COLS:7, ROWS:5 };  // grid dimensions
+let FS = { evA:null, evB:null, placing:'A' };  // evA/B: {nx,ny} or null
+
+// Grid layout helpers
+function fGridLayout() {
+  const W=frameCanvas.width, H=frameCanvas.height;
+  const padX=55, padY=50;
+  const sx=(W-2*padX)/(FG.COLS-1), sy=(H-2*padY)/(FG.ROWS-1);
+  const s=Math.min(sx,sy);
+  const offX=(W-(FG.COLS-1)*s)/2, offY=(H-(FG.ROWS-1)*s)/2;
+  return {s, offX, offY};
+}
+function fNodePos(nx,ny) {
+  const {s,offX,offY}=fGridLayout();
+  return {x:offX+nx*s, y:offY+ny*s};
+}
+function fNearestNode(px,py) {
+  const {s,offX,offY}=fGridLayout();
+  const nx=Math.round((px-offX)/s), ny=Math.round((py-offY)/s);
+  return {nx:clamp(nx,0,FG.COLS-1), ny:clamp(ny,0,FG.ROWS-1)};
+}
+
+function drawClockFace(ctx, cx,cy, r, color='rgba(0,212,255,0.55)') {
+  ctx.strokeStyle=color; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  // 4 ticks
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*(r-2.5), cy+Math.sin(a)*(r-2.5));
+    ctx.lineTo(cx+Math.cos(a)*r, cy+Math.sin(a)*r);
+    ctx.stroke();
+  }
+}
+
+function drawFrame() {
+  const W=frameCanvas.width, H=frameCanvas.height;
+  if(W<=0||H<=0) return;
+  const {s,offX,offY}=fGridLayout();
+
+  fc.fillStyle='#0a0a1a'; fc.fillRect(0,0,W,H);
+
+  // Grid lines
+  fc.strokeStyle='rgba(0,212,255,0.12)'; fc.lineWidth=1;
+  for(let c=0;c<FG.COLS;c++){
+    const {x:x0,y:y0}=fNodePos(c,0), {x:x1,y:y1}=fNodePos(c,FG.ROWS-1);
+    fc.beginPath(); fc.moveTo(x0,y0); fc.lineTo(x1,y1); fc.stroke();
+  }
+  for(let r=0;r<FG.ROWS;r++){
+    const {x:x0,y:y0}=fNodePos(0,r), {x:x1,y:y1}=fNodePos(FG.COLS-1,r);
+    fc.beginPath(); fc.moveTo(x0,y0); fc.lineTo(x1,y1); fc.stroke();
+  }
+
+  // Ruler tick marks between nodes
+  fc.strokeStyle='rgba(0,212,255,0.22)'; fc.lineWidth=1;
+  const N_TICKS=5;
+  for(let c=0;c<FG.COLS-1;c++){
+    for(let r=0;r<FG.ROWS;r++){
+      const {x:x0,y:y0}=fNodePos(c,r);
+      for(let t=1;t<N_TICKS;t++){
+        const tx=x0+t*s/N_TICKS, ty=y0;
+        fc.beginPath(); fc.moveTo(tx,ty-4); fc.lineTo(tx,ty+4); fc.stroke();
+      }
+    }
+  }
+  for(let r=0;r<FG.ROWS-1;r++){
+    for(let c=0;c<FG.COLS;c++){
+      const {x:x0,y:y0}=fNodePos(c,r);
+      for(let t=1;t<N_TICKS;t++){
+        const tx=x0, ty=y0+t*s/N_TICKS;
+        fc.beginPath(); fc.moveTo(tx-4,ty); fc.lineTo(tx+4,ty); fc.stroke();
+      }
+    }
+  }
+
+  // Draw axis labels (300m spacing)
+  fc.fillStyle='rgba(255,255,255,0.25)'; fc.font='10px Segoe UI'; fc.textAlign='center';
+  for(let c=0;c<FG.COLS;c++){
+    const {x,y}=fNodePos(c,FG.ROWS-1);
+    fc.fillText((c*300)+'m', x, y+18);
+  }
+  fc.textAlign='left';
+  for(let r=0;r<FG.ROWS;r++){
+    const {x,y}=fNodePos(0,r);
+    fc.fillStyle='rgba(255,255,255,0.25)'; fc.font='10px Segoe UI';
+    fc.fillText((r*300)+'m', x-42, y+4);
+  }
+
+  // Highlight nodes: event A / event B / neither
+  for(let nx=0;nx<FG.COLS;nx++){
+    for(let ny=0;ny<FG.ROWS;ny++){
+      const {x,y}=fNodePos(nx,ny);
+      const isA = FS.evA && FS.evA.nx===nx && FS.evA.ny===ny;
+      const isB = FS.evB && FS.evB.nx===nx && FS.evB.ny===ny;
+      const isBoth = isA && isB;
+      if(isBoth){
+        // Both events at same node — proper time scenario
+        fc.fillStyle='rgba(0,230,118,0.55)';
+        fc.beginPath(); fc.arc(x,y,10,0,Math.PI*2); fc.fill();
+        drawClockFace(fc,x,y,10,'rgba(0,230,118,0.9)');
+      } else if(isA){
+        fc.fillStyle='rgba(255,100,100,0.45)';
+        fc.beginPath(); fc.arc(x,y,10,0,Math.PI*2); fc.fill();
+        drawClockFace(fc,x,y,10,'rgba(255,100,100,0.9)');
+      } else if(isB){
+        fc.fillStyle='rgba(0,212,255,0.45)';
+        fc.beginPath(); fc.arc(x,y,10,0,Math.PI*2); fc.fill();
+        drawClockFace(fc,x,y,10,'rgba(0,212,255,0.9)');
+      } else {
+        drawClockFace(fc,x,y,8,'rgba(0,212,255,0.4)');
+      }
+    }
+  }
+
+  // Draw event markers (star shapes)
+  if(FS.evA){ drawEventStar(fc, fNodePos(FS.evA.nx,FS.evA.ny), 'A', '#ff6464', document.getElementById('tA').value+'μs'); }
+  if(FS.evB){ drawEventStar(fc, fNodePos(FS.evB.nx,FS.evB.ny), 'B', '#00d4ff', document.getElementById('tB').value+'μs'); }
+
+  // If both events, draw connection line
+  if(FS.evA && FS.evB && !(FS.evA.nx===FS.evB.nx && FS.evA.ny===FS.evB.ny)){
+    const pA=fNodePos(FS.evA.nx,FS.evA.ny), pB=fNodePos(FS.evB.nx,FS.evB.ny);
+    const tA=parseFloat(document.getElementById('tA').value);
+    const tB=parseFloat(document.getElementById('tB').value);
+    const sameTime=Math.abs(tA-tB)<0.001;
+    fc.strokeStyle=sameTime?'rgba(157,78,221,0.55)':'rgba(255,193,7,0.35)';
+    fc.lineWidth=sameTime?2.5:1.5;
+    fc.setLineDash(sameTime?[]:[5,4]);
+    fc.beginPath(); fc.moveTo(pA.x,pA.y); fc.lineTo(pB.x,pB.y); fc.stroke();
+    fc.setLineDash([]);
+  }
+
+  // Current placing indicator
+  const placeColor=FS.placing==='A'?'#ff6464':'#00d4ff';
+  fc.fillStyle=placeColor; fc.font='12px Segoe UI';
+  fc.fillText(`Click to place Event ${FS.placing}`,offX, offY-20);
+}
+
+function drawEventStar(ctx,{x,y}, label, color, timeStr){
+  const R=14;
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  for(let i=0;i<5;i++){
+    const a=i*Math.PI*2/5-Math.PI/2;
+    const b=a+Math.PI/5;
+    const ox=Math.cos(a)*R, oy=Math.sin(a)*R;
+    const ix=Math.cos(b)*R*0.4, iy=Math.sin(b)*R*0.4;
+    i===0 ? ctx.moveTo(ox,oy) : ctx.lineTo(ox,oy);
+    ctx.lineTo(ix,iy);
+  }
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle=color; ctx.font='bold 12px Segoe UI'; ctx.textAlign='center';
+  ctx.fillText(label, 0, -R-4);
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='10px Segoe UI';
+  ctx.fillText(timeStr, 0, R+13);
+  ctx.restore();
+}
+
+// Frame canvas interaction
+frameCanvas.addEventListener('click', e=>{
+  const r=frameCanvas.getBoundingClientRect();
+  const px=(e.clientX-r.left)*(frameCanvas.width/r.width);
+  const py=(e.clientY-r.top)*(frameCanvas.height/r.height);
+  const {nx,ny}=fNearestNode(px,py);
+  if(FS.placing==='A'){
+    FS.evA={nx,ny};
+    FS.placing='B';
+    document.getElementById('placeABtn').classList.remove('active');
+    document.getElementById('placeBBtn').classList.add('active');
+  } else {
+    FS.evB={nx,ny};
+    FS.placing='A';
+    document.getElementById('placeBBtn').classList.remove('active');
+    document.getElementById('placeABtn').classList.add('active');
+  }
+  updateFrameAnalysis(); drawFrame();
+});
+
+document.getElementById('placeABtn').addEventListener('click',()=>{
+  FS.placing='A';
+  document.getElementById('placeABtn').classList.add('active');
+  document.getElementById('placeBBtn').classList.remove('active');
+  drawFrame();
+});
+document.getElementById('placeBBtn').addEventListener('click',()=>{
+  FS.placing='B';
+  document.getElementById('placeBBtn').classList.remove('active');
+  document.getElementById('placeBBtn').classList.add('active');
+  drawFrame();
+});
+
+document.getElementById('clearEvBtn').addEventListener('click',()=>{
+  FS.evA=null; FS.evB=null; FS.placing='A';
+  document.getElementById('placeABtn').classList.add('active');
+  document.getElementById('placeBBtn').classList.remove('active');
+  document.getElementById('frameResult').className='result-box';
+  document.getElementById('frameResult').innerHTML='Place both events to see the analysis.';
+  drawFrame();
+});
+
+document.getElementById('tA').addEventListener('input',()=>{ updateFrameAnalysis(); drawFrame(); });
+document.getElementById('tB').addEventListener('input',()=>{ updateFrameAnalysis(); drawFrame(); });
+
+function updateFrameAnalysis() {
+  if(!FS.evA||!FS.evB) return;
+  const el=document.getElementById('frameResult');
+  const tA=parseFloat(document.getElementById('tA').value)||0;
+  const tB=parseFloat(document.getElementById('tB').value)||0;
+  const sameNode=FS.evA.nx===FS.evB.nx && FS.evA.ny===FS.evB.ny;
+  const dx=(FS.evB.nx-FS.evA.nx), dy=(FS.evB.ny-FS.evA.ny);
+  const dist=Math.sqrt(dx*dx+dy*dy)*300; // metres
+  const sameTime=Math.abs(tA-tB)<0.001;
+
+  if(sameNode){
+    el.className='result-box proper-time';
+    el.innerHTML=
+      `<span class="cg" style="font-size:1.05em;font-weight:700;">✓ Proper Time</span><br>` +
+      `Both events at node (${FS.evA.nx}, ${FS.evA.ny}).<br>` +
+      `Single clock records both.<br>` +
+      ks(`\\Delta\\tau = |t_B - t_A| = ${fmtAbs(Math.abs(tB-tA),2)}\\text{ μs}`);
+  } else if(sameTime){
+    el.className='result-box proper-length';
+    el.innerHTML=
+      `<span class="cp" style="font-size:1.05em;font-weight:700;">✓ Proper Length</span><br>` +
+      `Events simultaneous in this frame (\(t = ${fmtAbs(tA,1)}\) μs).<br>` +
+      `Ruler spans ${Math.abs(dx)} col${Math.abs(dx)!==1?'s':''}, ${Math.abs(dy)} row${Math.abs(dy)!==1?'s':''}<br>` +
+      ks(`L_0 = ${fmtAbs(dist,0)}\\text{ m} = ${fmtAbs(dist/300,2)}\\text{ light-μs}`);
+  } else {
+    el.className='result-box neither';
+    el.innerHTML=
+      `<span class="cy" style="font-size:1.0em;font-weight:700;">General Interval</span><br>` +
+      `Neither purely proper time nor proper length in this frame.<br>` +
+      ks(`\\Delta t = ${fmtAbs(Math.abs(tB-tA),2)}\\text{ μs},\\quad \\Delta x = ${fmtAbs(dist,0)}\\text{ m}`)+`<br>`+
+      ks(`s^2 = c^2(\\Delta t)^2 - (\\Delta x)^2`);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB 3 — CLOCK SYNCHRONIZATION
+// ─────────────────────────────────────────────────────────────────────────────
+const syncCanvas = document.getElementById('syncCanvas');
+const sc = syncCanvas.getContext('2d');
+
+const SG = { COLS:9, ROWS:7, MX:4, MY:3 };  // master at (4,3)
+let SS = {
+  clocks: [],         // [row][col]: {dist, state:'locked'|'active'|'correct', userVal:null}
+  signalR: -1,        // current signal radius in grid units (-1 = not sent)
+  animId: null,
+  animStart: null,
+  rulerMode: false,
+  rulerDrag: null,    // {x0,y0,x1,y1} in canvas px
+  rulerFinal: null,
+  selected: null,     // {nx,ny} of selected active clock
+};
+const ANIM_SPEED = 1.1; // grid units per second
+
+function syncNodeDist(nx,ny) {
+  return Math.sqrt((nx-SG.MX)**2+(ny-SG.MY)**2);
+}
+
+function initSyncClocks() {
+  SS.clocks=[];
+  for(let r=0;r<SG.ROWS;r++){
+    SS.clocks.push([]);
+    for(let c=0;c<SG.COLS;c++){
+      const d=syncNodeDist(c,r);
+      SS.clocks[r].push({
+        dist: d,
+        state: (c===SG.MX&&r===SG.MY)?'master':'locked',
+        userVal: null
+      });
+    }
+  }
+  SS.signalR=-1; SS.animId=null; SS.animStart=null;
+  SS.rulerDrag=null; SS.rulerFinal=null; SS.selected=null;
+  document.getElementById('setClockCard').style.display='none';
+  document.getElementById('rulerResult').style.display='none';
+  document.getElementById('sendBtn').disabled=false;
+  updateSyncProgress();
+}
+
+// Sync canvas layout helpers
+function sGridLayout() {
+  const W=syncCanvas.width, H=syncCanvas.height;
+  const padX=52, padY=48;
+  const sx=(W-2*padX)/(SG.COLS-1), sy=(H-2*padY)/(SG.ROWS-1);
+  const s=Math.min(sx,sy);
+  const offX=(W-(SG.COLS-1)*s)/2, offY=(H-(SG.ROWS-1)*s)/2;
+  return {s, offX, offY};
+}
+function sNodePos(nx,ny) {
+  const {s,offX,offY}=sGridLayout();
+  return {x:offX+nx*s, y:offY+ny*s};
+}
+function sNearestNode(px,py) {
+  const {s,offX,offY}=sGridLayout();
+  const nx=Math.round((px-offX)/s), ny=Math.round((py-offY)/s);
+  return {nx:clamp(nx,0,SG.COLS-1), ny:clamp(ny,0,SG.ROWS-1)};
+}
+function sCanvasToGrid(px,py) {
+  const {s,offX,offY}=sGridLayout();
+  return {gx:(px-offX)/s, gy:(py-offY)/s};
+}
+
+function drawSync() {
+  const W=syncCanvas.width, H=syncCanvas.height;
+  if(W<=0||H<=0) return;
+  const {s,offX,offY}=sGridLayout();
+  const R=SS.signalR;
+
+  sc.fillStyle='#0a0a1a'; sc.fillRect(0,0,W,H);
+
+  // Grid lines
+  sc.strokeStyle='rgba(0,212,255,0.09)'; sc.lineWidth=1;
+  for(let c=0;c<SG.COLS;c++){
+    const {x:x0,y:y0}=sNodePos(c,0), {x:x1,y:y1}=sNodePos(c,SG.ROWS-1);
+    sc.beginPath(); sc.moveTo(x0,y0); sc.lineTo(x1,y1); sc.stroke();
+  }
+  for(let r=0;r<SG.ROWS;r++){
+    const {x:x0,y:y0}=sNodePos(0,r), {x:x1,y:y1}=sNodePos(SG.COLS-1,r);
+    sc.beginPath(); sc.moveTo(x0,y0); sc.lineTo(x1,y1); sc.stroke();
+  }
+
+  // Light signal circle
+  if(R>=0){
+    const {x:mx,y:my}=sNodePos(SG.MX,SG.MY);
+    // Outer glow
+    const grad=sc.createRadialGradient(mx,my,Math.max(0,R*s-8),mx,my,R*s+4);
+    grad.addColorStop(0,'rgba(0,212,255,0)');
+    grad.addColorStop(0.5,'rgba(0,212,255,0.18)');
+    grad.addColorStop(1,'rgba(0,212,255,0)');
+    sc.beginPath(); sc.arc(mx,my,R*s+4,0,Math.PI*2);
+    sc.fillStyle=grad; sc.fill();
+    // Circle line
+    sc.beginPath(); sc.arc(mx,my,R*s,0,Math.PI*2);
+    sc.strokeStyle='rgba(0,212,255,0.75)'; sc.lineWidth=2;
+    sc.stroke();
+  }
+
+  // Draw all clock nodes
+  for(let r=0;r<SG.ROWS;r++){
+    for(let c=0;c<SG.COLS;c++){
+      const {x,y}=sNodePos(c,r);
+      const clk=SS.clocks[r][c];
+      const isSel=SS.selected&&SS.selected.nx===c&&SS.selected.ny===r;
+      drawSyncClock(sc, x, y, s*0.38, clk, isSel);
+    }
+  }
+
+  // Ruler
+  const rl=SS.rulerFinal||SS.rulerDrag;
+  if(rl&&rl.x1!==undefined){
+    const dx=rl.x1-rl.x0, dy=rl.y1-rl.y0;
+    const len=Math.sqrt(dx*dx+dy*dy);
+    sc.strokeStyle='rgba(255,193,7,0.85)'; sc.lineWidth=1.5;
+    sc.setLineDash([5,3]);
+    sc.beginPath(); sc.moveTo(rl.x0,rl.y0); sc.lineTo(rl.x1,rl.y1); sc.stroke();
+    sc.setLineDash([]);
+    // endpoint dots
+    [0,1].forEach(e=>{
+      const ex=e?rl.x1:rl.x0, ey=e?rl.y1:rl.y0;
+      sc.beginPath(); sc.arc(ex,ey,4,0,Math.PI*2);
+      sc.fillStyle='#ffc107'; sc.fill();
+    });
+    // distance label near midpoint
+    const mx2=(rl.x0+rl.x1)/2, my2=(rl.y0+rl.y1)/2;
+    const gDist=len/s; // in grid units
+    const txt=`${fmtAbs(gDist,2)} grid = ${fmtAbs(gDist*300,0)} m = ${fmtAbs(gDist,2)} μs`;
+    sc.fillStyle='rgba(0,0,0,0.6)';
+    const tw=sc.measureText(txt).width;
+    sc.fillRect(mx2-tw/2-4, my2-14, tw+8, 16);
+    sc.fillStyle='#ffc107'; sc.font='bold 11px Segoe UI'; sc.textAlign='center';
+    sc.fillText(txt, mx2, my2-2);
+    sc.textAlign='left';
+  }
+
+  // Grid-unit label
+  sc.fillStyle='rgba(255,255,255,0.2)'; sc.font='10px Segoe UI'; sc.textAlign='center';
+  for(let c=0;c<SG.COLS;c++){
+    const {x,y}=sNodePos(c,SG.ROWS-1);
+    sc.fillText((c-SG.MX)+'', x, y+16);
+  }
+  for(let r=0;r<SG.ROWS;r++){
+    const {x,y}=sNodePos(0,r);
+    sc.fillStyle='rgba(255,255,255,0.2)'; sc.font='10px Segoe UI';
+    sc.textAlign='right'; sc.fillText((r-SG.MY)+'', x-10, y+4);
+  }
+  sc.textAlign='left';
+
+  // Coordinate label on axes
+  sc.fillStyle='rgba(255,255,255,0.2)'; sc.font='10px Segoe UI'; sc.textAlign='center';
+  const {x:axX,y:axY}=sNodePos(SG.MX,SG.ROWS-1);
+  sc.fillText('Δx (grid sq.)',axX,axY+28);
+  sc.restore&&sc.restore();
+  sc.textAlign='left';
+}
+
+function drawSyncClock(ctx, cx, cy, r, clk, selected) {
+  const w=r*1.8, h=r*1.1;
+  // box bg
+  let bg='rgba(20,20,40,0.85)', border, textColor;
+  if(clk.state==='master'){ bg='rgba(60,50,0,0.85)'; border='#ffc107'; textColor='#ffc107'; }
+  else if(clk.state==='locked'){ border='rgba(255,255,255,0.12)'; textColor='rgba(255,255,255,0.25)'; }
+  else if(clk.state==='active'){ border=selected?'#ffffff':'rgba(255,255,255,0.6)'; textColor='#fff'; bg='rgba(30,30,60,0.9)'; }
+  else if(clk.state==='correct'){ border='#00e676'; textColor='#00e676'; bg='rgba(0,40,20,0.85)'; }
+
+  if(selected){ bg='rgba(0,212,255,0.12)'; border='#00d4ff'; }
+
+  ctx.fillStyle=bg;
+  ctx.roundRect(cx-w,cy-h*0.6,w*2,h*1.2,3);
+  ctx.fill();
+  ctx.strokeStyle=border; ctx.lineWidth=selected?2:1.2;
+  ctx.roundRect(cx-w,cy-h*0.6,w*2,h*1.2,3);
+  ctx.stroke();
+
+  // Text
+  let txt;
+  if(clk.state==='master') txt='0.00';
+  else if(clk.state==='locked') txt='?';
+  else if(clk.state==='active') txt='?';
+  else if(clk.state==='correct') txt=fmtAbs(clk.dist,2);
+
+  ctx.fillStyle=textColor; ctx.font=`bold ${Math.max(8,Math.floor(h*0.72))}px monospace`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(txt, cx, cy);
+  ctx.textBaseline='alphabetic';
+
+  // Master star
+  if(clk.state==='master'){
+    ctx.fillStyle='#ffc107'; ctx.font=`${Math.floor(h*0.5)}px Segoe UI`;
+    ctx.textAlign='center';
+    ctx.fillText('★', cx, cy-h*0.6-4);
+  }
+
+  // Active pulse ring
+  if(clk.state==='active'&&!selected){
+    ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+    ctx.setLineDash([3,2]);
+    ctx.beginPath(); ctx.arc(cx,cy,r*1.1,0,Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.textAlign='left';
+}
+
+// Signal animation
+function startSignalAnim() {
+  if(SS.animId) return;
+  SS.signalR=0; SS.animStart=null;
+  document.getElementById('sendBtn').disabled=true;
+
+  function step(ts){
+    if(!SS.animStart) SS.animStart=ts;
+    SS.signalR=(ts-SS.animStart)/1000*ANIM_SPEED;
+    // Activate clocks the signal has reached
+    for(let r=0;r<SG.ROWS;r++){
+      for(let c=0;c<SG.COLS;c++){
+        const clk=SS.clocks[r][c];
+        if(clk.state==='locked' && clk.dist<=SS.signalR+0.05){
+          clk.state='active';
+        }
+      }
+    }
+    drawSync();
+    const maxDist=Math.sqrt((SG.COLS-1)**2+(SG.ROWS-1)**2)+1;
+    if(SS.signalR<maxDist){
+      SS.animId=requestAnimationFrame(step);
+    } else {
+      SS.animId=null;
+      // Activate any remaining locked clocks
+      for(let r=0;r<SG.ROWS;r++){
+        for(let c=0;c<SG.COLS;c++){
+          if(SS.clocks[r][c].state==='locked') SS.clocks[r][c].state='active';
+        }
+      }
+      drawSync();
+    }
+  }
+  SS.animId=requestAnimationFrame(step);
+}
+
+// Sync progress
+function updateSyncProgress() {
+  let correct=0, total=0;
+  for(let r=0;r<SG.ROWS;r++){
+    for(let c=0;c<SG.COLS;c++){
+      if(SS.clocks[r][c].state!=='master') total++;
+      if(SS.clocks[r][c].state==='correct') correct++;
+    }
+  }
+  document.getElementById('syncProgressTxt').textContent=`${correct} / ${total} clocks set`;
+  document.getElementById('syncProgressFill').style.width=(correct/total*100)+'%';
+}
+
+// Select a clock
+function selectSyncClock(nx,ny){
+  const clk=SS.clocks[ny][nx];
+  if(clk.state!=='active'&&clk.state!=='correct') return;
+  SS.selected={nx,ny};
+  const dx=nx-SG.MX, dy=ny-SG.MY;
+  const dist=fmtAbs(syncNodeDist(nx,ny),4);
+  const card=document.getElementById('setClockCard');
+  card.style.display='';
+  document.getElementById('setClockInfo').innerHTML=
+    `Node at <span class="cc">(${nx-SG.MX}, ${ny-SG.MY})</span> from master<br>`+
+    `Distance = ${ks(`\\sqrt{${dx}^2+${dy}^2} = ${dist}`)} grid squares`;
+  document.getElementById('clockInput').value='';
+  document.getElementById('clockFeedback').textContent='';
+  if(clk.state==='correct'){
+    document.getElementById('clockInput').value=fmtAbs(clk.dist,2);
+    document.getElementById('clockFeedback').innerHTML=`<span class="cg">✓ Already set to ${fmtAbs(clk.dist,2)} μs</span>`;
+  }
+  document.getElementById('clockInput').focus();
+  drawSync();
+}
+
+document.getElementById('setClockBtn').addEventListener('click', checkClockInput);
+document.getElementById('clockInput').addEventListener('keydown', e=>{if(e.key==='Enter') checkClockInput();});
+
+function checkClockInput(){
+  if(!SS.selected) return;
+  const {nx,ny}=SS.selected;
+  const clk=SS.clocks[ny][nx];
+  const val=parseFloat(document.getElementById('clockInput').value);
+  if(isNaN(val)){ document.getElementById('clockFeedback').innerHTML='<span class="cr">Enter a number in μs.</span>'; return; }
+  const answer=clk.dist;
+  if(Math.abs(val-answer)<=0.1){
+    clk.state='correct'; clk.userVal=val;
+    document.getElementById('clockFeedback').innerHTML=`<span class="cg">✓ Correct! ${fmtAbs(answer,4)} μs</span>`;
+    updateSyncProgress(); drawSync();
+  } else {
+    document.getElementById('clockFeedback').innerHTML=
+      `<span class="cr">✗ Not quite. Try again.</span>`;
+    document.getElementById('clockInput').classList.add('wrong-flash');
+    setTimeout(()=>document.getElementById('clockInput').classList.remove('wrong-flash'),400);
+  }
+}
+
+// Sync canvas mouse events
+let syncMouseDown=false, syncDragStarted=false;
+syncCanvas.addEventListener('mousedown', e=>{
+  syncMouseDown=true; syncDragStarted=false;
+  const r=syncCanvas.getBoundingClientRect();
+  const px=(e.clientX-r.left)*(syncCanvas.width/r.width);
+  const py=(e.clientY-r.top)*(syncCanvas.height/r.height);
+  if(SS.rulerMode){ SS.rulerDrag={x0:px,y0:py}; SS.rulerFinal=null; }
+  else { /* click-to-select handled on mouseup */ }
+});
+syncCanvas.addEventListener('mousemove', e=>{
+  if(!syncMouseDown) return;
+  const r=syncCanvas.getBoundingClientRect();
+  const px=(e.clientX-r.left)*(syncCanvas.width/r.width);
+  const py=(e.clientY-r.top)*(syncCanvas.height/r.height);
+  if(SS.rulerMode&&SS.rulerDrag){
+    syncDragStarted=true;
+    SS.rulerDrag.x1=px; SS.rulerDrag.y1=py;
+    drawSync();
+  }
+});
+syncCanvas.addEventListener('mouseup', e=>{
+  syncMouseDown=false;
+  const r=syncCanvas.getBoundingClientRect();
+  const px=(e.clientX-r.left)*(syncCanvas.width/r.width);
+  const py=(e.clientY-r.top)*(syncCanvas.height/r.height);
+  if(SS.rulerMode&&SS.rulerDrag&&syncDragStarted){
+    SS.rulerDrag.x1=px; SS.rulerDrag.y1=py;
+    SS.rulerFinal={...SS.rulerDrag};
+    SS.rulerDrag=null;
+    const len=Math.sqrt((SS.rulerFinal.x1-SS.rulerFinal.x0)**2+(SS.rulerFinal.y1-SS.rulerFinal.y0)**2);
+    const {s}=sGridLayout();
+    const gDist=len/s;
+    document.getElementById('rulerResult').style.display='';
+    document.getElementById('rulerResult').innerHTML=
+      ks(`d = ${fmtAbs(gDist,2)}\\text{ grid} = ${fmtAbs(gDist*300,0)}\\text{ m} = ${fmtAbs(gDist,2)}\\text{ μs}`);
+    drawSync();
+  } else if(!SS.rulerMode&&!syncDragStarted){
+    const {nx,ny}=sNearestNode(px,py);
+    selectSyncClock(nx,ny);
+  }
+});
+
+// Sync controls
+document.getElementById('sendBtn').addEventListener('click', startSignalAnim);
+
+document.getElementById('rulerBtn').addEventListener('click', function(){
+  SS.rulerMode=!SS.rulerMode;
+  this.classList.toggle('on',SS.rulerMode);
+  document.getElementById('rulerInfo').style.display=SS.rulerMode?'':'none';
+  syncCanvas.style.cursor=SS.rulerMode?'crosshair':'crosshair';
+  if(!SS.rulerMode){ SS.rulerDrag=null; SS.rulerFinal=null; drawSync(); }
+});
+
+document.getElementById('revealBtn').addEventListener('click',()=>{
+  for(let r=0;r<SG.ROWS;r++){
+    for(let c=0;c<SG.COLS;c++){
+      const clk=SS.clocks[r][c];
+      if(clk.state==='active'||clk.state==='locked'){
+        clk.state='correct';
+      }
+    }
+  }
+  updateSyncProgress(); drawSync();
+  document.getElementById('setClockCard').style.display='none';
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  if(SS.animId){ cancelAnimationFrame(SS.animId); SS.animId=null; }
+  initSyncClocks(); drawSync();
+});
+
+// Overlay just updates overlay state; actual drawing is on canvas only
+function updateSyncOverlay() { /* nothing needed – all drawn on canvas */ }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+function init(){
+  resizeCanvas(velCanvas);
+  resizeCanvas(frameCanvas);
+  resizeCanvas(syncCanvas);
+  updateVelMath();
+  drawVel();
+  drawFrame();
+  initSyncClocks();
+  drawSync();
+
+  // Re-render KaTeX in static callouts
+  renderMathInElement(document.body, {
+    delimiters:[
+      {left:'\\(',right:'\\)',display:false},
+      {left:'\\[',right:'\\]',display:true}
+    ], throwOnError:false
+  });
+}
+
+window.addEventListener('load', init);
+window.addEventListener('resize', ()=>{
+  resizeCanvas(velCanvas); drawVel();
+  resizeCanvas(frameCanvas); drawFrame();
+  resizeCanvas(syncCanvas); drawSync();
+});
+
+// CSS for wrong-flash animation (added inline)
+const style=document.createElement('style');
+style.textContent='.wrong-flash{animation:wf 0.35s;} @keyframes wf{0%,100%{border-color:rgba(255,255,255,0.2)}50%{border-color:#ff5252;background:rgba(255,82,82,0.2)}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
