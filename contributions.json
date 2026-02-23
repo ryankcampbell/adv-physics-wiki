@@ -33,12 +33,12 @@
     "concept_id": "spacetime_diagrams",
     "title": "Spacetime Diagrams: Drawing Relativity on Paper",
     "author": "S. Park & A. Rodriguez",
-    "url": "https://ryankcampbell.github.io/adv-physics-wiki/sims/spacetime.html"
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/spacetime_diagrams/"
   },
   {
     "concept_id": "lorentz_transformation",
     "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
     "author": "T. Nguyen",
-    "url": "https://ryankcampbell.github.io/adv-physics-wiki/sims/lorentz.html"
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_transformation/"
   }
 ]

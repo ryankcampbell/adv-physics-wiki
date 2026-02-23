@@ -307,10 +307,14 @@
       </div>
       <div id="coverage-text">0 of 0 concepts covered</div>
       <div class="legend">
-        <div class="legend-row"><div class="legend-dot" style="background:#16a34a"></div>Wiki contribution exists</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#16a34a"></div>Certified IC live</div>
         <div class="legend-row"><div class="legend-dot" style="background:#3b82f6"></div>On selected question path</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#0d9488"></div>Covered + on path</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#475569"></div>Not yet covered</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#0d9488"></div>Certified + on path</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#ea580c"></div>Claimed — in progress</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#7c3aed"></div>Submitted — in review</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#dc2626"></div>Needs revision</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#ca8a04; border-radius:2px"></div>Wanted — gap identified</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#475569"></div>Unclaimed</div>
       </div>
     </div>
   </div>
@@ -355,6 +359,7 @@
 // ═══════════════════════════════════════════════════════════
 let mod = null;         // loaded module JSON
 let contribs = [];      // loaded contributions JSON
+let states = [];        // loaded state.json
 let selQuestion = null; // active anchor question id
 let selNode = null;     // active node id
 let highlighted = new Set(); // concept ids on highlighted path
@@ -386,6 +391,10 @@ async function init() {
       'Could not load data. Serve from a local server: python3 -m http.server 8000';
     return;
   }
+  try {
+    const sRes = await fetch('state/state.json');
+    states = await sRes.json();
+  } catch(e) { states = []; }
 
   document.getElementById('graph-loading').style.display = 'none';
   document.getElementById('module-badge').textContent = mod.module;
@@ -595,22 +604,41 @@ function drawEdges(sel) { sel.attr('d', edgePath); }
 // ═══════════════════════════════════════════════════════════
 // STYLE HELPERS
 // ═══════════════════════════════════════════════════════════
+function nodeState(id) {
+  const s = states.find(s => s.concept_id === id);
+  return s ? s.status : null;
+}
+
 function nodeColor(d) {
+  const status = nodeState(d.id);
   const covered = contribs.some(c => c.concept_id === d.id);
   const onPath = highlighted.size > 0 && highlighted.has(d.id);
   const selected = d.id === selNode;
-  if (selected)          return '#0f172a';
-  if (covered && onPath) return '#0d9488';
-  if (covered)           return '#16a34a';
-  if (onPath)            return '#2563eb';
-  if (highlighted.size)  return '#64748b'; // dimmed
+  if (selected)                               return '#0f172a';
+  if (status === 'needs_revision')            return '#dc2626';
+  if (covered && onPath)                      return '#0d9488';
+  if (covered)                                return '#16a34a';
+  if (status === 'submitted' || status === 'in_review') return '#7c3aed';
+  if (status === 'claimed')                   return '#ea580c';
+  if (onPath)                                 return '#2563eb';
+  if (highlighted.size)                       return '#64748b';
+  if (status === 'wanted')                    return '#854d0e';
   return '#475569';
 }
 
 function colorNodes(sel) {
   sel.attr('fill', d => nodeColor(d))
-     .attr('stroke', d => d.id === selNode ? 'rgba(255,255,255,0.4)' : 'none')
-     .attr('stroke-width', 2);
+     .attr('stroke', d => {
+       const s = nodeState(d.id);
+       if (d.id === selNode) return 'rgba(255,255,255,0.4)';
+       if (s === 'wanted') return '#ca8a04';
+       return 'none';
+     })
+     .attr('stroke-width', d => {
+       const s = nodeState(d.id);
+       return (d.id === selNode || s === 'wanted') ? 2 : 0;
+     })
+     .attr('stroke-dasharray', d => nodeState(d.id) === 'wanted' ? '5 3' : null);
 }
 
 function refreshNodeStyles() {
@@ -695,8 +723,23 @@ function selectNode(id) {
   if (!c) return;
 
   document.getElementById('detail-name').textContent = c.name;
+  const stateEntry = states.find(s => s.concept_id === id);
+  const stateLabels = {
+    claimed: '🟠 Claimed',
+    submitted: '🟣 In Review',
+    in_review: '🟣 In Review',
+    needs_revision: '🔴 Needs Revision',
+    wanted: '🟡 Wanted',
+    certified: '🟢 Certified'
+  };
+  const stateHTML = stateEntry
+    ? `<div style="font-size:0.78rem;color:#64748b;margin-top:5px">
+        ${stateLabels[stateEntry.status] || stateEntry.status}
+        ${stateEntry.claimed_by ? ` · <strong>${stateEntry.claimed_by}</strong>` : ''}
+        ${stateEntry.adversarial_team ? ` · Reviewer: ${Array.isArray(stateEntry.adversarial_team) ? stateEntry.adversarial_team.join(', ') : stateEntry.adversarial_team}` : ''}
+       </div>` : '';
   document.getElementById('detail-tags').innerHTML =
-    c.tags.map(t => `<span class="tag tag-${t}">${t}</span>`).join('');
+    c.tags.map(t => `<span class="tag tag-${t}">${t}</span>`).join('') + stateHTML;
 
   // Render LaTeX
   let latexHTML = '';
@@ -822,6 +865,10 @@ async function switchModule(url) {
     document.getElementById('graph-loading').textContent = 'Failed to load module.';
     return;
   }
+  try {
+    const sRes = await fetch('state/state.json');
+    states = await sRes.json();
+  } catch(e) { states = []; }
   document.getElementById('graph-loading').style.display = 'none';
   document.getElementById('module-badge').textContent = mod.module;
 

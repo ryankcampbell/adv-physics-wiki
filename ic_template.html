@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IC: [Your Concept Title] | Advanced Physics Wiki</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc; color: #0f172a; line-height: 1.7;
+    }
+
+    /* ── HEADER ── */
+    .ic-header {
+      background: #1e3a5f; color: white;
+      padding: 18px 32px 20px; margin-bottom: 0;
+    }
+    .back-link {
+      color: rgba(255,255,255,0.55); text-decoration: none;
+      font-size: 0.8rem; display: inline-block; margin-bottom: 10px;
+    }
+    .back-link:hover { color: white; }
+    .ic-title { font-size: 1.5rem; font-weight: 700; line-height: 1.25; margin-bottom: 6px; }
+    .ic-meta { font-size: 0.82rem; color: rgba(255,255,255,0.65); display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .badge {
+      display: inline-block; padding: 2px 9px; border-radius: 10px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .badge-pending { background: rgba(234,88,12,0.3); color: #fdba74; }
+    .badge-certified { background: rgba(22,163,74,0.3); color: #86efac; }
+
+    /* ── CONTENT ── */
+    .ic-body { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    h2 {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: #64748b; margin-top: 44px; margin-bottom: 14px;
+      padding-bottom: 8px; border-bottom: 1px solid #e2e8f0;
+    }
+
+    .research-q {
+      background: #eff6ff; border-left: 4px solid #2563eb;
+      padding: 16px 20px; font-size: 1.05rem; font-style: italic;
+      color: #1e3a5f; border-radius: 0 8px 8px 0; margin-top: 4px;
+    }
+
+    p { margin-bottom: 14px; color: #334155; font-size: 0.93rem; }
+
+    .eq-box {
+      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 18px; text-align: center; margin: 16px 0; overflow-x: auto;
+    }
+
+    /* ── SIMULATION ── */
+    .sim-wrap {
+      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+      overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-top: 8px;
+    }
+    .sim-wrap iframe {
+      width: 100%; height: 580px; border: none; display: block;
+    }
+    .sim-caption {
+      padding: 10px 16px; font-size: 0.8rem; color: #64748b;
+      background: #f8fafc; border-top: 1px solid #e2e8f0;
+    }
+
+    /* ── VERIFICATION ── */
+    .v-card {
+      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 16px 20px; margin-bottom: 12px;
+    }
+    .v-card h3 {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #16a34a; margin-bottom: 8px;
+    }
+    .v-card p { margin-bottom: 6px; }
+
+    /* ── CITATIONS ── */
+    .citation {
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      border-radius: 8px; padding: 12px 16px; margin-bottom: 10px;
+    }
+    .citation a { color: #15803d; font-weight: 600; text-decoration: none; font-size: 0.88rem; }
+    .citation a:hover { text-decoration: underline; }
+    .citation .purpose { font-size: 0.82rem; color: #374151; margin-top: 5px; }
+    .citation-tip {
+      background: #fefce8; border-left: 3px solid #ca8a04;
+      padding: 10px 14px; font-size: 0.8rem; color: #713f12;
+      border-radius: 0 6px 6px 0; margin-bottom: 14px;
+    }
+
+    /* ── TEST QUESTIONS ── */
+    .test-q {
+      background: #fefce8; border-left: 3px solid #ca8a04;
+      padding: 12px 16px; margin-bottom: 10px; border-radius: 0 8px 8px 0;
+      font-size: 0.88rem; color: #334155;
+    }
+    .test-q strong { color: #713f12; }
+
+    /* ── ANCHOR ── */
+    .anchor-box {
+      background: #f0f9ff; border-left: 4px solid #0284c7;
+      padding: 14px 18px; border-radius: 0 8px 8px 0; font-size: 0.9rem; color: #0c4a6e;
+    }
+
+    /* ── FOOTER ── */
+    .ic-footer {
+      margin-top: 60px; padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.76rem; color: #94a3b8;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+
+    /* ── HELPER: editable placeholder styling ── */
+    [data-placeholder]:empty:before {
+      content: attr(data-placeholder);
+      color: #94a3b8; font-style: italic; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  INSTRUCTIONS (remove this block before submitting)    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div style="background:#fef3c7;border-bottom:2px solid #f59e0b;padding:14px 32px;font-size:0.83rem;color:#78350f">
+  <strong>Template instructions (delete this bar before submitting):</strong>
+  Fill in every section marked with [brackets] or placeholder text.
+  All equations use KaTeX — wrap LaTeX in <code>katex.renderToString('...')</code> calls in the script below.
+  For your simulation, replace the iframe src with the relative path to your HTML file.
+  When done, save as <code>index.html</code> inside a folder named after your concept ID,
+  and submit to the PM.
+</div>
+
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="ic-title">[Your Concept Title]</div>
+  <div class="ic-meta">
+    <span>by [Your Name] &amp; [Partner Name if applicable]</span>
+    <span class="badge badge-pending">Pending Review</span>
+    <!-- Change to badge-certified after teacher certifies -->
+  </div>
+</div>
+
+<div class="ic-body">
+
+  <!-- ── 1. RESEARCH QUESTION ── -->
+  <h2>Research Question</h2>
+  <p class="research-q">
+    [State your research question precisely. Not "What is X?" but
+    "Why does X behave as Y under condition Z, and what does this
+    reveal about the underlying physics?"]
+  </p>
+
+  <!-- ── 2. EXPLAINER ── -->
+  <h2>Explainer</h2>
+
+  <p>[Start with the physical intuition. What is happening and why does it make sense?
+  Write 3–5 paragraphs. Use clear language — write as if explaining to a classmate
+  who has not seen this concept before.]</p>
+
+  <p>[Introduce the key mathematical result. Explain what each symbol means before
+  using it in an equation.]</p>
+
+  <div class="eq-box" id="eq-main">
+    <!-- Equation rendered by KaTeX below. Replace the LaTeX string. -->
+  </div>
+
+  <p>[Explain what the equation says in words. What happens at the extremes?
+  What does each term represent physically?]</p>
+
+  <p>[Connect to what students already know. How does this reduce to something
+  familiar in the right limit?]</p>
+
+  <!-- ── 3. SIMULATION ── -->
+  <h2>Simulation</h2>
+  <div class="sim-wrap">
+    <!-- Replace src with the relative path to your simulation file.
+         Example: src="../../sims/your_sim.html"
+         Or if your sim is in this same folder: src="sim.html" -->
+    <iframe src="../../sims/[your_sim_file].html" title="[Concept] simulation"></iframe>
+    <div class="sim-caption">
+      [Describe what the simulation shows and what controls do what.
+      Tell the reader what to look for.]
+    </div>
+  </div>
+
+  <!-- ── 4. VERIFICATION ── -->
+  <h2>Verification</h2>
+
+  <div class="v-card">
+    <h3>Limiting Case 1</h3>
+    <p><strong>Setup:</strong> [Describe the limit — e.g., "Set β = 0 (v = 0)."]</p>
+    <p><strong>Expected result:</strong> [What should happen at this limit, and why?]</p>
+    <p><strong>What the simulation shows:</strong> [What did you actually observe? Screenshot or description.]</p>
+  </div>
+
+  <div class="v-card">
+    <h3>Limiting Case 2</h3>
+    <p><strong>Setup:</strong> [Describe the second limit.]</p>
+    <p><strong>Expected result:</strong> [Expected behavior at this extreme.]</p>
+    <p><strong>What the simulation shows:</strong> [Observed output.]</p>
+  </div>
+
+  <div class="v-card">
+    <h3>Quantitative Spot-Check</h3>
+    <p><strong>Input:</strong> [Specific numbers you used.]</p>
+    <p><strong>Formula prediction:</strong>
+      <span id="eq-spotcheck"></span>
+    </p>
+    <p><strong>Simulation output:</strong> [What the simulation gave.]</p>
+    <p><strong>Agreement:</strong> [Do they match? Within what tolerance?]</p>
+  </div>
+
+  <!-- ── 5. CITATIONS ── -->
+  <h2>Citations</h2>
+  <div class="citation-tip">
+    <strong>How to cite:</strong> In Chrome, highlight specific text on a classmate's IC page,
+    right-click → "Copy link to highlight." Paste that URL here with a one-sentence purpose statement.
+    Vague citations ("I found this helpful") will not be counted.
+  </div>
+
+  <!-- Copy and fill in one block per citation. Minimum: cite any prerequisite ICs you depended on. -->
+  <div class="citation">
+    <a href="[TEXT FRAGMENT URL or IC link]">[Author Name] — [IC Title]</a>
+    <div class="purpose">
+      <strong>Purpose:</strong> [One sentence: exactly which claim or result from this IC your work depends on.]
+    </div>
+  </div>
+
+  <!-- Add more citation blocks as needed -->
+
+  <!-- ── 6. CONNECTION TO ANCHOR ── -->
+  <h2>Connection to Anchor Question</h2>
+  <div class="anchor-box">
+    [2–3 sentences. How does understanding [your concept] help answer the unit's
+    central question? Be specific — name the exact step in the reasoning chain.]
+  </div>
+
+  <!-- ── 7. PROPOSED TEST QUESTIONS ── -->
+  <h2>Proposed Test Questions</h2>
+  <p style="font-size:0.82rem;color:#64748b;margin-bottom:14px">
+    Submit 2–3 questions you think fairly test whether someone understands your IC.
+    The best questions ask the reader to <em>use</em> your result on a new case,
+    not just recall a formula.
+  </p>
+
+  <div class="test-q">
+    <strong>Q1.</strong> [Your first test question. Make it specific and calculable or
+    clearly arguable. A student who read your IC carefully should be able to answer it.]
+  </div>
+
+  <div class="test-q">
+    <strong>Q2.</strong> [A second question, ideally connecting your concept to a
+    prerequisite IC or to the anchor question.]
+  </div>
+
+  <div class="test-q">
+    <strong>Q3.</strong> [Optional third question. Consider asking about a limiting case
+    or an extension beyond what your IC explicitly covers.]
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="ic-footer">
+    <span>Advanced Physics · NWA · [Your Name(s)]</span>
+    <span>Status: Pending · Submitted [Date]</span>
+  </div>
+
+</div><!-- end ic-body -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- KaTeX rendering — fill in your LaTeX strings below     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script>
+// Replace the LaTeX strings with your own equations.
+// displayMode: true renders as a block (centered); false renders inline.
+
+// Main equation (displayed in Section 2)
+document.getElementById('eq-main').innerHTML = katex.renderToString(
+  '[YOUR MAIN LATEX EQUATION HERE]',
+  { displayMode: true, throwOnError: false }
+);
+
+// Spot-check calculation (in Section 4 — can be inline)
+document.getElementById('eq-spotcheck').innerHTML = katex.renderToString(
+  '[YOUR SPOT-CHECK CALCULATION LATEX]',
+  { displayMode: false, throwOnError: false }
+);
+
+// Add more katex.renderToString() calls here for additional equations in your explainer.
+// Example for an inline equation in a paragraph:
+//   document.getElementById('eq-something').innerHTML = katex.renderToString('E = mc^2', {displayMode: false});
+</script>
+
+</body>
+</html>
