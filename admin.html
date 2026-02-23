@@ -24,6 +24,90 @@
       letter-spacing: 0.1em; color: #64748b; margin-bottom: 14px;
     }
 
+    /* ── DRIVE INBOX ── */
+    #drive-inbox {
+      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+      overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 28px;
+    }
+    #drive-inbox-header {
+      background: #f8fafc; padding: 12px 18px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    #drive-inbox-header h2 {
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #475569;
+    }
+    #drive-refresh {
+      margin-left: auto; background: #1e3a5f; color: white; border: none;
+      border-radius: 5px; padding: 5px 12px; font-size: 0.78rem; cursor: pointer;
+    }
+    #drive-refresh:hover { background: #1e4a8f; }
+    #drive-server-badge {
+      font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 700;
+    }
+    .badge-online  { background: #dcfce7; color: #15803d; }
+    .badge-offline { background: #fee2e2; color: #dc2626; }
+
+    #drive-list { padding: 8px 0; min-height: 60px; }
+    #drive-empty {
+      padding: 28px; text-align: center;
+      font-size: 0.85rem; color: #94a3b8;
+    }
+    .drive-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px; border-bottom: 1px solid #f1f5f9;
+    }
+    .drive-row:last-child { border-bottom: none; }
+    .drive-filename { font-size: 0.85rem; font-weight: 600; color: #0f172a; flex: 1; }
+    .drive-date { font-size: 0.75rem; color: #94a3b8; white-space: nowrap; }
+    .drive-concept-sel {
+      border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 8px;
+      font-size: 0.8rem; background: white; cursor: pointer; width: 200px;
+    }
+    .btn-preview {
+      background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+      border-radius: 5px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer;
+    }
+    .btn-preview:hover { background: #e2e8f0; }
+    .btn-publish {
+      background: #7c3aed; color: white; border: none;
+      border-radius: 5px; padding: 5px 14px; font-size: 0.78rem;
+      font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .btn-publish:hover { background: #6d28d9; }
+    .btn-publish:disabled { background: #c4b5fd; cursor: default; }
+    .btn-published {
+      background: #16a34a; color: white; border: none;
+      border-radius: 5px; padding: 5px 14px; font-size: 0.78rem;
+      font-weight: 600; cursor: default;
+    }
+
+    /* Preview modal */
+    #preview-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    #preview-modal.open { display: flex; }
+    #preview-box {
+      background: white; border-radius: 10px; overflow: hidden;
+      width: 90vw; max-width: 900px; height: 80vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    #preview-bar {
+      background: #1e3a5f; color: white; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    #preview-title { font-size: 0.85rem; font-weight: 600; flex: 1; }
+    #preview-close {
+      background: rgba(255,255,255,0.15); border: none; color: white;
+      border-radius: 5px; padding: 4px 10px; cursor: pointer; font-size: 0.82rem;
+    }
+    #preview-iframe { flex: 1; border: none; width: 100%; }
+
     /* Module selector */
     .module-bar {
       background: white; border: 1px solid #e2e8f0; border-radius: 10px;
@@ -64,11 +148,6 @@
       font-size: 0.8rem; width: 180px;
     }
 
-    .status-dot {
-      display: inline-block; width: 9px; height: 9px; border-radius: 50%;
-      margin-right: 5px; vertical-align: middle;
-    }
-
     /* Export section */
     #export-section { margin-top: 28px; }
     #export-btn {
@@ -95,8 +174,49 @@
       color: #1e40af; line-height: 1.6; display: none;
     }
 
-    /* Loading */
     #loading { text-align: center; padding: 60px; color: #94a3b8; font-size: 0.9rem; }
+
+    /* ── ADD CONCEPT FORM ── */
+    #add-concept-wrap { margin-top: 20px; }
+    #add-concept-toggle {
+      background: white; border: 1px dashed #cbd5e1; border-radius: 8px;
+      padding: 10px 18px; width: 100%; text-align: left; cursor: pointer;
+      font-size: 0.83rem; font-weight: 600; color: #475569;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #add-concept-toggle:hover { background: #f8fafc; border-color: #94a3b8; }
+    #add-concept-form {
+      display: none; background: white; border: 1px solid #e2e8f0;
+      border-radius: 0 0 8px 8px; border-top: none; padding: 20px; margin-top: -4px;
+    }
+    #add-concept-form.open { display: block; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-field { display: flex; flex-direction: column; gap: 5px; }
+    .form-field label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #64748b; }
+    .form-field input, .form-field select, .form-field textarea {
+      border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 10px; font-size: 0.83rem; font-family: inherit;
+    }
+    .form-field textarea { resize: vertical; min-height: 72px; }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.1);
+    }
+    .prereq-list {
+      border: 1px solid #d1d5db; border-radius: 6px; padding: 8px 10px;
+      max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+    }
+    .prereq-list label {
+      font-size: 0.8rem; color: #334155; display: flex; align-items: center; gap: 6px;
+      font-weight: normal; text-transform: none; letter-spacing: 0; cursor: pointer;
+    }
+    #btn-add-concept {
+      background: #1e3a5f; color: white; border: none; border-radius: 6px;
+      padding: 9px 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+    }
+    #btn-add-concept:hover { background: #1e4a8f; }
+    #btn-add-concept:disabled { background: #94a3b8; cursor: default; }
+    #add-concept-msg { margin-top: 10px; font-size: 0.83rem; }
+    .msg-ok  { color: #15803d; }
+    .msg-err { color: #dc2626; }
   </style>
 </head>
 <body>
@@ -107,8 +227,32 @@
   <a href="index.html">← Back to Navigator</a>
 </div>
 
+<!-- Preview modal -->
+<div id="preview-modal">
+  <div id="preview-box">
+    <div id="preview-bar">
+      <span id="preview-title">Preview</span>
+      <button id="preview-close" onclick="closePreview()">✕ Close</button>
+    </div>
+    <iframe id="preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
+</div>
+
 <div id="main">
 
+  <!-- ── DRIVE INBOX ── -->
+  <div id="drive-inbox">
+    <div id="drive-inbox-header">
+      <h2>Drive Inbox — Adv Phyx Share / ICs</h2>
+      <span id="drive-server-badge" class="badge-offline">Server offline</span>
+      <button id="drive-refresh" onclick="loadDrive()">↻ Refresh</button>
+    </div>
+    <div id="drive-list">
+      <div id="drive-empty">Run <code>npm start</code> locally to connect to Google Drive.</div>
+    </div>
+  </div>
+
+  <!-- ── MODULE SELECTOR ── -->
   <div class="module-bar">
     <label>Module:</label>
     <select id="module-sel" onchange="loadModule(this.value)">
@@ -152,19 +296,148 @@
     </div>
   </div>
 
+  <!-- ── ADD CONCEPT ── -->
+  <div id="add-concept-wrap" style="display:none">
+    <button id="add-concept-toggle" onclick="toggleAddForm()">+ Add New Concept to Module</button>
+    <div id="add-concept-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Concept Name *</label>
+          <input id="ac-name" type="text" placeholder="e.g. Relativistic Doppler Effect"
+            oninput="autoId(this.value)">
+        </div>
+        <div class="form-field">
+          <label>Concept ID *</label>
+          <input id="ac-id" type="text" placeholder="auto-generated from name (editable)">
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label>Description</label>
+          <textarea id="ac-desc" placeholder="One sentence describing what this concept covers."></textarea>
+        </div>
+        <div class="form-field">
+          <label>Tier / Level</label>
+          <select id="ac-level">
+            <option value="1">Tier 1 — foundational</option>
+            <option value="2" selected>Tier 2 — intermediate</option>
+            <option value="3">Tier 3 — advanced</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Prerequisites</label>
+          <div class="prereq-list" id="prereq-list">
+            <span style="font-size:0.78rem;color:#94a3b8">Load a module first.</span>
+          </div>
+        </div>
+      </div>
+      <button id="btn-add-concept" onclick="submitNewConcept()">Add to Module &amp; Push</button>
+      <div id="add-concept-msg"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-const STATUS_COLORS = {
-  unclaimed:      '#475569',
-  wanted:         '#ca8a04',
-  claimed:        '#ea580c',
-  submitted:      '#7c3aed',
-  in_review:      '#7c3aed',
-  needs_revision: '#dc2626',
-  certified:      '#16a34a'
-};
+// ── DRIVE INBOX ────────────────────────────────────────────────────
+let allConcepts = [];   // populated when module loads — used for concept selector
+let serverOnline = false;
 
+async function loadDrive() {
+  try {
+    const res = await fetch('http://localhost:3000/api/drive/pending');
+    if (!res.ok) throw new Error('not ok');
+    const files = await res.json();
+    serverOnline = true;
+    document.getElementById('drive-server-badge').textContent = 'Server online';
+    document.getElementById('drive-server-badge').className = 'drive-server-badge badge-online';
+    renderDriveList(files);
+  } catch(e) {
+    serverOnline = false;
+    document.getElementById('drive-server-badge').textContent = 'Server offline';
+    document.getElementById('drive-server-badge').className = 'drive-server-badge badge-offline';
+    document.getElementById('drive-empty').innerHTML =
+      'Run <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">npm start</code> in the repo folder to connect Google Drive.';
+    document.getElementById('drive-list').innerHTML = '';
+    document.getElementById('drive-list').appendChild(document.getElementById('drive-empty') || (() => {
+      const d = document.createElement('div');
+      d.id = 'drive-empty';
+      return d;
+    })());
+  }
+}
+
+function renderDriveList(files) {
+  const list = document.getElementById('drive-list');
+  if (!files.length) {
+    list.innerHTML = '<div id="drive-empty" style="padding:28px;text-align:center;font-size:0.85rem;color:#94a3b8">No files in Drive ICs folder yet.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  files.forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'drive-row';
+    row.dataset.fileId = f.id;
+
+    const date = new Date(f.createdTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    const conceptOptions = allConcepts.map(c =>
+      `<option value="${c.id}">${c.name}</option>`
+    ).join('');
+
+    row.innerHTML = `
+      <div class="drive-filename">${f.name}</div>
+      <div class="drive-date">${date}</div>
+      <select class="drive-concept-sel">
+        <option value="">— select concept —</option>
+        ${conceptOptions}
+      </select>
+      <button class="btn-preview" onclick="previewFile('${f.id}', '${escHtml(f.name)}')">Preview</button>
+      <button class="btn-publish" onclick="publishFile('${f.id}', this)">Publish →</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function escHtml(s) { return s.replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
+
+function previewFile(fileId, name) {
+  document.getElementById('preview-title').textContent = name;
+  document.getElementById('preview-iframe').src = `http://localhost:3000/api/drive/preview/${fileId}`;
+  document.getElementById('preview-modal').classList.add('open');
+}
+function closePreview() {
+  document.getElementById('preview-modal').classList.remove('open');
+  document.getElementById('preview-iframe').src = '';
+}
+
+async function publishFile(fileId, btn) {
+  const row = btn.closest('.drive-row');
+  const conceptId = row.querySelector('.drive-concept-sel').value;
+  if (!conceptId) { alert('Select a concept first.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Publishing…';
+
+  try {
+    const res = await fetch('http://localhost:3000/api/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fileId, conceptId })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Unknown error');
+
+    // Replace publish button with green success badge
+    btn.outerHTML = '<button class="btn-published">✓ Published</button>';
+    // Reload module table so state reflects submitted
+    loadModule(document.getElementById('module-sel').value);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Publish →';
+    alert('Publish failed: ' + e.message);
+  }
+}
+
+// ── MODULE / STATE TABLE ───────────────────────────────────────────
 const STATUS_OPTIONS = ['unclaimed','wanted','claimed','submitted','in_review','needs_revision','certified'];
 
 let currentMod = null;
@@ -187,8 +460,8 @@ async function loadModule(url) {
     ]);
 
     currentMod = await mRes.value.json();
+    allConcepts = currentMod.concepts;   // make available to Drive inbox
 
-    // Build state lookup
     currentStates = {};
     if (sRes.status === 'fulfilled') {
       const arr = await sRes.value.json();
@@ -201,6 +474,16 @@ async function loadModule(url) {
     }
 
     buildTable();
+    buildPrereqList(currentMod.concepts);
+    document.getElementById('add-concept-wrap').style.display = 'block';
+    // Refresh concept selectors in Drive inbox with new concept list
+    if (serverOnline) renderDriveList(
+      [...document.querySelectorAll('.drive-row')].map(r => ({
+        id: r.dataset.fileId,
+        name: r.querySelector('.drive-filename').textContent,
+        createdTime: ''
+      }))
+    );
     document.getElementById('load-status').textContent = `${currentMod.concepts.length} concepts loaded`;
   } catch(e) {
     document.getElementById('loading').textContent = 'Failed to load: ' + e.message;
@@ -291,8 +574,81 @@ function copyJSON() {
   });
 }
 
-// Auto-load SR module on open
+// ── Add Concept form ───────────────────────────────────────────────
+function toggleAddForm() {
+  const form = document.getElementById('add-concept-form');
+  form.classList.toggle('open');
+  document.getElementById('add-concept-toggle').textContent =
+    form.classList.contains('open') ? '− Close' : '+ Add New Concept to Module';
+}
+
+function autoId(name) {
+  const id = name.toLowerCase().trim()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '_');
+  document.getElementById('ac-id').value = id;
+}
+
+function buildPrereqList(concepts) {
+  const list = document.getElementById('prereq-list');
+  if (!concepts || !concepts.length) {
+    list.innerHTML = '<span style="font-size:0.78rem;color:#94a3b8">No concepts in module.</span>';
+    return;
+  }
+  list.innerHTML = concepts.map(c => `
+    <label>
+      <input type="checkbox" value="${c.id}">
+      ${c.name} <span style="font-size:0.7rem;color:#94a3b8;font-family:monospace">${c.id}</span>
+    </label>
+  `).join('');
+}
+
+async function submitNewConcept() {
+  const name = document.getElementById('ac-name').value.trim();
+  const id   = document.getElementById('ac-id').value.trim();
+  const desc = document.getElementById('ac-desc').value.trim();
+  const level = parseInt(document.getElementById('ac-level').value);
+  const prereqs = [...document.querySelectorAll('#prereq-list input:checked')].map(cb => cb.value);
+
+  const msg = document.getElementById('add-concept-msg');
+  if (!name || !id) { msg.innerHTML = '<span class="msg-err">Name and ID are required.</span>'; return; }
+
+  const btn = document.getElementById('btn-add-concept');
+  btn.disabled = true;
+  btn.textContent = 'Adding…';
+  msg.innerHTML = '';
+
+  const moduleFile = document.getElementById('module-sel').value;
+  const concept = { id, name, level, description: desc, prerequisites: prereqs };
+
+  try {
+    const res = await fetch('http://localhost:3000/api/add-concept', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ moduleFile, concept })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    msg.innerHTML = `<span class="msg-ok">✓ "${name}" added and pushed to GitHub. Reloading…</span>`;
+    setTimeout(() => {
+      document.getElementById('ac-name').value = '';
+      document.getElementById('ac-id').value = '';
+      document.getElementById('ac-desc').value = '';
+      loadModule(moduleFile);
+      msg.innerHTML = '';
+    }, 1500);
+  } catch(e) {
+    msg.innerHTML = `<span class="msg-err">Error: ${e.message}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Add to Module & Push';
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────
 loadModule('modules/special_relativity.json');
+loadDrive();
 </script>
 </body>
 </html>
