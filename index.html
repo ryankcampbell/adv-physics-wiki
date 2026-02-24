@@ -310,6 +310,10 @@
         <div class="legend-row"><div class="legend-dot" style="background:#16a34a"></div>Wiki contribution exists</div>
         <div class="legend-row"><div class="legend-dot" style="background:#3b82f6"></div>On selected question path</div>
         <div class="legend-row"><div class="legend-dot" style="background:#0d9488"></div>Covered + on path</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#7c3aed"></div>Claimed — in progress</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#d97706"></div>Submitted — pending review</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#dc2626"></div>Needs revision</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#0369a1"></div>Wanted — open call</div>
         <div class="legend-row"><div class="legend-dot" style="background:#475569"></div>Not yet covered</div>
       </div>
     </div>
@@ -355,6 +359,7 @@
 // ═══════════════════════════════════════════════════════════
 let mod = null;         // loaded module JSON
 let contribs = [];      // loaded contributions JSON
+let nodeStates = {};    // concept_id -> state string from state.json
 let selQuestion = null; // active anchor question id
 let selNode = null;     // active node id
 let highlighted = new Set(); // concept ids on highlighted path
@@ -375,12 +380,15 @@ const NW = 144, NH = 44;
 // ═══════════════════════════════════════════════════════════
 async function init() {
   try {
-    const [modRes, cRes] = await Promise.all([
+    const [modRes, cRes, sRes] = await Promise.all([
       fetch('modules/quantum_spin.json'),
-      fetch('contributions.json')
+      fetch('contributions.json'),
+      fetch('state/state.json')
     ]);
     mod = await modRes.json();
     contribs = await cRes.json();
+    const stateArr = await sRes.json();
+    stateArr.forEach(s => { nodeStates[s.concept_id] = s.status; });
   } catch(e) {
     document.getElementById('graph-loading').textContent =
       'Could not load data. Serve from a local server: python3 -m http.server 8000';
@@ -599,11 +607,16 @@ function nodeColor(d) {
   const covered = contribs.some(c => c.concept_id === d.id);
   const onPath = highlighted.size > 0 && highlighted.has(d.id);
   const selected = d.id === selNode;
-  if (selected)          return '#0f172a';
-  if (covered && onPath) return '#0d9488';
-  if (covered)           return '#16a34a';
-  if (onPath)            return '#2563eb';
-  if (highlighted.size)  return '#64748b'; // dimmed
+  const st = nodeStates[d.id];
+  if (selected)                    return '#0f172a';
+  if (covered && onPath)           return '#0d9488';
+  if (covered)                     return '#16a34a'; // green  — IC published
+  if (st === 'needs_revision')     return '#dc2626'; // red    — needs work
+  if (st === 'submitted')          return '#d97706'; // orange — awaiting review
+  if (st === 'claimed')            return '#7c3aed'; // purple — in progress
+  if (st === 'wanted')             return '#0369a1'; // blue   — open call
+  if (onPath)                      return '#2563eb';
+  if (highlighted.size)            return '#64748b'; // dimmed
   return '#475569';
 }
 
@@ -812,12 +825,16 @@ async function switchModule(url) {
   // Load new module
   document.getElementById('graph-loading').style.display = 'flex';
   try {
-    const [modRes, cRes] = await Promise.all([
+    const [modRes, cRes, sRes] = await Promise.all([
       fetch(url),
-      fetch('contributions.json')
+      fetch('contributions.json'),
+      fetch('state/state.json')
     ]);
     mod = await modRes.json();
     contribs = await cRes.json();
+    const stateArr2 = await sRes.json();
+    nodeStates = {};
+    stateArr2.forEach(s => { nodeStates[s.concept_id] = s.status; });
   } catch(e) {
     document.getElementById('graph-loading').textContent = 'Failed to load module.';
     return;
