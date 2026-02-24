@@ -54,10 +54,14 @@ app.get('/api/drive/preview/:fileId', async (req, res) => {
   }
 });
 
-// ── Publish: download → save → update state.json → git push ───────
+// ── Publish: download → save → update state.json + contributions.json → git push ──
 app.post('/api/publish', async (req, res) => {
-  const { fileId, conceptId } = req.body;
+  const { fileId, conceptId, label } = req.body;
   if (!fileId || !conceptId) return res.status(400).json({ error: 'Missing fileId or conceptId' });
+
+  // Sanitise label → use as filename  (e.g. "ryan" → "ryan.html")
+  const safeLabel = (label || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase() || 'index';
+  const filename  = safeLabel + '.html';
 
   try {
     // 1. Download HTML from Drive
@@ -67,33 +71,51 @@ app.post('/api/publish', async (req, res) => {
     );
     const html = result.data;
 
-    // 2. Write to ics/[conceptId]/index.html
+    // 2. Write to ics/[conceptId]/[label].html  (supports multiple ICs per concept)
     const dir = path.join(__dirname, 'ics', conceptId);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, 'index.html'), html);
+    fs.writeFileSync(path.join(dir, filename), html);
 
-    // 3. Update state/state.json → status: submitted
+    // 3. Extract title & author from IC HTML
+    const titleM  = html.match(/<title>IC:\s*([^|<]+)/i);
+    const authorM = html.match(/by\s+([^<]+)<\/span>/i);
+    const icTitle  = titleM  ? titleM[1].trim()  : conceptId.replace(/_/g, ' ');
+    const icAuthor = authorM ? authorM[1].trim()  : (label || 'Unknown');
+
+    // 4. Update state/state.json → status: submitted
     const statePath = path.join(__dirname, 'state', 'state.json');
     let state = [];
     if (fs.existsSync(statePath)) {
       state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
     }
-    const idx = state.findIndex(s => s.concept_id === conceptId);
-    if (idx >= 0) {
-      state[idx].status = 'submitted';
+    const stateIdx = state.findIndex(s => s.concept_id === conceptId);
+    if (stateIdx >= 0) {
+      state[stateIdx].status = 'submitted';
     } else {
       state.push({ concept_id: conceptId, status: 'submitted' });
     }
     fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 
-    // 4. Git commit + push
+    // 5. Auto-update contributions.json
+    const contribPath = path.join(__dirname, 'contributions.json');
+    let contribs = [];
+    if (fs.existsSync(contribPath)) {
+      contribs = JSON.parse(fs.readFileSync(contribPath, 'utf8'));
+    }
+    const icUrl = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
+    const existingIdx = contribs.findIndex(c => c.concept_id === conceptId && c.url.endsWith('/' + filename));
+    const entry = { concept_id: conceptId, title: icTitle, author: icAuthor, url: icUrl };
+    if (existingIdx >= 0) { contribs[existingIdx] = entry; } else { contribs.push(entry); }
+    fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
+
+    // 6. Git commit + push
     const token = process.env.GITHUB_TOKEN;
     const user  = process.env.GITHUB_USER || 'ryankcampbell';
     const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
 
-    execSync(`git add "ics/${conceptId}/index.html" state/state.json`, { cwd: __dirname });
-    execSync(`git commit -m "Publish IC: ${conceptId}"`, { cwd: __dirname });
+    execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json`, { cwd: __dirname });
+    execSync(`git commit -m "Publish IC: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
 
     if (token) {
       execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
@@ -103,7 +125,7 @@ app.post('/api/publish', async (req, res) => {
       execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
     }
 
-    res.json({ success: true });
+    res.json({ success: true, url: icUrl, author: icAuthor, title: icTitle });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

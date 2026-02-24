@@ -738,24 +738,50 @@ function selectNode(id) {
   // Wiki contributions
   const myContribs = contribs.filter(x => x.concept_id === id);
   const editorUrl = `ic_editor.html?concept=${encodeURIComponent(id)}&name=${encodeURIComponent(c.name)}`;
-  const hasDraft = !!localStorage.getItem('ic-draft-' + id);
+  const hasDraft  = !!localStorage.getItem('ic-draft-' + id);
+  const st        = nodeStates[id];
+  const stStatus  = st?.status || 'unclaimed';
+  const feedback  = st?.feedback || '';
   let wikiHTML;
+
   if (myContribs.length) {
+    // Published ICs — list them all, then action button
     wikiHTML = myContribs.map(x =>
       `<div class="wiki-entry">
         <a href="${x.url}" target="_blank">${x.title}</a>
         <div class="wiki-entry-author">by ${x.author}</div>
       </div>`
-    ).join('') +
-    (hasDraft
+    ).join('');
+    if (stStatus === 'needs_revision' && feedback) {
+      wikiHTML += `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;margin:8px 0;border-radius:0 6px 6px 0"><strong>Revision requested:</strong> ${feedback}</div>`;
+    }
+    wikiHTML += hasDraft
       ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
-      : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`);
+      : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`;
+
+  } else if (stStatus === 'needs_revision') {
+    wikiHTML = `
+      <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:8px">
+        ${feedback ? `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;border-radius:0 6px 6px 0;width:100%"><strong>Revision requested:</strong> ${feedback}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="no-wiki-text" style="color:#dc2626">Needs revision</span>
+          <a href="${editorUrl}" class="claim-btn" style="background:#dc2626">Revise →</a>
+        </div>
+      </div>`;
+
+  } else if (stStatus === 'submitted') {
+    wikiHTML = `
+      <div class="no-wiki">
+        <span class="no-wiki-text" style="color:#d97706">Submitted — awaiting review</span>
+      </div>`;
+
   } else if (hasDraft) {
     wikiHTML = `
       <div class="no-wiki">
         <span class="no-wiki-text" style="color:#7c3aed;font-weight:600">Draft in progress</span>
         <a href="${editorUrl}" class="claim-btn" style="background:#7c3aed">Continue →</a>
       </div>`;
+
   } else {
     wikiHTML = `
       <div class="no-wiki">

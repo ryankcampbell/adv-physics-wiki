@@ -64,7 +64,11 @@
     .drive-date { font-size: 0.75rem; color: #94a3b8; white-space: nowrap; }
     .drive-concept-sel {
       border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 8px;
-      font-size: 0.8rem; background: white; cursor: pointer; width: 200px;
+      font-size: 0.8rem; background: white; cursor: pointer; width: 180px;
+    }
+    .drive-label-inp {
+      border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 8px;
+      font-size: 0.8rem; background: white; width: 110px;
     }
     .btn-preview {
       background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
@@ -272,10 +276,11 @@
     <table class="concept-table" id="concept-table">
       <thead>
         <tr>
-          <th style="width:220px">Concept</th>
-          <th style="width:150px">Status</th>
-          <th style="width:200px">Claimed By</th>
-          <th style="width:220px">Adversarial Team</th>
+          <th style="width:200px">Concept</th>
+          <th style="width:140px">Status</th>
+          <th style="width:160px">Claimed By</th>
+          <th style="width:170px">Adversarial Team</th>
+          <th>Notes / Feedback for Student</th>
         </tr>
       </thead>
       <tbody id="table-body"></tbody>
@@ -374,6 +379,10 @@ function renderDriveList(files) {
       `<option value="${c.id}">${c.name}</option>`
     ).join('');
 
+    // Suggest label from filename: "gamma_factor_ryan.html" → "ryan"
+    const stem = f.name.replace(/\.html?$/i, '');
+    const defaultLabel = stem;
+
     row.innerHTML = `
       <div class="drive-filename">${f.name}</div>
       <div class="drive-date">${date}</div>
@@ -381,6 +390,7 @@ function renderDriveList(files) {
         <option value="">— select concept —</option>
         ${conceptOptions}
       </select>
+      <input class="drive-label-inp" type="text" value="${escHtml(defaultLabel)}" placeholder="student name" title="Used as filename: name.html">
       <button class="btn-preview" onclick="previewFile('${f.id}', '${escHtml(f.name)}')">Preview</button>
       <button class="btn-publish" onclick="publishFile('${f.id}', this)">Publish →</button>
     `;
@@ -403,6 +413,7 @@ function closePreview() {
 async function publishFile(fileId, btn) {
   const row = btn.closest('.drive-row');
   const conceptId = row.querySelector('.drive-concept-sel').value;
+  const label = row.querySelector('.drive-label-inp').value.trim();
   if (!conceptId) { alert('Select a concept first.'); return; }
 
   btn.disabled = true;
@@ -412,7 +423,7 @@ async function publishFile(fileId, btn) {
     const res = await fetch('http://localhost:3000/api/publish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fileId, conceptId })
+      body: JSON.stringify({ fileId, conceptId, label })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Unknown error');
@@ -510,6 +521,10 @@ function buildTable() {
         placeholder="First Last, First Last"
         value="${Array.isArray(s.adversarial_team) ? s.adversarial_team.join(', ') : (s.adversarial_team || '')}"
         ${isCertified ? 'disabled' : ''}></td>
+      <td><textarea class="text-inp feedback-inp" data-id="${c.id}" rows="2"
+        placeholder="Feedback visible to student in IC editor…"
+        style="width:100%;min-width:180px;resize:vertical"
+        ${isCertified ? 'disabled' : ''}>${s.feedback || ''}</textarea></td>
     `;
     tbody.appendChild(row);
   });
@@ -540,6 +555,8 @@ function buildStateArray() {
     if (adv) {
       entry.adversarial_team = adv.split(',').map(s => s.trim()).filter(Boolean);
     }
+    const feedback = row.querySelector('.feedback-inp')?.value.trim();
+    if (feedback) entry.feedback = feedback;
     output.push(entry);
   });
   return output;

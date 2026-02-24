@@ -24,6 +24,7 @@
     #btn-submit:disabled { background: #6b7280; cursor: default; }
     .hdr-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.82); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 11px; font-size: 0.76rem; cursor: pointer; white-space: nowrap; }
     .hdr-btn:hover { background: rgba(255,255,255,0.18); }
+    #feedback-banner { background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; font-size: 0.83rem; color: #92400e; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
 
     /* Layout */
     #workspace { display: flex; height: calc(100vh - 50px); }
@@ -566,6 +567,23 @@ if (_conceptName && !document.getElementById('f-title')?.value) {
   document.getElementById('f-title').value = _conceptName;
 }
 update();
+
+// Show teacher feedback banner if this concept has a note in state.json
+if (_cid) {
+  fetch('state/state.json')
+    .then(r => r.ok ? r.json() : [])
+    .then(state => {
+      const entry = state.find(s => s.concept_id === _cid);
+      if (entry && entry.feedback) {
+        const banner = document.createElement('div');
+        banner.id = 'feedback-banner';
+        const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
+        banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
+        document.getElementById('form-panel').prepend(banner);
+      }
+    })
+    .catch(() => {});
+}
 </script>
 </body>
 </html>
