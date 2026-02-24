@@ -32,7 +32,7 @@ app.get('/api/drive/pending', async (req, res) => {
       includeItemsFromAllDrives: true,
       supportsAllDrives: true,
       fields: 'files(id, name, createdTime, modifiedTime)',
-      orderBy: 'createdTime desc',
+      orderBy: 'modifiedTime desc',
     });
     res.json(result.data.files || []);
   } catch (e) {

@@ -367,21 +367,30 @@ function renderDriveList(files) {
     list.innerHTML = '<div id="drive-empty" style="padding:28px;text-align:center;font-size:0.85rem;color:#94a3b8">No files in Drive ICs folder yet.</div>';
     return;
   }
+
+  // Deduplicate by filename — files arrive newest-first, so first occurrence wins
+  const seen = new Set();
+  const deduped = files.filter(f => {
+    if (seen.has(f.name)) return false;
+    seen.add(f.name);
+    return true;
+  });
+
   list.innerHTML = '';
-  files.forEach(f => {
+  deduped.forEach(f => {
     const row = document.createElement('div');
     row.className = 'drive-row';
     row.dataset.fileId = f.id;
+    row.dataset.stem = f.name.replace(/\.html?$/i, '');
 
-    const date = new Date(f.createdTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const date = new Date(f.modifiedTime || f.createdTime)
+      .toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
     const conceptOptions = allConcepts.map(c =>
       `<option value="${c.id}">${c.name}</option>`
     ).join('');
 
-    // Suggest label from filename: "gamma_factor_ryan.html" → "ryan"
     const stem = f.name.replace(/\.html?$/i, '');
-    const defaultLabel = stem;
 
     row.innerHTML = `
       <div class="drive-filename">${f.name}</div>
@@ -390,10 +399,23 @@ function renderDriveList(files) {
         <option value="">— select concept —</option>
         ${conceptOptions}
       </select>
-      <input class="drive-label-inp" type="text" value="${escHtml(defaultLabel)}" placeholder="student name" title="Used as filename: name.html">
+      <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html — edit to just the student name">
       <button class="btn-preview" onclick="previewFile('${f.id}', '${escHtml(f.name)}')">Preview</button>
       <button class="btn-publish" onclick="publishFile('${f.id}', this)">Publish →</button>
     `;
+
+    // When concept is selected, strip concept_id prefix from stem to suggest student name
+    row.querySelector('.drive-concept-sel').addEventListener('change', function() {
+      const labelInp = row.querySelector('.drive-label-inp');
+      const conceptId = this.value;
+      if (conceptId) {
+        const stripped = stem.replace(new RegExp('^' + conceptId + '[_-]?', 'i'), '').trim();
+        labelInp.value = stripped || stem;
+      } else {
+        labelInp.value = stem;
+      }
+    });
+
     list.appendChild(row);
   });
 }
