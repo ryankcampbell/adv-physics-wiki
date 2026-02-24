@@ -109,6 +109,30 @@ app.post('/api/publish', async (req, res) => {
   }
 });
 
+// ── Push state.json directly ───────────────────────────────────────
+app.post('/api/push-state', (req, res) => {
+  const { state } = req.body;
+  if (!Array.isArray(state)) return res.status(400).json({ error: 'state must be an array' });
+  try {
+    const statePath = path.join(__dirname, 'state', 'state.json');
+    fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+    execSync('git add state/state.json', { cwd: __dirname });
+    execSync('git commit -m "Update state.json via admin"', { cwd: __dirname });
+    const token = process.env.GITHUB_TOKEN;
+    const user  = process.env.GITHUB_USER  || 'ryankcampbell';
+    const repo  = process.env.GITHUB_REPO  || 'adv-physics-wiki';
+    try {
+      execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
+      execSync('git push', { cwd: __dirname });
+    } finally {
+      execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Add concept to module JSON + push ─────────────────────────────
 app.post('/api/add-concept', (req, res) => {
   const { moduleFile, concept } = req.body;

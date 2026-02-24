@@ -283,17 +283,8 @@
   </div>
 
   <div id="export-section" style="display:none">
-    <button id="export-btn" onclick="exportJSON()">⬇ Generate state.json</button>
-    <pre id="json-output"></pre>
-    <button id="copy-btn" onclick="copyJSON()">Copy to clipboard</button>
-    <div class="instructions" id="instructions">
-      <strong>Next step:</strong> Copy the JSON above, then go to
-      <a href="https://github.com/ryankcampbell/adv-physics-wiki/edit/main/state/state.json" target="_blank">
-        github.com → adv-physics-wiki → state/state.json
-      </a>
-      → click the pencil icon → replace the contents → click <strong>Commit changes</strong>.
-      The navigator updates within 60 seconds.
-    </div>
+    <button id="push-state-btn" onclick="pushState()">↑ Push state.json to GitHub</button>
+    <span id="push-state-status" style="margin-left:12px;font-size:0.85rem;color:#64748b"></span>
   </div>
 
   <!-- ── ADD CONCEPT ── -->
@@ -531,20 +522,17 @@ function buildTable() {
   document.getElementById('export-section').style.display = 'block';
 }
 
-function exportJSON() {
+function buildStateArray() {
   const rows = document.querySelectorAll('#table-body tr');
   const output = [];
-
   rows.forEach(row => {
     const statusSel = row.querySelector('.status-sel');
     const claimedInp = row.querySelector('.claimed-inp');
     const advInp = row.querySelector('.adv-inp');
     if (!statusSel) return;
-
     const id = statusSel.dataset.id;
     const status = statusSel.value;
     if (status === 'unclaimed' || status === 'certified') return;
-
     const entry = { concept_id: id, status };
     const claimed = claimedInp.value.trim();
     if (claimed) {
@@ -557,21 +545,33 @@ function exportJSON() {
     }
     output.push(entry);
   });
-
-  const json = JSON.stringify(output, null, 2);
-  const box = document.getElementById('json-output');
-  box.textContent = json;
-  box.style.display = 'block';
-  document.getElementById('copy-btn').style.display = 'inline-block';
-  document.getElementById('instructions').style.display = 'block';
+  return output;
 }
 
-function copyJSON() {
-  const text = document.getElementById('json-output').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    document.getElementById('copy-btn').textContent = 'Copied!';
-    setTimeout(() => { document.getElementById('copy-btn').textContent = 'Copy to clipboard'; }, 2000);
-  });
+async function pushState() {
+  const btn = document.getElementById('push-state-btn');
+  const status = document.getElementById('push-state-status');
+  btn.disabled = true;
+  status.textContent = 'Pushing…';
+  try {
+    const res = await fetch('/api/push-state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: buildStateArray() })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      status.style.color = '#16a34a';
+      status.textContent = '✓ Pushed — navigator updates in ~60s';
+    } else {
+      status.style.color = '#dc2626';
+      status.textContent = 'Error: ' + data.error;
+    }
+  } catch (e) {
+    status.style.color = '#dc2626';
+    status.textContent = 'Error: ' + e.message;
+  }
+  btn.disabled = false;
 }
 
 // ── Add Concept form ───────────────────────────────────────────────
