@@ -228,8 +228,13 @@
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     .no-wiki-text { font-size: 0.81rem; color: #6b7280; }
+    .add-contrib-btn {
+      display: inline-block; margin-top: 6px;
+      font-size: 0.78rem; color: #2563eb; text-decoration: none;
+    }
+    .add-contrib-btn:hover { text-decoration: underline; }
     .claim-btn {
-      background: #2563eb; color: white; border: none;
+      background: #2563eb; color: white; border: none; text-decoration: none;
       border-radius: 6px; padding: 5px 11px;
       font-size: 0.78rem; cursor: pointer; white-space: nowrap;
       transition: background 0.15s;
@@ -379,9 +384,12 @@ const NW = 144, NH = 44;
 // BOOT
 // ═══════════════════════════════════════════════════════════
 async function init() {
+  const lastModule = localStorage.getItem('lastModule') || 'modules/special_relativity.json';
+  const sel = document.getElementById('module-select');
+  if (sel) sel.value = lastModule;
   try {
     const [modRes, cRes, sRes] = await Promise.all([
-      fetch('modules/quantum_spin.json'),
+      fetch(lastModule),
       fetch('contributions.json'),
       fetch('state/state.json')
     ]);
@@ -729,6 +737,7 @@ function selectNode(id) {
 
   // Wiki contributions
   const myContribs = contribs.filter(x => x.concept_id === id);
+  const editorUrl = `ic_editor.html?concept=${encodeURIComponent(id)}&name=${encodeURIComponent(c.name)}`;
   let wikiHTML;
   if (myContribs.length) {
     wikiHTML = myContribs.map(x =>
@@ -736,25 +745,13 @@ function selectNode(id) {
         <a href="${x.url}" target="_blank">${x.title}</a>
         <div class="wiki-entry-author">by ${x.author}</div>
       </div>`
-    ).join('');
+    ).join('') +
+    `<a href="${editorUrl}" class="add-contrib-btn">+ Add another contribution</a>`;
   } else {
     wikiHTML = `
       <div class="no-wiki">
         <span class="no-wiki-text">No contribution yet</span>
-        <button class="claim-btn" onclick="toggleClaim('${id}')">Claim →</button>
-      </div>
-      <div class="claim-form" id="cf-${id}">
-        <label>Your name</label>
-        <input id="cf-author-${id}" type="text" placeholder="First name">
-        <label>Contribution title</label>
-        <input id="cf-title-${id}" type="text" placeholder="e.g., Pauli Matrices as Spin Operators">
-        <label>Wiki page URL</label>
-        <input id="cf-url-${id}" type="url" placeholder="https://…">
-        <button class="gen-btn" onclick="genSnippet('${id}')">Generate submission snippet</button>
-        <div class="snippet-box" id="snip-${id}"></div>
-        <p class="snippet-note" id="snip-note-${id}" style="display:none">
-          Copy this JSON and send it to your teacher. They'll add it to contributions.json and your node will turn green.
-        </p>
+        <a href="${editorUrl}" class="claim-btn">Claim →</a>
       </div>`;
   }
 
@@ -789,26 +786,12 @@ function closeDetail() {
   refreshNodeStyles();
 }
 
-function toggleClaim(id) {
-  const f = document.getElementById(`cf-${id}`);
-  if (f) f.classList.toggle('open');
-}
-
-function genSnippet(id) {
-  const author = document.getElementById(`cf-author-${id}`)?.value.trim() || '';
-  const title  = document.getElementById(`cf-title-${id}`)?.value.trim() || '';
-  const url    = document.getElementById(`cf-url-${id}`)?.value.trim() || '';
-  const entry = JSON.stringify({ concept_id: id, author, title, url }, null, 2);
-  const box = document.getElementById(`snip-${id}`);
-  const note = document.getElementById(`snip-note-${id}`);
-  if (box) { box.textContent = entry; box.classList.add('open'); }
-  if (note) note.style.display = 'block';
-}
 
 // ═══════════════════════════════════════════════════════════
 // MODULE SWITCHING
 // ═══════════════════════════════════════════════════════════
 async function switchModule(url) {
+  localStorage.setItem('lastModule', url);
   // Reset state
   if (forceSim) { forceSim.stop(); forceSim = null; }
   selQuestion = null; selNode = null;

@@ -521,6 +521,15 @@ async function onToken(tok) {
 
 // ── Init ───────────────────────────────────────────────────────────
 load();
+// Pre-fill concept title from URL param if no draft already saved
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const conceptName = params.get('name');
+  const titleEl = document.getElementById('f-title');
+  if (conceptName && titleEl && !titleEl.value) {
+    titleEl.value = conceptName;
+  }
+})();
 update();
 </script>
 </body>
