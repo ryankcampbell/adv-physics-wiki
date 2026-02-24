@@ -22,6 +22,8 @@
     #btn-submit { background: #16a34a; color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
     #btn-submit:hover { background: #15803d; }
     #btn-submit:disabled { background: #6b7280; cursor: default; }
+    .hdr-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.82); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 11px; font-size: 0.76rem; cursor: pointer; white-space: nowrap; }
+    .hdr-btn:hover { background: rgba(255,255,255,0.18); }
 
     /* Layout */
     #workspace { display: flex; height: calc(100vh - 50px); }
@@ -104,6 +106,9 @@
   <a href="index.html">← Navigator</a>
   <h1>IC Editor</h1>
   <span id="save-badge"></span>
+  <input type="file" id="load-draft-input" accept=".json" style="display:none" onchange="loadDraftFile(this.files[0])">
+  <button class="hdr-btn" onclick="document.getElementById('load-draft-input').click()" title="Restore a draft saved by a teammate">↑ Load Draft</button>
+  <button class="hdr-btn" onclick="downloadDraft()" title="Download draft as a JSON file to share or back up">↓ Save Draft</button>
   <button id="btn-submit" onclick="openModal()">Submit to Class Drive →</button>
 </div>
 
@@ -216,7 +221,12 @@
 const CLIENT_ID   = '589102998193-ucko1h50efrql2oku8h4rb7t3lm6lrk5.apps.googleusercontent.com';
 const FOLDER_ID   = '1zu-3Yc0o94EJiFKxOIYJY-_CGjr0USiB';
 
-let simHtml = null, citN = 0, tokenClient = null, timer = null;
+let simHtml = null, simFileName = '', citN = 0, tokenClient = null, timer = null;
+
+// ── Draft key — per-concept so multiple drafts can coexist ─────────
+const _urlP = new URLSearchParams(window.location.search);
+const _cid  = _urlP.get('concept') || '';
+const DRAFT_KEY = _cid ? 'ic-draft-' + _cid : 'ic-draft';
 
 // ── Sim drop ───────────────────────────────────────────────────────
 function dropSim(ev) {
@@ -229,6 +239,7 @@ function loadSimFile(f) {
   const r = new FileReader();
   r.onload = e => {
     simHtml = e.target.result;
+    simFileName = f.name;
     const d = document.getElementById('sim-drop');
     d.className = 'done';
     d.innerHTML = `<p><strong style="color:#15803d">✓ ${f.name} loaded</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
@@ -327,14 +338,48 @@ function update() {
 const FIDS = ['f-author','f-title','f-rq','f-expl','f-sim-cap','f-lc1t','f-lc1e','f-lc1o','f-lc2t','f-lc2e','f-lc2o','f-scs','f-scp','f-scr','f-anchor','f-tq1','f-tq2','f-tq3'];
 function save() {
   const d = {}; FIDS.forEach(id => d[id] = document.getElementById(id)?.value||'');
-  localStorage.setItem('ic-draft', JSON.stringify(d));
+  if (simHtml) { d.__sim_html = simHtml; d.__sim_name = simFileName; }
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
   document.getElementById('save-badge').textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 function load() {
   try {
-    const d = JSON.parse(localStorage.getItem('ic-draft')||'{}');
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}');
     FIDS.forEach(id => { const el=document.getElementById(id); if(el&&d[id]) el.value=d[id]; });
+    if (d.__sim_html) { _restoreSim(d.__sim_html, d.__sim_name || 'simulation.html'); }
   } catch(e) {}
+}
+function _restoreSim(html, name) {
+  simHtml = html; simFileName = name;
+  const drop = document.getElementById('sim-drop');
+  drop.className = 'done';
+  drop.innerHTML = `<p><strong style="color:#15803d">✓ ${name}</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
+}
+
+// ── Download / Load draft file ─────────────────────────────────────
+function downloadDraft() {
+  const d = {}; FIDS.forEach(id => { d[id] = document.getElementById(id)?.value || ''; });
+  if (simHtml) { d.__sim_html = simHtml; d.__sim_name = simFileName || 'simulation.html'; }
+  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (v('f-title') || 'ic_draft').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function loadDraftFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      FIDS.forEach(id => { const el = document.getElementById(id); if (el && d[id] !== undefined) el.value = d[id]; });
+      if (d.__sim_html) { _restoreSim(d.__sim_html, d.__sim_name || 'simulation.html'); }
+      save(); update();
+    } catch(err) { alert('Could not read draft file: ' + err.message); }
+  };
+  reader.readAsText(file);
 }
 
 // ── Generate final IC HTML ─────────────────────────────────────────
@@ -516,14 +561,10 @@ async function onToken(tok) {
 // ── Init ───────────────────────────────────────────────────────────
 load();
 // Pre-fill concept title from URL param if no draft already saved
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const conceptName = params.get('name');
-  const titleEl = document.getElementById('f-title');
-  if (conceptName && titleEl && !titleEl.value) {
-    titleEl.value = conceptName;
-  }
-})();
+const _conceptName = _urlP.get('name');
+if (_conceptName && !document.getElementById('f-title')?.value) {
+  document.getElementById('f-title').value = _conceptName;
+}
 update();
 </script>
 </body>

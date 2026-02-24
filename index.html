@@ -738,6 +738,7 @@ function selectNode(id) {
   // Wiki contributions
   const myContribs = contribs.filter(x => x.concept_id === id);
   const editorUrl = `ic_editor.html?concept=${encodeURIComponent(id)}&name=${encodeURIComponent(c.name)}`;
+  const hasDraft = !!localStorage.getItem('ic-draft-' + id);
   let wikiHTML;
   if (myContribs.length) {
     wikiHTML = myContribs.map(x =>
@@ -746,7 +747,15 @@ function selectNode(id) {
         <div class="wiki-entry-author">by ${x.author}</div>
       </div>`
     ).join('') +
-    `<a href="${editorUrl}" class="add-contrib-btn">+ Add another contribution</a>`;
+    (hasDraft
+      ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
+      : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`);
+  } else if (hasDraft) {
+    wikiHTML = `
+      <div class="no-wiki">
+        <span class="no-wiki-text" style="color:#7c3aed;font-weight:600">Draft in progress</span>
+        <a href="${editorUrl}" class="claim-btn" style="background:#7c3aed">Continue →</a>
+      </div>`;
   } else {
     wikiHTML = `
       <div class="no-wiki">
