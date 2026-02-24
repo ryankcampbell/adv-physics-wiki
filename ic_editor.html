@@ -337,18 +337,25 @@ function update() {
 
 // ── Local storage ──────────────────────────────────────────────────
 const FIDS = ['f-author','f-title','f-rq','f-expl','f-sim-cap','f-lc1t','f-lc1e','f-lc1o','f-lc2t','f-lc2e','f-lc2o','f-scs','f-scp','f-scr','f-anchor','f-tq1','f-tq2','f-tq3'];
-function save() {
+
+function _draftObj() {
   const d = {}; FIDS.forEach(id => d[id] = document.getElementById(id)?.value||'');
   if (simHtml) { d.__sim_html = simHtml; d.__sim_name = simFileName; }
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+  d.__cits = getCits();  // include all citation blocks
+  return d;
+}
+function _applyDraft(d) {
+  FIDS.forEach(id => { const el=document.getElementById(id); if(el && d[id] !== undefined) el.value=d[id]; });
+  if (d.__sim_html) { _restoreSim(d.__sim_html, d.__sim_name || 'simulation.html'); }
+  if (Array.isArray(d.__cits) && d.__cits.length) { _restoreCits(d.__cits); }
+}
+
+function save() {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(_draftObj()));
   document.getElementById('save-badge').textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 function load() {
-  try {
-    const d = JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}');
-    FIDS.forEach(id => { const el=document.getElementById(id); if(el&&d[id]) el.value=d[id]; });
-    if (d.__sim_html) { _restoreSim(d.__sim_html, d.__sim_name || 'simulation.html'); }
-  } catch(e) {}
+  try { _applyDraft(JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}')); } catch(e) {}
 }
 function _restoreSim(html, name) {
   simHtml = html; simFileName = name;
@@ -356,12 +363,28 @@ function _restoreSim(html, name) {
   drop.className = 'done';
   drop.innerHTML = `<p><strong style="color:#15803d">✓ ${name}</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
 }
+function _restoreCits(cits) {
+  document.getElementById('cit-list').innerHTML = '';
+  citN = 0;
+  cits.forEach(c => {
+    const n = ++citN;
+    const d = document.createElement('div');
+    d.className = 'cit-block'; d.id = `cb${n}`;
+    d.innerHTML = `<button class="cit-rm" onclick="rmCit(${n})">×</button>
+      <div class="f"><label>Author(s) &amp; IC Title</label><input id="ct${n}" type="text" placeholder="S. Park — Spacetime Diagrams" oninput="update()"></div>
+      <div class="f"><label>Text Fragment URL</label><input id="cu${n}" type="text" placeholder="https://ryankcampbell.github.io/...#:~:text=..." oninput="update()"></div>
+      <div class="f"><label>Purpose Statement</label><textarea id="cp${n}" rows="2" placeholder="I used [specific result] from this IC because…" oninput="update()"></textarea></div>`;
+    document.getElementById('cit-list').appendChild(d);
+    // fill values after DOM insertion
+    document.getElementById(`ct${n}`).value = c.t || '';
+    document.getElementById(`cu${n}`).value = c.u || '';
+    document.getElementById(`cp${n}`).value = c.p || '';
+  });
+}
 
 // ── Download / Load draft file ─────────────────────────────────────
 function downloadDraft() {
-  const d = {}; FIDS.forEach(id => { d[id] = document.getElementById(id)?.value || ''; });
-  if (simHtml) { d.__sim_html = simHtml; d.__sim_name = simFileName || 'simulation.html'; }
-  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(_draftObj(), null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -374,9 +397,7 @@ function loadDraftFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const d = JSON.parse(e.target.result);
-      FIDS.forEach(id => { const el = document.getElementById(id); if (el && d[id] !== undefined) el.value = d[id]; });
-      if (d.__sim_html) { _restoreSim(d.__sim_html, d.__sim_name || 'simulation.html'); }
+      _applyDraft(JSON.parse(e.target.result));
       save(); update();
     } catch(err) { alert('Could not read draft file: ' + err.message); }
   };
