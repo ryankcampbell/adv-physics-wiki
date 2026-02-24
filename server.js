@@ -193,6 +193,70 @@ app.post('/api/add-concept', (req, res) => {
   }
 });
 
+// ── H-Index: scan published ICs for cross-citations ───────────────
+app.get('/api/h-index', (req, res) => {
+  try {
+    const contribPath = path.join(__dirname, 'contributions.json');
+    if (!fs.existsSync(contribPath)) return res.json({ authors: [] });
+    const contribs = JSON.parse(fs.readFileSync(contribPath, 'utf8'));
+    if (!contribs.length) return res.json({ authors: [] });
+
+    // Map known IC base URLs (fragment stripped) → contribution entry
+    const urlToContrib = {};
+    contribs.forEach(c => { urlToContrib[c.url.split('#')[0]] = c; });
+    const knownUrls = new Set(Object.keys(urlToContrib));
+
+    // Citation count per IC URL
+    const citCount = {};
+    knownUrls.forEach(u => { citCount[u] = 0; });
+
+    // Scan every published IC HTML for hrefs matching known IC URLs
+    const icsDir = path.join(__dirname, 'ics');
+    if (fs.existsSync(icsDir)) {
+      fs.readdirSync(icsDir).forEach(conceptId => {
+        const cDir = path.join(icsDir, conceptId);
+        if (!fs.statSync(cDir).isDirectory()) return;
+        fs.readdirSync(cDir).filter(f => f.endsWith('.html')).forEach(fname => {
+          const sourceUrl = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${fname}`;
+          const html = fs.readFileSync(path.join(cDir, fname), 'utf8');
+          const hrefRe = /href="([^"]+)"/gi;
+          let m;
+          while ((m = hrefRe.exec(html)) !== null) {
+            const base = m[1].split('#')[0];
+            // Count citation, but skip self-citation (same file)
+            if (knownUrls.has(base) && base !== sourceUrl) {
+              citCount[base]++;
+            }
+          }
+        });
+      });
+    }
+
+    // Group ICs by author, calculate h-index
+    const byAuthor = {};
+    contribs.forEach(c => {
+      const cnt = citCount[c.url.split('#')[0]] || 0;
+      (byAuthor[c.author] = byAuthor[c.author] || []).push(
+        { title: c.title, url: c.url, citations: cnt }
+      );
+    });
+
+    const authors = Object.entries(byAuthor).map(([author, ics]) => {
+      const sorted = [...ics].sort((a, b) => b.citations - a.citations);
+      let h = 0;
+      for (let i = 0; i < sorted.length; i++) {
+        if (sorted[i].citations >= i + 1) h = i + 1; else break;
+      }
+      return { author, h, ics: sorted,
+               totalCitations: sorted.reduce((s, x) => s + x.citations, 0) };
+    }).sort((a, b) => b.h - a.h || b.totalCitations - a.totalCitations);
+
+    res.json({ authors });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

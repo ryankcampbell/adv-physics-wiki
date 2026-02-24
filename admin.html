@@ -221,6 +221,33 @@
     #add-concept-msg { margin-top: 10px; font-size: 0.83rem; }
     .msg-ok  { color: #15803d; }
     .msg-err { color: #dc2626; }
+
+    /* ── H-INDEX ── */
+    #hindex-section { margin-top: 24px; }
+    #hindex-toggle {
+      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 12px 18px; width: 100%; text-align: left; cursor: pointer;
+      font-size: 0.83rem; font-weight: 600; color: #475569;
+      display: flex; align-items: center; gap: 12px;
+    }
+    #hindex-toggle:hover { background: #f8fafc; }
+    #hindex-toggle.on { border-color: #c4b5fd; }
+    .toggle-pill {
+      width: 38px; height: 22px; border-radius: 11px; background: #d1d5db;
+      position: relative; transition: background 0.2s; flex-shrink: 0;
+    }
+    .toggle-pill::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; border-radius: 50%; background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s;
+    }
+    #hindex-toggle.on .toggle-pill { background: #7c3aed; }
+    #hindex-toggle.on .toggle-pill::after { transform: translateX(16px); }
+    #hindex-body {
+      display: none; background: white; border: 1px solid #e2e8f0;
+      border-top: none; border-radius: 0 0 8px 8px; overflow: hidden;
+    }
+    #hindex-body.open { display: block; }
   </style>
 </head>
 <body>
@@ -327,6 +354,19 @@
       </div>
       <button id="btn-add-concept" onclick="submitNewConcept()">Add to Module &amp; Push</button>
       <div id="add-concept-msg"></div>
+    </div>
+  </div>
+
+  <!-- ── H-INDEX ── -->
+  <div id="hindex-section">
+    <button id="hindex-toggle" onclick="toggleHIndex()">
+      <div class="toggle-pill"></div>
+      H-Index Leaderboard
+      <span style="margin-left:auto;font-size:0.72rem;color:#94a3b8;font-weight:400">Peer citation impact · self-citations excluded</span>
+      <button onclick="event.stopPropagation();if(document.getElementById('hindex-body').classList.contains('open'))loadHIndex()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.9rem;padding:0 4px" title="Refresh">↻</button>
+    </button>
+    <div id="hindex-body">
+      <div id="hindex-content" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.85rem">Toggle on to load.</div>
     </div>
   </div>
 
@@ -682,7 +722,68 @@ async function submitNewConcept() {
   }
 }
 
+// ── H-Index ────────────────────────────────────────────────────────
+let hIndexOn = localStorage.getItem('hindex-on') === '1';
+
+function toggleHIndex() {
+  hIndexOn = !hIndexOn;
+  localStorage.setItem('hindex-on', hIndexOn ? '1' : '0');
+  applyHIndexState();
+  if (hIndexOn) loadHIndex();
+}
+function applyHIndexState() {
+  document.getElementById('hindex-toggle').classList.toggle('on', hIndexOn);
+  document.getElementById('hindex-body').classList.toggle('open', hIndexOn);
+}
+async function loadHIndex() {
+  const el = document.getElementById('hindex-content');
+  el.innerHTML = '<div style="padding:20px;text-align:center;color:#94a3b8">Computing…</div>';
+  try {
+    const res = await fetch('http://localhost:3000/api/h-index');
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    const { authors } = await res.json();
+    if (!authors.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;font-size:0.85rem;color:#94a3b8">No published ICs with citations yet.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <table class="concept-table" style="border-radius:0">
+        <thead><tr>
+          <th>Author</th>
+          <th style="text-align:center;width:90px">h-index</th>
+          <th style="text-align:center;width:70px">ICs</th>
+          <th style="text-align:center;width:90px">Citations</th>
+          <th>Published ICs (citation count)</th>
+        </tr></thead>
+        <tbody>
+          ${authors.map(a => `<tr>
+            <td style="font-weight:600">${a.author}</td>
+            <td style="text-align:center">
+              <span style="background:#7c3aed;color:white;border-radius:20px;padding:2px 14px;font-weight:700;font-size:0.9rem">${a.h}</span>
+            </td>
+            <td style="text-align:center;color:#64748b">${a.ics.length}</td>
+            <td style="text-align:center;color:#64748b">${a.totalCitations}</td>
+            <td style="font-size:0.78rem">
+              ${a.ics.map(ic =>
+                `<a href="${ic.url}" target="_blank" style="color:#2563eb;text-decoration:none">${ic.title}</a>`
+                + `<span style="color:#94a3b8"> ×${ic.citations}</span>`
+              ).join('<span style="color:#e2e8f0"> · </span>')}
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div style="font-size:0.71rem;color:#94a3b8;padding:8px 16px 12px">
+        Recalculated each time an IC is published. Self-citations excluded.
+        Use ↻ to refresh manually.
+      </div>`;
+  } catch(e) {
+    el.innerHTML = `<div style="padding:20px;font-size:0.83rem;color:#dc2626">Could not load: ${e.message} — is the server running?</div>`;
+  }
+}
+
 // ── Init ───────────────────────────────────────────────────────────
+applyHIndexState();
+if (hIndexOn) loadHIndex();
 loadModule('modules/special_relativity.json');
 loadDrive();
 </script>
