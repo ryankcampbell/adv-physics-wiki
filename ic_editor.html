@@ -193,7 +193,7 @@
       <div class="sec-hdr"><span class="sec-num">5</span> Citations</div>
       <div id="cit-list"></div>
       <button id="btn-cit" onclick="addCit()">+ Add Citation</button>
-      <div class="hint" style="margin-top:5px">In Chrome: highlight text on a classmate's IC → right-click → <em>Copy link to highlight</em> → paste the URL below.</div>
+      <div class="hint" style="margin-top:5px">Open a classmate's published IC → select the specific text you're citing → click the <strong>Copy citation link</strong> pill that appears → paste the URL below. Works in all browsers.</div>
     </div>
 
     <div class="sec">
@@ -532,6 +532,41 @@ ${tq3?`setMath('tq3',${j(tq3)});`:''}
   const paras=${j(expl)}.split(/\\n\\n+/);
   el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\\n/g,'<br>')}</p>\`).join('');
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+// ── Floating "Copy citation link" toolbar (works in all browsers) ──
+(function(){
+  const base = window.location.href.split('#')[0];
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:0.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.35);transition:bottom 0.2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent = '📋 Copy citation link';
+  document.body.appendChild(bar);
+
+  let hideTimer;
+  document.addEventListener('mouseup', () => {
+    clearTimeout(hideTimer);
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim().length > 3) {
+      bar.style.bottom = '28px';
+    } else {
+      hideTimer = setTimeout(() => { bar.style.bottom = '-60px'; }, 400);
+    }
+  });
+  document.addEventListener('touchend', () => {
+    clearTimeout(hideTimer);
+    const sel = window.getSelection();
+    if (sel && sel.toString().trim().length > 3) bar.style.bottom = '28px';
+  });
+
+  bar.addEventListener('click', () => {
+    const text = (window.getSelection()?.toString() || '').trim();
+    if (!text) { bar.style.bottom = '-60px'; return; }
+    const url = base + '#:~:text=' + encodeURIComponent(text.slice(0, 150));
+    navigator.clipboard.writeText(url).then(() => {
+      bar.textContent = '✓ Copied! Paste into the IC editor citation URL field.';
+      setTimeout(() => { bar.textContent = '📋 Copy citation link'; bar.style.bottom = '-60px'; }, 2200);
+    }).catch(() => { prompt('Copy this citation link:', url); });
+  });
 })();
 ${_sc}
 </body>
