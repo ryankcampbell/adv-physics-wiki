@@ -339,6 +339,7 @@ function load() {
 
 // ── Generate final IC HTML ─────────────────────────────────────────
 function genHTML() {
+  const _sc = '</' + 'script>';
   const author=v('f-author'),title=v('f-title'),rq=v('f-rq'),expl=v('f-expl');
   const simCap=v('f-sim-cap');
   const lc1t=v('f-lc1t'),lc1e=v('f-lc1e'),lc1o=v('f-lc1o');
@@ -438,8 +439,8 @@ ${tq3?`<div class="test-q"><strong>Q3.</strong> <span id="tq3"></span></div>`:''
 </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
-<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">${_sc}
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">${_sc}
 <script>
 function setMath(id,text){
   const el=document.getElementById(id);if(!el)return;
@@ -465,7 +466,7 @@ ${tq3?`setMath('tq3',${j(tq3)});`:''}
   el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\\n/g,'<br>')}</p>\`).join('');
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 })();
-<\/script>
+${_sc}
 </body>
 </html>`;
 }
