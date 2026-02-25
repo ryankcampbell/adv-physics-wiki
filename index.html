@@ -396,7 +396,7 @@ async function init() {
     mod = await modRes.json();
     contribs = await cRes.json();
     const stateArr = await sRes.json();
-    stateArr.forEach(s => { nodeStates[s.concept_id] = s.status; });
+    stateArr.forEach(s => { nodeStates[s.concept_id] = s; });
   } catch(e) {
     document.getElementById('graph-loading').textContent =
       'Could not load data. Serve from a local server: python3 -m http.server 8000';
@@ -449,7 +449,10 @@ function clearQuestion() {
 
 function updateCoverage() {
   const total = mod.concepts.length;
-  const coveredIds = new Set(contribs.map(c => c.concept_id));
+  // Only IC-type entries count toward wiki coverage
+  const coveredIds = new Set(
+    contribs.filter(c => !c.type || c.type === 'ic').map(c => c.concept_id)
+  );
   const n = coveredIds.size;
   const pct = total > 0 ? Math.round(n / total * 100) : 0;
   document.getElementById('coverage-bar').style.width = pct + '%';
@@ -612,10 +615,12 @@ function drawEdges(sel) { sel.attr('d', edgePath); }
 // STYLE HELPERS
 // ═══════════════════════════════════════════════════════════
 function nodeColor(d) {
-  const covered = contribs.some(c => c.concept_id === d.id);
+  // Only IC-type contributions count as "covered" (green)
+  const covered = contribs.some(c => c.concept_id === d.id && (!c.type || c.type === 'ic'));
   const onPath = highlighted.size > 0 && highlighted.has(d.id);
   const selected = d.id === selNode;
-  const st = nodeStates[d.id];
+  const stObj = nodeStates[d.id];
+  const st = stObj?.status;  // full state object → extract .status
   if (selected)                    return '#0f172a';
   if (covered && onPath)           return '#0d9488';
   if (covered)                     return '#16a34a'; // green  — IC published
@@ -735,18 +740,19 @@ function selectNode(id) {
       }).join('')
     : '<span class="no-prereqs">None — this is an entry concept</span>';
 
-  // Wiki contributions
-  const myContribs = contribs.filter(x => x.concept_id === id);
-  const editorUrl = `ic_editor.html?concept=${encodeURIComponent(id)}&name=${encodeURIComponent(c.name)}`;
-  const hasDraft  = !!localStorage.getItem('ic-draft-' + id);
-  const st        = nodeStates[id];
-  const stStatus  = st?.status || 'unclaimed';
-  const feedback  = st?.feedback || '';
+  // Wiki contributions — show only IC-type in main list
+  const icContribs = contribs.filter(x => x.concept_id === id && (!x.type || x.type === 'ic'));
+  const editorUrl  = `ic_editor.html?concept=${encodeURIComponent(id)}&name=${encodeURIComponent(c.name)}`;
+  const atEditorUrl = `ic_editor.html?at=${encodeURIComponent(id)}`;
+  const hasDraft   = !!localStorage.getItem('ic-draft-' + id);
+  const stObj      = nodeStates[id];       // full state object (or undefined)
+  const stStatus   = stObj?.status || 'unclaimed';
+  const feedback   = stObj?.feedback || '';
   let wikiHTML;
 
-  if (myContribs.length) {
-    // Published ICs — list them all, then action button
-    wikiHTML = myContribs.map(x =>
+  if (icContribs.length) {
+    // Published ICs — list them, then action links
+    wikiHTML = icContribs.map(x =>
       `<div class="wiki-entry">
         <a href="${x.url}" target="_blank">${x.title}</a>
         <div class="wiki-entry-author">by ${x.author}</div>
@@ -758,6 +764,7 @@ function selectNode(id) {
     wikiHTML += hasDraft
       ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
       : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`;
+    wikiHTML += `<a href="concept.html?id=${encodeURIComponent(id)}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#1e3a5f;font-weight:600">View IC / AT / HW →</a>`;
 
   } else if (stStatus === 'needs_revision') {
     wikiHTML = `
@@ -773,6 +780,7 @@ function selectNode(id) {
     wikiHTML = `
       <div class="no-wiki">
         <span class="no-wiki-text" style="color:#d97706">Submitted — awaiting review</span>
+        <a href="${atEditorUrl}" class="claim-btn" style="background:#7c2d12;margin-left:auto">Run AT →</a>
       </div>`;
 
   } else if (hasDraft) {
@@ -852,7 +860,7 @@ async function switchModule(url) {
     contribs = await cRes.json();
     const stateArr2 = await sRes.json();
     nodeStates = {};
-    stateArr2.forEach(s => { nodeStates[s.concept_id] = s.status; });
+    stateArr2.forEach(s => { nodeStates[s.concept_id] = s; });
   } catch(e) {
     document.getElementById('graph-loading').textContent = 'Failed to load module.';
     return;

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concept — Adv Physics Wiki</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f1f5f9; color: #0f172a;
+      height: 100vh; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    #header {
+      background: #1e3a5f; color: white;
+      padding: 11px 20px; display: flex; align-items: center;
+      gap: 14px; flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    #header h1 { font-size: 0.88rem; font-weight: 700; letter-spacing: 0.01em; }
+    #concept-title {
+      font-size: 0.92rem; color: rgba(255,255,255,0.85);
+      font-weight: 500; max-width: 500px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #header a {
+      color: rgba(255,255,255,0.5); text-decoration: none;
+      font-size: 0.8rem; margin-left: auto; white-space: nowrap;
+    }
+    #header a:hover { color: white; }
+
+    /* ── TABS ── */
+    #tab-bar {
+      background: white; border-bottom: 2px solid #e2e8f0;
+      display: flex; flex-shrink: 0; padding: 0 6px;
+    }
+    .tab-btn {
+      padding: 10px 20px; background: none; border: none; cursor: pointer;
+      font-size: 0.83rem; font-weight: 500; color: #64748b;
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #0f172a; }
+    .tab-btn.active               { color: #15803d; border-bottom-color: #15803d; font-weight: 600; }
+    .tab-btn[data-type="at"].active { color: #7c2d12; border-bottom-color: #7c2d12; }
+    .tab-btn[data-type="hw"].active { color: #134e4a; border-bottom-color: #134e4a; }
+    .tab-count {
+      display: inline-block; background: #f1f5f9; color: #94a3b8;
+      font-size: 0.66rem; font-weight: 700; padding: 1px 7px;
+      border-radius: 10px; margin-left: 5px; vertical-align: middle;
+    }
+    .tab-btn.active .tab-count { color: inherit; background: rgba(0,0,0,0.08); }
+
+    /* ── CONTENT ── */
+    #content { flex: 1; display: flex; min-height: 0; overflow: hidden; width: 100%; }
+
+    /* Entry sidebar */
+    #entry-sidebar {
+      width: 220px; flex-shrink: 0; background: #1e293b; color: #e2e8f0;
+      overflow-y: auto;
+    }
+    .sidebar-label {
+      padding: 9px 14px 7px; font-size: 0.62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; color: #475569;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .entry-item {
+      padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer; transition: background 0.12s;
+    }
+    .entry-item:hover   { background: rgba(255,255,255,0.05); }
+    .entry-item.active  {
+      background: rgba(37,99,235,0.22);
+      border-left: 3px solid #3b82f6;
+      padding-left: 11px;
+    }
+    .entry-title  { font-size: 0.8rem; font-weight: 600; line-height: 1.35; }
+    .entry-author { font-size: 0.7rem; color: #94a3b8; margin-top: 2px; }
+
+    /* Iframe */
+    #frame-wrap { flex: 1; position: relative; background: white; }
+    #main-frame  { width: 100%; height: 100%; border: none; display: block; }
+
+    /* Fill center (empty / error) */
+    .fill-center {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; color: #94a3b8; text-align: center; padding: 32px;
+    }
+    .fill-center .icon { font-size: 2.2rem; }
+    .fill-center h3 { font-size: 1rem; color: #64748b; }
+    .fill-center p  { font-size: 0.84rem; line-height: 1.65; max-width: 300px; }
+    .fill-center a  { color: #2563eb; text-decoration: none; font-size: 0.84rem; }
+    .fill-center a:hover { text-decoration: underline; }
+    .fill-center code {
+      background: #f1f5f9; border: 1px solid #e2e8f0;
+      border-radius: 4px; padding: 1px 6px; font-size: 0.8rem; color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>Adv Physics Wiki</h1>
+  <span id="concept-title">Loading…</span>
+  <a href="index.html">&#8592; Navigator</a>
+</div>
+
+<div id="tab-bar" style="display:none">
+  <button class="tab-btn" data-type="ic" onclick="showTab('ic')">
+    IC Contributions <span class="tab-count" id="ic-count">0</span>
+  </button>
+  <button class="tab-btn" data-type="at" onclick="showTab('at')">
+    Adversarial Tests <span class="tab-count" id="at-count">0</span>
+  </button>
+  <button class="tab-btn" data-type="hw" onclick="showTab('hw')">
+    HW Questions <span class="tab-count" id="hw-count">0</span>
+  </button>
+</div>
+
+<div id="content">
+  <div class="fill-center"><p>Loading contributions&#8230;</p></div>
+</div>
+
+<script>
+var CONCEPT_ID = (new URLSearchParams(location.search)).get('id') || '';
+var _groups = { ic: [], at: [], hw: [] };
+var _currentTab = 'ic';
+
+if (!CONCEPT_ID) {
+  document.getElementById('content').innerHTML =
+    '<div class="fill-center">'
+    + '<span class="icon">&#128269;</span>'
+    + '<h3>No concept specified</h3>'
+    + '<p>Add <code>?id=concept_id</code> to the URL, or return to the navigator.</p>'
+    + '<a href="index.html">&#8592; Back to Navigator</a>'
+    + '</div>';
+} else {
+  fetch('contributions.json')
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data) {
+      // Group entries for this concept by type
+      data.filter(function(c) { return c.concept_id === CONCEPT_ID; }).forEach(function(c) {
+        var t = (c.type || 'ic').toLowerCase();
+        if (_groups[t]) _groups[t].push(c);
+      });
+
+      // Derive concept name from first entry title
+      var first = data.find(function(c) { return c.concept_id === CONCEPT_ID; });
+      var name = first
+        ? first.title.replace(/^(IC|AT|HW):\s*/i, '').split('|')[0].trim()
+        : CONCEPT_ID.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+
+      document.getElementById('concept-title').textContent = name;
+      document.title = name + ' \u2014 Adv Physics Wiki';
+
+      document.getElementById('ic-count').textContent = _groups.ic.length;
+      document.getElementById('at-count').textContent = _groups.at.length;
+      document.getElementById('hw-count').textContent = _groups.hw.length;
+
+      document.getElementById('tab-bar').style.display = 'flex';
+
+      // Show first non-empty tab
+      var first_tab = _groups.ic.length ? 'ic' : _groups.at.length ? 'at' : 'hw';
+      showTab(first_tab);
+    })
+    .catch(function(e) {
+      document.getElementById('content').innerHTML =
+        '<div class="fill-center"><span class="icon">&#9888;</span><h3>Load error</h3><p>' + e.message + '</p></div>';
+    });
+}
+
+function showTab(type) {
+  _currentTab = type;
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+
+  var content = document.getElementById('content');
+  var entries = _groups[type] || [];
+
+  if (!entries.length) {
+    var labels = { ic: 'IC Contribution', at: 'Adversarial Test', hw: 'HW Questions set' };
+    var eparam = type === 'at' ? 'at=' + CONCEPT_ID
+               : type === 'hw' ? 'hw=' + CONCEPT_ID
+               : 'concept=' + CONCEPT_ID;
+    content.innerHTML =
+      '<div class="fill-center">'
+      + '<span class="icon">&#128235;</span>'
+      + '<h3>No ' + (labels[type] || type) + ' published yet</h3>'
+      + '<p>Nothing has been published for this concept in this category.</p>'
+      + (type === 'ic' ? '<a href="ic_editor.html?' + eparam + '">Write one &#8594;</a>' : '')
+      + '</div>';
+    return;
+  }
+
+  // Build sidebar + iframe layout
+  var sidebar = document.createElement('div');
+  sidebar.id = 'entry-sidebar';
+
+  var lbl = document.createElement('div');
+  lbl.className = 'sidebar-label';
+  lbl.textContent = entries.length + ' submission' + (entries.length > 1 ? 's' : '');
+  sidebar.appendChild(lbl);
+
+  var frameWrap = document.createElement('div');
+  frameWrap.id = 'frame-wrap';
+
+  var iframe = document.createElement('iframe');
+  iframe.id = 'main-frame';
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+  iframe.src = entries[0].url;
+  frameWrap.appendChild(iframe);
+
+  entries.forEach(function(e, i) {
+    var item = document.createElement('div');
+    item.className = 'entry-item' + (i === 0 ? ' active' : '');
+
+    var titleEl = document.createElement('div');
+    titleEl.className = 'entry-title';
+    titleEl.textContent = e.title;
+
+    var authorEl = document.createElement('div');
+    authorEl.className = 'entry-author';
+    authorEl.textContent = 'by ' + e.author;
+
+    item.appendChild(titleEl);
+    item.appendChild(authorEl);
+
+    item.onclick = function() {
+      document.querySelectorAll('.entry-item').forEach(function(el) { el.classList.remove('active'); });
+      item.classList.add('active');
+      document.getElementById('main-frame').src = e.url;
+    };
+    sidebar.appendChild(item);
+  });
+
+  content.innerHTML = '';
+  content.appendChild(sidebar);
+  content.appendChild(frameWrap);
+}
+</script>
+</body>
+</html>

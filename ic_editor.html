@@ -15,6 +15,8 @@
 
     /* Header */
     #hdr { background: #1e3a5f; color: white; padding: 0 20px; height: 50px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); flex-shrink: 0; }
+    #hdr.mode-at { background: #7c2d12; }
+    #hdr.mode-hw { background: #134e4a; }
     #hdr a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.78rem; white-space: nowrap; }
     #hdr a:hover { color: white; }
     #hdr h1 { font-size: 0.9rem; font-weight: 600; flex: 1; }
@@ -22,9 +24,15 @@
     #btn-submit { background: #16a34a; color: white; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
     #btn-submit:hover { background: #15803d; }
     #btn-submit:disabled { background: #6b7280; cursor: default; }
+    #hdr.mode-at #btn-submit { background: #dc2626; }
+    #hdr.mode-at #btn-submit:hover { background: #b91c1c; }
+    #hdr.mode-hw #btn-submit { background: #0d9488; }
+    #hdr.mode-hw #btn-submit:hover { background: #0f766e; }
     .hdr-btn { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.82); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 5px 11px; font-size: 0.76rem; cursor: pointer; white-space: nowrap; }
     .hdr-btn:hover { background: rgba(255,255,255,0.18); }
     #feedback-banner { background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; font-size: 0.83rem; color: #92400e; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
+    #at-banner { background: #fee2e2; border-left: 4px solid #dc2626; padding: 10px 16px; font-size: 0.83rem; color: #7f1d1d; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
+    #hw-banner { background: #ccfbf1; border-left: 4px solid #0d9488; padding: 10px 16px; font-size: 0.83rem; color: #134e4a; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
 
     /* Layout */
     #workspace { display: flex; height: calc(100vh - 50px); }
@@ -32,15 +40,25 @@
     /* Form */
     #form-panel { width: 56%; overflow-y: auto; background: white; border-right: 1px solid #e2e8f0; padding: 20px 22px 40px; }
 
-    /* Preview */
-    #prev-panel { width: 44%; overflow-y: auto; background: #f8fafc; }
-    #prev-hdr { background: #f1f5f9; border-bottom: 1px solid #e2e8f0; padding: 7px 16px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; position: sticky; top: 0; z-index: 5; }
+    /* Preview / Reference panel */
+    #prev-panel { width: 44%; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; }
+    #prev-hdr { background: #f1f5f9; border-bottom: 1px solid #e2e8f0; padding: 7px 16px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; position: sticky; top: 0; z-index: 5; flex-shrink: 0; }
     #prev-body { padding: 18px; }
+
+    /* Reference IC iframe (AT/HW mode) */
+    #ref-frame { flex: 1; border: none; width: 100%; min-height: 0; }
+    #ref-loading { padding: 32px; text-align: center; font-size: 0.85rem; color: #94a3b8; }
+    #ref-picker { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center; font-size: 0.78rem; color: #475569; flex-shrink: 0; background: white; }
+    #ref-picker select { border: 1px solid #d1d5db; border-radius: 5px; padding: 3px 7px; font-size: 0.78rem; }
 
     /* Sections */
     .sec { margin-bottom: 24px; }
     .sec-hdr { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; }
+    .sec-hdr.at-hdr { border-color: #fca5a5; color: #991b1b; }
+    .sec-hdr.hw-hdr { border-color: #5eead4; color: #0f766e; }
     .sec-num { background: #1e3a5f; color: white; border-radius: 50%; width: 17px; height: 17px; font-size: 0.62rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sec-num.at { background: #dc2626; }
+    .sec-num.hw { background: #0d9488; }
 
     /* Fields */
     .f { margin-bottom: 10px; }
@@ -66,7 +84,17 @@
     #btn-cit { width: 100%; background: none; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 7px; font-size: 0.78rem; color: #64748b; cursor: pointer; }
     #btn-cit:hover { background: #f8fafc; border-color: #94a3b8; }
 
-    /* ── Preview styles ── */
+    /* AT/HW dynamic blocks */
+    .challenge-block, .hw-q-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px; padding: 14px; margin-bottom: 10px; position: relative; }
+    .challenge-block { border-left: 3px solid #fca5a5; }
+    .hw-q-block { border-left: 3px solid #5eead4; }
+    .block-num { font-size: 0.68rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .block-rm { position: absolute; top: 10px; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+    .block-rm:hover { color: #dc2626; }
+    .add-block-btn { width: 100%; background: none; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 7px; font-size: 0.78rem; color: #64748b; cursor: pointer; margin-top: 4px; }
+    .add-block-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+
+    /* ── Preview styles (IC mode) ── */
     .pv-hdr { background: #1e3a5f; color: white; padding: 12px 14px 14px; border-radius: 6px 6px 0 0; margin: -18px -18px 16px; }
     .pv-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 3px; }
     .pv-meta { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
@@ -116,8 +144,8 @@
 <!-- Submit modal -->
 <div id="modal">
   <div id="modal-box">
-    <h2>Submit to Class Drive</h2>
-    <p>Sign in with your school Google account. Your IC will upload directly to the shared folder.</p>
+    <h2 id="modal-title">Submit to Class Drive</h2>
+    <p id="modal-desc">Sign in with your school Google account. Your submission will upload directly to the shared folder.</p>
     <button class="g-btn" onclick="doSubmit()">
       <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/><path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/><path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/><path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.31z"/></svg>
       Sign in with Google
@@ -129,88 +157,96 @@
 
 <div id="workspace">
 
-  <!-- ── FORM ── -->
+  <!-- ── FORM PANEL ── -->
   <div id="form-panel">
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">·</span> Your Info</div>
-      <div class="row2">
-        <div class="f"><label>Name(s)</label><input id="f-author" type="text" placeholder="First Last, First Last" oninput="update()"></div>
-        <div class="f"><label>Concept Title</label><input id="f-title" type="text" placeholder="e.g. Time Dilation" oninput="update()"></div>
-      </div>
-    </div>
+    <!-- IC mode sections (hidden in AT/HW mode) -->
+    <div id="ic-sections">
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">1</span> Research Question</div>
-      <div class="f">
-        <textarea id="f-rq" rows="2" placeholder="Why does a moving clock tick slower — and slower relative to what?" oninput="update()"></textarea>
-        <div class="hint">Frame as a precise physics question, not "What is X?"</div>
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">·</span> Your Info</div>
+        <div class="row2">
+          <div class="f"><label>Name(s)</label><input id="f-author" type="text" placeholder="First Last, First Last" oninput="update()"></div>
+          <div class="f"><label>Concept Title</label><input id="f-title" type="text" placeholder="e.g. Time Dilation" oninput="update()"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">2</span> Explainer</div>
-      <div class="f">
-        <textarea id="f-expl" rows="10" placeholder="Write your explanation here. Use $...$ for inline math like $\gamma = 1/\sqrt{1-\beta^2}$ and $$...$$ for display equations.&#10;&#10;Start with the physical intuition. What is happening and why?" oninput="update()"></textarea>
-        <div class="hint">300–600 words · $…$ inline math · $$…$$ display math · blank line = new paragraph</div>
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">1</span> Research Question</div>
+        <div class="f">
+          <textarea id="f-rq" rows="2" placeholder="Why does a moving clock tick slower — and slower relative to what?" oninput="update()"></textarea>
+          <div class="hint">Frame as a precise physics question, not "What is X?"</div>
+        </div>
       </div>
-    </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">3</span> Simulation</div>
-      <div id="sim-drop"
-           onclick="document.getElementById('sim-file').click()"
-           ondragover="ev.preventDefault();this.classList.add('over')"
-           ondragleave="this.classList.remove('over')"
-           ondrop="dropSim(event)">
-        <p><strong>Drag your simulation .html file here</strong></p>
-        <p style="margin-top:4px;font-size:0.75rem">or click to browse · built with Claude, one self-contained .html file</p>
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">2</span> Explainer</div>
+        <div class="f">
+          <textarea id="f-expl" rows="10" placeholder="Write your explanation here. Use $...$ for inline math like $\gamma = 1/\sqrt{1-\beta^2}$ and $$...$$ for display equations.&#10;&#10;Start with the physical intuition. What is happening and why?" oninput="update()"></textarea>
+          <div class="hint">300–600 words · $…$ inline math · $$…$$ display math · blank line = new paragraph</div>
+        </div>
       </div>
-      <input type="file" id="sim-file" accept=".html" onchange="loadSimFile(this.files[0])">
-      <div class="f"><label>Caption</label><textarea id="f-sim-cap" rows="2" placeholder="Describe what the simulation shows and how to use it." oninput="update()"></textarea></div>
-    </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">4</span> Verification</div>
-      <div class="f"><label>Limiting Case 1 — Name</label><input id="f-lc1t" type="text" placeholder="β = 0 (no motion)" oninput="update()"></div>
-      <div class="row2">
-        <div class="f"><label>Expected</label><textarea id="f-lc1e" rows="3" placeholder="γ = 1, clocks run at same rate" oninput="update()"></textarea></div>
-        <div class="f"><label>Observed in sim</label><textarea id="f-lc1o" rows="3" placeholder="Both clocks show identical times ✓" oninput="update()"></textarea></div>
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">3</span> Simulation</div>
+        <div id="sim-drop"
+             onclick="document.getElementById('sim-file').click()"
+             ondragover="ev.preventDefault();this.classList.add('over')"
+             ondragleave="this.classList.remove('over')"
+             ondrop="dropSim(event)">
+          <p><strong>Drag your simulation .html file here</strong></p>
+          <p style="margin-top:4px;font-size:0.75rem">or click to browse · built with Claude, one self-contained .html file</p>
+        </div>
+        <input type="file" id="sim-file" accept=".html" onchange="loadSimFile(this.files[0])">
+        <div class="f"><label>Caption</label><textarea id="f-sim-cap" rows="2" placeholder="Describe what the simulation shows and how to use it." oninput="update()"></textarea></div>
       </div>
-      <div class="f" style="margin-top:8px"><label>Limiting Case 2 — Name</label><input id="f-lc2t" type="text" placeholder="β → 1 (near light speed)" oninput="update()"></div>
-      <div class="row2">
-        <div class="f"><label>Expected</label><textarea id="f-lc2e" rows="3" oninput="update()"></textarea></div>
-        <div class="f"><label>Observed in sim</label><textarea id="f-lc2o" rows="3" oninput="update()"></textarea></div>
+
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">4</span> Verification</div>
+        <div class="f"><label>Limiting Case 1 — Name</label><input id="f-lc1t" type="text" placeholder="β = 0 (no motion)" oninput="update()"></div>
+        <div class="row2">
+          <div class="f"><label>Expected</label><textarea id="f-lc1e" rows="3" placeholder="γ = 1, clocks run at same rate" oninput="update()"></textarea></div>
+          <div class="f"><label>Observed in sim</label><textarea id="f-lc1o" rows="3" placeholder="Both clocks show identical times ✓" oninput="update()"></textarea></div>
+        </div>
+        <div class="f" style="margin-top:8px"><label>Limiting Case 2 — Name</label><input id="f-lc2t" type="text" placeholder="β → 1 (near light speed)" oninput="update()"></div>
+        <div class="row2">
+          <div class="f"><label>Expected</label><textarea id="f-lc2e" rows="3" oninput="update()"></textarea></div>
+          <div class="f"><label>Observed in sim</label><textarea id="f-lc2o" rows="3" oninput="update()"></textarea></div>
+        </div>
+        <div class="f" style="margin-top:8px"><label>Quantitative Spot-Check — Setup</label><textarea id="f-scs" rows="2" placeholder="β = 0.6 → γ = 5/4. Stationary clock runs 4 s." oninput="update()"></textarea></div>
+        <div class="row2">
+          <div class="f"><label>Formula Prediction</label><textarea id="f-scp" rows="2" placeholder="$\Delta t = \gamma \Delta t_0 = 5\text{ s}$" oninput="update()"></textarea></div>
+          <div class="f"><label>Simulation Result</label><textarea id="f-scr" rows="2" placeholder="Moving clock shows 3.20 s ✓" oninput="update()"></textarea></div>
+        </div>
       </div>
-      <div class="f" style="margin-top:8px"><label>Quantitative Spot-Check — Setup</label><textarea id="f-scs" rows="2" placeholder="β = 0.6 → γ = 5/4. Stationary clock runs 4 s." oninput="update()"></textarea></div>
-      <div class="row2">
-        <div class="f"><label>Formula Prediction</label><textarea id="f-scp" rows="2" placeholder="$\Delta t = \gamma \Delta t_0 = 5\text{ s}$" oninput="update()"></textarea></div>
-        <div class="f"><label>Simulation Result</label><textarea id="f-scr" rows="2" placeholder="Moving clock shows 3.20 s ✓" oninput="update()"></textarea></div>
+
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">5</span> Citations</div>
+        <div id="cit-list"></div>
+        <button id="btn-cit" onclick="addCit()">+ Add Citation</button>
+        <div class="hint" style="margin-top:5px">Open a classmate's published IC → select the specific text you're citing → click the <strong>Copy citation link</strong> pill that appears → paste the URL below. Works in all browsers.</div>
       </div>
-    </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">5</span> Citations</div>
-      <div id="cit-list"></div>
-      <button id="btn-cit" onclick="addCit()">+ Add Citation</button>
-      <div class="hint" style="margin-top:5px">Open a classmate's published IC → select the specific text you're citing → click the <strong>Copy citation link</strong> pill that appears → paste the URL below. Works in all browsers.</div>
-    </div>
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">6</span> Connection to Anchor Question</div>
+        <div class="f"><textarea id="f-anchor" rows="3" placeholder="2–3 sentences: how does this concept help answer the unit's central question?" oninput="update()"></textarea></div>
+      </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">6</span> Connection to Anchor Question</div>
-      <div class="f"><textarea id="f-anchor" rows="3" placeholder="2–3 sentences: how does this concept help answer the unit's central question?" oninput="update()"></textarea></div>
-    </div>
+      <div class="sec">
+        <div class="sec-hdr"><span class="sec-num">7</span> Proposed Test Questions</div>
+        <div class="f"><label>Q1</label><textarea id="f-tq1" rows="3" oninput="update()"></textarea></div>
+        <div class="f"><label>Q2</label><textarea id="f-tq2" rows="3" oninput="update()"></textarea></div>
+        <div class="f"><label>Q3 (optional)</label><textarea id="f-tq3" rows="3" oninput="update()"></textarea></div>
+      </div>
 
-    <div class="sec">
-      <div class="sec-hdr"><span class="sec-num">7</span> Proposed Test Questions</div>
-      <div class="f"><label>Q1</label><textarea id="f-tq1" rows="3" oninput="update()"></textarea></div>
-      <div class="f"><label>Q2</label><textarea id="f-tq2" rows="3" oninput="update()"></textarea></div>
-      <div class="f"><label>Q3 (optional)</label><textarea id="f-tq3" rows="3" oninput="update()"></textarea></div>
-    </div>
+    </div><!-- end #ic-sections -->
+
+    <!-- AT/HW sections injected here by JS -->
+    <div id="alt-sections" style="display:none"></div>
 
   </div><!-- end form -->
 
-  <!-- ── PREVIEW ── -->
+  <!-- ── PREVIEW / REFERENCE PANEL ── -->
   <div id="prev-panel">
     <div id="prev-hdr">Live Preview</div>
     <div id="prev-body"></div>
@@ -224,12 +260,24 @@ const FOLDER_ID   = '1zu-3Yc0o94EJiFKxOIYJY-_CGjr0USiB';
 
 let simHtml = null, simFileName = '', citN = 0, tokenClient = null, timer = null;
 
-// ── Draft key — per-concept so multiple drafts can coexist ─────────
+// ── Mode detection ─────────────────────────────────────────────────
 const _urlP = new URLSearchParams(window.location.search);
-const _cid  = _urlP.get('concept') || '';
-const DRAFT_KEY = _cid ? 'ic-draft-' + _cid : 'ic-draft';
+const _atId  = _urlP.get('at')      || '';
+const _hwId  = _urlP.get('hw')      || '';
+const _cid   = _urlP.get('concept') || '';
+const MODE        = _atId ? 'at' : _hwId ? 'hw' : 'ic';
+const CONCEPT_ID  = _cid || _atId || _hwId;
+const DRAFT_KEY   = MODE === 'at' ? 'at-draft-' + CONCEPT_ID
+                  : MODE === 'hw' ? 'hw-draft-' + CONCEPT_ID
+                  : (CONCEPT_ID ? 'ic-draft-' + CONCEPT_ID : 'ic-draft');
 
-// ── Sim drop ───────────────────────────────────────────────────────
+// ── AT/HW challenge/question counters ─────────────────────────────
+let challengeN = 0, hwQN = 0;
+
+// ══════════════════════════════════════════════════════════════════
+// IC MODE — existing code (unchanged)
+// ══════════════════════════════════════════════════════════════════
+
 function dropSim(ev) {
   ev.preventDefault();
   document.getElementById('sim-drop').classList.remove('over');
@@ -249,7 +297,6 @@ function loadSimFile(f) {
   r.readAsText(f);
 }
 
-// ── Citations ──────────────────────────────────────────────────────
 function addCit() {
   const n = ++citN;
   const d = document.createElement('div');
@@ -268,7 +315,6 @@ function getCits() {
   }).filter(c => c.t || c.u);
 }
 
-// ── Helpers ────────────────────────────────────────────────────────
 const v = id => (document.getElementById(id)?.value || '').trim();
 const nil = s => `<span class="pv-nil">${s}</span>`;
 const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -282,7 +328,6 @@ function math(text) {
   return s;
 }
 
-// ── Preview ────────────────────────────────────────────────────────
 function buildPreview() {
   const cits = getCits();
   const tq1=v('f-tq1'),tq2=v('f-tq2'),tq3=v('f-tq3');
@@ -291,19 +336,15 @@ function buildPreview() {
       <div class="pv-title">${v('f-title')||nil('Concept Title')}</div>
       <div class="pv-meta">${v('f-author')||nil('Author(s)')} <span class="pv-badge">Draft</span></div>
     </div>
-
     <div class="pv-h2">Research Question</div>
     <div class="pv-rq">${v('f-rq')?math(v('f-rq')):nil('Your research question…')}</div>
-
     <div class="pv-h2">Explainer</div>
     <p class="pv-p">${v('f-expl')?math(v('f-expl')):nil('Your explainer will appear here.')}</p>
-
     <div class="pv-h2">Simulation</div>
     <div class="pv-sim">
       <div class="pv-sim-inner">${simHtml?'✓ Simulation loaded':'Drop your .html sim file on the left'}</div>
       <div class="pv-sim-cap">${v('f-sim-cap')?math(v('f-sim-cap')):nil('Caption…')}</div>
     </div>
-
     <div class="pv-h2">Verification</div>
     <div class="pv-vcard"><h3>${v('f-lc1t')||'Limiting Case 1'}</h3>
       <p class="pv-p"><strong>Expected:</strong> ${math(v('f-lc1e'))||nil('…')}</p>
@@ -315,13 +356,10 @@ function buildPreview() {
       <p class="pv-p"><strong>Setup:</strong> ${math(v('f-scs'))||nil('…')}</p>
       <p class="pv-p"><strong>Predicted:</strong> ${math(v('f-scp'))||nil('…')}</p>
       <p class="pv-p"><strong>Result:</strong> ${math(v('f-scr'))||nil('…')}</p></div>
-
     <div class="pv-h2">Citations</div>
     ${cits.length?cits.map(c=>`<div class="pv-cit"><a href="${c.u||'#'}">${c.t||'Citation'}</a>${c.p?`<div class="pur"><strong>Purpose:</strong> ${c.p}</div>`:''}</div>`).join(''):`<p class="pv-p">${nil('No citations yet.')}</p>`}
-
     <div class="pv-h2">Connection to Anchor Question</div>
     <div class="pv-anchor">${v('f-anchor')?math(v('f-anchor')):nil('Your anchor connection…')}</div>
-
     <div class="pv-h2">Proposed Test Questions</div>
     ${tq1?`<div class="pv-tq"><strong>Q1.</strong> ${math(tq1)}</div>`:''}
     ${tq2?`<div class="pv-tq"><strong>Q2.</strong> ${math(tq2)}</div>`:''}
@@ -331,17 +369,18 @@ function buildPreview() {
 }
 
 function update() {
+  if (MODE !== 'ic') return;
   clearTimeout(timer);
   timer = setTimeout(() => { document.getElementById('prev-body').innerHTML = buildPreview(); save(); }, 220);
 }
 
-// ── Local storage ──────────────────────────────────────────────────
+// ── Local storage (IC mode) ────────────────────────────────────────
 const FIDS = ['f-author','f-title','f-rq','f-expl','f-sim-cap','f-lc1t','f-lc1e','f-lc1o','f-lc2t','f-lc2e','f-lc2o','f-scs','f-scp','f-scr','f-anchor','f-tq1','f-tq2','f-tq3'];
 
 function _draftObj() {
   const d = {}; FIDS.forEach(id => d[id] = document.getElementById(id)?.value||'');
   if (simHtml) { d.__sim_html = simHtml; d.__sim_name = simFileName; }
-  d.__cits = getCits();  // include all citation blocks
+  d.__cits = getCits();
   return d;
 }
 function _applyDraft(d) {
@@ -351,15 +390,22 @@ function _applyDraft(d) {
 }
 
 function save() {
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(_draftObj()));
+  const d = MODE === 'at' ? getATDraft() : MODE === 'hw' ? getHWDraft() : _draftObj();
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
   document.getElementById('save-badge').textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 function load() {
-  try { _applyDraft(JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}')); } catch(e) {}
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY)||'{}');
+    if (MODE === 'at') applyATDraft(d);
+    else if (MODE === 'hw') applyHWDraft(d);
+    else _applyDraft(d);
+  } catch(e) {}
 }
 function _restoreSim(html, name) {
   simHtml = html; simFileName = name;
   const drop = document.getElementById('sim-drop');
+  if (!drop) return;
   drop.className = 'done';
   drop.innerHTML = `<p><strong style="color:#15803d">✓ ${name}</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
 }
@@ -375,20 +421,19 @@ function _restoreCits(cits) {
       <div class="f"><label>Text Fragment URL</label><input id="cu${n}" type="text" placeholder="https://ryankcampbell.github.io/...#:~:text=..." oninput="update()"></div>
       <div class="f"><label>Purpose Statement</label><textarea id="cp${n}" rows="2" placeholder="I used [specific result] from this IC because…" oninput="update()"></textarea></div>`;
     document.getElementById('cit-list').appendChild(d);
-    // fill values after DOM insertion
     document.getElementById(`ct${n}`).value = c.t || '';
     document.getElementById(`cu${n}`).value = c.u || '';
     document.getElementById(`cp${n}`).value = c.p || '';
   });
 }
 
-// ── Download / Load draft file ─────────────────────────────────────
 function downloadDraft() {
-  const blob = new Blob([JSON.stringify(_draftObj(), null, 2)], { type: 'application/json' });
+  const d = MODE === 'at' ? getATDraft() : MODE === 'hw' ? getHWDraft() : _draftObj();
+  const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = (v('f-title') || 'ic_draft').replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
+  a.download = (MODE + '_' + (CONCEPT_ID || v('f-title') || 'draft')).replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.json';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -397,14 +442,331 @@ function loadDraftFile(file) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      _applyDraft(JSON.parse(e.target.result));
-      save(); update();
+      const d = JSON.parse(e.target.result);
+      if (MODE === 'at') applyATDraft(d);
+      else if (MODE === 'hw') applyHWDraft(d);
+      else _applyDraft(d);
+      save();
+      if (MODE === 'ic') update();
     } catch(err) { alert('Could not read draft file: ' + err.message); }
   };
   reader.readAsText(file);
 }
 
-// ── Generate final IC HTML ─────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// AT MODE
+// ══════════════════════════════════════════════════════════════════
+
+const CHALLENGE_TYPES = ['Limiting case','Mathematical error','Missing regime','Conceptual gap','Other'];
+
+function buildATFormHTML(conceptName) {
+  return `
+    <div id="at-banner"><strong>Adversarial Test Mode</strong> — You are reviewing a published IC for <strong>${esc(conceptName)}</strong>. Use the reference IC on the right. Document specific, reproducible challenges below.</div>
+    <div class="sec">
+      <div class="sec-hdr at-hdr"><span class="sec-num at">·</span> Reviewer Info</div>
+      <div class="f"><label>Reviewer Name(s)</label><input id="at-authors" type="text" placeholder="First Last, First Last" oninput="saveAT()"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-hdr at-hdr"><span class="sec-num at">1</span> Challenges</div>
+      <div id="at-challenge-list"></div>
+      <button class="add-block-btn" onclick="addChallenge()">+ Add Challenge</button>
+      <div class="hint" style="margin-top:6px">Be specific. "When I set β = 0, γ shows 0 instead of 1" will be taken seriously. "Something seems wrong" will not.</div>
+    </div>
+    <div class="sec">
+      <div class="sec-hdr at-hdr"><span class="sec-num at">2</span> Overall Verdict</div>
+      <div class="f">
+        <label>Assessment</label>
+        <select id="at-verdict" onchange="saveAT()">
+          <option value="pass">✓ Pass — no significant errors found</option>
+          <option value="minor">⚠ Minor revisions needed</option>
+          <option value="major">✗ Major revision required</option>
+        </select>
+      </div>
+      <div class="f"><label>Summary</label><textarea id="at-summary" rows="4" placeholder="Briefly summarize your overall assessment and most important finding…" oninput="saveAT()"></textarea></div>
+    </div>`;
+}
+
+function addChallenge(data) {
+  const n = ++challengeN;
+  const list = document.getElementById('at-challenge-list');
+  if (!list) return;
+  const d = document.createElement('div');
+  d.className = 'challenge-block'; d.id = `ch${n}`;
+  const typeOpts = CHALLENGE_TYPES.map(t => `<option value="${t}"${data?.type===t?' selected':''}>${t}</option>`).join('');
+  d.innerHTML = `
+    <button class="block-rm" onclick="removeChallenge(${n})">×</button>
+    <div class="block-num">Challenge ${n}</div>
+    <div class="f"><label>Type</label><select id="chtype${n}" onchange="saveAT()">${typeOpts}</select></div>
+    <div class="f"><label>Specific Claim</label><textarea id="chclaim${n}" rows="2" placeholder="When I set β = 0, the Lorentz factor displays 0 instead of 1." oninput="saveAT()"></textarea></div>
+    <div class="f"><label>Reproduction Steps</label><textarea id="chsteps${n}" rows="2" placeholder="1. Set β slider to 0. 2. Observe γ display shows 0.00." oninput="saveAT()"></textarea></div>
+    <div class="f"><label>Proposed Correction (optional)</label><textarea id="chcorr${n}" rows="2" placeholder="The denominator should be sqrt(1 - β²), which equals 1 when β = 0, giving γ = 1." oninput="saveAT()"></textarea></div>`;
+  list.appendChild(d);
+  if (data) {
+    document.getElementById(`chclaim${n}`).value = data.claim || '';
+    document.getElementById(`chsteps${n}`).value = data.steps || '';
+    document.getElementById(`chcorr${n}`).value  = data.corr  || '';
+  }
+}
+function removeChallenge(n) { document.getElementById(`ch${n}`)?.remove(); saveAT(); }
+
+function getChallenges() {
+  return [...document.querySelectorAll('.challenge-block')].map(b => {
+    const n = b.id.slice(2);
+    return {
+      type:  document.getElementById(`chtype${n}`)?.value  || '',
+      claim: document.getElementById(`chclaim${n}`)?.value || '',
+      steps: document.getElementById(`chsteps${n}`)?.value || '',
+      corr:  document.getElementById(`chcorr${n}`)?.value  || '',
+    };
+  }).filter(c => c.claim || c.steps);
+}
+
+function getATDraft() {
+  return {
+    authors:    document.getElementById('at-authors')?.value || '',
+    verdict:    document.getElementById('at-verdict')?.value || 'pass',
+    summary:    document.getElementById('at-summary')?.value || '',
+    challenges: getChallenges(),
+  };
+}
+function applyATDraft(d) {
+  if (!d || !Object.keys(d).length) return;
+  if (document.getElementById('at-authors')) document.getElementById('at-authors').value = d.authors || '';
+  if (document.getElementById('at-verdict')) document.getElementById('at-verdict').value = d.verdict || 'pass';
+  if (document.getElementById('at-summary')) document.getElementById('at-summary').value = d.summary || '';
+  if (Array.isArray(d.challenges) && d.challenges.length) {
+    document.getElementById('at-challenge-list').innerHTML = '';
+    challengeN = 0;
+    d.challenges.forEach(c => addChallenge(c));
+  }
+}
+function saveAT() {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(getATDraft()));
+  document.getElementById('save-badge').textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function genATHTML() {
+  const _sc = '</' + 'script>';
+  const draft = getATDraft();
+  const conceptName = CONCEPT_ID.replace(/_/g,' ');
+  const verdictLabel = { pass: '✓ Pass', minor: '⚠ Minor revisions needed', major: '✗ Major revision required' }[draft.verdict] || draft.verdict;
+  const verdictColor = { pass: '#15803d', minor: '#d97706', major: '#dc2626' }[draft.verdict] || '#64748b';
+
+  const challengeHTML = draft.challenges.length
+    ? draft.challenges.map((c, i) => `
+        <div style="background:white;border:1px solid #fca5a5;border-left:4px solid #dc2626;border-radius:8px;padding:16px 20px;margin-bottom:12px">
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#dc2626;margin-bottom:8px">Challenge ${i+1} — ${esc(c.type)}</div>
+          <p style="font-size:.88rem;margin-bottom:8px"><strong>Claim:</strong> ${esc(c.claim)}</p>
+          ${c.steps ? `<p style="font-size:.88rem;margin-bottom:8px"><strong>Steps to reproduce:</strong> ${esc(c.steps)}</p>` : ''}
+          ${c.corr  ? `<p style="font-size:.88rem;color:#475569"><strong>Proposed correction:</strong> ${esc(c.corr)}</p>` : ''}
+        </div>`).join('')
+    : '<p style="color:#94a3b8;font-style:italic">No specific challenges documented.</p>';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AT: ${esc(conceptName)} | by ${esc(draft.authors)}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fef2f2;color:#0f172a;line-height:1.7}
+.at-header{background:#7c2d12;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.at-title{font-size:1.4rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.at-meta{font-size:.82rem;color:rgba(255,255,255,0.65)}
+.at-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:40px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #fca5a5}
+</style>
+</head>
+<body>
+<div class="at-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="at-title">Adversarial Test Report — ${esc(conceptName)}</div>
+  <div class="at-meta"><span>by <span style="color:white;font-weight:600">${esc(draft.authors)}</span></span></div>
+</div>
+<div class="at-body">
+
+<h2>Challenges (${draft.challenges.length})</h2>
+${challengeHTML}
+
+<h2>Overall Verdict</h2>
+<div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px">
+  <div style="font-size:1.1rem;font-weight:700;color:${verdictColor};margin-bottom:10px">${verdictLabel}</div>
+  ${draft.summary ? `<p style="font-size:.9rem;color:#334155">${esc(draft.summary)}</p>` : ''}
+</div>
+
+<div style="margin-top:48px;padding-top:16px;border-top:1px solid #fca5a5;font-size:.76rem;color:#94a3b8">
+  Advanced Physics · NWA · Adversarial Test by ${esc(draft.authors)}
+</div>
+</div>
+<script>
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#7c2d12;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let t;
+  document.addEventListener('mouseup',()=>{clearTimeout(t);const s=window.getSelection();if(s&&s.toString().trim().length>3)bar.style.bottom='28px';else t=setTimeout(()=>bar.style.bottom='-60px',400);});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied!';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2000);}).catch(()=>prompt('Copy:',url));});
+})();
+${_sc}
+</body>
+</html>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// HW MODE
+// ══════════════════════════════════════════════════════════════════
+
+const HW_DIFFICULTIES = ['Easy','Medium','Hard','Challenge'];
+
+function buildHWFormHTML(conceptName) {
+  return `
+    <div id="hw-banner"><strong>HW Questions Mode</strong> — You are writing test/homework questions for <strong>${esc(conceptName)}</strong>. Use the reference IC on the right to understand the concept fully.</div>
+    <div class="sec">
+      <div class="sec-hdr hw-hdr"><span class="sec-num hw">·</span> Author Info</div>
+      <div class="f"><label>Name(s)</label><input id="hw-authors" type="text" placeholder="First Last, First Last" oninput="saveHW()"></div>
+    </div>
+    <div class="sec">
+      <div class="sec-hdr hw-hdr"><span class="sec-num hw">1</span> Questions</div>
+      <div id="hw-question-list"></div>
+      <button class="add-block-btn" onclick="addHWQuestion()">+ Add Question</button>
+      <div class="hint" style="margin-top:6px">Good questions ask students to <em>apply</em> the concept to a new case — not just recall a formula. Include full solutions.</div>
+    </div>`;
+}
+
+function addHWQuestion(data) {
+  const n = ++hwQN;
+  const list = document.getElementById('hw-question-list');
+  if (!list) return;
+  const d = document.createElement('div');
+  d.className = 'hw-q-block'; d.id = `hwq${n}`;
+  const diffOpts = HW_DIFFICULTIES.map(t => `<option value="${t}"${data?.diff===t?' selected':''}>${t}</option>`).join('');
+  d.innerHTML = `
+    <button class="block-rm" onclick="removeHWQuestion(${n})">×</button>
+    <div class="block-num">Question ${n}</div>
+    <div class="row2">
+      <div class="f"><label>Difficulty</label><select id="hwdiff${n}" onchange="saveHW()">${diffOpts}</select></div>
+      <div class="f"><label>Concept Aspect Tested</label><input id="hwaspect${n}" type="text" placeholder="e.g. Applying γ to lab-frame calculations" oninput="saveHW()"></div>
+    </div>
+    <div class="f"><label>Question Text (LaTeX OK: $…$ and $$…$$)</label><textarea id="hwqtext${n}" rows="4" placeholder="A muon travels at β = 0.998. In its rest frame its lifetime is 2.2 μs. How far does it travel in the lab frame?" oninput="saveHW()"></textarea></div>
+    <div class="f"><label>Full Solution / Answer Key</label><textarea id="hwans${n}" rows="4" placeholder="γ = 1/√(1−0.998²) ≈ 15.8. Lab-frame lifetime = 15.8 × 2.2 μs ≈ 34.8 μs. Distance = 0.998c × 34.8 μs ≈ 10.4 km." oninput="saveHW()"></textarea></div>`;
+  list.appendChild(d);
+  if (data) {
+    document.getElementById(`hwaspect${n}`).value = data.aspect || '';
+    document.getElementById(`hwqtext${n}`).value  = data.qtext  || '';
+    document.getElementById(`hwans${n}`).value    = data.ans    || '';
+  }
+}
+function removeHWQuestion(n) { document.getElementById(`hwq${n}`)?.remove(); saveHW(); }
+
+function getHWQuestions() {
+  return [...document.querySelectorAll('.hw-q-block')].map(b => {
+    const n = b.id.slice(3);
+    return {
+      diff:   document.getElementById(`hwdiff${n}`)?.value   || 'Medium',
+      aspect: document.getElementById(`hwaspect${n}`)?.value || '',
+      qtext:  document.getElementById(`hwqtext${n}`)?.value  || '',
+      ans:    document.getElementById(`hwans${n}`)?.value    || '',
+    };
+  }).filter(q => q.qtext);
+}
+
+function getHWDraft() {
+  return {
+    authors:   document.getElementById('hw-authors')?.value || '',
+    questions: getHWQuestions(),
+  };
+}
+function applyHWDraft(d) {
+  if (!d || !Object.keys(d).length) return;
+  if (document.getElementById('hw-authors')) document.getElementById('hw-authors').value = d.authors || '';
+  if (Array.isArray(d.questions) && d.questions.length) {
+    document.getElementById('hw-question-list').innerHTML = '';
+    hwQN = 0;
+    d.questions.forEach(q => addHWQuestion(q));
+  }
+}
+function saveHW() {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(getHWDraft()));
+  document.getElementById('save-badge').textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function genHWHTML() {
+  const _sc = '</' + 'script>';
+  const draft = getHWDraft();
+  const conceptName = CONCEPT_ID.replace(/_/g,' ');
+  const diffColor = { Easy:'#15803d', Medium:'#d97706', Hard:'#dc2626', Challenge:'#7c3aed' };
+
+  const questionsHTML = draft.questions.length
+    ? draft.questions.map((q, i) => `
+        <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span style="font-size:1rem;font-weight:700;color:#0f172a">Q${i+1}.</span>
+            <span style="background:${diffColor[q.diff]||'#64748b'};color:white;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700">${esc(q.diff)}</span>
+            ${q.aspect ? `<span style="font-size:.76rem;color:#64748b;font-style:italic">${esc(q.aspect)}</span>` : ''}
+          </div>
+          <div class="q-text" id="qt${i}"></div>
+          <details style="margin-top:14px">
+            <summary style="font-size:.78rem;font-weight:600;color:#475569;cursor:pointer;user-select:none">Show solution</summary>
+            <div class="q-ans" id="qa${i}" style="margin-top:8px;font-size:.85rem;color:#334155;background:#f8fafc;padding:12px;border-radius:6px"></div>
+          </details>
+        </div>`).join('')
+    : '<p style="color:#94a3b8;font-style:italic">No questions yet.</p>';
+
+  const setMathCalls = draft.questions.map((q, i) => `setMath('qt${i}',${JSON.stringify(q.qtext)});setMath('qa${i}',${JSON.stringify(q.ans)});`).join('\n');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HW: ${esc(conceptName)} | by ${esc(draft.authors)}</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0fdfa;color:#0f172a;line-height:1.7}
+.hw-header{background:#134e4a;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.hw-title{font-size:1.4rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.hw-meta{font-size:.82rem;color:rgba(255,255,255,0.65)}
+.hw-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:40px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #5eead4}
+details summary::-webkit-details-marker{display:none}
+</style>
+</head>
+<body>
+<div class="hw-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="hw-title">Homework Questions — ${esc(conceptName)}</div>
+  <div class="hw-meta"><span>by <span style="color:white;font-weight:600">${esc(draft.authors)}</span></span></div>
+</div>
+<div class="hw-body">
+<h2>${draft.questions.length} Question${draft.questions.length !== 1 ? 's' : ''}</h2>
+${questionsHTML}
+<div style="margin-top:48px;padding-top:16px;border-top:1px solid #5eead4;font-size:.76rem;color:#94a3b8">
+  Advanced Physics · NWA · HW Questions by ${esc(draft.authors)}
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">${_sc}
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">${_sc}
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+${setMathCalls}
+${_sc}
+</body>
+</html>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// IC MODE — genHTML (unchanged)
+// ══════════════════════════════════════════════════════════════════
 function genHTML() {
   const _sc = '</' + 'script>';
   const author=v('f-author'),title=v('f-title'),rq=v('f-rq'),expl=v('f-expl');
@@ -415,7 +777,6 @@ function genHTML() {
   const anchor=v('f-anchor'),tq1=v('f-tq1'),tq2=v('f-tq2'),tq3=v('f-tq3');
   const cits=getCits();
 
-  // Embed sim via srcdoc (avoids script-tag escaping issues with blob approach)
   const simBlock = simHtml
     ? `<div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
         <iframe srcdoc="${simHtml.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
@@ -526,7 +887,6 @@ ${tq1?`setMath('tq1',${j(tq1)});`:''}
 ${tq2?`setMath('tq2',${j(tq2)});`:''}
 ${tq3?`setMath('tq3',${j(tq3)});`:''}
 
-// Explainer — split paragraphs
 (function(){
   const el=document.getElementById('expl');
   const paras=${j(expl)}.split(/\\n\\n+/);
@@ -534,48 +894,29 @@ ${tq3?`setMath('tq3',${j(tq3)});`:''}
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 })();
 
-// ── Floating "Copy citation link" toolbar (works in all browsers) ──
 (function(){
-  const base = window.location.href.split('#')[0];
-  const bar = document.createElement('div');
-  bar.style.cssText = 'position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:0.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.35);transition:bottom 0.2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
-  bar.textContent = '📋 Copy citation link';
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
   document.body.appendChild(bar);
-
   let hideTimer;
-  document.addEventListener('mouseup', () => {
-    clearTimeout(hideTimer);
-    const sel = window.getSelection();
-    if (sel && sel.toString().trim().length > 3) {
-      bar.style.bottom = '28px';
-    } else {
-      hideTimer = setTimeout(() => { bar.style.bottom = '-60px'; }, 400);
-    }
-  });
-  document.addEventListener('touchend', () => {
-    clearTimeout(hideTimer);
-    const sel = window.getSelection();
-    if (sel && sel.toString().trim().length > 3) bar.style.bottom = '28px';
-  });
-
-  bar.addEventListener('click', () => {
-    const text = (window.getSelection()?.toString() || '').trim();
-    if (!text) { bar.style.bottom = '-60px'; return; }
-    const url = base + '#:~:text=' + encodeURIComponent(text.slice(0, 150));
-    navigator.clipboard.writeText(url).then(() => {
-      bar.textContent = '✓ Copied! Paste into the IC editor citation URL field.';
-      setTimeout(() => { bar.textContent = '📋 Copy citation link'; bar.style.bottom = '-60px'; }, 2200);
-    }).catch(() => { prompt('Copy this citation link:', url); });
-  });
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
 })();
 ${_sc}
 </body>
 </html>`;
 }
 
-// ── Submit ─────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT (shared across all modes)
+// ══════════════════════════════════════════════════════════════════
 function openModal() {
-  if(!v('f-title')||!v('f-author')){ alert('Fill in your name and concept title first.'); return; }
+  if (MODE === 'ic' && (!v('f-title')||!v('f-author'))) { alert('Fill in your name and concept title first.'); return; }
+  if (MODE === 'at' && !document.getElementById('at-authors')?.value.trim()) { alert('Fill in your reviewer name(s) first.'); return; }
+  if (MODE === 'hw' && !document.getElementById('hw-authors')?.value.trim()) { alert('Fill in your name(s) first.'); return; }
   document.getElementById('modal').classList.add('open');
   document.getElementById('modal-status').innerHTML='';
 }
@@ -597,8 +938,22 @@ async function onToken(tok) {
   if(tok.error){ document.getElementById('modal-status').innerHTML=`<span class="err">Sign-in failed: ${tok.error}</span>`; return; }
   document.getElementById('modal-status').innerHTML='Uploading…';
   try {
-    const html=genHTML();
-    const name=v('f-title').toLowerCase().replace(/[^a-z0-9]+/g,'_')+'_'+v('f-author').split(',')[0].trim().toLowerCase().replace(/\s+/g,'_')+'.html';
+    let html, name;
+    const conceptSlug = CONCEPT_ID || v('f-title').toLowerCase().replace(/[^a-z0-9]+/g,'_');
+
+    if (MODE === 'at') {
+      html = genATHTML();
+      const authors = (document.getElementById('at-authors')?.value || 'team').split(',')[0].trim().toLowerCase().replace(/\s+/g,'_');
+      name = `AT_${conceptSlug}_${authors}.html`;
+    } else if (MODE === 'hw') {
+      html = genHWHTML();
+      const authors = (document.getElementById('hw-authors')?.value || 'team').split(',')[0].trim().toLowerCase().replace(/\s+/g,'_');
+      name = `HW_${conceptSlug}_${authors}.html`;
+    } else {
+      html = genHTML();
+      name = v('f-title').toLowerCase().replace(/[^a-z0-9]+/g,'_') + '_' + v('f-author').split(',')[0].trim().toLowerCase().replace(/\s+/g,'_') + '.html';
+    }
+
     const meta={name,parents:[FOLDER_ID],mimeType:'text/html'};
     const form=new FormData();
     form.append('metadata',new Blob([JSON.stringify(meta)],{type:'application/json'}));
@@ -615,31 +970,118 @@ async function onToken(tok) {
   }
 }
 
-// ── Init ───────────────────────────────────────────────────────────
-load();
-// Pre-fill concept title from URL param if no draft already saved
-const _conceptName = _urlP.get('name');
-if (_conceptName && !document.getElementById('f-title')?.value) {
-  document.getElementById('f-title').value = _conceptName;
-}
-update();
+// ══════════════════════════════════════════════════════════════════
+// MODE INIT — runs at page load
+// ══════════════════════════════════════════════════════════════════
+async function initMode() {
+  if (MODE === 'ic') {
+    // IC mode: no structural changes, just load draft and run existing init
+    load();
+    const _conceptName = _urlP.get('name');
+    if (_conceptName && !document.getElementById('f-title')?.value) {
+      document.getElementById('f-title').value = _conceptName;
+    }
+    update();
 
-// Show teacher feedback banner if this concept has a note in state.json
-if (_cid) {
-  fetch('state/state.json')
-    .then(r => r.ok ? r.json() : [])
-    .then(state => {
-      const entry = state.find(s => s.concept_id === _cid);
-      if (entry && entry.feedback) {
-        const banner = document.createElement('div');
-        banner.id = 'feedback-banner';
-        const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
-        banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
-        document.getElementById('form-panel').prepend(banner);
-      }
-    })
-    .catch(() => {});
+    // Show teacher feedback banner if concept has a note
+    if (CONCEPT_ID) {
+      fetch('state/state.json')
+        .then(r => r.ok ? r.json() : [])
+        .then(state => {
+          const entry = state.find(s => s.concept_id === CONCEPT_ID);
+          if (entry && entry.feedback) {
+            const banner = document.createElement('div');
+            banner.id = 'feedback-banner';
+            const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
+            banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
+            document.getElementById('form-panel').prepend(banner);
+          }
+        })
+        .catch(() => {});
+    }
+    return;
+  }
+
+  // AT or HW mode: swap layout
+  document.getElementById('ic-sections').style.display = 'none';
+  document.getElementById('alt-sections').style.display = 'block';
+
+  // Get concept name (try contributions.json or state/module, fallback to slugified ID)
+  let conceptName = CONCEPT_ID.replace(/_/g,' ');
+  let icEntries = [];
+  try {
+    const contribs = await fetch('contributions.json').then(r=>r.json());
+    icEntries = contribs.filter(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic'));
+    // Try to get a nicer concept name from IC title
+    if (icEntries.length && icEntries[0].title) conceptName = icEntries[0].title;
+  } catch(e) {}
+
+  // Build AT or HW form
+  document.getElementById('alt-sections').innerHTML =
+    MODE === 'at' ? buildATFormHTML(conceptName) : buildHWFormHTML(conceptName);
+
+  // Update header
+  const hdr = document.getElementById('hdr');
+  hdr.classList.add('mode-' + MODE);
+  document.querySelector('#hdr h1').textContent =
+    MODE === 'at' ? `Adversarial Test — ${conceptName}`
+                  : `HW Questions — ${conceptName}`;
+  document.getElementById('btn-submit').textContent =
+    MODE === 'at' ? 'Submit AT Report →' : 'Submit HW Questions →';
+
+  // Update modal text
+  document.getElementById('modal-title').textContent =
+    MODE === 'at' ? 'Submit Adversarial Test Report' : 'Submit HW Questions';
+
+  // Replace preview panel with reference IC iframe
+  const prevPanel = document.getElementById('prev-panel');
+  prevPanel.innerHTML = `
+    <div id="prev-hdr">Reference IC <span style="font-weight:400;text-transform:none;font-size:0.68rem;color:#94a3b8">(read-only · interact with the sim)</span></div>
+    ${icEntries.length > 1 ? `<div id="ref-picker">
+      <span>Viewing:</span>
+      <select id="ref-sel" onchange="loadRefURL(this.value)">
+        ${icEntries.map(c=>`<option value="${c.url}">${c.author}</option>`).join('')}
+      </select>
+    </div>` : ''}
+    <div id="ref-loading">Loading reference IC…</div>
+    <iframe id="ref-frame" style="display:none;flex:1;border:none;width:100%"></iframe>`;
+
+  if (icEntries.length) {
+    loadRefURL(icEntries[0].url);
+  } else {
+    document.getElementById('ref-loading').textContent =
+      'No published IC found for this concept yet. Your teacher may share a direct link.';
+  }
+
+  // Load saved draft
+  load();
+  // Start with one empty block if none restored
+  setTimeout(() => {
+    if (MODE === 'at' && document.querySelectorAll('.challenge-block').length === 0) addChallenge();
+    if (MODE === 'hw' && document.querySelectorAll('.hw-q-block').length === 0) addHWQuestion();
+  }, 50);
 }
+
+function loadRefURL(url) {
+  const frame = document.getElementById('ref-frame');
+  const loading = document.getElementById('ref-loading');
+  if (!frame) return;
+  loading.style.display = 'block';
+  frame.style.display = 'none';
+  frame.src = url;
+  frame.onload = () => {
+    loading.style.display = 'none';
+    frame.style.display = 'block';
+    frame.style.flex = '1';
+    frame.style.height = '100%';
+  };
+  frame.onerror = () => {
+    loading.textContent = 'Could not load the reference IC. Try opening it directly: ' + url;
+  };
+}
+
+// ── Run ────────────────────────────────────────────────────────────
+initMode();
 </script>
 </body>
 </html>

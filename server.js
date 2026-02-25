@@ -23,6 +23,14 @@ function getIcsFolderId() {
   return id;
 }
 
+// ── Determine submission type from filename ────────────────────────
+function getFileType(filename) {
+  const lower = (filename || '').toLowerCase();
+  if (lower.startsWith('at_')) return 'at';
+  if (lower.startsWith('hw_')) return 'hw';
+  return 'ic';
+}
+
 // ── List files in Drive ICs folder ────────────────────────────────
 app.get('/api/drive/pending', async (req, res) => {
   try {
@@ -34,7 +42,11 @@ app.get('/api/drive/pending', async (req, res) => {
       fields: 'files(id, name, createdTime, modifiedTime)',
       orderBy: 'modifiedTime desc',
     });
-    res.json(result.data.files || []);
+    const files = (result.data.files || []).map(f => ({
+      ...f,
+      type: getFileType(f.name),
+    }));
+    res.json(files);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -59,9 +71,9 @@ app.post('/api/publish', async (req, res) => {
   const { fileId, conceptId, label } = req.body;
   if (!fileId || !conceptId) return res.status(400).json({ error: 'Missing fileId or conceptId' });
 
-  // Sanitise label → use as filename  (e.g. "ryan" → "ryan.html")
   const safeLabel = (label || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase() || 'index';
   const filename  = safeLabel + '.html';
+  const fileType  = getFileType(safeLabel);  // at / hw / ic
 
   try {
     // 1. Download HTML from Drive
@@ -71,41 +83,52 @@ app.post('/api/publish', async (req, res) => {
     );
     const html = result.data;
 
-    // 2. Write to ics/[conceptId]/[label].html  (supports multiple ICs per concept)
+    // 2. Write to ics/[conceptId]/[filename]
     const dir = path.join(__dirname, 'ics', conceptId);
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, filename), html);
 
-    // 3. Extract title & author from IC HTML
-    const titleM  = html.match(/<title>IC:\s*([^|<]+)/i);
+    // 3. Extract title & author from HTML (different title patterns per type)
+    const titleRe = fileType === 'at' ? /<title>AT:\s*([^|<]+)/i
+                  : fileType === 'hw' ? /<title>HW:\s*([^|<]+)/i
+                  :                     /<title>IC:\s*([^|<]+)/i;
+    const titleM  = html.match(titleRe);
     const authorM = html.match(/by\s+([^<]+)<\/span>/i);
-    const icTitle  = titleM  ? titleM[1].trim()  : conceptId.replace(/_/g, ' ');
-    const icAuthor = authorM ? authorM[1].trim()  : (label || 'Unknown');
+    const entryTitle  = titleM  ? titleM[1].trim()  : conceptId.replace(/_/g, ' ');
+    const entryAuthor = authorM ? authorM[1].trim()  : (label || 'Unknown');
 
-    // 4. Update state/state.json → status: submitted
+    // 4. Update state/state.json — each type updates a different field
     const statePath = path.join(__dirname, 'state', 'state.json');
     let state = [];
     if (fs.existsSync(statePath)) {
       state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
     }
     const stateIdx = state.findIndex(s => s.concept_id === conceptId);
-    if (stateIdx >= 0) {
-      state[stateIdx].status = 'submitted';
-    } else {
-      state.push({ concept_id: conceptId, status: 'submitted' });
+    const stateEntry = stateIdx >= 0 ? { ...state[stateIdx] } : { concept_id: conceptId };
+
+    if (fileType === 'ic') {
+      stateEntry.status = 'submitted';
+    } else if (fileType === 'at') {
+      stateEntry.at_status = 'submitted';
+    } else if (fileType === 'hw') {
+      stateEntry.hw_status = 'submitted';
     }
+
+    if (stateIdx >= 0) state[stateIdx] = stateEntry;
+    else state.push(stateEntry);
+
     fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 
-    // 5. Auto-update contributions.json
+    // 5. Auto-update contributions.json (with type field)
     const contribPath = path.join(__dirname, 'contributions.json');
     let contribs = [];
     if (fs.existsSync(contribPath)) {
       contribs = JSON.parse(fs.readFileSync(contribPath, 'utf8'));
     }
-    const icUrl = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
+    const entryUrl = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
     const existingIdx = contribs.findIndex(c => c.concept_id === conceptId && c.url.endsWith('/' + filename));
-    const entry = { concept_id: conceptId, title: icTitle, author: icAuthor, url: icUrl };
+    const entry = { concept_id: conceptId, type: fileType, title: entryTitle, author: entryAuthor, url: entryUrl };
     if (existingIdx >= 0) { contribs[existingIdx] = entry; } else { contribs.push(entry); }
     fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
 
@@ -113,9 +136,10 @@ app.post('/api/publish', async (req, res) => {
     const token = process.env.GITHUB_TOKEN;
     const user  = process.env.GITHUB_USER || 'ryankcampbell';
     const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
+    const typeLabel = fileType.toUpperCase();
 
     execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json`, { cwd: __dirname });
-    execSync(`git commit -m "Publish IC: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
+    execSync(`git commit -m "Publish ${typeLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
 
     if (token) {
       execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
@@ -125,7 +149,7 @@ app.post('/api/publish', async (req, res) => {
       execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
     }
 
-    res.json({ success: true, url: icUrl, author: icAuthor, title: icTitle });
+    res.json({ success: true, url: entryUrl, author: entryAuthor, title: entryTitle, type: fileType });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -199,11 +223,14 @@ app.get('/api/h-index', (req, res) => {
     const contribPath = path.join(__dirname, 'contributions.json');
     if (!fs.existsSync(contribPath)) return res.json({ authors: [] });
     const contribs = JSON.parse(fs.readFileSync(contribPath, 'utf8'));
-    if (!contribs.length) return res.json({ authors: [] });
 
-    // Map known IC base URLs (fragment stripped) → contribution entry
+    // Only IC-type contributions count toward h-index
+    const icContribs = contribs.filter(c => !c.type || c.type === 'ic');
+    if (!icContribs.length) return res.json({ authors: [] });
+
+    // Map known IC base URLs → contribution entry
     const urlToContrib = {};
-    contribs.forEach(c => { urlToContrib[c.url.split('#')[0]] = c; });
+    icContribs.forEach(c => { urlToContrib[c.url.split('#')[0]] = c; });
     const knownUrls = new Set(Object.keys(urlToContrib));
 
     // Citation count per IC URL
@@ -223,7 +250,6 @@ app.get('/api/h-index', (req, res) => {
           let m;
           while ((m = hrefRe.exec(html)) !== null) {
             const base = m[1].split('#')[0];
-            // Count citation, but skip self-citation (same file)
             if (knownUrls.has(base) && base !== sourceUrl) {
               citCount[base]++;
             }
@@ -234,7 +260,7 @@ app.get('/api/h-index', (req, res) => {
 
     // Group ICs by author, calculate h-index
     const byAuthor = {};
-    contribs.forEach(c => {
+    icContribs.forEach(c => {
       const cnt = citCount[c.url.split('#')[0]] || 0;
       (byAuthor[c.author] = byAuthor[c.author] || []).push(
         { title: c.title, url: c.url, citations: cnt }

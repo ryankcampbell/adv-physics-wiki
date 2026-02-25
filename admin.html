@@ -248,6 +248,49 @@
       border-top: none; border-radius: 0 0 8px 8px; overflow: hidden;
     }
     #hindex-body.open { display: block; }
+
+    /* ── TYPE BADGES (Drive inbox) ── */
+    .type-badge {
+      font-size: 0.64rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 8px; letter-spacing: 0.05em; flex-shrink: 0;
+    }
+    .type-badge-ic { background: #dbeafe; color: #1d4ed8; }
+    .type-badge-at { background: #fee2e2; color: #7c2d12; }
+    .type-badge-hw { background: #ccfbf1; color: #134e4a; }
+
+    /* ── AT ACTION BAR (inside preview modal) ── */
+    #at-action-bar {
+      display: none; background: #7c2d12; color: white;
+      padding: 10px 16px; gap: 12px; align-items: flex-start;
+      flex-shrink: 0; flex-wrap: wrap;
+      border-bottom: 1px solid rgba(0,0,0,0.25);
+    }
+    #at-action-bar.visible { display: flex; }
+    #at-action-bar .at-lbl { font-size: 0.72rem; color: rgba(255,255,255,0.65); font-weight: 600; margin-bottom: 3px; }
+    #at-concept-sel {
+      border: 1px solid rgba(255,255,255,0.3); border-radius: 5px; padding: 5px 9px;
+      font-size: 0.8rem; background: rgba(255,255,255,0.12); color: white; cursor: pointer;
+      min-width: 160px;
+    }
+    #at-concept-sel option { color: #0f172a; background: white; }
+    #at-feedback-inp {
+      flex: 1; min-width: 200px; border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 5px; padding: 5px 9px; font-size: 0.8rem;
+      background: rgba(255,255,255,0.12); color: white;
+      font-family: inherit; resize: none; height: 54px;
+    }
+    #at-feedback-inp::placeholder { color: rgba(255,255,255,0.45); }
+    .btn-at-uphold {
+      background: white; color: #7c2d12; border: none; border-radius: 5px;
+      padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .btn-at-uphold:hover { background: #fef2f2; }
+    .btn-at-dismiss {
+      background: rgba(255,255,255,0.14); color: white;
+      border: 1px solid rgba(255,255,255,0.3); border-radius: 5px;
+      padding: 7px 12px; font-size: 0.78rem; cursor: pointer; white-space: nowrap;
+    }
+    .btn-at-dismiss:hover { background: rgba(255,255,255,0.24); }
   </style>
 </head>
 <body>
@@ -264,6 +307,22 @@
     <div id="preview-bar">
       <span id="preview-title">Preview</span>
       <button id="preview-close" onclick="closePreview()">✕ Close</button>
+    </div>
+    <!-- AT uphold / dismiss bar — shown only for AT submissions -->
+    <div id="at-action-bar">
+      <div style="display:flex;flex-direction:column">
+        <div class="at-lbl">IC Concept</div>
+        <select id="at-concept-sel"><option value="">— select concept —</option></select>
+      </div>
+      <div style="display:flex;flex-direction:column;flex:1">
+        <div class="at-lbl">Feedback for IC authors (required to uphold)</div>
+        <textarea id="at-feedback-inp" placeholder="Describe what needs to be fixed in the IC…"></textarea>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;justify-content:center">
+        <button class="btn-at-uphold" onclick="upholdAT()">&#8629; Uphold — IC Needs Revision</button>
+        <button class="btn-at-dismiss" onclick="dismissAT()">Dismiss AT</button>
+      </div>
+      <div id="at-action-status" style="font-size:0.78rem;align-self:center;min-width:120px"></div>
     </div>
     <iframe id="preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
   </div>
@@ -304,9 +363,11 @@
       <thead>
         <tr>
           <th style="width:200px">Concept</th>
-          <th style="width:140px">Status</th>
-          <th style="width:160px">Claimed By</th>
-          <th style="width:170px">Adversarial Team</th>
+          <th style="width:130px">IC Status</th>
+          <th style="width:100px">AT Status</th>
+          <th style="width:100px">HW Status</th>
+          <th style="width:155px">Claimed By</th>
+          <th style="width:160px">Adversarial Team</th>
           <th>Notes / Feedback for Student</th>
         </tr>
       </thead>
@@ -376,6 +437,8 @@
 // ── DRIVE INBOX ────────────────────────────────────────────────────
 let allConcepts = [];   // populated when module loads — used for concept selector
 let serverOnline = false;
+let activePreviewType = 'ic';  // type of the file currently in the preview modal
+let activePreviewRow  = null;  // drive-row element for current preview
 
 async function loadDrive() {
   try {
@@ -431,8 +494,15 @@ function renderDriveList(files) {
     ).join('');
 
     const stem = f.name.replace(/\.html?$/i, '');
+    const fileType = f.type || 'ic';
+    const typeBadge = fileType === 'at'
+      ? '<span class="type-badge type-badge-at">AT</span>'
+      : fileType === 'hw'
+        ? '<span class="type-badge type-badge-hw">HW</span>'
+        : '<span class="type-badge type-badge-ic">IC</span>';
 
     row.innerHTML = `
+      ${typeBadge}
       <div class="drive-filename">${f.name}</div>
       <div class="drive-date">${date}</div>
       <select class="drive-concept-sel">
@@ -440,7 +510,7 @@ function renderDriveList(files) {
         ${conceptOptions}
       </select>
       <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html — edit to just the student name">
-      <button class="btn-preview" onclick="previewFile('${f.id}', '${escHtml(f.name)}')">Preview</button>
+      <button class="btn-preview" onclick="previewFile('${f.id}','${escHtml(f.name)}','${fileType}',this.closest('.drive-row'))">Preview</button>
       <button class="btn-publish" onclick="publishFile('${f.id}', this)">Publish →</button>
     `;
 
@@ -462,9 +532,32 @@ function renderDriveList(files) {
 
 function escHtml(s) { return s.replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
 
-function previewFile(fileId, name) {
-  document.getElementById('preview-title').textContent = name;
+function previewFile(fileId, name, type, row) {
+  activePreviewType = type || 'ic';
+  activePreviewRow  = row || null;
+
+  document.getElementById('preview-title').textContent = name + ' [' + activePreviewType.toUpperCase() + ']';
   document.getElementById('preview-iframe').src = `http://localhost:3000/api/drive/preview/${fileId}`;
+
+  // Show AT action bar only for AT submissions
+  const bar = document.getElementById('at-action-bar');
+  if (activePreviewType === 'at') {
+    // Populate concept selector with current module's concepts
+    const sel = document.getElementById('at-concept-sel');
+    sel.innerHTML = '<option value="">— select concept —</option>'
+      + allConcepts.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    // Pre-select if the drive row already has a concept chosen
+    if (row) {
+      const rowConceptId = row.querySelector('.drive-concept-sel')?.value;
+      if (rowConceptId) sel.value = rowConceptId;
+    }
+    document.getElementById('at-feedback-inp').value = '';
+    document.getElementById('at-action-status').textContent = '';
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+
   document.getElementById('preview-modal').classList.add('open');
 }
 function closePreview() {
@@ -556,9 +649,13 @@ function buildTable() {
   const tbody = document.getElementById('table-body');
   tbody.innerHTML = '';
 
+  const AT_STATUSES = ['submitted','certified','dismissed'];
+  const HW_STATUSES = ['submitted','certified'];
+
   currentMod.concepts.forEach(c => {
     const s = currentStates[c.id] || {};
-    const isCertified = currentContribs.some(x => x.concept_id === c.id);
+    // IC certified = has an IC-type entry in contributions.json
+    const isCertified = currentContribs.some(x => x.concept_id === c.id && (!x.type || x.type === 'ic'));
     const currentStatus = isCertified ? 'certified' : (s.status || 'unclaimed');
 
     const row = document.createElement('tr');
@@ -568,11 +665,25 @@ function buildTable() {
         <div class="concept-id">${c.id}</div>
       </td>
       <td>
-        <select class="status-sel" data-id="${c.id}" ${isCertified ? 'disabled' : ''}>
+        <select class="status-sel ic-status-sel" data-id="${c.id}" ${isCertified ? 'disabled' : ''}>
           ${STATUS_OPTIONS.map(opt =>
-            `<option value="${opt}" ${opt === currentStatus ? 'selected' : ''}>
-              ${opt.replace('_',' ')}
-            </option>`
+            `<option value="${opt}" ${opt === currentStatus ? 'selected' : ''}>${opt.replace('_',' ')}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="status-sel at-status-sel" data-id="${c.id}">
+          <option value="" ${!s.at_status ? 'selected' : ''}>&#8212;</option>
+          ${AT_STATUSES.map(opt =>
+            `<option value="${opt}" ${s.at_status === opt ? 'selected' : ''}>${opt}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="status-sel hw-status-sel" data-id="${c.id}">
+          <option value="" ${!s.hw_status ? 'selected' : ''}>&#8212;</option>
+          ${HW_STATUSES.map(opt =>
+            `<option value="${opt}" ${s.hw_status === opt ? 'selected' : ''}>${opt}</option>`
           ).join('')}
         </select>
       </td>
@@ -600,25 +711,37 @@ function buildStateArray() {
   const rows = document.querySelectorAll('#table-body tr');
   const output = [];
   rows.forEach(row => {
-    const statusSel = row.querySelector('.status-sel');
+    const icSel    = row.querySelector('.ic-status-sel');
+    const atSel    = row.querySelector('.at-status-sel');
+    const hwSel    = row.querySelector('.hw-status-sel');
     const claimedInp = row.querySelector('.claimed-inp');
-    const advInp = row.querySelector('.adv-inp');
-    if (!statusSel) return;
-    const id = statusSel.dataset.id;
-    const status = statusSel.value;
-    if (status === 'unclaimed' || status === 'certified') return;
-    const entry = { concept_id: id, status };
-    const claimed = claimedInp.value.trim();
+    const advInp     = row.querySelector('.adv-inp');
+    if (!icSel) return;
+
+    const id       = icSel.dataset.id;
+    const icStatus = icSel.value;
+    const atStatus = atSel?.value || '';
+    const hwStatus = hwSel?.value || '';
+    const claimed  = claimedInp?.value.trim() || '';
+    const adv      = advInp?.value.trim() || '';
+    const feedback = row.querySelector('.feedback-inp')?.value.trim() || '';
+
+    // Skip fully-default rows
+    if ((icStatus === 'unclaimed' || icStatus === 'certified')
+        && !atStatus && !hwStatus && !claimed && !feedback) return;
+
+    const entry = { concept_id: id };
+    if (icStatus !== 'unclaimed' && icStatus !== 'certified') entry.status = icStatus;
     if (claimed) {
       entry.claimed_by = claimed;
       entry.team = claimed.split(',').map(s => s.trim()).filter(Boolean);
     }
-    const adv = advInp.value.trim();
     if (adv) {
       entry.adversarial_team = adv.split(',').map(s => s.trim()).filter(Boolean);
     }
-    const feedback = row.querySelector('.feedback-inp')?.value.trim();
     if (feedback) entry.feedback = feedback;
+    if (atStatus) entry.at_status = atStatus;
+    if (hwStatus) entry.hw_status = hwStatus;
     output.push(entry);
   });
   return output;
@@ -648,6 +771,60 @@ async function pushState() {
     status.textContent = 'Error: ' + e.message;
   }
   btn.disabled = false;
+}
+
+// ── AT Uphold / Dismiss ────────────────────────────────────────────
+async function upholdAT() {
+  const conceptId = document.getElementById('at-concept-sel').value;
+  const feedback  = document.getElementById('at-feedback-inp').value.trim();
+  const statusEl  = document.getElementById('at-action-status');
+
+  if (!conceptId) { statusEl.style.color = '#fca5a5'; statusEl.textContent = 'Select a concept'; return; }
+  if (!feedback)  { statusEl.style.color = '#fca5a5'; statusEl.textContent = 'Feedback required'; return; }
+
+  statusEl.style.color = '#fde68a';
+  statusEl.textContent = 'Pushing…';
+
+  // Build the full state array from the table, then patch (or add) this concept
+  const stateArr = buildStateArray();
+  const idx = stateArr.findIndex(e => e.concept_id === conceptId);
+
+  // Preserve existing fields; override status + feedback
+  const existing = currentStates[conceptId] || {};
+  const patch = { concept_id: conceptId, status: 'needs_revision', feedback };
+  if (existing.claimed_by)      patch.claimed_by      = existing.claimed_by;
+  if (existing.team)            patch.team            = existing.team;
+  if (existing.adversarial_team) patch.adversarial_team = existing.adversarial_team;
+  if (existing.at_status)       patch.at_status       = existing.at_status;
+  if (existing.hw_status)       patch.hw_status       = existing.hw_status;
+
+  if (idx >= 0) stateArr[idx] = patch; else stateArr.push(patch);
+
+  try {
+    const res  = await fetch('/api/push-state', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: stateArr })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      currentStates[conceptId] = patch;  // update local cache
+      buildTable();                       // refresh table to show new status
+      statusEl.style.color = '#86efac';
+      statusEl.textContent = '✓ IC sent for revision — pushed';
+      setTimeout(closePreview, 1800);
+    } else {
+      statusEl.style.color = '#fca5a5';
+      statusEl.textContent = 'Push failed: ' + data.error;
+    }
+  } catch(e) {
+    statusEl.style.color = '#fca5a5';
+    statusEl.textContent = 'Error: ' + e.message;
+  }
+}
+
+function dismissAT() {
+  // Dismiss = admin found the AT report unwarranted; just close the modal
+  closePreview();
 }
 
 // ── Add Concept form ───────────────────────────────────────────────
