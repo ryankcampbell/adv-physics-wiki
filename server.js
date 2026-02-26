@@ -108,6 +108,8 @@ app.post('/api/publish', async (req, res) => {
 
     if (fileType === 'ic') {
       stateEntry.status = 'submitted';
+      delete stateEntry.feedback;   // clear revision note — student has re-submitted
+      delete stateEntry.at_status;  // reset AT cycle so a new AT can be dispatched
     } else if (fileType === 'at') {
       stateEntry.at_status = 'submitted';
     } else if (fileType === 'hw') {
