@@ -2,7 +2,7 @@
   { "concept_id": "time_dilation",       "status": "claimed",        "claimed_by": "L. Martinez & K. Johnson", "team": ["L. Martinez", "K. Johnson"] },
   { "concept_id": "two_postulates",      "status": "claimed",        "claimed_by": "S. Park",                  "team": ["S. Park"] },
   { "concept_id": "rel_velocity_addition","status": "submitted",     "claimed_by": "B. Williams & T. Lee",     "team": ["B. Williams", "T. Lee"], "adversarial_team": ["M. Chen", "A. Rodriguez"] },
-  { "concept_id": "length_contraction",  "status": "needs_revision", "claimed_by": "K. Johnson",               "team": ["K. Johnson"], "adversarial_team": ["S. Park", "T. Nguyen"] },
+  { "concept_id": "length_contraction",  "status": "needs_revision", "claimed_by": "K. Johnson",               "team": ["K. Johnson"], "adversarial_team": ["S. Park", "T. Nguyen"], "feedback": "Limiting case at β=0 shows γ=0 instead of 1 — fix the denominator in the sim." },
   { "concept_id": "four_vectors",        "status": "wanted",         "proposed_by": "T. Nguyen" },
   { "concept_id": "proper_time",         "status": "claimed",        "claimed_by": "A. Rodriguez",             "team": ["A. Rodriguez"] }
 ]

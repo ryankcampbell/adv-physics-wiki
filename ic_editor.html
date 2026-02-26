@@ -368,8 +368,11 @@ function buildPreview() {
   `;
 }
 
+let _refMode = false; // true when right panel is showing submitted IC instead of live preview
+
 function update() {
   if (MODE !== 'ic') return;
+  if (_refMode) return;
   clearTimeout(timer);
   timer = setTimeout(() => { document.getElementById('prev-body').innerHTML = buildPreview(); save(); }, 220);
 }
@@ -983,21 +986,51 @@ async function initMode() {
     }
     update();
 
-    // Show teacher feedback banner if concept has a note
+    // Show teacher feedback banner + submitted IC toggle if concept is in needs_revision
     if (CONCEPT_ID) {
-      fetch('state/state.json')
-        .then(r => r.ok ? r.json() : [])
-        .then(state => {
-          const entry = state.find(s => s.concept_id === CONCEPT_ID);
-          if (entry && entry.feedback) {
-            const banner = document.createElement('div');
-            banner.id = 'feedback-banner';
-            const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
-            banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
-            document.getElementById('form-panel').prepend(banner);
-          }
-        })
-        .catch(() => {});
+      Promise.all([
+        fetch('state/state.json').then(r => r.ok ? r.json() : []),
+        fetch('contributions.json').then(r => r.ok ? r.json() : [])
+      ]).then(([state, contribs]) => {
+        const entry = state.find(s => s.concept_id === CONCEPT_ID);
+        const published = contribs.find(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic'));
+
+        if (entry && entry.feedback) {
+          const banner = document.createElement('div');
+          banner.id = 'feedback-banner';
+          const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
+          banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
+          document.getElementById('form-panel').prepend(banner);
+        }
+
+        // If needs_revision and IC is published, add toggle to right panel header
+        if (entry?.status === 'needs_revision' && published) {
+          const prevHdr = document.getElementById('prev-hdr');
+          prevHdr.innerHTML = '<span id="prev-hdr-label">Live Preview</span>';
+          const toggleBtn = document.createElement('button');
+          toggleBtn.style.cssText = 'float:right;background:none;border:1px solid #cbd5e1;border-radius:4px;padding:2px 8px;font-size:0.68rem;color:#475569;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:600;margin-top:-1px';
+          toggleBtn.textContent = 'View Submitted IC ↗';
+          toggleBtn.onclick = () => {
+            _refMode = !_refMode;
+            const label = document.getElementById('prev-hdr-label');
+            const body  = document.getElementById('prev-body');
+            if (_refMode) {
+              label.textContent = 'Submitted IC (read-only)';
+              toggleBtn.textContent = '← Live Preview';
+              body.innerHTML = `
+                <p style="font-size:0.72rem;color:#94a3b8;padding:12px 0 8px">Loading your previous submission…</p>
+                <iframe sandbox="allow-scripts allow-same-origin" src="${published.url}"
+                  style="width:100%;height:calc(100vh - 120px);border:1px solid #e2e8f0;border-radius:6px"
+                  onload="this.previousElementSibling.style.display='none'"></iframe>`;
+            } else {
+              label.textContent = 'Live Preview';
+              toggleBtn.textContent = 'View Submitted IC ↗';
+              update();
+            }
+          };
+          prevHdr.appendChild(toggleBtn);
+        }
+      }).catch(() => {});
     }
     return;
   }

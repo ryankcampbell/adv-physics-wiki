@@ -622,9 +622,9 @@ function nodeColor(d) {
   const stObj = nodeStates[d.id];
   const st = stObj?.status;  // full state object → extract .status
   if (selected)                    return '#0f172a';
+  if (st === 'needs_revision')     return '#dc2626'; // red    — needs work (overrides green)
   if (covered && onPath)           return '#0d9488';
   if (covered)                     return '#16a34a'; // green  — IC published
-  if (st === 'needs_revision')     return '#dc2626'; // red    — needs work
   if (st === 'submitted')          return '#d97706'; // orange — awaiting review
   if (st === 'claimed')            return '#7c3aed'; // purple — in progress
   if (st === 'wanted')             return '#0369a1'; // blue   — open call
@@ -758,13 +758,17 @@ function selectNode(id) {
         <div class="wiki-entry-author">by ${x.author}</div>
       </div>`
     ).join('');
-    if (stStatus === 'needs_revision' && feedback) {
-      wikiHTML += `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;margin:8px 0;border-radius:0 6px 6px 0"><strong>Revision requested:</strong> ${feedback}</div>`;
+    if (stStatus === 'needs_revision') {
+      if (feedback) {
+        wikiHTML += `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;margin:8px 0;border-radius:0 6px 6px 0"><strong>Revision requested:</strong> ${feedback}</div>`;
+      }
+      wikiHTML += `<a href="${editorUrl}" class="add-contrib-btn" style="display:block;margin-top:4px;color:#dc2626;font-weight:700">Revise →</a>`;
+    } else {
+      wikiHTML += hasDraft
+        ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
+        : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`;
+      wikiHTML += `<a href="${atEditorUrl}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#7c2d12;font-weight:600">Run AT →</a>`;
     }
-    wikiHTML += hasDraft
-      ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
-      : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`;
-    wikiHTML += `<a href="${atEditorUrl}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#7c2d12;font-weight:600">Run AT →</a>`;
     wikiHTML += `<a href="concept.html?id=${encodeURIComponent(id)}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#1e3a5f;font-weight:600">View IC / AT / HW →</a>`;
 
   } else if (stStatus === 'needs_revision') {
