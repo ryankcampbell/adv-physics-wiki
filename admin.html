@@ -291,6 +291,17 @@
       padding: 7px 12px; font-size: 0.78rem; cursor: pointer; white-space: nowrap;
     }
     .btn-at-dismiss:hover { background: rgba(255,255,255,0.24); }
+    .btn-at-accept {
+      background: #16a34a; color: white; border: none; border-radius: 5px;
+      padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .btn-at-accept:hover { background: #15803d; }
+    #at-ic-link {
+      font-size: 0.72rem; color: rgba(255,255,255,0.8); text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.3); border-radius: 4px;
+      padding: 3px 8px; white-space: nowrap; display: none; margin-top: 4px; align-self: flex-start;
+    }
+    #at-ic-link:hover { color: white; background: rgba(255,255,255,0.12); }
   </style>
 </head>
 <body>
@@ -312,13 +323,15 @@
     <div id="at-action-bar">
       <div style="display:flex;flex-direction:column">
         <div class="at-lbl">IC Concept</div>
-        <select id="at-concept-sel"><option value="">— select concept —</option></select>
+        <select id="at-concept-sel" onchange="updateATConceptLink(this.value)"><option value="">— select concept —</option></select>
+        <a id="at-ic-link" target="_blank">View IC ↗</a>
       </div>
       <div style="display:flex;flex-direction:column;flex:1">
-        <div class="at-lbl">Feedback for IC authors (required to uphold)</div>
+        <div class="at-lbl">Feedback for IC authors (required if upholding)</div>
         <textarea id="at-feedback-inp" placeholder="Describe what needs to be fixed in the IC…"></textarea>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;justify-content:center">
+        <button class="btn-at-accept" onclick="acceptAT()">&#10003; Accept — IC Passes</button>
         <button class="btn-at-uphold" onclick="upholdAT()">&#8629; Uphold — IC Needs Revision</button>
         <button class="btn-at-dismiss" onclick="dismissAT()">Dismiss AT</button>
       </div>
@@ -526,6 +539,19 @@ function renderDriveList(files) {
       }
     });
 
+    // Auto-detect concept from AT/HW filename (e.g. AT_spacetime_diagrams_student.html)
+    if (fileType === 'at' || fileType === 'hw') {
+      const cleanStem = stem.toLowerCase().replace(/^(at|hw)[_-]/, '');
+      const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase()));
+      if (matched) {
+        const conceptSel = row.querySelector('.drive-concept-sel');
+        const labelInp  = row.querySelector('.drive-label-inp');
+        conceptSel.value = matched.id;
+        const stripped = cleanStem.slice(matched.id.length).replace(/^[_-]/, '');
+        labelInp.value = stripped || stem;
+      }
+    }
+
     list.appendChild(row);
   });
 }
@@ -551,6 +577,7 @@ function previewFile(fileId, name, type, row) {
       const rowConceptId = row.querySelector('.drive-concept-sel')?.value;
       if (rowConceptId) sel.value = rowConceptId;
     }
+    updateATConceptLink(sel.value);
     document.getElementById('at-feedback-inp').value = '';
     document.getElementById('at-action-status').textContent = '';
     bar.classList.add('visible');
@@ -811,6 +838,50 @@ async function upholdAT() {
       buildTable();                       // refresh table to show new status
       statusEl.style.color = '#86efac';
       statusEl.textContent = '✓ IC sent for revision — pushed';
+      setTimeout(closePreview, 1800);
+    } else {
+      statusEl.style.color = '#fca5a5';
+      statusEl.textContent = 'Push failed: ' + data.error;
+    }
+  } catch(e) {
+    statusEl.style.color = '#fca5a5';
+    statusEl.textContent = 'Error: ' + e.message;
+  }
+}
+
+function updateATConceptLink(conceptId) {
+  const link = document.getElementById('at-ic-link');
+  if (!link) return;
+  const ic = currentContribs.find(c => c.concept_id === conceptId && (!c.type || c.type === 'ic'));
+  if (ic) { link.href = ic.url; link.style.display = 'inline'; }
+  else { link.style.display = 'none'; }
+}
+
+async function acceptAT() {
+  const conceptId = document.getElementById('at-concept-sel').value;
+  const statusEl  = document.getElementById('at-action-status');
+  if (!conceptId) { statusEl.style.color = '#fca5a5'; statusEl.textContent = 'Select a concept'; return; }
+
+  statusEl.style.color = '#fde68a';
+  statusEl.textContent = 'Pushing…';
+
+  const stateArr = buildStateArray();
+  const idx = stateArr.findIndex(e => e.concept_id === conceptId);
+  const patch = { ...(currentStates[conceptId] || {}), concept_id: conceptId, at_status: 'certified' };
+
+  if (idx >= 0) stateArr[idx] = patch; else stateArr.push(patch);
+
+  try {
+    const res  = await fetch('/api/push-state', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: stateArr })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      currentStates[conceptId] = patch;
+      buildTable();
+      statusEl.style.color = '#86efac';
+      statusEl.textContent = '✓ AT accepted — IC passes';
       setTimeout(closePreview, 1800);
     } else {
       statusEl.style.color = '#fca5a5';
