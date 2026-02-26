@@ -764,6 +764,7 @@ function selectNode(id) {
     wikiHTML += hasDraft
       ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
       : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`;
+    wikiHTML += `<a href="${atEditorUrl}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#7c2d12;font-weight:600">Run AT →</a>`;
     wikiHTML += `<a href="concept.html?id=${encodeURIComponent(id)}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#1e3a5f;font-weight:600">View IC / AT / HW →</a>`;
 
   } else if (stStatus === 'needs_revision') {
@@ -780,7 +781,6 @@ function selectNode(id) {
     wikiHTML = `
       <div class="no-wiki">
         <span class="no-wiki-text" style="color:#d97706">Submitted — awaiting review</span>
-        <a href="${atEditorUrl}" class="claim-btn" style="background:#7c2d12;margin-left:auto">Run AT →</a>
       </div>`;
 
   } else if (hasDraft) {
