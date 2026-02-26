@@ -772,6 +772,11 @@ ${_sc}
 // ══════════════════════════════════════════════════════════════════
 function genHTML() {
   const _sc = '</' + 'script>';
+  // Embed raw draft data so the editor can reload it later for revision
+  const _rawDraft = _draftObj();
+  delete _rawDraft.__sim_html; // sim is embedded inline; exclude large blob
+  delete _rawDraft.__sim_name;
+  const _draftJson = JSON.stringify(_rawDraft).replace(/<\//g, '<\\/');
   const author=v('f-author'),title=v('f-title'),rq=v('f-rq'),expl=v('f-expl');
   const simCap=v('f-sim-cap');
   const lc1t=v('f-lc1t'),lc1e=v('f-lc1e'),lc1o=v('f-lc1o');
@@ -909,6 +914,7 @@ ${tq3?`setMath('tq3',${j(tq3)});`:''}
   bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
 })();
 ${_sc}
+<script type="application/json" id="ic-source-data">${_draftJson}<${_sc.slice(1)}
 </body>
 </html>`;
 }
@@ -1001,6 +1007,24 @@ async function initMode() {
           const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
           banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
           document.getElementById('form-panel').prepend(banner);
+        }
+
+        // If needs_revision and IC is published: auto-load form from embedded draft data
+        // (only if no local draft exists — don't overwrite in-progress revision work)
+        if (entry?.status === 'needs_revision' && published && !localStorage.getItem('ic-draft-' + CONCEPT_ID)) {
+          fetch(published.url)
+            .then(r => r.text())
+            .then(html => {
+              const m = html.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
+              if (m) {
+                try {
+                  _applyDraft(JSON.parse(m[1]));
+                  update();
+                  const banner = document.getElementById('feedback-banner');
+                  if (banner) banner.innerHTML += ' <span style="font-size:0.78rem;opacity:0.65">(Previous submission restored)</span>';
+                } catch(e) {}
+              }
+            }).catch(() => {});
         }
 
         // If needs_revision and IC is published, add toggle to right panel header
