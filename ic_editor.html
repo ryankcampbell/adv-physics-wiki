@@ -772,10 +772,8 @@ ${_sc}
 // ══════════════════════════════════════════════════════════════════
 function genHTML() {
   const _sc = '</' + 'script>';
-  // Embed raw draft data so the editor can reload it later for revision
+  // Embed raw draft data (including sim) so the editor can fully restore it on revision
   const _rawDraft = _draftObj();
-  delete _rawDraft.__sim_html; // sim is embedded inline; exclude large blob
-  delete _rawDraft.__sim_name;
   const _draftJson = JSON.stringify(_rawDraft).replace(/<\//g, '<\\/');
   const author=v('f-author'),title=v('f-title'),rq=v('f-rq'),expl=v('f-expl');
   const simCap=v('f-sim-cap');
