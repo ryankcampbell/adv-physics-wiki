@@ -3,9 +3,65 @@
     "concept_id": "em_waves",
     "status": "needs_revision",
     "claimed_by": "Max Brunsfeld",
+    "team": ["Max Brunsfeld"],
+    "feedback": "Add to the explainer and resubmit. The sim's core idea — antenna length sets the detectable frequency — is solid. To understand why L ≈ λ/2 works, think about what happens to current in the antenna: the tips are open ends, so current must be zero there. That forces a standing wave boundary condition, exactly like a string fixed at both ends. The shortest standing wave that fits zero-current nodes at both tips spans exactly one half-cycle — so L = λ/2. At that length the antenna's impedance is purely resistive and energy transfer is maximized; off resonance there's a reactive component that fights it."
+  },
+  {
+    "concept_id": "two_postulates",
+    "status": "claimed",
+    "claimed_by": "S. Park",
     "team": [
-      "Max Brunsfeld"
+      "S. Park"
+    ]
+  },
+  {
+    "concept_id": "time_dilation",
+    "status": "claimed",
+    "claimed_by": "L. Martinez & K. Johnson",
+    "team": [
+      "L. Martinez & K. Johnson"
+    ]
+  },
+  {
+    "concept_id": "length_contraction",
+    "status": "needs_revision",
+    "claimed_by": "K. Johnson",
+    "team": [
+      "K. Johnson"
     ],
-    "feedback": "Add to the explainer and resubmit. The sim's core idea — antenna length sets the detectable frequency — is solid. To understand why L ≈ λ/2 works, think about what happens to current in the antenna: the tips are open ends, so current must be zero there. \n  That forces a standing wave boundary condition, exactly like a string fixed at both ends. The shortest standing\n   wave that fits zero-current nodes at both tips spans exactly one half-cycle — so L = λ/2. At that length the  \n  antenna's impedance is purely resistive and energy transfer is maximized; off resonance there's a reactive     \n  component that fights it."
+    "adversarial_team": [
+      "S. Park",
+      "T. Nguyen"
+    ],
+    "feedback": "Limiting case at β=0 shows γ=0 instead of 1 — fix the denominator in the sim."
+  },
+  {
+    "concept_id": "rel_velocity_addition",
+    "status": "submitted",
+    "claimed_by": "B. Williams & T. Lee",
+    "team": [
+      "B. Williams & T. Lee"
+    ],
+    "adversarial_team": [
+      "M. Chen",
+      "A. Rodriguez"
+    ]
+  },
+  {
+    "concept_id": "proper_time",
+    "status": "claimed",
+    "claimed_by": "A. Rodriguez",
+    "team": [
+      "A. Rodriguez"
+    ]
+  },
+  {
+    "concept_id": "four_vectors",
+    "status": "wanted"
+  },
+  {
+    "concept_id": "spacetime_diagrams",
+    "status": "needs_revision",
+    "feedback": "Make cooler"
   }
 ]
