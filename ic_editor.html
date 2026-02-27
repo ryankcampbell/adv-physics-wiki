@@ -281,7 +281,15 @@
   <!-- ── PREVIEW / REFERENCE PANEL ── -->
   <div id="prev-panel">
     <div id="prev-hdr">Live Preview</div>
-    <div id="prev-body"></div>
+    <div id="prev-body-top"></div>
+    <div id="prev-sim-wrap" style="display:none">
+      <div class="pv-h2">Simulation</div>
+      <div class="pv-sim">
+        <div class="pv-sim-inner" id="pv-sim-slot"></div>
+        <div class="pv-sim-cap" id="pv-sim-cap-text"></div>
+      </div>
+    </div>
+    <div id="prev-body-btm"></div>
   </div>
 
 </div>
@@ -322,6 +330,9 @@ function loadSimFile(f) {
     const d = document.getElementById('sim-drop');
     d.className = 'done';
     d.innerHTML = `<p><strong style="color:#15803d">✓ ${f.name} loaded</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
+    // Force sim preview refresh when a new sim is loaded
+    const slot = document.getElementById('pv-sim-slot');
+    if (slot) slot.innerHTML = '';
     update();
   };
   r.readAsText(f);
@@ -359,8 +370,7 @@ function math(text) {
 }
 
 // ── Preview (IC mode only) ─────────────────────────────────────────
-function buildPreview() {
-  const cits = getCits();
+function buildPreviewTop() {
   return `
     <div class="pv-hdr">
       <div class="pv-title">${v('f-title')||nil('Concept Title')}</div>
@@ -370,16 +380,38 @@ function buildPreview() {
     <div class="pv-rq">${v('f-rq')?math(v('f-rq')):nil('Your research question…')}</div>
     <div class="pv-h2">Explainer</div>
     <p class="pv-p">${v('f-expl')?math(v('f-expl')):nil('Your explainer will appear here.')}</p>
-    <div class="pv-h2">Simulation</div>
-    <div class="pv-sim">
-      <div class="pv-sim-inner">${simHtml?'✓ Simulation loaded':'Drop your .html sim file on the left'}</div>
-      <div class="pv-sim-cap">${v('f-sim-cap')?math(v('f-sim-cap')):nil('Caption…')}</div>
-    </div>
+  `;
+}
+
+function buildPreviewBottom() {
+  const cits = getCits();
+  return `
     <div class="pv-h2">Citations</div>
     ${cits.length?cits.map(c=>`<div class="pv-cit"><a href="${c.u||'#'}">${c.t||'Citation'}</a>${c.p?`<div class="pur"><strong>Purpose:</strong> ${c.p}</div>`:''}</div>`).join(''):`<p class="pv-p">${nil('No citations yet.')}</p>`}
     <div class="pv-h2">Connection to Anchor Question</div>
     <div class="pv-anchor">${v('f-anchor')?math(v('f-anchor')):nil('Your anchor connection…')}</div>
   `;
+}
+
+function updateSimPreview() {
+  const wrap = document.getElementById('prev-sim-wrap');
+  const slot = document.getElementById('pv-sim-slot');
+  const cap  = document.getElementById('pv-sim-cap-text');
+  if (!wrap || !slot) return;
+  if (simHtml) {
+    wrap.style.display = '';
+    if (!slot.querySelector('iframe')) {
+      const iframe = document.createElement('iframe');
+      iframe.srcdoc = simHtml;
+      iframe.style.cssText = 'width:100%;height:480px;border:none;border-radius:6px;display:block';
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+      slot.innerHTML = '';
+      slot.appendChild(iframe);
+    }
+    if (cap) cap.innerHTML = v('f-sim-cap') ? math(v('f-sim-cap')) : nil('Caption…');
+  } else {
+    wrap.style.display = 'none';
+  }
 }
 
 let _refMode = false;
@@ -388,7 +420,12 @@ function update() {
   if (MODE !== 'ic') return;
   if (_refMode) return;
   clearTimeout(timer);
-  timer = setTimeout(() => { document.getElementById('prev-body').innerHTML = buildPreview(); save(); }, 220);
+  timer = setTimeout(() => {
+    document.getElementById('prev-body-top').innerHTML = buildPreviewTop();
+    document.getElementById('prev-body-btm').innerHTML = buildPreviewBottom();
+    updateSimPreview();
+    save();
+  }, 220);
 }
 
 // ── Draft persistence ──────────────────────────────────────────────
@@ -434,9 +471,11 @@ function load() {
 function _restoreSim(html, name) {
   simHtml = html; simFileName = name;
   const drop = document.getElementById('sim-drop');
-  if (!drop) return;
-  drop.className = 'done';
-  drop.innerHTML = `<p><strong style="color:#15803d">✓ ${name}</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
+  if (drop) {
+    drop.className = 'done';
+    drop.innerHTML = `<p><strong style="color:#15803d">✓ ${name}</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
+  }
+  updateSimPreview();
 }
 function _restoreCits(cits) {
   document.getElementById('cit-list').innerHTML = '';
