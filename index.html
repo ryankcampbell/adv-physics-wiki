@@ -759,9 +759,6 @@ function selectNode(id) {
       </div>`
     ).join('');
     if (stStatus === 'needs_revision') {
-      if (feedback) {
-        wikiHTML += `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;margin:8px 0;border-radius:0 6px 6px 0"><strong>Revision requested:</strong> ${feedback}</div>`;
-      }
       wikiHTML += `<a href="${editorUrl}" class="add-contrib-btn" style="display:block;margin-top:4px;color:#dc2626;font-weight:700">Revise →</a>`;
     } else {
       wikiHTML += hasDraft
@@ -776,7 +773,6 @@ function selectNode(id) {
     wikiHTML = `
       <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:8px">
         ${claimedBy}
-        ${feedback ? `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;border-radius:0 6px 6px 0;width:100%"><strong>Revision requested:</strong> ${feedback}</div>` : ''}
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <span class="no-wiki-text" style="color:#dc2626">Needs revision</span>
           <a href="${editorUrl}" class="claim-btn" style="background:#dc2626">Revise →</a>
