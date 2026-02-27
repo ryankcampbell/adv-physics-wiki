@@ -775,6 +775,21 @@ function buildStateArray() {
   return output;
 }
 
+// Fetch full state.json and upsert the current module's edits on top,
+// so pushing one module never clobbers entries from other modules.
+async function mergedStateArray() {
+  let full = [];
+  try {
+    const r = await fetch('state/state.json?t=' + Date.now());
+    if (r.ok) full = await r.json();
+  } catch(e) {}
+  buildStateArray().forEach(entry => {
+    const idx = full.findIndex(e => e.concept_id === entry.concept_id);
+    if (idx >= 0) full[idx] = entry; else full.push(entry);
+  });
+  return full;
+}
+
 async function pushState() {
   const btn = document.getElementById('push-state-btn');
   const status = document.getElementById('push-state-status');
@@ -784,7 +799,7 @@ async function pushState() {
     const res = await fetch('/api/push-state', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state: buildStateArray() })
+      body: JSON.stringify({ state: await mergedStateArray() })
     });
     const data = await res.json();
     if (data.ok) {
@@ -813,8 +828,8 @@ async function upholdAT() {
   statusEl.style.color = '#fde68a';
   statusEl.textContent = 'Pushing…';
 
-  // Build the full state array from the table, then patch (or add) this concept
-  const stateArr = buildStateArray();
+  // Build the full state array (all modules), then patch (or add) this concept
+  const stateArr = await mergedStateArray();
   const idx = stateArr.findIndex(e => e.concept_id === conceptId);
 
   // Preserve existing fields; override status + feedback
@@ -866,7 +881,7 @@ async function acceptAT() {
   statusEl.style.color = '#fde68a';
   statusEl.textContent = 'Pushing…';
 
-  const stateArr = buildStateArray();
+  const stateArr = await mergedStateArray();
   const idx = stateArr.findIndex(e => e.concept_id === conceptId);
   const patch = { ...(currentStates[conceptId] || {}), concept_id: conceptId, at_status: 'certified' };
 
