@@ -751,8 +751,9 @@ function selectNode(id) {
   let wikiHTML;
 
   if (icContribs.length) {
-    // Published ICs — list them, then action links
-    wikiHTML = icContribs.map(x =>
+    // Published ICs — hide contribution card while in revision (show Revise → instead)
+    const visibleContribs = stStatus === 'needs_revision' ? [] : icContribs;
+    wikiHTML = visibleContribs.map(x =>
       `<div class="wiki-entry">
         <a href="${x.url}" target="_blank">${x.title}</a>
         <div class="wiki-entry-author">by ${x.author}</div>
