@@ -1,5 +1,11 @@
 [
   {
+    "concept_id": "em_waves",
+    "status": "submitted",
+    "claimed_by": "Max Brunsfeld",
+    "team": ["Max Brunsfeld"]
+  },
+  {
     "concept_id": "two_postulates",
     "status": "claimed",
     "claimed_by": "S. Park",

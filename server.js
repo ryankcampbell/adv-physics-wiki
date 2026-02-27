@@ -31,6 +31,107 @@ function getFileType(filename) {
   return 'ic';
 }
 
+// ── Load all known concept IDs from module JSON files ─────────────
+function getKnownConceptIds() {
+  const modulesDir = path.join(__dirname, 'modules');
+  const ids = new Set();
+  if (fs.existsSync(modulesDir)) {
+    fs.readdirSync(modulesDir)
+      .filter(f => f.endsWith('.json'))
+      .forEach(f => {
+        try {
+          const mod = JSON.parse(fs.readFileSync(path.join(modulesDir, f), 'utf8'));
+          (mod.concepts || []).forEach(c => { if (c.id) ids.add(c.id); });
+        } catch (_) {}
+      });
+  }
+  return ids;
+}
+
+// ── Parse concept_id and author from new filename format ──────────
+// New format: IC_{concept_id}_{author}.html  (same for AT_ and HW_)
+function parseSubmission(filename) {
+  const base = (filename || '').replace(/\.html$/i, '').toLowerCase();
+  const knownIds = getKnownConceptIds();
+
+  for (const type of ['ic', 'at', 'hw']) {
+    if (!base.startsWith(type + '_')) continue;
+    const rest = base.slice(type.length + 1); // e.g. "em_waves_max_brunsfeld"
+    for (const conceptId of knownIds) {
+      if (rest.startsWith(conceptId + '_')) {
+        const rawAuthor = rest.slice(conceptId.length + 1).replace(/_/g, ' ');
+        const author = rawAuthor.replace(/\b\w/g, c => c.toUpperCase());
+        return { type, conceptId, author };
+      }
+    }
+  }
+  return { type: getFileType(filename), conceptId: null, author: null };
+}
+
+// ── Auto-update state.json when new Drive files are detected ──────
+// Called on every inbox poll; only fires a git push when state changes.
+function autoProcessNewFiles(files) {
+  const seenPath  = path.join(__dirname, 'state', 'seen_files.json');
+  const statePath = path.join(__dirname, 'state', 'state.json');
+
+  let seen = new Set(
+    fs.existsSync(seenPath) ? JSON.parse(fs.readFileSync(seenPath, 'utf8')) : []
+  );
+  const newFiles = files.filter(f => !seen.has(f.id));
+
+  // Always persist seen IDs so we don't re-check on next poll
+  newFiles.forEach(f => seen.add(f.id));
+  fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
+  fs.writeFileSync(seenPath, JSON.stringify([...seen], null, 2));
+
+  if (!newFiles.length) return false;
+
+  let state = fs.existsSync(statePath)
+    ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : [];
+  const original = JSON.stringify(state);
+
+  newFiles.forEach(f => {
+    const { type, conceptId, author } = parseSubmission(f.name);
+    if (!conceptId) return; // old filename format — skip auto-state
+
+    let idx   = state.findIndex(s => s.concept_id === conceptId);
+    let entry = idx >= 0 ? { ...state[idx] } : { concept_id: conceptId };
+
+    if (type === 'ic') {
+      if (entry.status === 'certified') return; // never auto-demote certified
+      entry.status = 'submitted';
+      if (author) entry.claimed_by = author;
+      delete entry.feedback; // clear revision note — new file supersedes it
+    } else if (type === 'at') {
+      if (!entry.at_status || entry.at_status === 'dismissed') {
+        entry.at_status = 'submitted';
+      }
+    } else if (type === 'hw') {
+      if (!entry.hw_status) entry.hw_status = 'submitted';
+    }
+
+    if (idx >= 0) state[idx] = entry; else state.push(entry);
+  });
+
+  if (JSON.stringify(state) === original) return false;
+
+  fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+  try {
+    const token = process.env.GITHUB_TOKEN;
+    const user  = process.env.GITHUB_USER || 'ryankcampbell';
+    const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
+    execSync('git add state/state.json', { cwd: __dirname });
+    execSync('git commit -m "Auto-state: new Drive submission detected"', { cwd: __dirname });
+    if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
+    execSync('git push', { cwd: __dirname });
+    if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
+    console.log('Auto-state: pushed state.json update');
+  } catch (e) {
+    console.error('Auto-state push failed (state written locally):', e.message);
+  }
+  return true;
+}
+
 // ── List files in Drive ICs folder ────────────────────────────────
 app.get('/api/drive/pending', async (req, res) => {
   try {
@@ -46,6 +147,8 @@ app.get('/api/drive/pending', async (req, res) => {
       ...f,
       type: getFileType(f.name),
     }));
+    // Auto-update state.json for any new files with parseable concept IDs
+    try { autoProcessNewFiles(files); } catch (e) { console.error('auto-state:', e.message); }
     res.json(files);
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -176,6 +279,43 @@ app.post('/api/push-state', (req, res) => {
       execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
     }
     res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── Claim a concept (manual or future admin-UI use) ───────────────
+// Only advances state — never overwrites submitted/certified/needs_revision.
+app.post('/api/claim', (req, res) => {
+  const { concept_id, author } = req.body;
+  if (!concept_id) return res.status(400).json({ error: 'concept_id required' });
+  try {
+    const statePath = path.join(__dirname, 'state', 'state.json');
+    let state = fs.existsSync(statePath)
+      ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : [];
+
+    let idx   = state.findIndex(s => s.concept_id === concept_id);
+    let entry = idx >= 0 ? { ...state[idx] } : { concept_id };
+
+    const claimable = ['unclaimed', 'wanted', undefined, null, ''];
+    if (!claimable.includes(entry.status)) {
+      return res.json({ ok: true, updated: false, current_status: entry.status });
+    }
+
+    entry.status = 'claimed';
+    if (author) entry.claimed_by = author;
+    if (idx >= 0) state[idx] = entry; else state.push(entry);
+
+    fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
+    const token = process.env.GITHUB_TOKEN;
+    const user  = process.env.GITHUB_USER || 'ryankcampbell';
+    const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
+    execSync('git add state/state.json', { cwd: __dirname });
+    execSync(`git commit -m "Claim: ${concept_id} by ${author || 'unknown'}"`, { cwd: __dirname });
+    if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
+    execSync('git push', { cwd: __dirname });
+    if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
+    res.json({ ok: true, updated: true });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
