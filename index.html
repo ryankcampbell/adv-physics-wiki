@@ -772,8 +772,10 @@ function selectNode(id) {
     wikiHTML += `<a href="concept.html?id=${encodeURIComponent(id)}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#1e3a5f;font-weight:600">View IC / AT / HW →</a>`;
 
   } else if (stStatus === 'needs_revision') {
+    const claimedBy = stObj?.claimed_by ? `<div style="font-size:0.78rem;color:#92400e;opacity:0.75;margin-bottom:4px">In revision by ${stObj.claimed_by}</div>` : '';
     wikiHTML = `
       <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:8px">
+        ${claimedBy}
         ${feedback ? `<div style="background:#fef3c7;border-left:3px solid #d97706;padding:8px 12px;font-size:0.8rem;color:#92400e;border-radius:0 6px 6px 0;width:100%"><strong>Revision requested:</strong> ${feedback}</div>` : ''}
         <div style="display:flex;align-items:center;gap:10px;width:100%">
           <span class="no-wiki-text" style="color:#dc2626">Needs revision</span>
@@ -782,9 +784,17 @@ function selectNode(id) {
       </div>`;
 
   } else if (stStatus === 'submitted') {
+    const claimedBy = stObj?.claimed_by || 'a student';
     wikiHTML = `
-      <div class="no-wiki">
-        <span class="no-wiki-text" style="color:#d97706">Submitted — awaiting review</span>
+      <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <span class="no-wiki-text" style="color:#d97706">Submitted by ${claimedBy} — awaiting review</span>
+      </div>`;
+
+  } else if (stStatus === 'claimed') {
+    const claimedBy = stObj?.claimed_by || 'a student';
+    wikiHTML = `
+      <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:4px">
+        <span class="no-wiki-text" style="color:#7c3aed">Claimed by ${claimedBy} — IC in progress</span>
       </div>`;
 
   } else if (hasDraft) {
