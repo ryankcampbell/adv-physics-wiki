@@ -634,10 +634,11 @@ async function loadModule(url) {
   document.getElementById('export-section').style.display = 'none';
 
   try {
+    const bust = `?t=${Date.now()}`;
     const [mRes, sRes, cRes] = await Promise.allSettled([
-      fetch(url),
-      fetch('state/state.json'),
-      fetch('contributions.json')
+      fetch(url + bust),
+      fetch('state/state.json' + bust),
+      fetch('contributions.json' + bust)
     ]);
 
     currentMod = await mRes.value.json();
