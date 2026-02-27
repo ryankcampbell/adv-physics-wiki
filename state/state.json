@@ -1,9 +1,11 @@
 [
   {
     "concept_id": "em_waves",
-    "status": "needs_revision",
+    "status": "submitted",
     "claimed_by": "Max Brunsfeld",
-    "team": ["Max Brunsfeld"],
+    "team": [
+      "Max Brunsfeld"
+    ],
     "feedback": "Add to the explainer and resubmit. The sim's core idea — antenna length sets the detectable frequency — is solid. To understand why L ≈ λ/2 works, think about what happens to current in the antenna: the tips are open ends, so current must be zero there. That forces a standing wave boundary condition, exactly like a string fixed at both ends. The shortest standing wave that fits zero-current nodes at both tips spans exactly one half-cycle — so L = λ/2. At that length the antenna's impedance is purely resistive and energy transfer is maximized; off resonance there's a reactive component that fights it."
   },
   {

@@ -40,5 +40,12 @@
     "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
     "author": "T. Nguyen",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_transformation/index.html"
+  },
+  {
+    "concept_id": "em_waves",
+    "type": "ic",
+    "title": "Light as an Electromagnetic Wave",
+    "author": "Max Brunsfeld",
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/em_waves/light_as_an_electromagnetic_wave_max_brunsfeld.html"
   }
 ]
