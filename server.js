@@ -171,7 +171,7 @@ app.get('/api/drive/preview/:fileId', async (req, res) => {
 
 // ── Publish: download → save → update state.json + contributions.json → git push ──
 app.post('/api/publish', async (req, res) => {
-  const { fileId, conceptId, label } = req.body;
+  const { fileId, conceptId, label, decision, feedback } = req.body;
   if (!fileId || !conceptId) return res.status(400).json({ error: 'Missing fileId or conceptId' });
 
   const safeLabel = (label || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase() || 'index';
@@ -210,9 +210,15 @@ app.post('/api/publish', async (req, res) => {
     const stateEntry = stateIdx >= 0 ? { ...state[stateIdx] } : { concept_id: conceptId };
 
     if (fileType === 'ic') {
-      stateEntry.status = 'submitted';
-      delete stateEntry.feedback;   // clear revision note — student has re-submitted
-      delete stateEntry.at_status;  // reset AT cycle so a new AT can be dispatched
+      if (decision === 'revision') {
+        stateEntry.status   = 'needs_revision';
+        stateEntry.feedback = feedback || '';
+      } else {
+        // approve: IC is published (covered=true → green node); clear any revision state
+        stateEntry.status = 'submitted';
+        delete stateEntry.feedback;
+        delete stateEntry.at_status;  // reset AT cycle so a new AT can be dispatched
+      }
     } else if (fileType === 'at') {
       stateEntry.at_status = 'submitted';
     } else if (fileType === 'hw') {

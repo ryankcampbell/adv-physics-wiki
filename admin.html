@@ -56,10 +56,21 @@
       font-size: 0.85rem; color: #94a3b8;
     }
     .drive-row {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
       padding: 10px 18px; border-bottom: 1px solid #f1f5f9;
     }
     .drive-row:last-child { border-bottom: none; }
+    .drive-decision-sel {
+      border: 1px solid #d1d5db; border-radius: 5px; padding: 4px 6px;
+      font-size: 0.78rem; background: white; cursor: pointer; color: #374151;
+    }
+    .drive-feedback-inp {
+      display: none; flex-basis: 100%; margin-top: 2px;
+      border: 1px solid #fcd34d; border-radius: 5px; padding: 6px 10px;
+      font-size: 0.82rem; background: #fffbeb; resize: vertical;
+      min-height: 48px; color: #78350f; font-family: inherit;
+    }
+    .drive-feedback-inp::placeholder { color: #d97706; opacity: 0.75; }
     .drive-filename { font-size: 0.85rem; font-weight: 600; color: #0f172a; flex: 1; }
     .drive-date { font-size: 0.75rem; color: #94a3b8; white-space: nowrap; }
     .drive-concept-sel {
@@ -514,6 +525,14 @@ function renderDriveList(files) {
         ? '<span class="type-badge type-badge-hw">HW</span>'
         : '<span class="type-badge type-badge-ic">IC</span>';
 
+    const decisionControls = fileType === 'ic' ? `
+      <select class="drive-decision-sel">
+        <option value="approve">✓ Approve</option>
+        <option value="revision">↩ Request Revision</option>
+      </select>
+      <textarea class="drive-feedback-inp" placeholder="Feedback for student (required)…"></textarea>
+    ` : '';
+
     row.innerHTML = `
       ${typeBadge}
       <div class="drive-filename">${f.name}</div>
@@ -524,6 +543,7 @@ function renderDriveList(files) {
       </select>
       <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html — edit to just the student name">
       <button class="btn-preview" onclick="previewFile('${f.id}','${escHtml(f.name)}','${fileType}',this.closest('.drive-row'))">Preview</button>
+      ${decisionControls}
       <button class="btn-publish" onclick="publishFile('${f.id}', this)">Publish →</button>
     `;
 
@@ -539,7 +559,28 @@ function renderDriveList(files) {
       }
     });
 
-    // Auto-detect concept from AT/HW filename (e.g. AT_spacetime_diagrams_student.html)
+    // Show/hide feedback textarea based on decision selection (IC rows only)
+    if (fileType === 'ic') {
+      const decisionSel  = row.querySelector('.drive-decision-sel');
+      const feedbackInp  = row.querySelector('.drive-feedback-inp');
+      decisionSel.addEventListener('change', () => {
+        feedbackInp.style.display = decisionSel.value === 'revision' ? 'block' : 'none';
+      });
+    }
+
+    // Auto-detect concept from IC/AT/HW filename
+    if (fileType === 'ic') {
+      const cleanStem = stem.toLowerCase().replace(/^ic[_-]/, '');
+      const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase()));
+      if (matched) {
+        const conceptSel = row.querySelector('.drive-concept-sel');
+        const labelInp  = row.querySelector('.drive-label-inp');
+        conceptSel.value = matched.id;
+        const stripped = cleanStem.slice(matched.id.length).replace(/^[_-]/, '');
+        labelInp.value = stripped || stem;
+      }
+    }
+
     if (fileType === 'at' || fileType === 'hw') {
       const cleanStem = stem.toLowerCase().replace(/^(at|hw)[_-]/, '');
       const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase()));
@@ -595,8 +636,19 @@ function closePreview() {
 async function publishFile(fileId, btn) {
   const row = btn.closest('.drive-row');
   const conceptId = row.querySelector('.drive-concept-sel').value;
-  const label = row.querySelector('.drive-label-inp').value.trim();
+  const label     = row.querySelector('.drive-label-inp').value.trim();
+  const decisionSel = row.querySelector('.drive-decision-sel');
+  const feedbackInp = row.querySelector('.drive-feedback-inp');
+  const decision  = decisionSel ? decisionSel.value : 'approve';
+  const feedback  = feedbackInp ? feedbackInp.value.trim() : '';
+
   if (!conceptId) { alert('Select a concept first.'); return; }
+  if (decision === 'revision' && !feedback) {
+    feedbackInp.focus();
+    feedbackInp.style.borderColor = '#ef4444';
+    alert('Enter revision feedback before publishing.');
+    return;
+  }
 
   btn.disabled = true;
   btn.textContent = 'Publishing…';
@@ -605,7 +657,7 @@ async function publishFile(fileId, btn) {
     const res = await fetch('http://localhost:3000/api/publish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fileId, conceptId, label })
+      body: JSON.stringify({ fileId, conceptId, label, decision, feedback })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Unknown error');
