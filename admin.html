@@ -90,10 +90,8 @@
       background: none; border: none; padding: 0; text-decoration: underline;
     }
     #dismissed-toggle:hover { color: #374151; }
-    .drive-row-decision {
-      display: flex; align-items: flex-start; gap: 10px;
-      margin-top: 8px; padding-top: 8px;
-      border-top: 1px dashed #e2e8f0;
+    .drive-row-feedback {
+      padding: 8px 0 2px 0;
     }
     .drive-decision-sel {
       border: 1px solid #d1d5db; border-radius: 5px; padding: 5px 8px;
@@ -101,7 +99,7 @@
       white-space: nowrap; flex-shrink: 0;
     }
     .drive-feedback-inp {
-      display: none; flex: 1;
+      width: 100%; box-sizing: border-box;
       border: 1px solid #fcd34d; border-radius: 5px; padding: 8px 12px;
       font-size: 0.88rem; background: #fffbeb; resize: vertical;
       min-height: 80px; color: #78350f; font-family: inherit; line-height: 1.5;
@@ -586,15 +584,15 @@ function renderDriveList(files) {
           </select>
           <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html">
           <button class="btn-preview" onclick="previewFile('${f.id}','${escHtml(f.name)}','${fileType}',this.closest('.drive-row'))">Preview</button>
-          ${actionBtn}
-        </div>
-        <div class="drive-row-decision" ${f.dismissed ? 'style="display:none"' : ''}>
-          <select class="drive-decision-sel">
+          ${f.dismissed ? '' : `<select class="drive-decision-sel">
             <option value="approve">✓ Approve</option>
             <option value="revision">↩ Request Revision</option>
           </select>
+          ${publishBtn}`}
+          ${actionBtn}
+        </div>
+        <div class="drive-row-feedback" style="display:none">
           <textarea class="drive-feedback-inp" placeholder="Feedback for student (required)…"></textarea>
-          ${publishBtn}
         </div>
       `;
     } else {
@@ -627,12 +625,12 @@ function renderDriveList(files) {
       }
     });
 
-    // Show/hide feedback textarea based on decision selection (IC rows only)
-    if (fileType === 'ic') {
-      const decisionSel  = row.querySelector('.drive-decision-sel');
-      const feedbackInp  = row.querySelector('.drive-feedback-inp');
+    // Show/hide feedback row based on decision selection (IC rows only)
+    if (fileType === 'ic' && !f.dismissed) {
+      const decisionSel   = row.querySelector('.drive-decision-sel');
+      const feedbackRow   = row.querySelector('.drive-row-feedback');
       decisionSel.addEventListener('change', () => {
-        feedbackInp.style.display = decisionSel.value === 'revision' ? 'block' : 'none';
+        feedbackRow.style.display = decisionSel.value === 'revision' ? 'block' : 'none';
       });
     }
 
