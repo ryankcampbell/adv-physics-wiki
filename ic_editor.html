@@ -1143,14 +1143,21 @@ async function initMode() {
           document.getElementById('form-panel').prepend(banner);
         }
 
-        if (entry?.status === 'needs_revision' && published && !localStorage.getItem('ic-draft-' + CONCEPT_ID)) {
+        if (entry?.status === 'needs_revision' && published) {
+          // Always fetch published IC as baseline, then overlay any saved local progress on top.
+          // This prevents a race condition where a sim upload saves an empty draft before
+          // the async fetch completes, which would cause the !localStorage check to skip restore.
           fetch(published.url)
             .then(r => r.text())
             .then(html => {
               const m = html.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
               if (m) {
                 try {
-                  _applyDraft(JSON.parse(m[1]));
+                  _applyDraft(JSON.parse(m[1]));  // baseline from published IC
+                  const localDraft = localStorage.getItem('ic-draft-' + CONCEPT_ID);
+                  if (localDraft) {
+                    try { _applyDraft(JSON.parse(localDraft)); } catch(e) {}  // overlay saved progress
+                  }
                   update();
                   const banner = document.getElementById('feedback-banner');
                   if (banner) banner.innerHTML += ' <span style="font-size:0.78rem;opacity:0.65">(Previous submission restored)</span>';
