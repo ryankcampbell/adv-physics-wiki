@@ -1105,6 +1105,7 @@ async function onToken(tok) {
     document.getElementById('modal-status').innerHTML='<span class="ok">✓ Submitted! Your teacher will review it shortly.</span>';
     document.getElementById('btn-submit').textContent='✓ Submitted';
     document.getElementById('btn-submit').disabled=true;
+    setTimeout(closeModal, 2000);
     if (MODE === 'ic' && CONCEPT_ID) localStorage.removeItem('ic-draft-' + CONCEPT_ID);
     if (MODE === 'at' && CONCEPT_ID) localStorage.removeItem('at-draft-' + CONCEPT_ID);
     if (MODE === 'hw' && CONCEPT_ID) localStorage.removeItem('hw-draft-' + CONCEPT_ID);
