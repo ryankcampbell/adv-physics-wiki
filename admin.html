@@ -522,17 +522,12 @@ async function loadDrive() {
     document.getElementById('drive-server-badge').className = 'drive-server-badge badge-online';
     renderDriveList(files);
   } catch(e) {
+    console.error('loadDrive error:', e);
     serverOnline = false;
     document.getElementById('drive-server-badge').textContent = 'Server offline';
     document.getElementById('drive-server-badge').className = 'drive-server-badge badge-offline';
-    document.getElementById('drive-empty').innerHTML =
-      'Run <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">npm start</code> in the repo folder to connect Google Drive.';
-    document.getElementById('drive-list').innerHTML = '';
-    document.getElementById('drive-list').appendChild(document.getElementById('drive-empty') || (() => {
-      const d = document.createElement('div');
-      d.id = 'drive-empty';
-      return d;
-    })());
+    const list = document.getElementById('drive-list');
+    if (list) list.innerHTML = '<div style="padding:28px;text-align:center;font-size:0.85rem;color:#94a3b8">Run <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px">npm start</code> in the repo folder to connect Google Drive.</div>';
   }
 }
 
@@ -554,9 +549,12 @@ function renderDriveList(files) {
   list.innerHTML = '';
   deduped.forEach(f => {
     const row = document.createElement('div');
+    const stem = f.name.replace(/\.html?$/i, '');
+    const fileType = f.type || 'ic';
+
     row.className = 'drive-row' + (f.dismissed ? ' dismissed' : '');
     row.dataset.fileId = f.id;
-    row.dataset.stem = f.name.replace(/\.html?$/i, '');
+    row.dataset.stem = stem;
     row.dataset.fileType = fileType;
 
     const date = new Date(f.modifiedTime || f.createdTime)
@@ -565,9 +563,6 @@ function renderDriveList(files) {
     const conceptOptions = allConcepts.map(c =>
       `<option value="${c.id}">${c.name}</option>`
     ).join('');
-
-    const stem = f.name.replace(/\.html?$/i, '');
-    const fileType = f.type || 'ic';
     const typeBadge = fileType === 'at'
       ? '<span class="type-badge type-badge-at">AT</span>'
       : fileType === 'hw'
