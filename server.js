@@ -16,6 +16,15 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: 'v3', auth });
 
+// ── Dismissed file IDs ─────────────────────────────────────────────
+const DISMISSED_PATH = path.join(__dirname, 'state', 'dismissed.json');
+function readDismissed() {
+  try { return JSON.parse(fs.readFileSync(DISMISSED_PATH, 'utf8')); } catch { return []; }
+}
+function writeDismissed(ids) {
+  fs.writeFileSync(DISMISSED_PATH, JSON.stringify(ids, null, 2));
+}
+
 // ── ICs folder ID (set DRIVE_FOLDER_ID in .env) ───────────────────
 function getIcsFolderId() {
   const id = process.env.DRIVE_FOLDER_ID;
@@ -149,10 +158,31 @@ app.get('/api/drive/pending', async (req, res) => {
     }));
     // Auto-update state.json for any new files with parseable concept IDs
     try { autoProcessNewFiles(files); } catch (e) { console.error('auto-state:', e.message); }
-    res.json(files);
+    const dismissed = readDismissed();
+    if (req.query.all === '1') {
+      res.json(files.map(f => dismissed.includes(f.id) ? { ...f, dismissed: true } : f));
+    } else {
+      res.json(files.filter(f => !dismissed.includes(f.id)));
+    }
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// ── Dismiss / restore a file from the inbox ────────────────────────
+app.post('/api/drive/dismiss', (req, res) => {
+  const { fileId } = req.body;
+  if (!fileId) return res.status(400).json({ error: 'Missing fileId' });
+  const ids = readDismissed();
+  if (!ids.includes(fileId)) { ids.push(fileId); writeDismissed(ids); }
+  res.json({ ok: true });
+});
+
+app.post('/api/drive/undismiss', (req, res) => {
+  const { fileId } = req.body;
+  if (!fileId) return res.status(400).json({ error: 'Missing fileId' });
+  writeDismissed(readDismissed().filter(id => id !== fileId));
+  res.json({ ok: true });
 });
 
 // ── Preview a Drive file inline ────────────────────────────────────
