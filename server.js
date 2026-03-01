@@ -653,7 +653,8 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
     const inputTokens  = response.usage.input_tokens;
     const outputTokens = response.usage.output_tokens;
 
-    const simMatch = reply.match(/```html\n([\s\S]*?)```/i);
+    // Match code fence — tolerant of spaces/CR after 'html', and 4-backtick variants
+    const simMatch = reply.match(/`{3,}html[^\n]*\n([\s\S]*?)`{3,}/i);
     const simHtml  = simMatch ? sanitizeSimHtml(simMatch[1]) : null;
 
     const log      = readSimLog();

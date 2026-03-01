@@ -164,9 +164,9 @@
     #sim-cancel-btn { background:none; border:1px solid #e2e8f0 !important; color:#64748b; margin-left:auto; }
     #sim-cancel-btn:hover { background:#f1f5f9; }
     /* Preview pane */
-    #sim-preview-pane { flex:1; display:flex; flex-direction:column; background:#0f172a; }
-    #sim-preview-pane-label { padding:8px 14px; font-size:0.72rem; color:#64748b; background:#f8fafc; border-bottom:1px solid #e2e8f0; }
-    #sim-builder-preview { flex:1; border:none; width:100%; }
+    #sim-preview-pane { flex:1; display:flex; flex-direction:column; background:#0f172a; min-width:0; min-height:0; overflow:hidden; }
+    #sim-preview-pane-label { padding:8px 14px; font-size:0.72rem; color:#64748b; background:#f8fafc; border-bottom:1px solid #e2e8f0; flex-shrink:0; }
+    #sim-builder-preview { flex:1; border:none; width:100%; min-height:0; display:none; }
     #sim-preview-empty { flex:1; display:flex; align-items:center; justify-content:center; color:#475569; font-size:0.82rem; }
   </style>
 </head>
@@ -1425,7 +1425,7 @@ initMode();
       <div id="sim-preview-pane">
         <div id="sim-preview-pane-label">Live preview</div>
         <div id="sim-preview-empty">Simulation will appear here</div>
-        <iframe id="sim-builder-preview" sandbox="allow-scripts" style="display:none;flex:1;border:none;width:100%;height:100%"></iframe>
+        <iframe id="sim-builder-preview" sandbox="allow-scripts"></iframe>
       </div>
     </div>
   </div>
@@ -1545,7 +1545,14 @@ async function simSendMessage() {
   if (data.error) { simAppendMessage('system', 'Error: ' + data.error); sendBtn.disabled = false; return; }
 
   simMessages.push({ role: 'assistant', content: data.reply });
-  simAppendMessage('assistant', data.reply);
+
+  // Strip the code block before showing in chat — the sim goes to the preview, not here
+  const displayText = data.reply.replace(/`{3,}html[\s\S]*?`{3,}/gi, '').trim();
+  if (data.simHtml) {
+    simAppendMessage('assistant', (displayText ? displayText + '\n\n' : '') + '✓ Simulation updated — see preview →');
+  } else {
+    simAppendMessage('assistant', displayText || data.reply);
+  }
 
   const n = document.getElementById('sim-turn-num');
   n.textContent = parseInt(n.textContent) + 1;
