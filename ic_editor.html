@@ -136,8 +136,11 @@
     /* ── AI Sim Builder modal ── */
     #sim-builder-modal { display:none; position:fixed; inset:0; z-index:1000; align-items:center; justify-content:center; }
     #sim-builder-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); }
-    #sim-builder-dialog { position:relative; width:92vw; height:88vh; max-width:1300px; background:white; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden; }
-    #sim-builder-dialog h3 { margin:0; padding:14px 20px; font-size:0.95rem; font-weight:700; color:#1e3a5f; border-bottom:1px solid #e2e8f0; background:#f8fafc; }
+    #sim-builder-dialog { position:relative; width:92vw; height:88vh; max-width:1300px; background:white; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden; transition:all 0.2s ease; }
+    #sim-builder-dialog.fullscreen { width:100vw !important; height:100vh !important; max-width:none !important; border-radius:0 !important; }
+    #sim-builder-dialog h3 { margin:0; padding:12px 20px; font-size:0.95rem; font-weight:700; color:#1e3a5f; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; align-items:center; gap:8px; }
+    #sim-fullscreen-btn { margin-left:auto; background:none; border:none; cursor:pointer; font-size:1.1rem; color:#94a3b8; padding:2px 6px; border-radius:4px; line-height:1; }
+    #sim-fullscreen-btn:hover { background:#e2e8f0; color:#1e3a5f; }
     /* Gate */
     #sim-gate { padding: 40px; max-width: 380px; margin: auto; }
     #sim-gate p { font-size:0.85rem; color:#64748b; margin-bottom:18px; }
@@ -1401,7 +1404,7 @@ initMode();
 <div id="sim-builder-modal">
   <div id="sim-builder-backdrop" onclick="closeSimBuilder()"></div>
   <div id="sim-builder-dialog">
-    <h3 id="sim-builder-title">✦ AI Sim Builder</h3>
+    <h3 id="sim-builder-title">✦ AI Sim Builder<button id="sim-fullscreen-btn" onclick="toggleSimFullscreen()" title="Fullscreen">⤢</button></h3>
 
     <!-- Password gate -->
     <div id="sim-gate">
@@ -1483,7 +1486,16 @@ function openSimBuilder() {
 }
 
 function closeSimBuilder() {
+  document.getElementById('sim-builder-dialog').classList.remove('fullscreen');
   document.getElementById('sim-builder-modal').style.display = 'none';
+}
+
+function toggleSimFullscreen() {
+  const dialog = document.getElementById('sim-builder-dialog');
+  const btn    = document.getElementById('sim-fullscreen-btn');
+  const isFs   = dialog.classList.toggle('fullscreen');
+  btn.textContent = isFs ? '⤡' : '⤢';
+  btn.title = isFs ? 'Exit fullscreen' : 'Fullscreen';
 }
 
 async function simAuthenticate() {
