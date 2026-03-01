@@ -152,6 +152,9 @@
     .sim-msg-user { background:#1e3a5f; color:white; align-self:flex-end; }
     .sim-msg-assistant { background:#f1f5f9; color:#1e293b; align-self:flex-start; }
     .sim-msg-system { background:#fef9c3; color:#92400e; align-self:center; font-size:0.78rem; font-style:italic; border-radius:6px; }
+    .sim-msg-thinking { background:#f1f5f9; color:#94a3b8; align-self:flex-start; letter-spacing:4px; animation: simPulse 1.2s ease-in-out infinite; }
+    @keyframes simPulse { 0%,100% { opacity:0.35; } 50% { opacity:1; } }
+    #sim-send-btn:disabled { background:#94a3b8; cursor:default; }
     #sim-turn-counter { padding:6px 14px; font-size:0.73rem; color:#94a3b8; border-top:1px solid #f1f5f9; }
     #sim-input { resize:none; border:none; border-top:1px solid #e2e8f0; padding:12px 14px; font-size:0.85rem; min-height:70px; font-family:inherit; outline:none; }
     #sim-chat-actions { padding:10px 14px; display:flex; gap:8px; border-top:1px solid #e2e8f0; background:#f8fafc; }
@@ -1512,10 +1515,26 @@ async function simSendMessage() {
   if (!text) return;
   const sendBtn = document.getElementById('sim-send-btn');
   sendBtn.disabled = true;
+  sendBtn.textContent = 'Thinking…';
   document.getElementById('sim-input').value = '';
 
   simMessages.push({ role: 'user', content: text });
   simAppendMessage('user', text);
+
+  // Show animated thinking bubble
+  const thinkingDiv = document.createElement('div');
+  thinkingDiv.className = 'sim-msg sim-msg-thinking';
+  thinkingDiv.id = 'sim-thinking';
+  thinkingDiv.textContent = '● ● ●';
+  const msgContainer = document.getElementById('sim-messages');
+  msgContainer.appendChild(thinkingDiv);
+  msgContainer.scrollTop = msgContainer.scrollHeight;
+
+  const done = () => {
+    document.getElementById('sim-thinking')?.remove();
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+  };
 
   const token = localStorage.getItem(SIM_TOKEN_KEY);
   let r;
@@ -1526,23 +1545,27 @@ async function simSendMessage() {
       body: JSON.stringify({ messages: simMessages })
     });
   } catch(e) {
+    done();
     simAppendMessage('system', 'Network error — is the server running?');
-    sendBtn.disabled = false; return;
+    return;
   }
 
   if (r.status === 401) {
+    done();
     localStorage.removeItem(SIM_TOKEN_KEY);
     document.getElementById('sim-gate').style.display    = 'block';
     document.getElementById('sim-chat-ui').style.display = 'none';
-    sendBtn.disabled = false; return;
+    return;
   }
   if (r.status === 429) {
+    done();
     simAppendMessage('system', 'Turn limit reached. Click "Use this simulation" to insert it, or close and start fresh next session.');
-    sendBtn.disabled = false; return;
+    return;
   }
 
   const data = await r.json();
-  if (data.error) { simAppendMessage('system', 'Error: ' + data.error); sendBtn.disabled = false; return; }
+  done();
+  if (data.error) { simAppendMessage('system', 'Error: ' + data.error); return; }
 
   simMessages.push({ role: 'assistant', content: data.reply });
 
@@ -1565,7 +1588,6 @@ async function simSendMessage() {
     document.getElementById('sim-preview-empty').style.display = 'none';
     document.getElementById('sim-use-btn').style.display = 'inline-block';
   }
-  sendBtn.disabled = false;
   document.getElementById('sim-input').focus();
 }
 
