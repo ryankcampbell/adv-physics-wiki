@@ -267,6 +267,35 @@
     .msg-ok  { color: #15803d; }
     .msg-err { color: #dc2626; }
 
+    /* ── SIM BUILDER ── */
+    #sim-section { margin-top: 24px; }
+    #sim-toggle {
+      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 12px 18px; width: 100%; text-align: left; cursor: pointer;
+      font-size: 0.83rem; font-weight: 600; color: #475569;
+      display: flex; align-items: center; gap: 12px;
+    }
+    #sim-toggle:hover { background: #f8fafc; }
+    #sim-body { display: none; background: white; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; padding: 20px; }
+    #sim-body.open { display: block; }
+    .sim-controls { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #f1f5f9; }
+    .sim-control-group { display: flex; flex-direction: column; gap: 6px; }
+    .sim-control-group label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #94a3b8; }
+    .sim-model-radios { display: flex; gap: 16px; align-items: center; }
+    .sim-model-radios label { font-size: 0.83rem; color: #475569; cursor: pointer; font-weight: normal; text-transform: none; display: flex; align-items: center; gap: 5px; }
+    .sim-model-note { font-size: 0.75rem; color: #94a3b8; }
+    #sim-model-status { font-size: 0.75rem; color: #16a34a; min-width: 120px; }
+    .sim-pw-row { display: flex; gap: 8px; align-items: center; }
+    .sim-pw-row input { padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.83rem; width: 160px; font-family: monospace; }
+    .sim-pw-row button { padding: 7px 12px; background: #1e3a5f; color: white; border: none; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+    .sim-pw-row button:hover { background: #2563eb; }
+    #sim-pw-status { font-size: 0.75rem; color: #16a34a; }
+    #sim-log-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    #sim-log-table th { text-align: left; padding: 7px 10px; font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; font-weight: 700; border-bottom: 1px solid #e2e8f0; }
+    #sim-log-table td { padding: 7px 10px; border-bottom: 1px solid #f8fafc; color: #374151; vertical-align: middle; }
+    #sim-log-table tr:hover td { background: #f8fafc; }
+    #sim-total-row { font-size: 0.78rem; color: #94a3b8; padding: 8px 10px; }
+
     /* ── H-INDEX ── */
     #hindex-section { margin-top: 24px; }
     #hindex-toggle {
@@ -474,6 +503,42 @@
       </div>
       <button id="btn-add-concept" onclick="submitNewConcept()">Add to Module &amp; Push</button>
       <div id="add-concept-msg"></div>
+    </div>
+  </div>
+
+  <!-- ── SIM BUILDER ── -->
+  <div id="sim-section">
+    <button id="sim-toggle" onclick="toggleSim()">
+      ✦ AI Sim Builder
+      <span style="margin-left:auto;font-size:0.72rem;color:#94a3b8;font-weight:400">Usage log · model · password</span>
+      <button onclick="event.stopPropagation();loadSimLog()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.9rem;padding:0 4px" title="Refresh">↻</button>
+    </button>
+    <div id="sim-body">
+      <div class="sim-controls">
+        <div class="sim-control-group">
+          <label>Active model</label>
+          <div class="sim-model-radios">
+            <label><input type="radio" name="sim-model" value="haiku" onchange="setSimModel('haiku')"> Haiku <span class="sim-model-note">(faster · cheaper)</span></label>
+            <label><input type="radio" name="sim-model" value="sonnet" onchange="setSimModel('sonnet')"> Sonnet <span class="sim-model-note">(stronger · ~18× cost)</span></label>
+          </div>
+          <span id="sim-model-status"></span>
+        </div>
+        <div class="sim-control-group">
+          <label>Class password</label>
+          <div class="sim-pw-row">
+            <input id="sim-pw-input" type="text" spellcheck="false" />
+            <button onclick="saveSimPassword()">Save</button>
+          </div>
+          <span id="sim-pw-status"></span>
+        </div>
+      </div>
+      <table id="sim-log-table">
+        <thead><tr>
+          <th>Student</th><th>Started</th><th>Turns</th><th>Model</th><th>Est. cost</th><th>Sim?</th>
+        </tr></thead>
+        <tbody id="sim-log-tbody"></tbody>
+      </table>
+      <div id="sim-total-row">Total API cost: <strong id="sim-total-cost">—</strong></div>
     </div>
   </div>
 
@@ -1205,6 +1270,95 @@ async function loadHIndex() {
       </div>`;
   } catch(e) {
     el.innerHTML = `<div style="padding:20px;font-size:0.83rem;color:#dc2626">Could not load: ${e.message} — is the server running?</div>`;
+  }
+}
+
+// ── SIM BUILDER ────────────────────────────────────────────────────
+const MODEL_PRICING = {
+  'claude-haiku-4-5-20251001': { input: 0.80,  output: 4.00  },
+  'claude-sonnet-4-6':         { input: 3.00,  output: 15.00 }
+};
+function calcSimCost(inputTokens, outputTokens, model) {
+  const p = MODEL_PRICING[model] || MODEL_PRICING['claude-haiku-4-5-20251001'];
+  return (inputTokens / 1e6) * p.input + (outputTokens / 1e6) * p.output;
+}
+
+let simOpen = false;
+function toggleSim() {
+  simOpen = !simOpen;
+  document.getElementById('sim-body').classList.toggle('open', simOpen);
+  if (simOpen) loadSimLog();
+}
+
+async function loadSimLog() {
+  try {
+    const [logData, settings] = await Promise.all([
+      fetch('/api/sim/log').then(r => r.json()),
+      fetch('/api/sim/settings').then(r => r.json())
+    ]);
+
+    // Sync model radio
+    const radio = document.querySelector(`input[name="sim-model"][value="${settings.model}"]`);
+    if (radio) radio.checked = true;
+
+    // Show current password
+    document.getElementById('sim-pw-input').value = settings.password || '';
+
+    // Render sessions table
+    const tbody = document.getElementById('sim-log-tbody');
+    tbody.innerHTML = '';
+    let totalCost = 0;
+    logData.sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
+    for (const s of logData) {
+      let sessionCost = 0;
+      for (const t of s.turns) sessionCost += calcSimCost(t.inputTokens, t.outputTokens, t.model);
+      totalCost += sessionCost;
+      const hasSim    = s.turns.some(t => t.hasSim);
+      const lastModel = s.turns.at(-1)?.model?.includes('sonnet') ? 'sonnet' : 'haiku';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.studentName}</td>
+        <td>${new Date(s.startedAt).toLocaleString()}</td>
+        <td>${s.turns.length}</td>
+        <td>${lastModel}</td>
+        <td>$${sessionCost.toFixed(4)}</td>
+        <td style="text-align:center">${hasSim ? '✓' : '—'}</td>`;
+      tbody.appendChild(tr);
+    }
+    if (!logData.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:#94a3b8;padding:16px;text-align:center">No sessions yet</td></tr>';
+    }
+    document.getElementById('sim-total-cost').textContent = '$' + totalCost.toFixed(4);
+  } catch(e) {
+    console.error('loadSimLog error:', e);
+  }
+}
+
+async function setSimModel(model) {
+  const el = document.getElementById('sim-model-status');
+  el.textContent = 'Saving…';
+  await fetch('/api/sim/settings', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model })
+  });
+  el.textContent = 'Saved';
+  setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+async function saveSimPassword() {
+  const pw  = document.getElementById('sim-pw-input').value.trim();
+  const el  = document.getElementById('sim-pw-status');
+  if (!pw) { el.style.color = '#dc2626'; el.textContent = 'Cannot be empty'; return; }
+  const r = await fetch('/api/sim/settings', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw })
+  });
+  if (r.ok) {
+    el.style.color = '#16a34a';
+    el.textContent = 'Saved — existing student sessions invalidated';
+    setTimeout(() => { el.textContent = ''; }, 3500);
+  } else {
+    el.style.color = '#dc2626'; el.textContent = 'Save failed';
   }
 }
 

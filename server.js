@@ -461,6 +461,185 @@ app.get('/api/h-index', (req, res) => {
   }
 });
 
+// ── AI Sim Builder ─────────────────────────────────────────────────
+const Anthropic = require('@anthropic-ai/sdk');
+const anthropic  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+const SIM_MODELS = {
+  haiku:  'claude-haiku-4-5-20251001',
+  sonnet: 'claude-sonnet-4-6'
+};
+const SIM_MODEL_DEFAULT = 'haiku';
+const MAX_TURNS = 20;
+
+// In-memory stores — reset on server restart (fine for class pilot)
+const simSessions = new Map(); // token → { studentName, expires }
+const sessionTurns = new Map(); // token → turn count
+
+// ── Sim settings helpers (model + password) ──
+const SIM_SETTINGS_PATH = path.join(__dirname, 'state', 'sim-settings.json');
+function readSimSettings() {
+  try {
+    const s = JSON.parse(fs.readFileSync(SIM_SETTINGS_PATH, 'utf8'));
+    if (!s.password) s.password = process.env.SIM_PASSWORD || 'changeme';
+    return s;
+  } catch {
+    return { model: SIM_MODEL_DEFAULT, password: process.env.SIM_PASSWORD || 'changeme' };
+  }
+}
+function writeSimSettings(s) {
+  fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
+  fs.writeFileSync(SIM_SETTINGS_PATH, JSON.stringify(s, null, 2));
+}
+function getActiveModel() {
+  const { model } = readSimSettings();
+  return SIM_MODELS[model] || SIM_MODELS[SIM_MODEL_DEFAULT];
+}
+
+// ── Sim log helpers ──
+const SIM_LOG_PATH = path.join(__dirname, 'state', 'sim-log.json');
+function readSimLog() {
+  try { return JSON.parse(fs.readFileSync(SIM_LOG_PATH, 'utf8')); } catch { return []; }
+}
+function writeSimLog(log) {
+  fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
+  fs.writeFileSync(SIM_LOG_PATH, JSON.stringify(log, null, 2));
+}
+
+// ── Session token middleware ──
+function requireSimToken(req, res, next) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  const session = simSessions.get(token);
+  if (!session || session.expires < Date.now()) {
+    return res.status(401).json({ error: 'Session expired — please re-enter the class password.' });
+  }
+  req.simStudent = session.studentName;
+  req.simToken   = token;
+  next();
+}
+
+// ── XSS sanitizer ──
+function sanitizeSimHtml(html) {
+  html = html.replace(/(src|href)=["']https?:\/\/[^"']*["']/gi, '$1=""');
+  html = html.replace(/fetch\s*\(/gi,     '/* fetch blocked */ void(');
+  html = html.replace(/XMLHttpRequest/gi, '/* XHR blocked */ Object');
+  html = html.replace(/WebSocket\s*\(/gi, '/* WS blocked */ void(');
+  html = html.replace(/<script[^>]+src=["'][^"']*["'][^>]*>/gi, '<!-- external script blocked -->');
+  html = html.replace(/<link\b[^>]*>/gi,  '<!-- link blocked -->');
+  return html;
+}
+
+// ── Haiku system prompt ──
+const SIM_SYSTEM_PROMPT = `You are a physics simulation builder helping a high school student create an interactive browser simulation for their physics research project.
+
+RULES YOU MUST FOLLOW:
+1. Always output complete, self-contained HTML files — no external libraries, no CDN links, vanilla JS and CSS only.
+2. Never include fetch(), XMLHttpRequest, WebSocket, or any network calls in your code.
+3. Never include <script src="...">, <link href="...">, or any external resource references.
+4. All code goes in a single HTML file with inline <style> and <script> tags.
+5. Make simulations interactive — sliders, buttons, real-time animation using requestAnimationFrame.
+6. Label axes, include units, and add a short caption describing what the simulation shows.
+7. When you produce a simulation, output the complete HTML inside a fenced code block:
+   \`\`\`html
+   <!DOCTYPE html>
+   ...
+   \`\`\`
+8. Each new version is a complete replacement file — always output the full HTML, not a diff.
+9. Keep explanations short — the student wants to see the sim, not read a lecture.
+10. If the student asks for something physically incorrect, gently note the issue and suggest the correct physics.
+
+GOOD SIMULATIONS INCLUDE:
+- Adjustable parameters via sliders (mass, velocity, frequency, field strength, etc.)
+- A real-time animated canvas or SVG visualization
+- A live readout of key values (energy, period, force, etc.)
+- A short title and one-sentence caption inside the HTML`;
+
+// ── Route: Auth ──────────────────────────────────────────────────
+app.post('/api/sim/auth', (req, res) => {
+  const { name, password } = req.body;
+  if (!name?.trim()) return res.status(400).json({ error: 'Name required' });
+  if (password !== readSimSettings().password) return res.status(401).json({ error: 'Wrong password' });
+  const token = require('crypto').randomUUID();
+  simSessions.set(token, { studentName: name.trim(), expires: Date.now() + 8 * 60 * 60 * 1000 });
+  res.json({ token });
+});
+
+// ── Route: Chat ──────────────────────────────────────────────────
+app.post('/api/sim/chat', requireSimToken, async (req, res) => {
+  const { messages } = req.body;
+  const token = req.simToken;
+
+  const turns = sessionTurns.get(token) || 0;
+  if (turns >= MAX_TURNS) {
+    return res.status(429).json({ error: `Turn limit (${MAX_TURNS}) reached for this session.` });
+  }
+  sessionTurns.set(token, turns + 1);
+
+  try {
+    const activeModel = getActiveModel();
+    const response = await anthropic.messages.create({
+      model: activeModel,
+      max_tokens: 4096,
+      system: SIM_SYSTEM_PROMPT,
+      messages
+    });
+
+    const reply        = response.content[0].text;
+    const inputTokens  = response.usage.input_tokens;
+    const outputTokens = response.usage.output_tokens;
+
+    const simMatch = reply.match(/```html\n([\s\S]*?)```/i);
+    const simHtml  = simMatch ? sanitizeSimHtml(simMatch[1]) : null;
+
+    const log      = readSimLog();
+    const existing = log.find(s => s.token === token);
+    const entry    = { timestamp: new Date().toISOString(), inputTokens, outputTokens, hasSim: !!simHtml, model: activeModel };
+    if (existing) {
+      existing.turns.push(entry);
+      existing.totalInputTokens  = (existing.totalInputTokens  || 0) + inputTokens;
+      existing.totalOutputTokens = (existing.totalOutputTokens || 0) + outputTokens;
+    } else {
+      log.push({ token, studentName: req.simStudent, startedAt: new Date().toISOString(),
+                 turns: [entry], totalInputTokens: inputTokens, totalOutputTokens: outputTokens });
+    }
+    writeSimLog(log);
+
+    res.json({ reply, simHtml });
+  } catch (e) {
+    console.error('Sim chat error:', e);
+    res.status(500).json({ error: 'AI error: ' + e.message });
+  }
+});
+
+// ── Route: Usage log (admin) ─────────────────────────────────────
+app.get('/api/sim/log', (req, res) => {
+  res.json(readSimLog());
+});
+
+// ── Route: Settings — model + password (admin) ───────────────────
+app.get('/api/sim/settings', (req, res) => {
+  res.json(readSimSettings());
+});
+
+app.post('/api/sim/settings', (req, res) => {
+  const current = readSimSettings();
+  const updated = { ...current };
+  if (req.body.model !== undefined) {
+    if (!SIM_MODELS[req.body.model]) return res.status(400).json({ error: 'Unknown model key' });
+    updated.model = req.body.model;
+    console.log(`[sim] Model switched to ${req.body.model}`);
+  }
+  if (req.body.password !== undefined) {
+    if (!req.body.password.trim()) return res.status(400).json({ error: 'Password cannot be empty' });
+    updated.password = req.body.password.trim();
+    simSessions.clear();
+    sessionTurns.clear();
+    console.log('[sim] Password changed — all sessions invalidated');
+  }
+  writeSimSettings(updated);
+  res.json({ ok: true });
+});
+
 // ── Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -128,6 +128,46 @@
     .g-btn { background: white; border: 1px solid #d1d5db; border-radius: 6px; padding: 9px 18px; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .g-btn:hover { background: #f8fafc; }
     .cancel-btn { background: none; border: none; color: #94a3b8; font-size: 0.75rem; cursor: pointer; margin-top: 10px; text-decoration: underline; display: block; }
+
+    /* ── AI Sim Builder button ── */
+    #sim-ai-btn { margin-top: 6px; width: 100%; padding: 8px 14px; background: #1e3a5f; color: white; border: none; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; letter-spacing: 0.02em; }
+    #sim-ai-btn:hover { background: #2563eb; }
+
+    /* ── AI Sim Builder modal ── */
+    #sim-builder-modal { display:none; position:fixed; inset:0; z-index:1000; align-items:center; justify-content:center; }
+    #sim-builder-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); }
+    #sim-builder-dialog { position:relative; width:92vw; height:88vh; max-width:1300px; background:white; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden; }
+    #sim-builder-dialog h3 { margin:0; padding:14px 20px; font-size:0.95rem; font-weight:700; color:#1e3a5f; border-bottom:1px solid #e2e8f0; background:#f8fafc; }
+    /* Gate */
+    #sim-gate { padding: 40px; max-width: 380px; margin: auto; }
+    #sim-gate p { font-size:0.85rem; color:#64748b; margin-bottom:18px; }
+    #sim-gate input { width:100%; margin-bottom:10px; padding:9px 12px; border:1px solid #e2e8f0; border-radius:6px; font-size:0.88rem; box-sizing:border-box; }
+    #sim-gate button { width:100%; padding:10px; background:#1e3a5f; color:white; border:none; border-radius:6px; font-size:0.88rem; font-weight:600; cursor:pointer; }
+    #sim-gate button:hover { background:#2563eb; }
+    /* Chat UI */
+    #sim-chat-ui { flex:1; display:flex; flex-direction:row; overflow:hidden; }
+    #sim-chat-pane { width:42%; display:flex; flex-direction:column; border-right:1px solid #e2e8f0; }
+    #sim-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+    .sim-msg { padding:9px 12px; border-radius:8px; font-size:0.82rem; line-height:1.5; max-width:92%; white-space:pre-wrap; word-break:break-word; }
+    .sim-msg-user { background:#1e3a5f; color:white; align-self:flex-end; }
+    .sim-msg-assistant { background:#f1f5f9; color:#1e293b; align-self:flex-start; }
+    .sim-msg-system { background:#fef9c3; color:#92400e; align-self:center; font-size:0.78rem; font-style:italic; border-radius:6px; }
+    #sim-turn-counter { padding:6px 14px; font-size:0.73rem; color:#94a3b8; border-top:1px solid #f1f5f9; }
+    #sim-input { resize:none; border:none; border-top:1px solid #e2e8f0; padding:12px 14px; font-size:0.85rem; min-height:70px; font-family:inherit; outline:none; }
+    #sim-chat-actions { padding:10px 14px; display:flex; gap:8px; border-top:1px solid #e2e8f0; background:#f8fafc; }
+    #sim-chat-actions button { padding:7px 14px; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer; border:none; }
+    #sim-send-btn { background:#1e3a5f; color:white; }
+    #sim-send-btn:hover { background:#2563eb; }
+    #sim-send-btn:disabled { opacity:0.5; cursor:default; }
+    #sim-use-btn { background:#16a34a; color:white; }
+    #sim-use-btn:hover { background:#15803d; }
+    #sim-cancel-btn { background:none; border:1px solid #e2e8f0 !important; color:#64748b; margin-left:auto; }
+    #sim-cancel-btn:hover { background:#f1f5f9; }
+    /* Preview pane */
+    #sim-preview-pane { flex:1; display:flex; flex-direction:column; background:#0f172a; }
+    #sim-preview-pane-label { padding:8px 14px; font-size:0.72rem; color:#64748b; background:#f8fafc; border-bottom:1px solid #e2e8f0; }
+    #sim-builder-preview { flex:1; border:none; width:100%; }
+    #sim-preview-empty { flex:1; display:flex; align-items:center; justify-content:center; color:#475569; font-size:0.82rem; }
   </style>
 </head>
 <body>
@@ -199,6 +239,7 @@
           <p style="margin-top:4px;font-size:0.75rem">or click to browse · built with Claude, one self-contained .html file</p>
         </div>
         <input type="file" id="sim-file" accept=".html" onchange="loadSimFile(this.files[0])">
+        <button type="button" id="sim-ai-btn" onclick="openSimBuilder()">✦ Build with AI</button>
         <div class="f"><label>Caption</label><textarea id="f-sim-cap" rows="2" placeholder="Describe what the simulation shows and how to use it." oninput="update()"></textarea></div>
       </div>
 
@@ -321,20 +362,22 @@ function dropSim(ev) {
   document.getElementById('sim-drop').classList.remove('over');
   loadSimFile(ev.dataTransfer.files[0]);
 }
-function loadSimFile(f) {
+function _simLoaded(html, name) {
+  simHtml = html; simFileName = name;
+  const d = document.getElementById('sim-drop');
+  if (d) { d.className = 'done'; d.innerHTML = `<p><strong style="color:#15803d">✓ ${name} loaded</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`; }
+  const btn = document.getElementById('sim-ai-btn');
+  if (btn) btn.textContent = '✦ Edit with AI';
+  const slot = document.getElementById('pv-sim-slot');
+  if (slot) slot.innerHTML = '';
+  update();
+}
+function loadSimFile(fileOrHtml, fileName) {
+  if (typeof fileOrHtml === 'string') { _simLoaded(fileOrHtml, fileName || 'ai-sim.html'); return; }
+  const f = fileOrHtml;
   if (!f) return;
   const r = new FileReader();
-  r.onload = e => {
-    simHtml = e.target.result;
-    simFileName = f.name;
-    const d = document.getElementById('sim-drop');
-    d.className = 'done';
-    d.innerHTML = `<p><strong style="color:#15803d">✓ ${f.name} loaded</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
-    // Force sim preview refresh when a new sim is loaded
-    const slot = document.getElementById('pv-sim-slot');
-    if (slot) slot.innerHTML = '';
-    update();
-  };
+  r.onload = e => _simLoaded(e.target.result, f.name);
   r.readAsText(f);
 }
 
@@ -475,6 +518,8 @@ function _restoreSim(html, name) {
     drop.className = 'done';
     drop.innerHTML = `<p><strong style="color:#15803d">✓ ${name}</strong></p><p style="font-size:0.75rem;margin-top:3px;color:#64748b">Click to replace</p>`;
   }
+  const btn = document.getElementById('sim-ai-btn');
+  if (btn) btn.textContent = '✦ Edit with AI';
   updateSimPreview();
 }
 function _restoreCits(cits) {
@@ -1347,6 +1392,191 @@ function loadRefURL(url) {
 
 // ── Run ────────────────────────────────────────────────────────────
 initMode();
+</script>
+
+<!-- ── AI Sim Builder Modal ──────────────────────────────────────── -->
+<div id="sim-builder-modal">
+  <div id="sim-builder-backdrop" onclick="closeSimBuilder()"></div>
+  <div id="sim-builder-dialog">
+    <h3 id="sim-builder-title">✦ AI Sim Builder</h3>
+
+    <!-- Password gate -->
+    <div id="sim-gate">
+      <p>Enter your name and the class password to start building your simulation.</p>
+      <input id="sim-gate-name" placeholder="Your name" autocomplete="off" />
+      <input id="sim-gate-password" type="password" placeholder="Class password" />
+      <button onclick="simAuthenticate()">Enter</button>
+      <p id="sim-gate-error" style="color:#dc2626;font-size:0.82rem;margin-top:8px;display:none"></p>
+    </div>
+
+    <!-- Chat UI -->
+    <div id="sim-chat-ui" style="display:none">
+      <div id="sim-chat-pane">
+        <div id="sim-messages"></div>
+        <div id="sim-turn-counter">Turn <span id="sim-turn-num">0</span> of 20</div>
+        <textarea id="sim-input" placeholder="Describe the simulation you want, or what to change…" rows="3"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();simSendMessage()}"></textarea>
+        <div id="sim-chat-actions">
+          <button id="sim-send-btn" onclick="simSendMessage()">Send</button>
+          <button id="sim-use-btn" style="display:none" onclick="simAccept()">✓ Use this simulation</button>
+          <button id="sim-cancel-btn" onclick="closeSimBuilder()">Cancel</button>
+        </div>
+      </div>
+      <div id="sim-preview-pane">
+        <div id="sim-preview-pane-label">Live preview</div>
+        <div id="sim-preview-empty">Simulation will appear here</div>
+        <iframe id="sim-builder-preview" sandbox="allow-scripts" style="display:none;flex:1;border:none;width:100%;height:100%"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AI Sim Builder ────────────────────────────────────────────────
+const SIM_TOKEN_KEY = 'sim-session-token';
+let simMessages  = [];
+let simBuiltHtml = null;
+
+function openSimBuilder() {
+  simMessages  = [];
+  simBuiltHtml = null;
+  document.getElementById('sim-messages').innerHTML = '';
+  document.getElementById('sim-turn-num').textContent = '0';
+  document.getElementById('sim-use-btn').style.display = 'none';
+  document.getElementById('sim-builder-preview').style.display = 'none';
+  document.getElementById('sim-preview-empty').style.display = 'flex';
+  document.getElementById('sim-builder-modal').style.display = 'flex';
+  document.getElementById('sim-input').value = '';
+
+  // If sim already loaded, pre-populate context for edit mode
+  if (simHtml) {
+    document.getElementById('sim-builder-title').textContent = '✦ AI Sim Editor';
+    simMessages = [
+      { role: 'user', content: 'Here is my current simulation HTML:\n\n```html\n' + simHtml + '\n```\n\nI want to continue working on it.' },
+      { role: 'assistant', content: 'I can see your simulation. What would you like to change or improve?' }
+    ];
+    simAppendMessage('system', '↩ Existing simulation loaded — describe what to change.');
+    simAppendMessage('assistant', 'I can see your simulation. What would you like to change or improve?');
+    // Pre-show the existing sim in preview
+    document.getElementById('sim-builder-preview').srcdoc = simHtml;
+    document.getElementById('sim-builder-preview').style.display = 'block';
+    document.getElementById('sim-preview-empty').style.display = 'none';
+    document.getElementById('sim-use-btn').style.display = 'inline-block';
+  } else {
+    document.getElementById('sim-builder-title').textContent = '✦ AI Sim Builder';
+  }
+
+  // Skip gate if session token still valid
+  const token = localStorage.getItem(SIM_TOKEN_KEY);
+  if (token) {
+    document.getElementById('sim-gate').style.display    = 'none';
+    document.getElementById('sim-chat-ui').style.display = 'flex';
+    if (!simHtml) document.getElementById('sim-input').focus();
+  } else {
+    document.getElementById('sim-gate').style.display    = 'block';
+    document.getElementById('sim-chat-ui').style.display = 'none';
+    document.getElementById('sim-gate-name').focus();
+  }
+}
+
+function closeSimBuilder() {
+  document.getElementById('sim-builder-modal').style.display = 'none';
+}
+
+async function simAuthenticate() {
+  const name     = document.getElementById('sim-gate-name').value.trim();
+  const password = document.getElementById('sim-gate-password').value;
+  const errEl    = document.getElementById('sim-gate-error');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Please enter your name.'; errEl.style.display = 'block'; return; }
+
+  const r = await fetch('/api/sim/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, password })
+  });
+  if (r.ok) {
+    const { token } = await r.json();
+    localStorage.setItem(SIM_TOKEN_KEY, token);
+    document.getElementById('sim-gate').style.display    = 'none';
+    document.getElementById('sim-chat-ui').style.display = 'flex';
+    document.getElementById('sim-input').focus();
+  } else {
+    errEl.textContent   = 'Wrong password — ask your teacher.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function simSendMessage() {
+  const text = document.getElementById('sim-input').value.trim();
+  if (!text) return;
+  const sendBtn = document.getElementById('sim-send-btn');
+  sendBtn.disabled = true;
+  document.getElementById('sim-input').value = '';
+
+  simMessages.push({ role: 'user', content: text });
+  simAppendMessage('user', text);
+
+  const token = localStorage.getItem(SIM_TOKEN_KEY);
+  let r;
+  try {
+    r = await fetch('/api/sim/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ messages: simMessages })
+    });
+  } catch(e) {
+    simAppendMessage('system', 'Network error — is the server running?');
+    sendBtn.disabled = false; return;
+  }
+
+  if (r.status === 401) {
+    localStorage.removeItem(SIM_TOKEN_KEY);
+    document.getElementById('sim-gate').style.display    = 'block';
+    document.getElementById('sim-chat-ui').style.display = 'none';
+    sendBtn.disabled = false; return;
+  }
+  if (r.status === 429) {
+    simAppendMessage('system', 'Turn limit reached. Click "Use this simulation" to insert it, or close and start fresh next session.');
+    sendBtn.disabled = false; return;
+  }
+
+  const data = await r.json();
+  if (data.error) { simAppendMessage('system', 'Error: ' + data.error); sendBtn.disabled = false; return; }
+
+  simMessages.push({ role: 'assistant', content: data.reply });
+  simAppendMessage('assistant', data.reply);
+
+  const n = document.getElementById('sim-turn-num');
+  n.textContent = parseInt(n.textContent) + 1;
+
+  if (data.simHtml) {
+    simBuiltHtml = data.simHtml;
+    const iframe = document.getElementById('sim-builder-preview');
+    iframe.srcdoc = data.simHtml;
+    iframe.style.display = 'block';
+    document.getElementById('sim-preview-empty').style.display = 'none';
+    document.getElementById('sim-use-btn').style.display = 'inline-block';
+  }
+  sendBtn.disabled = false;
+  document.getElementById('sim-input').focus();
+}
+
+function simAccept() {
+  const html = simBuiltHtml || simHtml;
+  if (!html) return;
+  loadSimFile(html, 'ai-sim.html');
+  closeSimBuilder();
+}
+
+function simAppendMessage(role, text) {
+  const div = document.createElement('div');
+  div.className = 'sim-msg sim-msg-' + role;
+  div.textContent = text;
+  const container = document.getElementById('sim-messages');
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
 </script>
 </body>
 </html>
