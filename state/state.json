@@ -1,11 +1,12 @@
 [
   {
     "concept_id": "em_waves",
-    "status": "submitted",
+    "status": "needs_revision",
     "claimed_by": "Max Brunsfeld",
     "team": [
       "Max Brunsfeld"
-    ]
+    ],
+    "feedback": "Great sim \u2014 the \u03bb/2 fact is mentioned, but the explainer needs the physical reasoning: the antenna tips are open ends so current must be zero there, forcing a standing wave boundary condition (like a string fixed at both ends). The shortest standing wave with zero-current nodes at both tips spans exactly one half-cycle, so L = \u03bb/2. Add 2-3 sentences explaining this why to the explainer, then resubmit."
   },
   {
     "concept_id": "two_postulates",
@@ -34,7 +35,7 @@
       "S. Park",
       "T. Nguyen"
     ],
-    "feedback": "Limiting case at β=0 shows γ=0 instead of 1 — fix the denominator in the sim."
+    "feedback": "Limiting case at \u03b2=0 shows \u03b3=0 instead of 1 \u2014 fix the denominator in the sim."
   },
   {
     "concept_id": "rel_velocity_addition",
