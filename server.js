@@ -205,8 +205,18 @@ app.post('/api/publish', async (req, res) => {
   if (!fileId || !conceptId) return res.status(400).json({ error: 'Missing fileId or conceptId' });
 
   const safeLabel = (label || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase() || 'index';
-  const filename  = safeLabel + '.html';
   const fileType  = getFileType(safeLabel);  // at / hw / ic
+
+  // For revisions: reuse the existing published filename so it's an in-place replace,
+  // not a new file. This prevents duplicate contributions.json entries.
+  const contribPath = path.join(__dirname, 'contributions.json');
+  const existingContribs = fs.existsSync(contribPath)
+    ? JSON.parse(fs.readFileSync(contribPath, 'utf8')) : [];
+  const existingEntry = existingContribs.find(
+    c => c.concept_id === conceptId && (!c.type || c.type === fileType)
+  );
+  const existingFilename = existingEntry ? existingEntry.url.split('/').pop() : null;
+  const filename = existingFilename || (safeLabel + '.html');
 
   try {
     // 1. Download HTML from Drive
@@ -262,11 +272,7 @@ app.post('/api/publish', async (req, res) => {
     fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 
     // 5. Auto-update contributions.json (with type field)
-    const contribPath = path.join(__dirname, 'contributions.json');
-    let contribs = [];
-    if (fs.existsSync(contribPath)) {
-      contribs = JSON.parse(fs.readFileSync(contribPath, 'utf8'));
-    }
+    let contribs = [...existingContribs];
     const entryUrl = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
     const existingIdx = contribs.findIndex(c => c.concept_id === conceptId && c.url.endsWith('/' + filename));
     const entry = { concept_id: conceptId, type: fileType, title: entryTitle, author: entryAuthor, url: entryUrl };
@@ -653,9 +659,15 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
     const inputTokens  = response.usage.input_tokens;
     const outputTokens = response.usage.output_tokens;
 
-    // Match code fence — tolerant of spaces/CR after 'html', and 4-backtick variants
-    const simMatch = reply.match(/`{3,}html[^\n]*\n([\s\S]*?)`{3,}/i);
-    const simHtml  = simMatch ? sanitizeSimHtml(simMatch[1]) : null;
+    // Extract sim HTML — match from <!DOCTYPE html or <html to end of code fence
+    // (robust to AI formatting variations in code fence headers)
+    let simHtml = null;
+    const htmlBodyMatch = reply.match(/<!DOCTYPE\s+html[\s\S]*|<html[\s\S]*/i);
+    if (htmlBodyMatch) {
+      // Strip trailing code fence (``` or ````) and any trailing whitespace
+      const raw = htmlBodyMatch[0].replace(/\n?`{3,}\s*$/, '').trim();
+      simHtml = sanitizeSimHtml(raw);
+    }
 
     const log      = readSimLog();
     const existing = log.find(s => s.token === token);
