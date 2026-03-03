@@ -1590,11 +1590,8 @@ setMath('anchor',"");
 
 (function(){
   const el=document.getElementById('expl');
-  const paras="Since light travels at a fixed speed, its frequency is inversely proportional to its wavelength. To detect an electromagnetic wave, an antenna's length needs to be around half the wavelength of the wave. So to detect a very low frequency wave, you would need a very long antenna.".split(/
-
-+/);
-  el.innerHTML=paras.map(p=>`<p>${p.replace(/
-/g,'<br>')}</p>`).join('');
+  const paras="Since light travels at a fixed speed, its frequency is inversely proportional to its wavelength. To detect an electromagnetic wave, an antenna's length needs to be around half the wavelength of the wave. So to detect a very low frequency wave, you would need a very long antenna.".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 })();
 

@@ -139,8 +139,8 @@
     #sim-builder-dialog { position:relative; width:92vw; height:88vh; max-width:1300px; background:white; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden; transition:all 0.2s ease; }
     #sim-builder-dialog.fullscreen { width:100vw !important; height:100vh !important; max-width:none !important; border-radius:0 !important; }
     #sim-builder-dialog h3 { margin:0; padding:12px 20px; font-size:0.95rem; font-weight:700; color:#1e3a5f; border-bottom:1px solid #e2e8f0; background:#f8fafc; display:flex; align-items:center; gap:8px; }
-    #sim-fullscreen-btn { margin-left:auto; background:none; border:none; cursor:pointer; font-size:1.1rem; color:#94a3b8; padding:2px 6px; border-radius:4px; line-height:1; }
-    #sim-fullscreen-btn:hover { background:#e2e8f0; color:#1e3a5f; }
+    #sim-fullscreen-btn { position:absolute; top:8px; right:12px; background:#e2e8f0; border:none; cursor:pointer; color:#475569; padding:5px 7px; border-radius:5px; line-height:0; display:flex; align-items:center; justify-content:center; z-index:10; }
+    #sim-fullscreen-btn:hover { background:#cbd5e1; color:#1e3a5f; }
     /* Gate */
     #sim-gate { padding: 40px; max-width: 380px; margin: auto; }
     #sim-gate p { font-size:0.85rem; color:#64748b; margin-bottom:18px; }
@@ -160,6 +160,12 @@
     #sim-send-btn:disabled { background:#94a3b8; cursor:default; }
     #sim-turn-counter { padding:6px 14px; font-size:0.73rem; color:#94a3b8; border-top:1px solid #f1f5f9; }
     #sim-input { resize:none; border:none; border-top:1px solid #e2e8f0; padding:12px 14px; font-size:0.85rem; min-height:70px; font-family:inherit; outline:none; }
+    #sim-paste-preview { display:none; align-items:center; gap:8px; padding:6px 12px; background:#f1f5f9; border-top:1px solid #e2e8f0; flex-shrink:0; }
+    #sim-paste-img { max-height:56px; border-radius:4px; border:1px solid #cbd5e1; }
+    #sim-paste-label { font-size:0.75rem; color:#64748b; flex:1; }
+    #sim-paste-remove { background:none; border:none; cursor:pointer; color:#94a3b8; font-size:1.1rem; padding:0 4px; line-height:1; }
+    #sim-paste-remove:hover { color:#dc2626; }
+    .sim-msg-img { max-width:100%; border-radius:5px; display:block; margin-bottom:5px; border:1px solid #334155; }
     #sim-chat-actions { padding:10px 14px; display:flex; gap:8px; border-top:1px solid #e2e8f0; background:#f8fafc; }
     #sim-chat-actions button { padding:7px 14px; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer; border:none; }
     #sim-send-btn { background:#1e3a5f; color:white; }
@@ -167,6 +173,8 @@
     #sim-send-btn:disabled { opacity:0.5; cursor:default; }
     #sim-use-btn { background:#16a34a; color:white; }
     #sim-use-btn:hover { background:#15803d; }
+    #sim-dl-btn { background:#0e7490; color:white; }
+    #sim-dl-btn:hover { background:#0c6b80; }
     #sim-cancel-btn { background:none; border:1px solid #e2e8f0 !important; color:#64748b; margin-left:auto; }
     #sim-cancel-btn:hover { background:#f1f5f9; }
     /* Preview pane */
@@ -762,8 +770,8 @@ setMath('anchor',${j(anchor)});
 
 (function(){
   const el=document.getElementById('expl');
-  const paras=${j(expl)}.split(/\n\n+/);
-  el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\n/g,'<br>')}</p>\`).join('');
+  const paras=${j(expl)}.split(/\\n\\n+/);
+  el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\\n/g,'<br>')}</p>\`).join('');
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 })();
 
@@ -920,8 +928,8 @@ setMath('scs',${j(scs)});setMath('scp',${j(scp)});setMath('scr',${j(scr)});
 setMath('anchor',${j(anchor)});
 (function(){
   const el=document.getElementById('expl');
-  const paras=${j(expl)}.split(/\n\n+/);
-  el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\n/g,'<br>')}</p>\`).join('');
+  const paras=${j(expl)}.split(/\\n\\n+/);
+  el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\\n/g,'<br>')}</p>\`).join('');
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 })();
 (function(){
@@ -1091,8 +1099,8 @@ setMath('anchor',${j(anchor)});
 ${setMathCalls}
 (function(){
   const el=document.getElementById('expl');
-  const paras=${j(expl)}.split(/\n\n+/);
-  el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\n/g,'<br>')}</p>\`).join('');
+  const paras=${j(expl)}.split(/\\n\\n+/);
+  el.innerHTML=paras.map(p=>\`<p>\${p.replace(/\\n/g,'<br>')}</p>\`).join('');
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 })();
 ${_sc}
@@ -1404,7 +1412,11 @@ initMode();
 <div id="sim-builder-modal">
   <div id="sim-builder-backdrop" onclick="closeSimBuilder()"></div>
   <div id="sim-builder-dialog">
-    <h3 id="sim-builder-title">✦ AI Sim Builder<button id="sim-fullscreen-btn" onclick="toggleSimFullscreen()" title="Fullscreen">⤢</button></h3>
+    <h3 id="sim-builder-title">✦ AI Sim Builder</h3>
+    <button id="sim-fullscreen-btn" onclick="toggleSimFullscreen()" title="Fullscreen">
+      <svg id="sim-fs-expand" width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9,1 14,1 14,6"/><polyline points="6,14 1,14 1,9"/><line x1="14" y1="1" x2="8" y2="7"/><line x1="1" y1="14" x2="7" y2="8"/></svg>
+      <svg id="sim-fs-collapse" width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><polyline points="14,6 14,1 9,1"/><polyline points="1,9 1,14 6,14"/><line x1="8" y1="7" x2="14" y2="1"/><line x1="7" y1="8" x2="1" y2="14"/></svg>
+    </button>
 
     <!-- Password gate -->
     <div id="sim-gate">
@@ -1420,11 +1432,17 @@ initMode();
       <div id="sim-chat-pane">
         <div id="sim-messages"></div>
         <div id="sim-turn-counter">Turn <span id="sim-turn-num">0</span> of 20</div>
-        <textarea id="sim-input" placeholder="Describe the simulation you want, or what to change…" rows="3"
+        <textarea id="sim-input" placeholder="Describe the simulation you want, or what to change… (paste a screenshot with ⌘V)" rows="3"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();simSendMessage()}"></textarea>
+        <div id="sim-paste-preview">
+          <img id="sim-paste-img" src="" alt="pasted screenshot" />
+          <span id="sim-paste-label">Screenshot attached</span>
+          <button id="sim-paste-remove" onclick="clearSimPaste()" title="Remove">×</button>
+        </div>
         <div id="sim-chat-actions">
           <button id="sim-send-btn" onclick="simSendMessage()">Send</button>
           <button id="sim-use-btn" style="display:none" onclick="simAccept()">✓ Use this simulation</button>
+          <button id="sim-dl-btn" style="display:none" onclick="simDownload()">⬇ Download</button>
           <button id="sim-cancel-btn" onclick="closeSimBuilder()">Cancel</button>
         </div>
       </div>
@@ -1440,8 +1458,40 @@ initMode();
 <script>
 // ── AI Sim Builder ────────────────────────────────────────────────
 const SIM_TOKEN_KEY = 'sim-session-token';
-let simMessages  = [];
-let simBuiltHtml = null;
+let simMessages   = [];
+let simBuiltHtml  = null;
+let pendingSimImg = null;   // { data: base64string, mediaType: 'image/png', dataUrl: '...' }
+
+// Paste handler — captures screenshots pasted into the input
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('sim-input').addEventListener('paste', e => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        const blob = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const dataUrl = ev.target.result;
+          const [header, data] = dataUrl.split(',');
+          const mediaType = header.match(/data:([^;]+)/)[1];
+          pendingSimImg = { data, mediaType, dataUrl };
+          document.getElementById('sim-paste-img').src = dataUrl;
+          document.getElementById('sim-paste-preview').style.display = 'flex';
+        };
+        reader.readAsDataURL(blob);
+        break;
+      }
+    }
+  });
+});
+
+function clearSimPaste() {
+  pendingSimImg = null;
+  document.getElementById('sim-paste-preview').style.display = 'none';
+  document.getElementById('sim-paste-img').src = '';
+}
 
 function openSimBuilder() {
   simMessages  = [];
@@ -1449,6 +1499,7 @@ function openSimBuilder() {
   document.getElementById('sim-messages').innerHTML = '';
   document.getElementById('sim-turn-num').textContent = '0';
   document.getElementById('sim-use-btn').style.display = 'none';
+  document.getElementById('sim-dl-btn').style.display = 'none';
   document.getElementById('sim-builder-preview').style.display = 'none';
   document.getElementById('sim-preview-empty').style.display = 'flex';
   document.getElementById('sim-builder-modal').style.display = 'flex';
@@ -1467,7 +1518,7 @@ function openSimBuilder() {
     document.getElementById('sim-builder-preview').srcdoc = simHtml;
     document.getElementById('sim-builder-preview').style.display = 'block';
     document.getElementById('sim-preview-empty').style.display = 'none';
-    document.getElementById('sim-use-btn').style.display = 'inline-block';
+    document.getElementById('sim-use-btn').style.display = 'inline-block'; document.getElementById('sim-dl-btn').style.display = 'inline-block';
   } else {
     document.getElementById('sim-builder-title').textContent = '✦ AI Sim Builder';
   }
@@ -1492,10 +1543,10 @@ function closeSimBuilder() {
 
 function toggleSimFullscreen() {
   const dialog = document.getElementById('sim-builder-dialog');
-  const btn    = document.getElementById('sim-fullscreen-btn');
   const isFs   = dialog.classList.toggle('fullscreen');
-  btn.textContent = isFs ? '⤡' : '⤢';
-  btn.title = isFs ? 'Exit fullscreen' : 'Fullscreen';
+  document.getElementById('sim-fs-expand').style.display   = isFs ? 'none' : 'inline';
+  document.getElementById('sim-fs-collapse').style.display = isFs ? 'inline' : 'none';
+  document.getElementById('sim-fullscreen-btn').title = isFs ? 'Exit fullscreen' : 'Fullscreen';
 }
 
 async function simAuthenticate() {
@@ -1524,14 +1575,42 @@ async function simAuthenticate() {
 
 async function simSendMessage() {
   const text = document.getElementById('sim-input').value.trim();
-  if (!text) return;
+  if (!text && !pendingSimImg) return;
+
+  // If the user pasted raw HTML, load it directly — no AI call needed
+  const stripped = text.replace(/^`{3,}html\s*/i, '').replace(/`{3,}\s*$/, '').trim();
+  if (/^<!DOCTYPE\s+html/i.test(stripped) || /^<html/i.test(stripped)) {
+    document.getElementById('sim-input').value = '';
+    simBuiltHtml = stripped;
+    const iframe = document.getElementById('sim-builder-preview');
+    iframe.srcdoc = stripped;
+    iframe.style.display = 'block';
+    document.getElementById('sim-preview-empty').style.display = 'none';
+    document.getElementById('sim-use-btn').style.display = 'inline-block'; document.getElementById('sim-dl-btn').style.display = 'inline-block';
+    simAppendMessage('user', '(pasted HTML)');
+    simAppendMessage('system', 'HTML loaded into preview — click "Use this simulation" to insert it.');
+    return;
+  }
+
   const sendBtn = document.getElementById('sim-send-btn');
   sendBtn.disabled = true;
   sendBtn.textContent = 'Thinking…';
   document.getElementById('sim-input').value = '';
 
-  simMessages.push({ role: 'user', content: text });
-  simAppendMessage('user', text);
+  // Build message content — include image if pasted
+  let msgContent;
+  const imgSnapshot = pendingSimImg;
+  if (imgSnapshot) {
+    msgContent = [
+      { type: 'image', source: { type: 'base64', media_type: imgSnapshot.mediaType, data: imgSnapshot.data } },
+      { type: 'text', text: text || 'Here is a screenshot of the current simulation.' }
+    ];
+    clearSimPaste();
+  } else {
+    msgContent = text;
+  }
+  simMessages.push({ role: 'user', content: msgContent });
+  simAppendMessage('user', text || '(screenshot)', imgSnapshot?.dataUrl);
 
   // Show animated thinking bubble
   const thinkingDiv = document.createElement('div');
@@ -1542,23 +1621,41 @@ async function simSendMessage() {
   msgContainer.appendChild(thinkingDiv);
   msgContainer.scrollTop = msgContainer.scrollHeight;
 
+  // Update thinking bubble with elapsed time every 30s
+  const startTime = Date.now();
+  const tickInterval = setInterval(() => {
+    const el = document.getElementById('sim-thinking');
+    if (!el) { clearInterval(tickInterval); return; }
+    const secs = Math.round((Date.now() - startTime) / 1000);
+    el.textContent = `● ● ● (${secs}s — still working…)`;
+  }, 30000);
+
   const done = () => {
+    clearInterval(tickInterval);
     document.getElementById('sim-thinking')?.remove();
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
   };
 
   const token = localStorage.getItem(SIM_TOKEN_KEY);
+  const abortCtrl = new AbortController();
+  const timeoutId = setTimeout(() => abortCtrl.abort(), 90000); // 90s timeout
   let r;
   try {
     r = await fetch('/api/sim/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ messages: simMessages })
+      body: JSON.stringify({ messages: simMessages }),
+      signal: abortCtrl.signal
     });
+    clearTimeout(timeoutId);
   } catch(e) {
+    clearTimeout(timeoutId);
     done();
-    simAppendMessage('system', 'Network error — is the server running?');
+    const msg = e.name === 'AbortError'
+      ? 'Request timed out after 90s — the AI may still be working. Try a simpler change.'
+      : 'Network error — is the server running?';
+    simAppendMessage('system', msg);
     return;
   }
 
@@ -1581,12 +1678,13 @@ async function simSendMessage() {
 
   simMessages.push({ role: 'assistant', content: data.reply });
 
-  // Strip the code block before showing in chat — the sim goes to the preview, not here
-  const displayText = data.reply.replace(/`{3,}html[\s\S]*?`{3,}/gi, '').trim();
+  // Strip code block before showing in chat — sim HTML goes to the preview, not here
+  const displayText = data.reply.replace(/`{3,}[\s\S]*?`{3,}/gi, '').trim();
   if (data.simHtml) {
     simAppendMessage('assistant', (displayText ? displayText + '\n\n' : '') + '✓ Simulation updated — see preview →');
   } else {
-    simAppendMessage('assistant', displayText || data.reply);
+    // Never fall back to raw HTML — show stripped text or a neutral message
+    simAppendMessage('assistant', displayText || 'Done — check the preview panel.');
   }
 
   const n = document.getElementById('sim-turn-num');
@@ -1598,7 +1696,7 @@ async function simSendMessage() {
     iframe.srcdoc = data.simHtml;
     iframe.style.display = 'block';
     document.getElementById('sim-preview-empty').style.display = 'none';
-    document.getElementById('sim-use-btn').style.display = 'inline-block';
+    document.getElementById('sim-use-btn').style.display = 'inline-block'; document.getElementById('sim-dl-btn').style.display = 'inline-block';
   }
   document.getElementById('sim-input').focus();
 }
@@ -1610,10 +1708,28 @@ function simAccept() {
   closeSimBuilder();
 }
 
-function simAppendMessage(role, text) {
+function simDownload() {
+  const html = simBuiltHtml || simHtml;
+  if (!html) return;
+  const concept = (new URLSearchParams(location.search).get('concept') || 'simulation').replace(/\s+/g, '_');
+  const a = document.createElement('a');
+  a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+  a.download = concept + '_sim.html';
+  a.click();
+}
+
+function simAppendMessage(role, text, imageDataUrl = null) {
   const div = document.createElement('div');
   div.className = 'sim-msg sim-msg-' + role;
-  div.textContent = text;
+  if (imageDataUrl) {
+    const img = document.createElement('img');
+    img.src = imageDataUrl;
+    img.className = 'sim-msg-img';
+    div.appendChild(img);
+  }
+  const textNode = document.createElement('div');
+  textNode.textContent = text;
+  div.appendChild(textNode);
   const container = document.getElementById('sim-messages');
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
