@@ -25,7 +25,7 @@
   },
   {
     "concept_id": "lorentz_factor",
-    "title": "The Lorentz Factor γ: One Number to Rule All of Special Relativity",
+    "title": "The Lorentz Factor \u03b3: One Number to Rule All of Special Relativity",
     "author": "M. Chen",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/sims/sr.html"
   },
@@ -40,13 +40,6 @@
     "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
     "author": "T. Nguyen",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_transformation/index.html"
-  },
-  {
-    "concept_id": "em_waves",
-    "type": "ic",
-    "title": "Light as an Electromagnetic Wave",
-    "author": "Max Brunsfeld",
-    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/em_waves/light_as_an_electromagnetic_wave_max_brunsfeld.html"
   },
   {
     "concept_id": "em_waves",
