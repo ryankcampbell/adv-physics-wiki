@@ -910,9 +910,9 @@ function buildTable() {
 
   currentMod.concepts.forEach(c => {
     const s = currentStates[c.id] || {};
-    // IC certified = has an IC-type entry in contributions.json
+    // IC certified = has an IC-type entry in contributions.json (used as default only)
     const isCertified = currentContribs.some(x => x.concept_id === c.id && (!x.type || x.type === 'ic'));
-    const currentStatus = isCertified ? 'certified' : (s.status || 'unclaimed');
+    const currentStatus = s.status || (isCertified ? 'certified' : 'unclaimed');
 
     const row = document.createElement('tr');
     row.innerHTML = `
@@ -921,7 +921,7 @@ function buildTable() {
         <div class="concept-id">${c.id}</div>
       </td>
       <td>
-        <select class="status-sel ic-status-sel" data-id="${c.id}" ${isCertified ? 'disabled' : ''}>
+        <select class="status-sel ic-status-sel" data-id="${c.id}">
           ${STATUS_OPTIONS.map(opt =>
             `<option value="${opt}" ${opt === currentStatus ? 'selected' : ''}>${opt.replace('_',' ')}</option>`
           ).join('')}
