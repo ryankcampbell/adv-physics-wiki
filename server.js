@@ -6,7 +6,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '20mb' }));
 app.use(express.static(__dirname));
 
 // ── Google Drive auth ──────────────────────────────────────────────
@@ -525,21 +525,20 @@ function requireSimToken(req, res, next) {
 }
 
 // ── XSS sanitizer ──
-// KaTeX from jsDelivr is whitelisted: it is a read-only math renderer,
-// cannot exfiltrate data, and runs inside a sandboxed iframe anyway.
-const KATEX_CDN = 'cdn.jsdelivr.net/npm/katex';
+// Trusted CDNs: jsdelivr, cdnjs, unpkg — read-only library hosts, no data exfiltration risk.
+// fetch/XHR/WebSocket remain blocked to prevent sims from phoning home.
+const TRUSTED_CDNS = /https?:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|unpkg\.com|cdn\.plot\.ly)\//i;
 function sanitizeSimHtml(html) {
-  // Strip external src/href — but allow KaTeX CDN
-  html = html.replace(/(src|href)=["'](https?:\/\/(?!cdn\.jsdelivr\.net\/npm\/katex)[^"']*)["']/gi, '$1=""');
-  // Block network APIs in JS
+  // Block network APIs in JS (data exfiltration vectors)
   html = html.replace(/fetch\s*\(/gi,     '/* fetch blocked */ void(');
   html = html.replace(/XMLHttpRequest/gi, '/* XHR blocked */ Object');
   html = html.replace(/WebSocket\s*\(/gi, '/* WS blocked */ void(');
-  // Strip external <script src> — but allow KaTeX
-  html = html.replace(/<script([^>]+)src=["'](?!https?:\/\/cdn\.jsdelivr\.net\/npm\/katex)([^"']*)["']([^>]*)>/gi,
-    '<!-- external script blocked -->');
-  // Strip <link> — but allow KaTeX stylesheet
-  html = html.replace(/<link\b(?![^>]*cdn\.jsdelivr\.net\/npm\/katex)([^>]*)>/gi, '<!-- link blocked -->');
+  // Strip external <script src> — but allow trusted CDNs
+  html = html.replace(/<script([^>]+)src=["'](https?:\/\/[^"']*)["']([^>]*)>/gi, (m, pre, url, post) =>
+    TRUSTED_CDNS.test(url) ? m : '<!-- external script blocked -->');
+  // Strip <link> — but allow trusted CDNs
+  html = html.replace(/<link\b([^>]*)>/gi, (m, attrs) =>
+    TRUSTED_CDNS.test(attrs) ? m : '<!-- link blocked -->');
   return html;
 }
 
@@ -566,7 +565,9 @@ TECHNICAL RULES:
    \`\`\`
 4. Each new version replaces the entire file — always output the full HTML.
 5. Keep explanations short. The student wants to see the sim, not read a lecture.
+6. NEVER put explanation text inside the HTML body. Any description of what you built goes in your chat reply OUTSIDE the code fence — never as a <div> or <p> appended to the sim HTML itself.
 6. If the student describes something physically wrong, gently correct it and proceed with the correct physics.
+7. CRITICAL — canvas sizing: NEVER use canvas.offsetWidth or canvas.offsetHeight to set canvas dimensions (they return 0 inside iframes before layout). Always set explicit pixel values: canvas.width = 900; canvas.height = 500; Then use requestAnimationFrame to start drawing — never draw before the animation loop starts.
 
 VISUAL STYLE — follow this closely. Here is the design language used by the class:
 
@@ -585,7 +586,7 @@ h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
 .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
 .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
 .canvas-wrap { flex: 1; min-width: 0; }
-canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; }
+canvas { display: block; width: 100%; height: 500px; border-radius: 8px; background: #0d0d1a; max-width: 100%; }
 
 /* Control panel */
 .panel { background: #252540; padding: 12px; border-radius: 8px; }
@@ -635,7 +636,7 @@ app.post('/api/sim/auth', (req, res) => {
   res.json({ token });
 });
 
-// ── Route: Chat ──────────────────────────────────────────────────
+// ── Route: Chat (streaming SSE) ──────────────────────────────────
 app.post('/api/sim/chat', requireSimToken, async (req, res) => {
   const { messages } = req.body;
   const token = req.simToken;
@@ -646,26 +647,34 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
   }
   sessionTurns.set(token, turns + 1);
 
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  const send = (obj) => { if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`); };
+
   try {
     const activeModel = getActiveModel();
-    const response = await anthropic.messages.create({
+    const stream = anthropic.messages.stream({
       model: activeModel,
-      max_tokens: 4096,
+      max_tokens: 64000,
       system: SIM_SYSTEM_PROMPT,
       messages
     });
 
-    const reply        = response.content[0].text;
-    const inputTokens  = response.usage.input_tokens;
-    const outputTokens = response.usage.output_tokens;
+    stream.on('text', (text) => send({ type: 'text', delta: text }));
+    res.on('close', () => { try { stream.abort(); } catch {} });
 
-    // Extract sim HTML — match from <!DOCTYPE html or <html to end of code fence
-    // (robust to AI formatting variations in code fence headers)
+    const finalMsg     = await stream.finalMessage();
+    const reply        = finalMsg.content[0].text;
+    const inputTokens  = finalMsg.usage.input_tokens;
+    const outputTokens = finalMsg.usage.output_tokens;
+
+    // Extract sim HTML
     let simHtml = null;
     const htmlBodyMatch = reply.match(/<!DOCTYPE\s+html[\s\S]*|<html[\s\S]*/i);
     if (htmlBodyMatch) {
-      // Strip trailing code fence (``` or ````) and any trailing whitespace
-      const raw = htmlBodyMatch[0].replace(/\n?`{3,}\s*$/, '').trim();
+      const raw = htmlBodyMatch[0].replace(/\n`{3,}[\s\S]*$/, '').trim();
       simHtml = sanitizeSimHtml(raw);
     }
 
@@ -682,10 +691,12 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
     }
     writeSimLog(log);
 
-    res.json({ reply, simHtml });
+    send({ type: 'done', simHtml, reply });
+    res.end();
   } catch (e) {
     console.error('Sim chat error:', e);
-    res.status(500).json({ error: 'AI error: ' + e.message });
+    send({ type: 'error', message: e.message });
+    res.end();
   }
 });
 

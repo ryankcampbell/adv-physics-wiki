@@ -108,7 +108,7 @@
     .pv-rq { background: #eff6ff; border-left: 4px solid #2563eb; padding: 10px 14px; font-size: 0.88rem; font-style: italic; color: #1e3a5f; border-radius: 0 6px 6px 0; }
     .pv-p { margin-bottom: 8px; color: #334155; font-size: 0.83rem; line-height: 1.6; }
     .pv-sim { background: white; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 6px 0; }
-    .pv-sim-inner { height: 160px; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; color: #34d399; }
+    .pv-sim-inner { min-height: 160px; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; color: #34d399; }
     .pv-sim-cap { padding: 7px 10px; font-size: 0.73rem; color: #64748b; background: #f8fafc; border-top: 1px solid #e2e8f0; }
     .pv-cit { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; font-size: 0.78rem; }
     .pv-cit a { color: #15803d; font-weight: 600; }
@@ -157,6 +157,8 @@
     .sim-msg-system { background:#fef9c3; color:#92400e; align-self:center; font-size:0.78rem; font-style:italic; border-radius:6px; }
     .sim-msg-thinking { background:#f1f5f9; color:#94a3b8; align-self:flex-start; letter-spacing:4px; animation: simPulse 1.2s ease-in-out infinite; }
     @keyframes simPulse { 0%,100% { opacity:0.35; } 50% { opacity:1; } }
+    .sim-msg-streaming::after { content: '▋'; animation: simCursor 0.7s step-end infinite; color:#94a3b8; }
+    @keyframes simCursor { 0%,100% { opacity:1; } 50% { opacity:0; } }
     #sim-send-btn:disabled { background:#94a3b8; cursor:default; }
     #sim-turn-counter { padding:6px 14px; font-size:0.73rem; color:#94a3b8; border-top:1px solid #f1f5f9; }
     #sim-input { resize:none; border:none; border-top:1px solid #e2e8f0; padding:12px 14px; font-size:0.85rem; min-height:70px; font-family:inherit; outline:none; }
@@ -376,6 +378,29 @@ function dropSim(ev) {
   document.getElementById('sim-drop').classList.remove('over');
   loadSimFile(ev.dataTransfer.files[0]);
 }
+// ── Sim iframe auto-resize ────────────────────────────────────────
+// Injects a tiny script into the sim HTML that postMessages its scroll
+// height to the parent whenever the content resizes.
+function injectSimResize(html) {
+  // Two delayed shots (300ms and 1500ms) — no ResizeObserver to avoid feedback loops.
+  const script = `<script>(function(){
+    function _h(){var h=Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0);window.parent.postMessage({type:'sim-resize',height:h},'*');}
+    window.addEventListener('load',function(){setTimeout(_h,300);setTimeout(_h,1500);});
+  })();<\/script>`;
+  return /<\/body>/i.test(html) ? html.replace(/<\/body>/i, script + '</body>') : html + script;
+}
+// Only ever grow the iframe — never shrink (prevents feedback loops).
+window.addEventListener('message', function(e) {
+  if (!e.data || e.data.type !== 'sim-resize') return;
+  document.querySelectorAll('iframe').forEach(function(f) {
+    if (f.contentWindow === e.source) {
+      const newH = Math.min(900, Math.max(500, e.data.height + 40));
+      const curH = parseFloat(f.style.height) || 0;
+      if (newH > curH) f.style.height = newH + 'px';
+    }
+  });
+});
+
 function _simLoaded(html, name) {
   simHtml = html; simFileName = name;
   const d = document.getElementById('sim-drop');
@@ -459,8 +484,8 @@ function updateSimPreview() {
     wrap.style.display = '';
     if (!slot.querySelector('iframe')) {
       const iframe = document.createElement('iframe');
-      iframe.srcdoc = simHtml;
-      iframe.style.cssText = 'width:100%;height:480px;border:none;border-radius:6px;display:block';
+      iframe.srcdoc = injectSimResize(simHtml);
+      iframe.style.cssText = 'width:100%;height:650px;border:none;border-radius:6px;display:block';
       iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
       slot.innerHTML = '';
       slot.appendChild(iframe);
@@ -1473,12 +1498,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const blob = item.getAsFile();
         const reader = new FileReader();
         reader.onload = ev => {
-          const dataUrl = ev.target.result;
-          const [header, data] = dataUrl.split(',');
-          const mediaType = header.match(/data:([^;]+)/)[1];
-          pendingSimImg = { data, mediaType, dataUrl };
-          document.getElementById('sim-paste-img').src = dataUrl;
-          document.getElementById('sim-paste-preview').style.display = 'flex';
+          const original = ev.target.result;
+          const img = new Image();
+          img.onload = () => {
+            const MAX_W = 1200, MAX_H = 900;
+            const scale = Math.min(1, MAX_W / img.width, MAX_H / img.height);
+            const canvas = document.createElement('canvas');
+            canvas.width  = Math.round(img.width  * scale);
+            canvas.height = Math.round(img.height * scale);
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+            const [, data] = dataUrl.split(',');
+            pendingSimImg = { data, mediaType: 'image/jpeg', dataUrl };
+            document.getElementById('sim-paste-img').src = dataUrl;
+            document.getElementById('sim-paste-preview').style.display = 'flex';
+          };
+          img.src = original;
         };
         reader.readAsDataURL(blob);
         break;
@@ -1612,34 +1647,32 @@ async function simSendMessage() {
   simMessages.push({ role: 'user', content: msgContent });
   simAppendMessage('user', text || '(screenshot)', imgSnapshot?.dataUrl);
 
-  // Show animated thinking bubble
+  // Show thinking bubble briefly — replaced by streaming text on first token
+  const msgContainer = document.getElementById('sim-messages');
   const thinkingDiv = document.createElement('div');
   thinkingDiv.className = 'sim-msg sim-msg-thinking';
   thinkingDiv.id = 'sim-thinking';
   thinkingDiv.textContent = '● ● ●';
-  const msgContainer = document.getElementById('sim-messages');
   msgContainer.appendChild(thinkingDiv);
   msgContainer.scrollTop = msgContainer.scrollHeight;
-
-  // Update thinking bubble with elapsed time every 30s
-  const startTime = Date.now();
-  const tickInterval = setInterval(() => {
+  const _thinkStart = Date.now();
+  const _thinkTimer = setInterval(() => {
     const el = document.getElementById('sim-thinking');
-    if (!el) { clearInterval(tickInterval); return; }
-    const secs = Math.round((Date.now() - startTime) / 1000);
-    el.textContent = `● ● ● (${secs}s — still working…)`;
-  }, 30000);
+    if (!el) { clearInterval(_thinkTimer); return; }
+    el.textContent = `● ● ● (${Math.floor((Date.now() - _thinkStart) / 1000)}s…)`;
+  }, 1000);
 
-  const done = () => {
-    clearInterval(tickInterval);
+  const cleanup = () => {
+    clearInterval(_thinkTimer);
     document.getElementById('sim-thinking')?.remove();
+    document.getElementById('sim-streaming')?.remove();
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
   };
 
   const token = localStorage.getItem(SIM_TOKEN_KEY);
   const abortCtrl = new AbortController();
-  const timeoutId = setTimeout(() => abortCtrl.abort(), 90000); // 90s timeout
+  const timeoutId = setTimeout(() => abortCtrl.abort(), 180000);
   let r;
   try {
     r = await fetch('/api/sim/chat', {
@@ -1651,54 +1684,123 @@ async function simSendMessage() {
     clearTimeout(timeoutId);
   } catch(e) {
     clearTimeout(timeoutId);
-    done();
-    const msg = e.name === 'AbortError'
-      ? 'Request timed out after 90s — the AI may still be working. Try a simpler change.'
-      : 'Network error — is the server running?';
-    simAppendMessage('system', msg);
+    cleanup();
+    simAppendMessage('system', e.name === 'AbortError'
+      ? 'Request timed out — try a simpler change.'
+      : 'Network error — is the server running?');
     return;
   }
 
   if (r.status === 401) {
-    done();
+    cleanup();
     localStorage.removeItem(SIM_TOKEN_KEY);
     document.getElementById('sim-gate').style.display    = 'block';
     document.getElementById('sim-chat-ui').style.display = 'none';
     return;
   }
   if (r.status === 429) {
-    done();
+    cleanup();
     simAppendMessage('system', 'Turn limit reached. Click "Use this simulation" to insert it, or close and start fresh next session.');
     return;
   }
-
-  const data = await r.json();
-  done();
-  if (data.error) { simAppendMessage('system', 'Error: ' + data.error); return; }
-
-  simMessages.push({ role: 'assistant', content: data.reply });
-
-  // Strip code block before showing in chat — sim HTML goes to the preview, not here
-  const displayText = data.reply.replace(/`{3,}[\s\S]*?`{3,}/gi, '').trim();
-  if (data.simHtml) {
-    simAppendMessage('assistant', (displayText ? displayText + '\n\n' : '') + '✓ Simulation updated — see preview →');
-  } else {
-    // Never fall back to raw HTML — show stripped text or a neutral message
-    simAppendMessage('assistant', displayText || 'Done — check the preview panel.');
+  if (!r.ok) {
+    cleanup();
+    const errText = r.status === 413
+      ? 'Request too large — screenshot may be too big. Try a smaller crop.'
+      : `Server error (${r.status}). Please try again.`;
+    simAppendMessage('system', errText);
+    return;
   }
 
-  const n = document.getElementById('sim-turn-num');
-  n.textContent = parseInt(n.textContent) + 1;
+  // ── SSE stream reader ─────────────────────────────────────────
+  const reader  = r.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '', streamedText = '', streamDiv = null;
 
-  if (data.simHtml) {
-    simBuiltHtml = data.simHtml;
-    const iframe = document.getElementById('sim-builder-preview');
-    iframe.srcdoc = data.simHtml;
-    iframe.style.display = 'block';
-    document.getElementById('sim-preview-empty').style.display = 'none';
-    document.getElementById('sim-use-btn').style.display = 'inline-block'; document.getElementById('sim-dl-btn').style.display = 'inline-block';
+  function getStreamDiv() {
+    if (!streamDiv) {
+      document.getElementById('sim-thinking')?.remove();
+      streamDiv = document.createElement('div');
+      streamDiv.className = 'sim-msg sim-msg-assistant sim-msg-streaming';
+      streamDiv.id = 'sim-streaming';
+      msgContainer.appendChild(streamDiv);
+    }
+    return streamDiv;
   }
-  document.getElementById('sim-input').focus();
+
+  function updateStreamDiv() {
+    const d = getStreamDiv();
+    // Remove complete code blocks from display; detect if we're inside an open block
+    const noComplete  = streamedText.replace(/`{3,}[\s\S]*?`{3,}/g, '');
+    const inCodeBlock = (noComplete.match(/`{3,}/g) || []).length % 2 === 1;
+    const displayText = noComplete.replace(/`{3,}[\s\S]*/g, '').trim();
+    if (inCodeBlock) {
+      const linesWritten = (streamedText.match(/\n/g) || []).length;
+      d.textContent = (displayText ? displayText + '\n\n' : '') + `⟳ Writing code… (${linesWritten} lines)`;
+    } else {
+      d.textContent = displayText || '⟳ Thinking…';
+    }
+    msgContainer.scrollTop = msgContainer.scrollHeight;
+  }
+
+  function finalizeMessage(reply, simHtml) {
+    if (streamDiv) { streamDiv.remove(); streamDiv = null; }
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send';
+    // Store only the text part in history — keep latest HTML in simMessages[0] instead
+    const replyText = reply.replace(/`{3,}[\s\S]*?`{3,}/gi, '').trim();
+    simMessages.push({ role: 'assistant', content: replyText || 'Simulation updated.' });
+    // Always keep messages[0] pointing to the latest sim HTML so history stays lean
+    if (simHtml && simMessages.length > 0 && simMessages[0].role === 'user') {
+      simMessages[0] = { role: 'user', content: `Here is the current simulation HTML:\n\`\`\`html\n${simHtml}\n\`\`\`` };
+    }
+    const displayText = replyText;
+    simAppendMessage('assistant', simHtml
+      ? (displayText ? displayText + '\n\n' : '') + '✓ Simulation updated — see preview →'
+      : displayText || 'Done — check the preview panel.');
+    const n = document.getElementById('sim-turn-num');
+    n.textContent = parseInt(n.textContent) + 1;
+    if (simHtml) {
+      simBuiltHtml = simHtml;
+      const iframe = document.getElementById('sim-builder-preview');
+      iframe.srcdoc = simHtml;
+      iframe.style.display = 'block';
+      document.getElementById('sim-preview-empty').style.display = 'none';
+      document.getElementById('sim-use-btn').style.display = 'inline-block';
+      document.getElementById('sim-dl-btn').style.display = 'inline-block';
+    }
+    document.getElementById('sim-input').focus();
+  }
+
+  try {
+    while (true) {
+      const { done: readerDone, value } = await reader.read();
+      if (readerDone) break;
+      buf += decoder.decode(value, { stream: true });
+      const parts = buf.split('\n\n');
+      buf = parts.pop();
+      for (const part of parts) {
+        const line = part.trim();
+        if (!line.startsWith('data: ')) continue;
+        let data;
+        try { data = JSON.parse(line.slice(6)); } catch { continue; }
+        if (data.type === 'text') {
+          streamedText += data.delta;
+          updateStreamDiv();
+        } else if (data.type === 'error') {
+          cleanup();
+          simAppendMessage('system', 'Error: ' + data.message);
+          return;
+        } else if (data.type === 'done') {
+          finalizeMessage(data.reply, data.simHtml);
+          return;
+        }
+      }
+    }
+  } catch(e) {
+    cleanup();
+    simAppendMessage('system', e.name === 'AbortError' ? 'Request cancelled.' : 'Stream error: ' + e.message);
+  }
 }
 
 function simAccept() {
