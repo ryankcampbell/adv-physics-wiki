@@ -179,6 +179,8 @@
     #sim-dl-btn:hover { background:#0c6b80; }
     #sim-cancel-btn { background:none; border:1px solid #e2e8f0 !important; color:#64748b; margin-left:auto; }
     #sim-cancel-btn:hover { background:#f1f5f9; }
+    #sim-undo-btn { background:none; border:1px solid #e2e8f0 !important; color:#64748b; }
+    #sim-undo-btn:hover { background:#fef3c7; border-color:#f59e0b !important; color:#92400e; }
     /* Preview pane */
     #sim-preview-pane { flex:1; display:flex; flex-direction:column; background:#0f172a; min-width:0; min-height:0; overflow:hidden; }
     #sim-preview-pane-label { padding:8px 14px; font-size:0.72rem; color:#64748b; background:#f8fafc; border-bottom:1px solid #e2e8f0; flex-shrink:0; }
@@ -356,6 +358,7 @@ const CLIENT_ID   = '589102998193-ucko1h50efrql2oku8h4rb7t3lm6lrk5.apps.googleus
 const FOLDER_ID   = '1zu-3Yc0o94EJiFKxOIYJY-_CGjr0USiB';
 
 let simHtml = null, simFileName = '', citN = 0, tokenClient = null, timer = null;
+let simHistory = [];  // undo stack for sim builder
 let hwQN = 0;
 
 // ── Mode detection ─────────────────────────────────────────────────
@@ -1468,6 +1471,7 @@ initMode();
           <button id="sim-send-btn" onclick="simSendMessage()">Send</button>
           <button id="sim-use-btn" style="display:none" onclick="simAccept()">✓ Use this simulation</button>
           <button id="sim-dl-btn" style="display:none" onclick="simDownload()">⬇ Download</button>
+          <button id="sim-undo-btn" style="display:none" onclick="simUndo()">↩ Undo</button>
           <button id="sim-cancel-btn" onclick="closeSimBuilder()">Cancel</button>
         </div>
       </div>
@@ -1531,6 +1535,7 @@ function clearSimPaste() {
 function openSimBuilder() {
   simMessages  = [];
   simBuiltHtml = null;
+  simHistory   = [];
   document.getElementById('sim-messages').innerHTML = '';
   document.getElementById('sim-turn-num').textContent = '0';
   document.getElementById('sim-use-btn').style.display = 'none';
@@ -1542,6 +1547,7 @@ function openSimBuilder() {
 
   // If sim already loaded, pre-populate context for edit mode
   if (simHtml) {
+    simBuiltHtml = simHtml;  // seed undo stack with the original
     document.getElementById('sim-builder-title').textContent = '✦ AI Sim Editor';
     simMessages = [
       { role: 'user', content: 'Here is my current simulation HTML:\n\n```html\n' + simHtml + '\n```\n\nI want to continue working on it.' },
@@ -1743,24 +1749,30 @@ async function simSendMessage() {
     msgContainer.scrollTop = msgContainer.scrollHeight;
   }
 
-  function finalizeMessage(reply, simHtml) {
+  function finalizeMessage(reply, simHtml, patchApplied) {
+    clearInterval(_thinkTimer);
     if (streamDiv) { streamDiv.remove(); streamDiv = null; }
     sendBtn.disabled = false;
     sendBtn.textContent = 'Send';
     // Store only the text part in history — keep latest HTML in simMessages[0] instead
-    const replyText = reply.replace(/`{3,}[\s\S]*?`{3,}/gi, '').trim();
+    const replyText = reply ? reply.replace(/`{3,}[\s\S]*?`{3,}/gi, '').trim() : '';
     simMessages.push({ role: 'assistant', content: replyText || 'Simulation updated.' });
     // Always keep messages[0] pointing to the latest sim HTML so history stays lean
     if (simHtml && simMessages.length > 0 && simMessages[0].role === 'user') {
       simMessages[0] = { role: 'user', content: `Here is the current simulation HTML:\n\`\`\`html\n${simHtml}\n\`\`\`` };
     }
-    const displayText = replyText;
-    simAppendMessage('assistant', simHtml
-      ? (displayText ? displayText + '\n\n' : '') + '✓ Simulation updated — see preview →'
-      : displayText || 'Done — check the preview panel.');
+    const statusLine = simHtml
+      ? (patchApplied ? '⚡ Quick edit applied — see preview →' : '✓ Simulation updated — see preview →')
+      : null;
+    simAppendMessage('assistant',
+      replyText
+        ? (statusLine ? replyText + '\n\n' + statusLine : replyText)
+        : (statusLine || 'Done — check the preview panel.'));
     const n = document.getElementById('sim-turn-num');
     n.textContent = parseInt(n.textContent) + 1;
     if (simHtml) {
+      // Push previous version to undo stack before overwriting
+      if (simBuiltHtml) simHistory.push(simBuiltHtml);
       simBuiltHtml = simHtml;
       const iframe = document.getElementById('sim-builder-preview');
       iframe.srcdoc = simHtml;
@@ -1768,8 +1780,18 @@ async function simSendMessage() {
       document.getElementById('sim-preview-empty').style.display = 'none';
       document.getElementById('sim-use-btn').style.display = 'inline-block';
       document.getElementById('sim-dl-btn').style.display = 'inline-block';
+      document.getElementById('sim-undo-btn').style.display = simHistory.length ? 'inline-block' : 'none';
     }
     document.getElementById('sim-input').focus();
+  }
+
+  function simUndo() {
+    if (!simHistory.length) return;
+    simBuiltHtml = simHistory.pop();
+    const iframe = document.getElementById('sim-builder-preview');
+    iframe.srcdoc = simBuiltHtml;
+    document.getElementById('sim-undo-btn').style.display = simHistory.length ? 'inline-block' : 'none';
+    simAppendMessage('system', '↩ Restored previous version.');
   }
 
   try {
@@ -1792,7 +1814,7 @@ async function simSendMessage() {
           simAppendMessage('system', 'Error: ' + data.message);
           return;
         } else if (data.type === 'done') {
-          finalizeMessage(data.reply, data.simHtml);
+          finalizeMessage(data.reply, data.simHtml, data.patchApplied);
           return;
         }
       }

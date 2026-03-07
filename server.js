@@ -16,6 +16,26 @@ const auth = new google.auth.GoogleAuth({
 });
 const drive = google.drive({ version: 'v3', auth });
 
+// ── Admin auth ─────────────────────────────────────────────────────
+const adminSessions = new Map();
+function requireAdmin(req, res, next) {
+  const token = req.headers.authorization?.slice(7);
+  if (!token || !adminSessions.has(token)) return res.status(401).json({ error: 'Admin auth required' });
+  next();
+}
+app.post('/api/admin/auth', (req, res) => {
+  const { password } = req.body;
+  const adminPw = readSimSettings().adminPassword || 'admin';
+  if (password !== adminPw) return res.status(401).json({ error: 'Wrong password' });
+  const token = require('crypto').randomUUID();
+  adminSessions.set(token, true);
+  res.json({ token });
+});
+app.get('/api/admin/verify', (req, res) => {
+  const token = req.headers.authorization?.slice(7);
+  res.json({ ok: !!(token && adminSessions.has(token)) });
+});
+
 // ── Dismissed file IDs ─────────────────────────────────────────────
 const DISMISSED_PATH = path.join(__dirname, 'state', 'dismissed.json');
 function readDismissed() {
@@ -170,7 +190,7 @@ app.get('/api/drive/pending', async (req, res) => {
 });
 
 // ── Dismiss / restore a file from the inbox ────────────────────────
-app.post('/api/drive/dismiss', (req, res) => {
+app.post('/api/drive/dismiss', requireAdmin, (req, res) => {
   const { fileId } = req.body;
   if (!fileId) return res.status(400).json({ error: 'Missing fileId' });
   const ids = readDismissed();
@@ -178,7 +198,7 @@ app.post('/api/drive/dismiss', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/drive/undismiss', (req, res) => {
+app.post('/api/drive/undismiss', requireAdmin, (req, res) => {
   const { fileId } = req.body;
   if (!fileId) return res.status(400).json({ error: 'Missing fileId' });
   writeDismissed(readDismissed().filter(id => id !== fileId));
@@ -200,7 +220,7 @@ app.get('/api/drive/preview/:fileId', async (req, res) => {
 });
 
 // ── Publish: download → save → update state.json + contributions.json → git push ──
-app.post('/api/publish', async (req, res) => {
+app.post('/api/publish', requireAdmin, async (req, res) => {
   const { fileId, conceptId, label, decision, feedback } = req.body;
   if (!fileId || !conceptId) return res.status(400).json({ error: 'Missing fileId or conceptId' });
 
@@ -303,7 +323,7 @@ app.post('/api/publish', async (req, res) => {
 });
 
 // ── Push state.json directly ───────────────────────────────────────
-app.post('/api/push-state', (req, res) => {
+app.post('/api/push-state', requireAdmin, (req, res) => {
   const { state } = req.body;
   if (!Array.isArray(state)) return res.status(400).json({ error: 'state must be an array' });
   try {
@@ -364,7 +384,7 @@ app.post('/api/claim', (req, res) => {
 });
 
 // ── Add concept to module JSON + push ─────────────────────────────
-app.post('/api/add-concept', (req, res) => {
+app.post('/api/add-concept', requireAdmin, (req, res) => {
   const { moduleFile, concept } = req.body;
   if (!moduleFile || !concept || !concept.id || !concept.name) {
     return res.status(400).json({ error: 'Missing moduleFile or concept fields' });
@@ -542,6 +562,32 @@ function sanitizeSimHtml(html) {
   return html;
 }
 
+// ── Edit-mode prompt ──
+const SIM_EDIT_PROMPT = `You are a physics simulation editor for a high school Advanced Physics class. You are making targeted edits to an existing student simulation. The current HTML is provided in the first message.
+
+SAFETY RULES — NON-NEGOTIABLE:
+- You only help with physics or mathematics simulations. Refuse anything else.
+- Never produce content inappropriate for a high school classroom.
+- Never include fetch(), XMLHttpRequest(), WebSocket(), or any network requests.
+
+EDIT FORMAT — FOLLOW THIS EXACTLY:
+
+For simple changes (relabeling text, changing colors, adjusting numbers, small bug fixes):
+  You may write one brief sentence describing the change (no markdown, no asterisks), then output a JSON array of edit operations.
+  Format:
+  Changed the label from "X" to "Y".
+  [{"old": "exact string from HTML", "new": "replacement string"}]
+
+  Rules:
+  - Copy the "old" value CHARACTER FOR CHARACTER from the simulation HTML — whitespace and all
+  - Multiple operations are fine: [{"old":"...", "new":"..."}, ...]
+  - Do NOT output any HTML. Only the optional sentence + JSON array.
+
+For large structural changes (adding a new major feature, restructuring layout, rewriting core logic):
+  Write {"full_regen": true} on the first line, then output the complete updated HTML in a \`\`\`html fence.
+
+When in doubt, use the JSON patch format — it is faster and more reliable.`;
+
 // ── System prompt ──
 const SIM_SYSTEM_PROMPT = `You are a physics and mathematics simulation builder for a high school Advanced Physics research class. Students use you to build interactive HTML/JS simulations that accompany their Insight Card research projects.
 
@@ -626,26 +672,93 @@ WHAT MAKES A GREAT SIMULATION:
 WHAT YOU ARE BUILDING FOR:
 These simulations accompany student research projects (Insight Cards) in a high school Advanced Physics class. Students explore physics concepts through original research and build sims to illustrate their findings. The sims should be physically accurate, aesthetically polished, and suitable for sharing with the class as part of the student's published IC.`;
 
+// ── Daily turn limit (persisted, resets at midnight) ─────────────
+const DAILY_LIMITS_PATH = path.join(__dirname, 'state', 'daily-limits.json');
+const DAILY_MAX_TURNS = 20;
+
+function _dailyKey(name) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `${name.toLowerCase().trim()}_${today}`;
+}
+function getDailyTurns(name) {
+  try { return JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8'))[_dailyKey(name)] || 0; }
+  catch { return 0; }
+}
+function incrementDailyTurns(name) {
+  let data = {};
+  try { data = JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8')); } catch {}
+  const key = _dailyKey(name);
+  data[key] = (data[key] || 0) + 1;
+  // Prune entries older than 7 days
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  for (const k of Object.keys(data)) { if (k.split('_').pop() < cutoffStr) delete data[k]; }
+  fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
+  fs.writeFileSync(DAILY_LIMITS_PATH, JSON.stringify(data, null, 2));
+  return data[key];
+}
+
 // ── Route: Auth ──────────────────────────────────────────────────
 app.post('/api/sim/auth', (req, res) => {
   const { name, password } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: 'Name required' });
-  if (password !== readSimSettings().password) return res.status(401).json({ error: 'Wrong password' });
+  const settings = readSimSettings();
+  if (password !== settings.password) return res.status(401).json({ error: 'Wrong password' });
+  // If approved list exists, enforce it
+  const students = settings.students || {};
+  const nameKey = name.trim().toLowerCase();
+  if (Object.keys(students).length > 0 && !(nameKey in students)) {
+    return res.status(403).json({ error: 'Name not on the approved list — check spelling or ask your teacher.' });
+  }
   const token = require('crypto').randomUUID();
   simSessions.set(token, { studentName: name.trim(), expires: Date.now() + 8 * 60 * 60 * 1000 });
   res.json({ token });
 });
+
+// ── Patch helper ──
+function applyPatches(html, ops) {
+  let result = html;
+  for (const op of ops) {
+    if (!result.includes(op.old)) {
+      console.warn('[patch] string not found:', JSON.stringify(op.old).slice(0, 80));
+      return null;
+    }
+    result = result.split(op.old).join(op.new);
+  }
+  return result;
+}
 
 // ── Route: Chat (streaming SSE) ──────────────────────────────────
 app.post('/api/sim/chat', requireSimToken, async (req, res) => {
   const { messages } = req.body;
   const token = req.simToken;
 
+  const settings = readSimSettings();
+  const studentLimit = settings.students?.[req.simStudent.toLowerCase()] ?? DAILY_MAX_TURNS;
+  const dailyTurns = getDailyTurns(req.simStudent);
+  if (dailyTurns >= studentLimit) {
+    return res.status(429).json({ error: `Daily turn limit (${studentLimit}) reached. Come back tomorrow!` });
+  }
+  incrementDailyTurns(req.simStudent);
+
+  // Also enforce per-session cap as a secondary guard
   const turns = sessionTurns.get(token) || 0;
   if (turns >= MAX_TURNS) {
-    return res.status(429).json({ error: `Turn limit (${MAX_TURNS}) reached for this session.` });
+    return res.status(429).json({ error: `Session limit reached — close and reopen the sim builder to continue (subject to daily limit).` });
   }
   sessionTurns.set(token, turns + 1);
+
+  // Detect edit mode: first message contains existing sim HTML
+  const isEditMode = messages.length >= 2 &&
+    typeof messages[0]?.content === 'string' &&
+    messages[0].content.includes('current simulation HTML');
+
+  // Extract current HTML for patching
+  let currentSimHtml = null;
+  if (isEditMode) {
+    const m = messages[0].content.match(/```html\n([\s\S]*?)\n```/);
+    currentSimHtml = m ? m[1] : null;
+  }
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -654,11 +767,12 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
   const send = (obj) => { if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`); };
 
   try {
-    const activeModel = getActiveModel();
+    // Edits always use Sonnet for spatial/geometric reasoning; creation uses admin-configured model
+    const activeModel = isEditMode ? SIM_MODELS['sonnet'] : getActiveModel();
     const stream = anthropic.messages.stream({
       model: activeModel,
       max_tokens: 64000,
-      system: SIM_SYSTEM_PROMPT,
+      system: isEditMode ? SIM_EDIT_PROMPT : SIM_SYSTEM_PROMPT,
       messages
     });
 
@@ -666,21 +780,48 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
     res.on('close', () => { try { stream.abort(); } catch {} });
 
     const finalMsg     = await stream.finalMessage();
-    const reply        = finalMsg.content[0].text;
+    const rawReply     = finalMsg.content[0].text;
     const inputTokens  = finalMsg.usage.input_tokens;
     const outputTokens = finalMsg.usage.output_tokens;
 
-    // Extract sim HTML
+    // ── Try JSON patch (edit mode only) ──────────────────────────
     let simHtml = null;
-    const htmlBodyMatch = reply.match(/<!DOCTYPE\s+html[\s\S]*|<html[\s\S]*/i);
-    if (htmlBodyMatch) {
-      const raw = htmlBodyMatch[0].replace(/\n`{3,}[\s\S]*$/, '').trim();
-      simHtml = sanitizeSimHtml(raw);
+    let reply   = rawReply;
+    let patchApplied = false;
+
+    if (isEditMode && currentSimHtml && !rawReply.trimStart().startsWith('{"full_regen"')) {
+      const jsonMatch = rawReply.match(/\[[\s\S]*?\]/);
+      if (jsonMatch) {
+        try {
+          const ops = JSON.parse(jsonMatch[0]);
+          if (Array.isArray(ops) && ops.length > 0 && ops[0]?.old !== undefined) {
+            const patched = applyPatches(currentSimHtml, ops);
+            if (patched) {
+              simHtml = sanitizeSimHtml(patched);
+              patchApplied = true;
+              // Extract the human-readable sentence before the JSON (if any)
+              const preText = rawReply.slice(0, rawReply.indexOf(jsonMatch[0])).trim();
+              reply = preText || `Applied ${ops.length} edit${ops.length > 1 ? 's' : ''}.`;
+            }
+          }
+        } catch (e) {
+          console.warn('[patch] JSON parse failed:', e.message);
+        }
+      }
+    }
+
+    // ── Fall back to full HTML extraction ────────────────────────
+    if (!simHtml) {
+      const htmlBodyMatch = rawReply.match(/<!DOCTYPE\s+html[\s\S]*|<html[\s\S]*/i);
+      if (htmlBodyMatch) {
+        const raw = htmlBodyMatch[0].replace(/\n`{3,}[\s\S]*$/, '').trim();
+        simHtml = sanitizeSimHtml(raw);
+      }
     }
 
     const log      = readSimLog();
     const existing = log.find(s => s.token === token);
-    const entry    = { timestamp: new Date().toISOString(), inputTokens, outputTokens, hasSim: !!simHtml, model: activeModel };
+    const entry    = { timestamp: new Date().toISOString(), inputTokens, outputTokens, hasSim: !!simHtml, model: activeModel, patched: patchApplied };
     if (existing) {
       existing.turns.push(entry);
       existing.totalInputTokens  = (existing.totalInputTokens  || 0) + inputTokens;
@@ -691,7 +832,7 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
     }
     writeSimLog(log);
 
-    send({ type: 'done', simHtml, reply });
+    send({ type: 'done', simHtml, reply, patchApplied });
     res.end();
   } catch (e) {
     console.error('Sim chat error:', e);
@@ -701,16 +842,16 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
 });
 
 // ── Route: Usage log (admin) ─────────────────────────────────────
-app.get('/api/sim/log', (req, res) => {
+app.get('/api/sim/log', requireAdmin, (req, res) => {
   res.json(readSimLog());
 });
 
 // ── Route: Settings — model + password (admin) ───────────────────
-app.get('/api/sim/settings', (req, res) => {
+app.get('/api/sim/settings', requireAdmin, (req, res) => {
   res.json(readSimSettings());
 });
 
-app.post('/api/sim/settings', (req, res) => {
+app.post('/api/sim/settings', requireAdmin, (req, res) => {
   const current = readSimSettings();
   const updated = { ...current };
   if (req.body.model !== undefined) {
@@ -727,6 +868,49 @@ app.post('/api/sim/settings', (req, res) => {
   }
   writeSimSettings(updated);
   res.json({ ok: true });
+});
+
+// ── Route: Student roster ─────────────────────────────────────────
+// GET  /api/sim/students            → { students: { name: limit, ... } }
+// POST /api/sim/students/add        → { name, limit }
+// POST /api/sim/students/remove     → { name }
+// POST /api/sim/students/setLimit   → { name, limit }
+app.get('/api/sim/students', requireAdmin, (req, res) => {
+  res.json({ students: readSimSettings().students || {} });
+});
+app.post('/api/sim/students/add', requireAdmin, (req, res) => {
+  const name = req.body.name?.trim().toLowerCase();
+  const limit = parseInt(req.body.limit) || DAILY_MAX_TURNS;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const s = readSimSettings();
+  s.students = s.students || {};
+  s.students[name] = limit;
+  writeSimSettings(s);
+  res.json({ ok: true });
+});
+app.post('/api/sim/students/remove', requireAdmin, (req, res) => {
+  const name = req.body.name?.trim().toLowerCase();
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const s = readSimSettings();
+  if (s.students) delete s.students[name];
+  writeSimSettings(s);
+  res.json({ ok: true });
+});
+app.post('/api/sim/students/setLimit', requireAdmin, (req, res) => {
+  const name = req.body.name?.trim().toLowerCase();
+  const limit = parseInt(req.body.limit);
+  if (!name || isNaN(limit)) return res.status(400).json({ error: 'Name and limit required' });
+  const s = readSimSettings();
+  if (!s.students?.[name]) return res.status(404).json({ error: 'Student not found' });
+  s.students[name] = limit;
+  writeSimSettings(s);
+  res.json({ ok: true });
+});
+
+// ── Route: Daily usage per student (for admin display) ────────────
+app.get('/api/sim/daily', requireAdmin, (req, res) => {
+  try { res.json(JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8'))); }
+  catch { res.json({}); }
 });
 
 // ── Start ──────────────────────────────────────────────────────────

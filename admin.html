@@ -380,6 +380,23 @@
 </head>
 <body>
 
+<!-- ── Admin auth overlay ── -->
+<div id="admin-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.97);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:12px;padding:36px 40px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;">
+    <div style="font-size:2rem;margin-bottom:8px;">🔒</div>
+    <h2 style="margin:0 0 6px;font-size:1.2rem;color:#1e293b">Admin Access</h2>
+    <p style="margin:0 0 20px;font-size:0.82rem;color:#64748b">Enter the admin password to continue</p>
+    <input id="admin-pw-input" type="password" placeholder="Admin password"
+      style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;margin-bottom:10px;outline:none;box-sizing:border-box;"
+      onkeydown="if(event.key==='Enter')adminLogin()" />
+    <div id="admin-pw-error" style="color:#dc2626;font-size:0.78rem;min-height:18px;margin-bottom:8px;"></div>
+    <button onclick="adminLogin()"
+      style="width:100%;padding:10px;background:#4a6a9a;color:white;border:none;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;">
+      Sign In
+    </button>
+  </div>
+</div>
+
 <div id="header">
   <h1>PM Admin Panel</h1>
   <span style="font-size:0.78rem;color:rgba(255,255,255,0.5)">Manage node states · Advanced Physics Wiki</span>
@@ -532,6 +549,40 @@
           <span id="sim-pw-status"></span>
         </div>
       </div>
+      <!-- Student roster -->
+      <div class="sim-control-group" style="margin-top:8px;">
+        <label>Approved students <span style="font-weight:400;text-transform:none;color:#94a3b8">(leave empty to allow any name)</span></label>
+        <table id="roster-table" style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:6px 0;">
+          <thead><tr style="color:#94a3b8;text-align:left;">
+            <th style="padding:4px 8px;">Name</th>
+            <th style="padding:4px 8px;">Daily limit</th>
+            <th style="padding:4px 8px;">Used today</th>
+            <th style="padding:4px 8px;"></th>
+          </tr></thead>
+          <tbody id="roster-tbody"></tbody>
+        </table>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px;">
+          <input id="roster-name-input" type="text" placeholder="Student name" spellcheck="false"
+            style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.83rem;flex:1;" />
+          <input id="roster-limit-input" type="number" value="20" min="1" max="100"
+            style="padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.83rem;width:70px;" />
+          <button onclick="rosterAdd()" style="padding:6px 14px;background:#4a6a9a;color:white;border:none;border-radius:6px;font-size:0.83rem;cursor:pointer;">Add</button>
+        </div>
+        <span id="roster-status" style="font-size:0.75rem;color:#16a34a;min-height:16px;display:block;margin-top:3px;"></span>
+      </div>
+
+      <!-- Whitelisted CDNs -->
+      <div class="sim-control-group" style="margin-top:8px;">
+        <label>Whitelisted script sources</label>
+        <div style="font-size:0.78rem;color:#475569;line-height:1.7;margin-top:4px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;">
+          <div>✓ <code>cdn.jsdelivr.net</code></div>
+          <div>✓ <code>cdnjs.cloudflare.com</code> <span style="color:#94a3b8">(includes math.js, three.js, d3, …)</span></div>
+          <div>✓ <code>unpkg.com</code> <span style="color:#94a3b8">(includes math.js, p5.js, …)</span></div>
+          <div>✓ <code>cdn.plot.ly</code> <span style="color:#94a3b8">(Plotly charts)</span></div>
+          <div style="margin-top:6px;color:#94a3b8;font-size:0.73rem;">All other external scripts are stripped. fetch(), XHR, and WebSocket calls are blocked in all sim output.</div>
+        </div>
+      </div>
+
       <table id="sim-log-table">
         <thead><tr>
           <th>Student</th><th>Started</th><th>Turns</th><th>Model</th><th>Est. cost</th><th>Sim?</th>
@@ -558,6 +609,56 @@
 </div>
 
 <script>
+// ── Admin auth ─────────────────────────────────────────────────────
+const ADMIN_TOKEN_KEY = 'admin-session-token';
+
+function adminFetch(url, options = {}) {
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+  return fetch(url, {
+    ...options,
+    headers: { ...(options.headers || {}), 'Authorization': 'Bearer ' + token }
+  });
+}
+
+async function adminLogin() {
+  const pw = document.getElementById('admin-pw-input').value;
+  const errEl = document.getElementById('admin-pw-error');
+  errEl.textContent = '';
+  try {
+    const r = await fetch('/api/admin/auth', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await r.json();
+    if (!r.ok) { errEl.textContent = data.error || 'Wrong password'; return; }
+    localStorage.setItem(ADMIN_TOKEN_KEY, data.token);
+    document.getElementById('admin-overlay').style.display = 'none';
+    initAdmin();
+  } catch(e) { errEl.textContent = 'Server not reachable'; }
+}
+
+async function checkAdminAuth() {
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (!token) { showAdminOverlay(); return; }
+  try {
+    const r = await fetch('/api/admin/verify', { headers: { 'Authorization': 'Bearer ' + token } });
+    const { ok } = await r.json();
+    if (!ok) { localStorage.removeItem(ADMIN_TOKEN_KEY); showAdminOverlay(); return; }
+    initAdmin();
+  } catch { showAdminOverlay(); }
+}
+
+function showAdminOverlay() {
+  document.getElementById('admin-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('admin-pw-input').focus(), 100);
+}
+
+// Called once auth is confirmed — kicks off the normal page init
+function initAdmin() {
+  loadModule('modules/special_relativity.json');
+  loadDrive();
+}
+
 // ── DRIVE INBOX ────────────────────────────────────────────────────
 let allConcepts = [];   // populated when module loads — used for concept selector
 let serverOnline = false;
@@ -754,7 +855,7 @@ function detectSuperseded() {
 async function dismissFile(fileId, btn) {
   const row = btn.closest('.drive-row');
   try {
-    await fetch('http://localhost:3000/api/drive/dismiss', {
+    await adminFetch('http://localhost:3000/api/drive/dismiss', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileId })
     });
@@ -765,7 +866,7 @@ async function dismissFile(fileId, btn) {
 
 async function restoreFile(fileId, btn) {
   try {
-    await fetch('http://localhost:3000/api/drive/undismiss', {
+    await adminFetch('http://localhost:3000/api/drive/undismiss', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileId })
     });
@@ -830,7 +931,7 @@ async function publishFile(fileId, btn) {
   btn.textContent = 'Publishing…';
 
   try {
-    const res = await fetch('http://localhost:3000/api/publish', {
+    const res = await adminFetch('http://localhost:3000/api/publish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ fileId, conceptId, label, decision, feedback })
@@ -1024,7 +1125,7 @@ async function pushState() {
   btn.disabled = true;
   status.textContent = 'Pushing…';
   try {
-    const res = await fetch('/api/push-state', {
+    const res = await adminFetch('/api/push-state', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ state: await mergedStateArray() })
@@ -1072,7 +1173,7 @@ async function upholdAT() {
   if (idx >= 0) stateArr[idx] = patch; else stateArr.push(patch);
 
   try {
-    const res  = await fetch('/api/push-state', {
+    const res  = await adminFetch('/api/push-state', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ state: stateArr })
     });
@@ -1116,7 +1217,7 @@ async function acceptAT() {
   if (idx >= 0) stateArr[idx] = patch; else stateArr.push(patch);
 
   try {
-    const res  = await fetch('/api/push-state', {
+    const res  = await adminFetch('/api/push-state', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ state: stateArr })
     });
@@ -1190,7 +1291,7 @@ async function submitNewConcept() {
   const concept = { id, name, level, description: desc, prerequisites: prereqs };
 
   try {
-    const res = await fetch('http://localhost:3000/api/add-concept', {
+    const res = await adminFetch('http://localhost:3000/api/add-concept', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ moduleFile, concept })
@@ -1292,10 +1393,12 @@ function toggleSim() {
 
 async function loadSimLog() {
   try {
-    const [logData, settings] = await Promise.all([
-      fetch('/api/sim/log').then(r => r.json()),
-      fetch('/api/sim/settings').then(r => r.json())
+    const [logData, settings, daily] = await Promise.all([
+      adminFetch('/api/sim/log').then(r => r.json()),
+      adminFetch('/api/sim/settings').then(r => r.json()),
+      adminFetch('/api/sim/daily').then(r => r.json())
     ]);
+    renderRoster(settings.students || {}, daily);
 
     // Sync model radio
     const radio = document.querySelector(`input[name="sim-model"][value="${settings.model}"]`);
@@ -1334,10 +1437,62 @@ async function loadSimLog() {
   }
 }
 
+// ── Roster helpers ──────────────────────────────────────────────────
+function renderRoster(students, daily) {
+  const today = new Date().toISOString().slice(0, 10);
+  const tbody = document.getElementById('roster-tbody');
+  tbody.innerHTML = '';
+  const names = Object.keys(students);
+  if (!names.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:6px 8px;color:#94a3b8;font-size:0.78rem">No approved list — any name accepted</td></tr>';
+    return;
+  }
+  names.sort().forEach(name => {
+    const limit = students[name];
+    const usedKey = `${name}_${today}`;
+    const used = daily[usedKey] || 0;
+    const bar = used >= limit ? 'color:#dc2626;font-weight:700' : used >= limit * 0.8 ? 'color:#d97706' : 'color:#16a34a';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding:4px 8px;text-transform:capitalize">${name}</td>
+      <td style="padding:4px 8px;">
+        <input type="number" value="${limit}" min="1" max="200" style="width:55px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:0.8rem;"
+          onchange="rosterSetLimit('${name}', this.value, this)" />
+      </td>
+      <td style="padding:4px 8px;${bar}">${used} / ${limit}</td>
+      <td style="padding:4px 8px;"><button onclick="rosterRemove('${name}')"
+        style="background:none;border:1px solid #e2e8f0;border-radius:4px;padding:2px 8px;font-size:0.75rem;color:#94a3b8;cursor:pointer;">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function rosterAdd() {
+  const name = document.getElementById('roster-name-input').value.trim();
+  const limit = parseInt(document.getElementById('roster-limit-input').value) || 20;
+  const st = document.getElementById('roster-status');
+  if (!name) { st.style.color = '#dc2626'; st.textContent = 'Enter a name first.'; return; }
+  await adminFetch('/api/sim/students/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, limit }) });
+  document.getElementById('roster-name-input').value = '';
+  st.style.color = '#16a34a'; st.textContent = `Added "${name}".`;
+  loadSimLog();
+}
+
+async function rosterRemove(name) {
+  await adminFetch('/api/sim/students/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+  loadSimLog();
+}
+
+async function rosterSetLimit(name, limit, input) {
+  const l = parseInt(limit);
+  if (isNaN(l) || l < 1) { input.value = 20; return; }
+  await adminFetch('/api/sim/students/setLimit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, limit: l }) });
+  document.getElementById('roster-status').textContent = '';
+}
+
 async function setSimModel(model) {
   const el = document.getElementById('sim-model-status');
   el.textContent = 'Saving…';
-  await fetch('/api/sim/settings', {
+  await adminFetch('/api/sim/settings', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model })
   });
@@ -1349,7 +1504,7 @@ async function saveSimPassword() {
   const pw  = document.getElementById('sim-pw-input').value.trim();
   const el  = document.getElementById('sim-pw-status');
   if (!pw) { el.style.color = '#dc2626'; el.textContent = 'Cannot be empty'; return; }
-  const r = await fetch('/api/sim/settings', {
+  const r = await adminFetch('/api/sim/settings', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password: pw })
   });
@@ -1365,8 +1520,8 @@ async function saveSimPassword() {
 // ── Init ───────────────────────────────────────────────────────────
 applyHIndexState();
 if (hIndexOn) loadHIndex();
-loadModule('modules/special_relativity.json');
-loadDrive();
+// Defer normal init — checkAdminAuth() calls initAdmin() → checkServer() on success
+checkAdminAuth();
 </script>
 </body>
 </html>
