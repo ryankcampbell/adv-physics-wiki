@@ -1,0 +1,53 @@
+{
+  "jimmy chen": {
+    "spacetime_diagrams": {
+      "module": "Special Relativity",
+      "title": "Spacetime Diagrams: Drawing Relativity on Paper",
+      "stage": "ic",
+      "status": "needs_revision",
+      "revision_notes": "The Minkowski diagram and worldline derivation are solid — two fixes before publishing: (1) label the ct and x axes on your diagram, and (2) specify which inertial frame the diagram is drawn in (S or S′).",
+      "created_at": "2026-03-01",
+      "updated_at": "2026-03-05"
+    }
+  },
+  "sadie park": {
+    "lorentz_transformation": {
+      "module": "Special Relativity",
+      "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
+      "stage": "at",
+      "status": "draft",
+      "created_at": "2026-03-02",
+      "updated_at": "2026-03-06"
+    }
+  },
+  "alex rodriguez": {
+    "lorentz_factor": {
+      "module": "Special Relativity",
+      "title": "The Lorentz Factor γ: One Number to Rule All of Special Relativity",
+      "stage": "hw",
+      "status": "draft",
+      "created_at": "2026-02-28",
+      "updated_at": "2026-03-07"
+    }
+  },
+  "taylor nguyen": {
+    "time_dilation": {
+      "module": "Special Relativity",
+      "title": "Time Dilation: Moving Clocks Run Slow",
+      "stage": "complete",
+      "status": "complete",
+      "created_at": "2026-02-25",
+      "updated_at": "2026-03-04"
+    }
+  },
+  "max brunsfeld": {
+    "em_waves": {
+      "module": "Geometric Optics",
+      "title": "Light as an Electromagnetic Wave",
+      "stage": "at",
+      "status": "draft",
+      "created_at": "2026-03-03",
+      "updated_at": "2026-03-08"
+    }
+  }
+}

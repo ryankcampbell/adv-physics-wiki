@@ -1,0 +1,13 @@
+{
+  "model": "haiku",
+  "password": "frogtoad6563",
+  "adminPassword": "nwaphysics",
+  "students": {
+    "ryan campbell": 20,
+    "jimmy chen": { "limit": 20, "password": "kf3mxp", "locked": false },
+    "sadie park":  { "limit": 20, "password": "tn8brd", "locked": false },
+    "alex rodriguez": { "limit": 20, "password": "gw5pvq", "locked": false },
+    "taylor nguyen": { "limit": 20, "password": "bx2skf", "locked": false },
+    "max brunsfeld": { "limit": 20, "password": "rv6dtm", "locked": false }
+  }
+}
