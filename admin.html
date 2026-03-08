@@ -295,6 +295,17 @@
     #sim-log-table td { padding: 7px 10px; border-bottom: 1px solid #f8fafc; color: #374151; vertical-align: middle; }
     #sim-log-table tr:hover td { background: #f8fafc; }
     #sim-total-row { font-size: 0.78rem; color: #94a3b8; padding: 8px 10px; }
+    .pipeline-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .pipeline-table th { padding: 6px 10px; color: #94a3b8; text-align: left; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
+    .pipeline-table td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    .pipeline-table tr:last-child td { border-bottom: none; }
+    .p-stage { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .p-draft    { background: #dbeafe; color: #1d4ed8; }
+    .p-submitted { background: #fef3c7; color: #92400e; }
+    .p-revision  { background: #fee2e2; color: #991b1b; }
+    .p-complete  { background: #dcfce7; color: #166534; }
+    .p-advance-btn { background: #16a34a; color: white; border: none; border-radius: 4px; padding: 3px 9px; font-size: 0.72rem; cursor: pointer; margin-right: 4px; }
+    .p-back-btn    { background: none; border: 1px solid #e2e8f0; color: #64748b; border-radius: 4px; padding: 3px 9px; font-size: 0.72rem; cursor: pointer; }
 
     /* ── H-INDEX ── */
     #hindex-section { margin-top: 24px; }
@@ -592,6 +603,18 @@
         <tbody id="sim-log-tbody"></tbody>
       </table>
       <div id="sim-total-row">Total API cost: <strong id="sim-total-cost">—</strong></div>
+    </div>
+  </div>
+
+  <!-- ── STUDENT PIPELINE ── -->
+  <div id="pipeline-section" style="margin-top:16px">
+    <button id="pipeline-toggle" onclick="togglePipeline()" style="width:100%;display:flex;align-items:center;gap:8px;padding:12px 16px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:0.85rem;font-weight:600;cursor:pointer;text-align:left">
+      ✦ Student Pipeline
+      <span style="margin-left:auto;font-size:0.72rem;color:#94a3b8;font-weight:400">IC → AT → HW progress per student</span>
+      <button onclick="event.stopPropagation();loadPipeline()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.9rem;padding:0 4px" title="Refresh">↻</button>
+    </button>
+    <div id="pipeline-body" style="display:none;margin-top:8px">
+      <div id="pipeline-content" style="font-size:0.82rem;color:#94a3b8;padding:12px">Loading…</div>
     </div>
   </div>
 
@@ -1551,6 +1574,86 @@ async function saveSimPassword() {
   } else {
     el.style.color = '#dc2626'; el.textContent = 'Save failed';
   }
+}
+
+// ── Student Pipeline ───────────────────────────────────────────────
+let pipelineOpen = false;
+function togglePipeline() {
+  pipelineOpen = !pipelineOpen;
+  document.getElementById('pipeline-body').style.display = pipelineOpen ? 'block' : 'none';
+  if (pipelineOpen) loadPipeline();
+}
+
+const STAGE_NEXT = { ic: 'AT', at: 'HW', hw: 'Complete' };
+const P_BADGE = {
+  'ic+draft':          ['Writing IC',       'p-draft'],
+  'ic+submitted':      ['IC submitted',     'p-submitted'],
+  'ic+needs_revision': ['Revise IC',        'p-revision'],
+  'at+draft':          ['Adversarial Test', 'p-draft'],
+  'at+submitted':      ['AT submitted',     'p-submitted'],
+  'at+needs_revision': ['Revise AT',        'p-revision'],
+  'hw+draft':          ['HW Questions',     'p-draft'],
+  'hw+submitted':      ['HW submitted',     'p-submitted'],
+  'hw+needs_revision': ['Revise HW',        'p-revision'],
+  'complete+complete': ['Complete',         'p-complete'],
+};
+
+async function loadPipeline() {
+  const el = document.getElementById('pipeline-content');
+  el.textContent = 'Loading…';
+  try {
+    const r = await adminFetch('/api/admin/workflow');
+    const wf = await r.json();
+    const students = Object.keys(wf).sort();
+    if (!students.length) { el.innerHTML = '<p style="color:#94a3b8;padding:8px">No student work yet.</p>'; return; }
+
+    let rows = '';
+    students.forEach(student => {
+      const topics = Object.values(wf[student]);
+      if (!topics.length) return;
+      topics.forEach((topic, i) => {
+        const key = `${topic.stage}+${topic.status}`;
+        const [label, cls] = P_BADGE[key] || [topic.status, 'p-draft'];
+        const canAdvance = topic.stage !== 'complete' && topic.status === 'submitted';
+        const canSendBack = topic.stage !== 'complete' && topic.status !== 'needs_revision';
+        const nextLabel = STAGE_NEXT[topic.stage] || '';
+        rows += `<tr>
+          <td style="text-transform:capitalize;font-weight:600">${i === 0 ? student : ''}</td>
+          <td><span style="font-size:0.72rem;color:#94a3b8">${topic.module}</span><br>${topic.title}</td>
+          <td><span class="p-stage ${cls}">${label}</span></td>
+          <td>
+            ${canAdvance ? `<button class="p-advance-btn" onclick="pAdvance('${student}','${topic.slug}')">→ ${nextLabel}</button>` : ''}
+            ${canSendBack ? `<button class="p-back-btn" onclick="pSendBack('${student}','${topic.slug}')">Send back</button>` : ''}
+            ${topic.revision_notes ? `<div style="font-size:0.7rem;color:#dc2626;margin-top:3px">📋 ${topic.revision_notes}</div>` : ''}
+          </td>
+        </tr>`;
+      });
+    });
+    el.innerHTML = `<table class="pipeline-table">
+      <thead><tr><th>Student</th><th>Topic</th><th>Stage</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  } catch(e) {
+    el.textContent = 'Error loading pipeline.';
+  }
+}
+
+async function pAdvance(name, slug) {
+  await adminFetch('/api/admin/workflow/advance', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, slug, action: 'advance' })
+  });
+  loadPipeline();
+}
+
+async function pSendBack(name, slug) {
+  const notes = prompt(`Revision notes for "${name}" — ${slug}:`);
+  if (notes === null) return; // cancelled
+  await adminFetch('/api/admin/workflow/advance', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, slug, action: 'sendback', notes })
+  });
+  loadPipeline();
 }
 
 // ── Init ───────────────────────────────────────────────────────────

@@ -499,8 +499,36 @@ const SIM_MODEL_DEFAULT = 'haiku';
 const MAX_TURNS = 20;
 
 // In-memory stores — reset on server restart (fine for class pilot)
-const simSessions = new Map(); // token → { studentName, expires }
-const sessionTurns = new Map(); // token → turn count
+const simSessions     = new Map(); // token → { studentName, expires }
+const sessionTurns    = new Map(); // token → turn count
+const studentSessions = new Map(); // token → { name, expires }
+
+// ── Workflow state ──────────────────────────────────────────────
+const WORKFLOW_PATH = path.join(__dirname, 'state', 'workflow.json');
+function readWorkflow() {
+  try { return JSON.parse(fs.readFileSync(WORKFLOW_PATH, 'utf8')); } catch { return {}; }
+}
+function writeWorkflow(data) {
+  fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
+  fs.writeFileSync(WORKFLOW_PATH, JSON.stringify(data, null, 2));
+}
+function slugify(str) {
+  return str.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
+
+// ── Student session middleware ───────────────────────────────────
+function requireStudentToken(req, res, next) {
+  const auth = req.headers.authorization;
+  const token = auth?.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  const session = studentSessions.get(token);
+  if (!session || Date.now() > session.expires) {
+    studentSessions.delete(token);
+    return res.status(401).json({ error: 'Session expired — please log in again.' });
+  }
+  req.studentName = session.name;
+  next();
+}
 
 // ── Sim settings helpers (model + password) ──
 const SIM_SETTINGS_PATH = path.join(__dirname, 'state', 'sim-settings.json');
@@ -956,6 +984,88 @@ app.post('/api/sim/students/setLocked', requireAdmin, (req, res) => {
   s.students[name] = { ...entry, locked };
   writeSimSettings(s);
   res.json({ ok: true });
+});
+
+// ── Student portal routes ────────────────────────────────────────
+
+// Public: student names list (no passwords exposed)
+app.get('/api/students/list', (req, res) => {
+  const names = Object.keys(readSimSettings().students || {}).sort();
+  res.json({ names });
+});
+
+// Student login → returns student token + pre-created sim token
+app.post('/api/student/login', (req, res) => {
+  const { name, password } = req.body;
+  if (!name?.trim() || !password) return res.status(400).json({ error: 'Name and password required' });
+  const settings = readSimSettings();
+  const nameKey = name.trim().toLowerCase();
+  const entry = getStudentEntry(settings.students || {}, nameKey);
+  if (!entry) return res.status(403).json({ error: 'Name not on the approved list.' });
+  const expectedPw = entry.password || settings.password;
+  if (password !== expectedPw) return res.status(401).json({ error: 'Wrong password.' });
+  if (entry.locked) return res.status(403).json({ error: 'Your account has been paused — see your teacher.' });
+
+  const studentToken = require('crypto').randomUUID();
+  studentSessions.set(studentToken, { name: name.trim(), expires: Date.now() + 12 * 60 * 60 * 1000 });
+
+  // Also pre-create sim session so the AI tool needs no second password
+  const simToken = require('crypto').randomUUID();
+  simSessions.set(simToken, { studentName: name.trim(), expires: Date.now() + 8 * 60 * 60 * 1000 });
+
+  res.json({ token: studentToken, simToken, name: name.trim() });
+});
+
+// Get student's workflow topics
+app.get('/api/student/topics', requireStudentToken, (req, res) => {
+  const wf = readWorkflow();
+  res.json({ topics: wf[req.studentName.toLowerCase()] || {} });
+});
+
+// Start a new topic
+app.post('/api/student/topic/start', requireStudentToken, (req, res) => {
+  const { module, title } = req.body;
+  if (!title?.trim()) return res.status(400).json({ error: 'Title required' });
+  const wf = readWorkflow();
+  const nameKey = req.studentName.toLowerCase();
+  wf[nameKey] = wf[nameKey] || {};
+  const slug = slugify(title);
+  if (wf[nameKey][slug]) return res.status(409).json({ error: 'A topic with that title already exists.' });
+  wf[nameKey][slug] = {
+    slug, title: title.trim(), module: module?.trim() || 'General',
+    stage: 'ic', status: 'draft', revision_notes: '',
+    created_at: new Date().toISOString().slice(0, 10),
+    updated_at: new Date().toISOString().slice(0, 10)
+  };
+  writeWorkflow(wf);
+  res.json({ ok: true, slug });
+});
+
+// ── Admin: workflow management ───────────────────────────────────
+app.get('/api/admin/workflow', requireAdmin, (req, res) => {
+  res.json(readWorkflow());
+});
+
+app.post('/api/admin/workflow/advance', requireAdmin, (req, res) => {
+  const { name, slug, action, notes } = req.body;
+  if (!name || !slug || !action) return res.status(400).json({ error: 'name, slug, action required' });
+  const wf = readWorkflow();
+  const nameKey = name.toLowerCase();
+  if (!wf[nameKey]?.[slug]) return res.status(404).json({ error: 'Topic not found' });
+  const topic = wf[nameKey][slug];
+  const stages = ['ic', 'at', 'hw', 'complete'];
+  const idx = stages.indexOf(topic.stage);
+  if (action === 'advance' && idx < stages.length - 1) {
+    topic.stage = stages[idx + 1];
+    topic.status = topic.stage === 'complete' ? 'complete' : 'draft';
+    topic.revision_notes = '';
+  } else if (action === 'sendback') {
+    topic.status = 'needs_revision';
+    topic.revision_notes = notes || '';
+  }
+  topic.updated_at = new Date().toISOString().slice(0, 10);
+  writeWorkflow(wf);
+  res.json({ ok: true, topic });
 });
 
 // ── Route: Daily usage per student (for admin display) ────────────

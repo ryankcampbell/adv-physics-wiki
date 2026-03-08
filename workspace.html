@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Workspace — Advanced Physics</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a; color: #e2e8f0; min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1e293b; border-bottom: 1px solid #334155;
+      padding: 14px 24px; display: flex; align-items: center; gap: 12px;
+    }
+    .header-title { font-size: 0.95rem; font-weight: 700; color: #7eb8da; }
+    .header-name  { font-size: 0.85rem; color: #94a3b8; }
+    .header-name span { color: #e2e8f0; font-weight: 600; text-transform: capitalize; }
+    .logout-btn {
+      margin-left: auto; background: none; border: 1px solid #334155;
+      color: #64748b; border-radius: 5px; padding: 5px 12px;
+      font-size: 0.75rem; cursor: pointer;
+    }
+    .logout-btn:hover { color: #e2e8f0; border-color: #475569; }
+
+    /* ── Main ── */
+    main { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
+    .page-heading {
+      font-size: 1.15rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;
+    }
+    .page-sub { font-size: 0.8rem; color: #64748b; margin-bottom: 24px; }
+
+    /* ── New IC button ── */
+    .new-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #2563eb; color: white; border: none; border-radius: 7px;
+      padding: 9px 18px; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; margin-bottom: 28px;
+    }
+    .new-btn:hover { background: #1d4ed8; }
+
+    /* ── Topic cards ── */
+    .topics-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .topic-card {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+      padding: 16px 18px; cursor: pointer; transition: border-color 0.15s;
+    }
+    .topic-card:hover { border-color: #7eb8da; }
+    .topic-card.locked { opacity: 0.6; cursor: default; }
+    .topic-module { font-size: 0.68rem; color: #64748b; text-transform: uppercase;
+                    letter-spacing: 0.07em; margin-bottom: 5px; }
+    .topic-title  { font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin-bottom: 10px; }
+    .topic-footer { display: flex; align-items: center; justify-content: space-between; }
+    .stage-badge {
+      font-size: 0.7rem; font-weight: 600; padding: 3px 9px;
+      border-radius: 99px; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .badge-draft    { background: #1e3a5f; color: #7eb8da; }
+    .badge-submitted { background: #422006; color: #f59e0b; }
+    .badge-revision  { background: #450a0a; color: #f87171; }
+    .badge-complete  { background: #052e16; color: #4ade80; }
+    .continue-btn {
+      font-size: 0.72rem; color: #7eb8da; background: none; border: none;
+      cursor: pointer; padding: 0;
+    }
+    .continue-btn:hover { text-decoration: underline; }
+    .topic-notes {
+      font-size: 0.73rem; color: #f87171; margin-top: 8px;
+      background: #450a0a22; border-left: 2px solid #dc2626;
+      padding: 5px 8px; border-radius: 0 4px 4px 0;
+    }
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: #475569;
+    }
+    .empty-state .big { font-size: 2rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.85rem; }
+
+    /* ── New topic modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #1e293b; border: 1px solid #334155; border-radius: 12px;
+      padding: 28px 28px; width: 100%; max-width: 400px;
+    }
+    .modal h2 { font-size: 1rem; color: #e2e8f0; margin-bottom: 20px; }
+    .modal label { display: block; font-size: 0.78rem; color: #94a3b8;
+                   margin-bottom: 5px; margin-top: 14px; }
+    .modal input, .modal select {
+      width: 100%; padding: 9px 11px;
+      background: #0f172a; border: 1px solid #334155;
+      border-radius: 6px; color: #e2e8f0; font-size: 0.88rem;
+    }
+    .modal input:focus, .modal select:focus { outline: none; border-color: #7eb8da; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 22px; }
+    .modal-btns .cancel { flex: 1; padding: 9px; background: none;
+      border: 1px solid #334155; color: #94a3b8; border-radius: 6px;
+      font-size: 0.85rem; cursor: pointer; }
+    .modal-btns .submit { flex: 1; padding: 9px; background: #2563eb;
+      color: white; border: none; border-radius: 6px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .modal-btns .submit:hover { background: #1d4ed8; }
+    .modal-error { font-size: 0.78rem; color: #f87171; margin-top: 10px; min-height: 18px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">✦ Advanced Physics</div>
+  <div class="header-name">Signed in as <span id="header-name">—</span></div>
+  <button class="logout-btn" onclick="logout()">Sign out</button>
+</header>
+
+<main>
+  <div class="page-heading">My Insight Cards</div>
+  <div class="page-sub">Each row is one topic. Click to continue where you left off.</div>
+
+  <button class="new-btn" onclick="openNewModal()">+ New Insight Card</button>
+
+  <div class="topics-grid" id="topics-grid">
+    <div class="empty-state">
+      <div class="big">📝</div>
+      <p>Loading your topics…</p>
+    </div>
+  </div>
+</main>
+
+<!-- New topic modal -->
+<div class="modal-overlay" id="new-modal">
+  <div class="modal">
+    <h2>Start a new Insight Card</h2>
+    <label>Module / Unit</label>
+    <input type="text" id="new-module" placeholder="e.g. Special Relativity" list="module-suggestions">
+    <datalist id="module-suggestions"></datalist>
+    <label>Topic title</label>
+    <input type="text" id="new-title" placeholder="e.g. Time Dilation">
+    <div class="modal-error" id="new-error"></div>
+    <div class="modal-btns">
+      <button class="cancel" onclick="closeNewModal()">Cancel</button>
+      <button class="submit" onclick="startTopic()">Start</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STUDENT_TOKEN_KEY = 'student-session-token';
+const STUDENT_NAME_KEY  = 'student-name';
+const SIM_TOKEN_KEY     = 'sim-session-token';
+
+const token = localStorage.getItem(STUDENT_TOKEN_KEY);
+const name  = localStorage.getItem(STUDENT_NAME_KEY);
+
+// Guard: must be logged in
+if (!token || !name) { window.location.href = 'student.html'; }
+
+document.getElementById('header-name').textContent =
+  name.replace(/\b\w/g, c => c.toUpperCase());
+
+function authHeaders() {
+  return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+}
+
+// ── Stage display helpers ──────────────────────────────────────────
+const STAGE_LABELS = {
+  'ic+draft':          { text: 'Writing IC',           cls: 'badge-draft' },
+  'ic+submitted':      { text: 'IC submitted',         cls: 'badge-submitted' },
+  'ic+needs_revision': { text: 'Revise IC',            cls: 'badge-revision' },
+  'at+draft':          { text: 'Adversarial Test',     cls: 'badge-draft' },
+  'at+submitted':      { text: 'AT submitted',         cls: 'badge-submitted' },
+  'at+needs_revision': { text: 'Revise AT',            cls: 'badge-revision' },
+  'hw+draft':          { text: 'HW Questions',         cls: 'badge-draft' },
+  'hw+submitted':      { text: 'HW submitted',         cls: 'badge-submitted' },
+  'hw+needs_revision': { text: 'Revise HW',            cls: 'badge-revision' },
+  'complete+complete': { text: 'Complete',             cls: 'badge-complete' },
+};
+
+function getBadge(stage, status) {
+  const key = `${stage}+${status}`;
+  return STAGE_LABELS[key] || { text: `${stage} / ${status}`, cls: 'badge-draft' };
+}
+
+function editorUrl(topic) {
+  const s = topic.slug;
+  const t = encodeURIComponent(topic.title);
+  if (topic.stage === 'ic') return `ic_editor.html?concept=${s}&name=${t}`;
+  if (topic.stage === 'at') return `ic_editor.html?at=${s}`;
+  if (topic.stage === 'hw') return `ic_editor.html?hw=${s}`;
+  return null; // complete
+}
+
+function canContinue(topic) {
+  return topic.stage !== 'complete' && topic.status !== 'submitted';
+}
+
+// ── Load topics ────────────────────────────────────────────────────
+async function loadTopics() {
+  try {
+    const r = await fetch('/api/student/topics', { headers: authHeaders() });
+    if (r.status === 401) { logout(); return; }
+    const { topics } = await r.json();
+    renderTopics(topics);
+    populateModuleSuggestions(topics);
+  } catch(e) {
+    document.getElementById('topics-grid').innerHTML =
+      '<div class="empty-state"><p>Could not reach server.</p></div>';
+  }
+}
+
+function renderTopics(topics) {
+  const grid = document.getElementById('topics-grid');
+  const entries = Object.values(topics);
+  if (!entries.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="big">📝</div>
+      <p>No Insight Cards yet.<br>Click <strong>+ New Insight Card</strong> to get started.</p>
+    </div>`;
+    return;
+  }
+  // Sort: needs_revision first, then draft, then submitted, then complete
+  const order = { needs_revision: 0, draft: 1, submitted: 2, complete: 3 };
+  entries.sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
+
+  grid.innerHTML = '';
+  entries.forEach(topic => {
+    const badge = getBadge(topic.stage, topic.status);
+    const url   = editorUrl(topic);
+    const canGo = canContinue(topic);
+    const card  = document.createElement('div');
+    card.className = 'topic-card' + (canGo ? '' : ' locked');
+    if (canGo && url) card.onclick = () => window.location.href = url;
+
+    card.innerHTML = `
+      <div class="topic-module">${topic.module || 'General'}</div>
+      <div class="topic-title">${topic.title}</div>
+      ${topic.revision_notes ? `<div class="topic-notes">📋 ${topic.revision_notes}</div>` : ''}
+      <div class="topic-footer">
+        <span class="stage-badge ${badge.cls}">${badge.text}</span>
+        ${canGo && url ? '<span class="continue-btn">Continue →</span>' : ''}
+        ${topic.status === 'submitted' ? '<span style="font-size:0.7rem;color:#64748b">Awaiting review</span>' : ''}
+        ${topic.stage === 'complete' ? '<span style="font-size:0.7rem;color:#4ade80">✓ Published</span>' : ''}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function populateModuleSuggestions(topics) {
+  const modules = [...new Set(Object.values(topics).map(t => t.module).filter(Boolean))];
+  const dl = document.getElementById('module-suggestions');
+  modules.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    dl.appendChild(opt);
+  });
+}
+
+// ── New topic modal ────────────────────────────────────────────────
+function openNewModal() {
+  document.getElementById('new-module').value = '';
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-error').textContent = '';
+  document.getElementById('new-modal').classList.add('open');
+  document.getElementById('new-module').focus();
+}
+function closeNewModal() {
+  document.getElementById('new-modal').classList.remove('open');
+}
+
+async function startTopic() {
+  const module = document.getElementById('new-module').value.trim();
+  const title  = document.getElementById('new-title').value.trim();
+  const errEl  = document.getElementById('new-error');
+  if (!title) { errEl.textContent = 'Please enter a topic title.'; return; }
+
+  try {
+    const r = await fetch('/api/student/topic/start', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ module, title })
+    });
+    const data = await r.json();
+    if (!r.ok) { errEl.textContent = data.error || 'Could not start topic.'; return; }
+    closeNewModal();
+    window.location.href = `ic_editor.html?concept=${data.slug}&name=${encodeURIComponent(title)}`;
+  } catch(e) {
+    errEl.textContent = 'Connection error.';
+  }
+}
+
+// ── Keyboard ───────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeNewModal();
+});
+document.getElementById('new-title').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startTopic();
+});
+
+// ── Logout ─────────────────────────────────────────────────────────
+function logout() {
+  localStorage.removeItem(STUDENT_TOKEN_KEY);
+  localStorage.removeItem(STUDENT_NAME_KEY);
+  localStorage.removeItem(SIM_TOKEN_KEY);
+  window.location.href = 'student.html';
+}
+
+loadTopics();
+</script>
+</body>
+</html>
