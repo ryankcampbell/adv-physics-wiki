@@ -1,151 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IC: Spacetime Diagrams | Advanced Physics Wiki</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.7; }
-    .ic-header { background: #1e3a5f; color: white; padding: 18px 32px 22px; }
-    .back-link { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.8rem; display: inline-block; margin-bottom: 10px; }
-    .back-link:hover { color: white; }
-    .ic-title { font-size: 1.5rem; font-weight: 700; line-height: 1.25; margin-bottom: 6px; }
-    .ic-meta { font-size: 0.82rem; color: rgba(255,255,255,0.65); display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
-    .badge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-    .badge-certified { background: rgba(22,163,74,0.3); color: #86efac; }
-    .badge-tier { background: rgba(37,99,235,0.25); color: #93c5fd; }
-    .ic-body { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
-    h2 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #64748b; margin-top: 44px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
-    .research-q { background: #eff6ff; border-left: 4px solid #2563eb; padding: 16px 20px; font-size: 1.05rem; font-style: italic; color: #1e3a5f; border-radius: 0 8px 8px 0; }
-    p { margin-bottom: 14px; color: #334155; font-size: 0.93rem; }
-    .eq-box { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; text-align: center; margin: 16px 0; overflow-x: auto; }
-    .sim-wrap { background: white; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-top: 8px; }
-    .sim-wrap iframe { width: 100%; height: 580px; border: none; display: block; }
-    .sim-caption { padding: 10px 16px; font-size: 0.8rem; color: #64748b; background: #f8fafc; border-top: 1px solid #e2e8f0; }
-    .v-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px; }
-    .v-card h3 { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #16a34a; margin-bottom: 8px; }
-    .v-card p { margin-bottom: 6px; }
-    .citation { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
-    .citation a { color: #15803d; font-weight: 600; text-decoration: none; font-size: 0.88rem; }
-    .citation a:hover { text-decoration: underline; }
-    .citation .purpose { font-size: 0.82rem; color: #374151; margin-top: 5px; }
-    .test-q { background: #fefce8; border-left: 3px solid #ca8a04; padding: 12px 16px; margin-bottom: 10px; border-radius: 0 8px 8px 0; font-size: 0.88rem; color: #334155; }
-    .test-q strong { color: #713f12; }
-    .anchor-box { background: #f0f9ff; border-left: 4px solid #0284c7; padding: 14px 18px; border-radius: 0 8px 8px 0; font-size: 0.9rem; color: #0c4a6e; }
-    .ic-footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 0.76rem; color: #94a3b8; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IC: Spacetime Diagrams: Drawing Relativity on Paper | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-pending{background:rgba(234,88,12,0.3);color:#fdba74}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
 </head>
 <body>
-
 <div class="ic-header">
-  <a href="../../index.html" class="back-link">← Concept Navigator</a>
-  <div class="ic-title">Spacetime Diagrams</div>
-  <div class="ic-meta">
-    <span>by S. Park &amp; A. Rodriguez</span>
-    <span class="badge badge-certified">Certified</span>
-    <span class="badge badge-tier">Tier 2</span>
-    <span>6 citations</span>
-  </div>
+  <a href="../../index.html" class="back-link">&#8592; Concept Navigator</a>
+  <div class="ic-title">Spacetime Diagrams: Drawing Relativity on Paper</div>
+  <div class="ic-meta"><span>by Jimmy Chen</span><span class="badge badge-pending">Pending Review</span></div>
 </div>
-
 <div class="ic-body">
 
-  <h2>Research Question</h2>
-  <p class="research-q">How can a two-dimensional diagram capture both space and time — and what does a moving observer's tilted axis reveal about the geometry of simultaneity?</p>
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
 
-  <h2>Explainer</h2>
+<h2>Explainer</h2>
+<div id="expl"></div>
 
-  <p>In ordinary life we draw maps with two spatial axes (x and y). Spacetime diagrams do something stranger: they plot position on the horizontal axis and time on the vertical, so that a single point represents not a place but an <em>event</em> — something that happens at a definite place and a definite time. The worldline of an object is the curve it traces through this diagram as time passes.</p>
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+  <iframe src="../../sims/spacetime.html" style="width:100%;height:100%;border:none"></iframe>
+</div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
 
-  <p>A stationary object sits at the same x-coordinate for all time, so its worldline is a vertical line. An object moving at constant speed v has worldline slope Δ(ct)/Δx = c/v = 1/β. We use ct rather than t on the vertical axis so that both axes have units of length and the diagrams scale nicely.</p>
+<h2>Citations</h2>
+<div class="citation"><a href="../../sims/galilean.html">M. Chen &amp; S. Park &#8212; Reference Frames: Coordinates, Clocks, and What &#8216;At Rest&#8217; Means</a><div class="purpose"><strong>Purpose:</strong> We used the definition of an inertial reference frame and the coordinate assignment convention (rulers and clocks filling space) from this IC to justify what it means to assign (t, x) coordinates to an event &#8212; the foundation of the spacetime diagram axes.</div></div>
+<div class="citation"><a href="../../sims/sr.html">J. Kim &#8212; Simultaneity is Frame-Dependent: The Lightning-and-Train Scenario</a><div class="purpose"><strong>Purpose:</strong> Kim&#8217;s quantitative result &#916;t&#8242; = &#947;(&#916;t &#8722; v&#916;x/c&#178;) is exactly what our diagram makes geometric. We used their formula to compute the &#916;t&#8242; = &#8722;3.75 s spot-check, confirming our diagram&#8217;s tilt correctly predicts the simultaneity breakdown.</div></div>
 
-  <div class="eq-box" id="eq-slope"></div>
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
 
-  <p>Light has the special property that its speed is c in every inertial frame (Einstein's second postulate). In the diagram, a light ray always has slope 1 — a 45° line. This is the <strong>light cone</strong>. No massive object can travel along or inside the light cone; every material worldline must be steeper than 45° (slope &gt; 1).</p>
-
-  <p>Now suppose frame S' moves at speed v relative to S. What does the diagram look like for an observer in S'? Their time axis (ct') tilts toward the light cone by angle θ = arctan(β) from the vertical. Their space axis (x'), which represents their lines of constant t', tilts upward by the same angle from the horizontal. Both axes squeeze toward the 45° light cone together. This asymmetric tilt is the geometric signature of the relativity of simultaneity: two events on the same horizontal line (simultaneous in S) fall on different t'=const lines in S', so they are <em>not</em> simultaneous in S'.</p>
-
-  <p>As β increases toward 1, both axes tilt more and more until they nearly coincide with the light cone at β = 1. This is why nothing with mass can reach the speed of light: at c, the time and space axes collapse onto each other and the coordinate system becomes degenerate.</p>
-
-  <h2>Simulation</h2>
-  <div class="sim-wrap">
-    <iframe src="../../sims/spacetime.html" title="Spacetime diagram simulation"></iframe>
-    <div class="sim-caption">Drag the β slider to change the moving frame's speed. The ct′ and x′ axes tilt toward the light cone (dashed 45° lines) as β increases. Click any event to read its coordinates in both frames.</div>
-  </div>
-
-  <h2>Verification</h2>
-
-  <div class="v-card">
-    <h3>Limiting Case 1 — β = 0 (frames at rest relative to each other)</h3>
-    <p><strong>Expected:</strong> When v = 0, S and S' are the same frame. The ct′ axis should be vertical (identical to ct) and the x′ axis should be horizontal (identical to x). No tilt.</p>
-    <p><strong>Observed:</strong> Setting β = 0 in the simulation shows the primed axes perfectly overlapping the unprimed axes. The diagram is symmetric with no distortion. ✓</p>
-  </div>
-
-  <div class="v-card">
-    <h3>Limiting Case 2 — β → 1 (approaching light speed)</h3>
-    <p><strong>Expected:</strong> Both axes should squeeze toward the 45° light cone. At exactly β = 1 they would collapse onto it, making the coordinate system degenerate.</p>
-    <p><strong>Observed:</strong> At β = 0.99 in the simulation, both axes are visibly compressed toward the light cone lines. The region between them narrows dramatically, consistent with the geometry. ✓</p>
-  </div>
-
-  <div class="v-card">
-    <h3>Quantitative Spot-Check</h3>
-    <p><strong>Setup:</strong> Two events simultaneous in S: Event A at (t = 0, x = 0) and Event B at (t = 0, x = 5 light-seconds). Frame S' moves at β = 3/5, γ = 5/4.</p>
-    <p><strong>Predicted Δt′:</strong> <span id="eq-spotcheck"></span></p>
-    <p><strong>Meaning:</strong> Event B happens 3.75 seconds <em>before</em> Event A in S'. The two events are not simultaneous in S' even though they are in S.</p>
-    <p><strong>Simulation check:</strong> Placing both events at t = 0 with the given x-values and setting β = 0.6 shows Event B has a negative t′ coordinate relative to Event A, consistent with −3.75 s. ✓</p>
-  </div>
-
-  <h2>Citations</h2>
-
-  <div class="citation">
-    <a href="../../sims/galilean.html">M. Chen &amp; S. Park — Reference Frames: Coordinates, Clocks, and What 'At Rest' Means</a>
-    <div class="purpose"><strong>Purpose:</strong> We used the definition of an inertial reference frame and the coordinate assignment convention (rulers and clocks filling space) from this IC to justify what it means to assign (t, x) coordinates to an event — the foundation of the spacetime diagram axes.</div>
-  </div>
-
-  <div class="citation">
-    <a href="../../sims/sr.html">J. Kim — Simultaneity is Frame-Dependent: The Lightning-and-Train Scenario</a>
-    <div class="purpose"><strong>Purpose:</strong> Kim's quantitative result Δt′ = γ(Δt − vΔx/c²) is exactly what our diagram makes geometric. We used their formula to compute the Δt′ = −3.75 s spot-check above, confirming our diagram's tilt correctly predicts the simultaneity breakdown.</div>
-  </div>
-
-  <h2>Connection to Anchor Question</h2>
-  <div class="anchor-box">
-    The spacetime diagram makes the twin paradox geometric rather than mysterious. Alice's worldline is straight (vertical), while Bob's is kinked — he must change direction at the turnaround point. The straight worldline between two events always has the <em>longest</em> proper time (this is the relativistic analogue of "the shortest path between two points is a straight line," but inverted due to the minus sign in the spacetime interval). The diagram shows directly that Bob ages less not because of some force during turnaround, but because his path through spacetime is genuinely different from Alice's.
-  </div>
-
-  <h2>Proposed Test Questions</h2>
-  <p style="font-size:0.82rem;color:#64748b;margin-bottom:14px">Use the spacetime diagram approach and results from this IC to answer these.</p>
-
-  <div class="test-q">
-    <strong>Q1.</strong> A rocket moves at β = 4/5. (a) What is the slope of its worldline on a spacetime diagram? (b) Draw the ct′ and x′ axes for a frame moving with the rocket. At what angle from the vertical does the ct′ axis tilt?
-  </div>
-
-  <div class="test-q">
-    <strong>Q2.</strong> Two events occur at (ct = 0, x = 0) and (ct = 0, x = 6 light-seconds). They are simultaneous in frame S. Frame S′ moves at β = 1/2 (γ = 2/√3). Calculate Δt′ and state whether the events are simultaneous in S′. Which event happens first in S′?
-  </div>
-
-  <div class="test-q">
-    <strong>Q3.</strong> Explain in words why no worldline can have a slope less than 1 on a spacetime diagram. What physical principle does this represent, and what would it mean if a worldline could have slope 0 (horizontal)?
-  </div>
-
-  <div class="ic-footer">
-    <span>Advanced Physics · NWA · S. Park &amp; A. Rodriguez</span>
-    <span>Certified · Tier 2 · 6 citations received</span>
-  </div>
-
+<div class="ic-footer">
+  <span>Advanced Physics &middot; NWA &middot; Jimmy Chen</span>
+  <span>Status: Pending Review</span>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script>
-document.getElementById('eq-slope').innerHTML = katex.renderToString(
-  '\\text{worldline slope} = \\frac{c}{v} = \\frac{1}{\\beta} \\qquad \\text{light cone: slope} = 1\\ (45^\\circ)',
-  { displayMode: true, throwOnError: false }
-);
-document.getElementById('eq-spotcheck').innerHTML = katex.renderToString(
-  '\\Delta t\' = \\gamma\\!\\left(\\Delta t - \\frac{v\\,\\Delta x}{c^2}\\right) = \\tfrac{5}{4}\\!\\left(0 - \\tfrac{3}{5}\\cdot 5\\right) = -3.75\\text{ s}',
-  { displayMode: false, throwOnError: false }
-);
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"How can a two-dimensional diagram capture both space and time \u2014 and what does a moving observer\u2019s tilted axis reveal about the geometry of simultaneity?");
+setMath('sim-cap',"Drag the \u03b2 slider to change the moving frame\u2019s speed. The $ct'$ and $x'$ axes tilt toward the light cone (dashed 45\u00b0 lines) as \u03b2 increases. Click any event to read its coordinates in both frames.");
+setMath('anchor',"The spacetime diagram makes the twin paradox geometric rather than mysterious. Alice\u2019s worldline is straight (vertical), while Bob\u2019s is kinked \u2014 he must change direction at the turnaround point. The straight worldline between two events always has the longest proper time (the relativistic analogue of \u201cthe shortest path between two points is a straight line,\u201d but inverted due to the minus sign in the spacetime interval). The diagram shows directly that Bob ages less not because of some force during turnaround, but because his path through spacetime is genuinely different from Alice\u2019s.");
+
+(function(){
+  const el=document.getElementById('expl');
+  const paras="In ordinary life we draw maps with two spatial axes. Spacetime diagrams do something stranger: they plot position on the horizontal axis and time on the vertical, so that a single point represents not a place but an *event* \u2014 something that happens at a definite place and a definite time. The worldline of an object is the curve it traces through this diagram as time passes.\n\nA stationary object sits at the same $x$-coordinate for all time, so its worldline is a vertical line. An object moving at constant speed $v$ has worldline slope $\\Delta(ct)/\\Delta x = c/v = 1/\\beta$. We use $ct$ rather than $t$ on the vertical axis so that both axes have units of length and the diagrams scale nicely.\n\nLight has the special property that its speed is $c$ in every inertial frame (Einstein\u2019s second postulate). In the diagram, a light ray always has slope 1 \u2014 a 45\u00b0 line. This is the light cone. No massive object can travel along or inside the light cone; every material worldline must be steeper than 45\u00b0 (slope $> 1$).\n\nNow suppose frame $S'$ moves at speed $v$ relative to $S$. Their time axis ($ct'$) tilts toward the light cone by angle $\\theta = \\arctan(\\beta)$ from the vertical. Their space axis ($x'$), which represents their lines of constant $t'$, tilts upward by the same angle from the horizontal. Both axes squeeze toward the 45\u00b0 light cone together. This asymmetric tilt is the geometric signature of the relativity of simultaneity: two events on the same horizontal line (simultaneous in $S$) fall on different $t' = \\text{const}$ lines in $S'$, so they are not simultaneous in $S'$.\n\nAs $\\beta \\to 1$, both axes tilt until they nearly coincide with the light cone. At $\\beta = 1$ the coordinate system becomes degenerate \u2014 this is why nothing with mass can reach the speed of light.".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='\uD83D\uDCCB Copy citation link';
+  document.body.appendChild(bar);
+  let hideTimer;
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='\u2713 Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='\uD83D\uDCCB Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
+})();
 </script>
+<script type="application/json" id="ic-source-data">{"f-author":"Jimmy Chen","f-title":"Spacetime Diagrams: Drawing Relativity on Paper","f-rq":"How can a two-dimensional diagram capture both space and time \u2014 and what does a moving observer\u2019s tilted axis reveal about the geometry of simultaneity?","f-expl":"In ordinary life we draw maps with two spatial axes. Spacetime diagrams do something stranger: they plot position on the horizontal axis and time on the vertical, so that a single point represents not a place but an *event* \u2014 something that happens at a definite place and a definite time. The worldline of an object is the curve it traces through this diagram as time passes.\n\nA stationary object sits at the same $x$-coordinate for all time, so its worldline is a vertical line. An object moving at constant speed $v$ has worldline slope $\\Delta(ct)\/\\Delta x = c\/v = 1\/\\beta$. We use $ct$ rather than $t$ on the vertical axis so that both axes have units of length and the diagrams scale nicely.\n\nLight has the special property that its speed is $c$ in every inertial frame (Einstein\u2019s second postulate). In the diagram, a light ray always has slope 1 \u2014 a 45\u00b0 line. This is the light cone. No massive object can travel along or inside the light cone; every material worldline must be steeper than 45\u00b0 (slope $> 1$).\n\nNow suppose frame $S'$ moves at speed $v$ relative to $S$. Their time axis ($ct'$) tilts toward the light cone by angle $\\theta = \\arctan(\\beta)$ from the vertical. Their space axis ($x'$), which represents their lines of constant $t'$, tilts upward by the same angle from the horizontal. Both axes squeeze toward the 45\u00b0 light cone together. This asymmetric tilt is the geometric signature of the relativity of simultaneity: two events on the same horizontal line (simultaneous in $S$) fall on different $t' = \\text{const}$ lines in $S'$, so they are not simultaneous in $S'$.\n\nAs $\\beta \\to 1$, both axes tilt until they nearly coincide with the light cone. At $\\beta = 1$ the coordinate system becomes degenerate \u2014 this is why nothing with mass can reach the speed of light.","f-sim-cap":"Drag the \u03b2 slider to change the moving frame\u2019s speed. The $ct'$ and $x'$ axes tilt toward the light cone (dashed 45\u00b0 lines) as \u03b2 increases. Click any event to read its coordinates in both frames.","f-lc1t":"\u03b2 = 0 (frames at rest relative to each other)","f-lc1e":"When v = 0, S and S' are the same frame. The ct' axis should be vertical (identical to ct) and the x' axis should be horizontal (identical to x). No tilt.","f-lc1o":"Setting \u03b2 = 0 in the simulation shows the primed axes perfectly overlapping the unprimed axes. The diagram is symmetric with no distortion. \u2713","f-lc2t":"\u03b2 \u2192 1 (approaching light speed)","f-lc2e":"Both axes should squeeze toward the 45\u00b0 light cone. At exactly \u03b2 = 1 they would collapse onto it, making the coordinate system degenerate.","f-lc2o":"At \u03b2 = 0.99 in the simulation, both axes are visibly compressed toward the light cone lines. The region between them narrows dramatically. \u2713","f-scs":"Two events simultaneous in S: Event A at (t = 0, x = 0) and Event B at (t = 0, x = 5 light-seconds). Frame S' moves at \u03b2 = 3\/5, \u03b3 = 5\/4.","f-scp":"$$\\Delta t' = \\gamma\\!\\left(\\Delta t - \\frac{v\\,\\Delta x}{c^2}\\right) = \\frac{5}{4}\\!\\left(0 - \\frac{3}{5}\\cdot 5\\right) = -3.75\\text{ s}$$","f-scr":"Placing both events at t = 0 and setting \u03b2 = 0.6 shows Event B has a negative t' coordinate relative to Event A, consistent with \u22123.75 s. \u2713","f-anchor":"The spacetime diagram makes the twin paradox geometric rather than mysterious. Alice\u2019s worldline is straight (vertical), while Bob\u2019s is kinked \u2014 he must change direction at the turnaround point. The straight worldline between two events always has the longest proper time (the relativistic analogue of \"the shortest path between two points is a straight line,\" but inverted due to the minus sign in the spacetime interval). The diagram shows directly that Bob ages less not because of some force during turnaround, but because his path through spacetime is genuinely different from Alice\u2019s.","__cits":[{"t":"M. Chen & S. Park \u2014 Reference Frames: Coordinates, Clocks, and What 'At Rest' Means","u":"../../sims\/galilean.html","p":"We used the definition of an inertial reference frame and the coordinate assignment convention (rulers and clocks filling space) from this IC to justify what it means to assign (t, x) coordinates to an event \u2014 the foundation of the spacetime diagram axes."},{"t":"J. Kim \u2014 Simultaneity is Frame-Dependent: The Lightning-and-Train Scenario","u":"..\/..\/sims\/sr.html","p":"Kim\u2019s quantitative result \u0394t\u2032 = \u03b3(\u0394t \u2212 v\u0394x\/c\u00b2) is exactly what our diagram makes geometric. We used their formula to compute the \u0394t\u2032 = \u22123.75 s spot-check, confirming our diagram\u2019s tilt correctly predicts the simultaneity breakdown."}]}</script>
 </body>
 </html>
