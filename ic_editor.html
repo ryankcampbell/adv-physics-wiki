@@ -192,6 +192,7 @@
 
 <div id="hdr">
   <a href="index.html">← Navigator</a>
+  <script>if(localStorage.getItem('student-session-token'))document.write('<a href="workspace.html">← My Work</a>')</script>
   <h1>IC Editor</h1>
   <span id="save-badge"></span>
   <input type="file" id="load-draft-input" accept=".json" style="display:none" onchange="loadDraftFile(this.files[0])">

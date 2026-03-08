@@ -253,8 +253,14 @@ function renderTopics(topics) {
   });
 }
 
-function populateModuleSuggestions(topics) {
-  const modules = [...new Set(Object.values(topics).map(t => t.module).filter(Boolean))];
+async function populateModuleSuggestions(topics) {
+  // Seed from student's own prior topics
+  const modules = new Set(Object.values(topics).map(t => t.module).filter(Boolean));
+  // Also pull module names from state.json concept list
+  try {
+    const state = await fetch('state/state.json').then(r => r.ok ? r.json() : []);
+    state.forEach(s => { if (s.module) modules.add(s.module); });
+  } catch {}
   const dl = document.getElementById('module-suggestions');
   modules.forEach(m => {
     const opt = document.createElement('option');
