@@ -368,6 +368,12 @@ const _hwId  = _urlP.get('hw')      || '';
 const _cid   = _urlP.get('concept') || '';
 const MODE        = _atId ? 'at' : _hwId ? 'hw' : 'ic';
 const CONCEPT_ID  = _cid || _atId || _hwId;
+
+// If opened from student portal, notify server (clears needs_revision → draft)
+{ const _stok = localStorage.getItem('student-session-token');
+  if (_stok && CONCEPT_ID) fetch(`/api/student/topic/${CONCEPT_ID}/open`, {
+    method: 'POST', headers: { 'Authorization': `Bearer ${_stok}` }
+  }).catch(() => {}); }
 const DRAFT_KEY   = MODE === 'at' ? 'at-draft-' + CONCEPT_ID
                   : MODE === 'hw' ? 'hw-draft-' + CONCEPT_ID
                   : (CONCEPT_ID ? 'ic-draft-' + CONCEPT_ID : 'ic-draft');
@@ -1196,6 +1202,14 @@ async function onToken(tok) {
     if (MODE === 'ic' && CONCEPT_ID) localStorage.removeItem('ic-draft-' + CONCEPT_ID);
     if (MODE === 'at' && CONCEPT_ID) localStorage.removeItem('at-draft-' + CONCEPT_ID);
     if (MODE === 'hw' && CONCEPT_ID) localStorage.removeItem('hw-draft-' + CONCEPT_ID);
+    // Notify server pipeline if student is logged in via portal
+    const _stok = localStorage.getItem('student-session-token');
+    if (_stok && CONCEPT_ID) {
+      fetch(`/api/student/topic/${CONCEPT_ID}/submit`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${_stok}` }
+      }).catch(() => {}); // fire-and-forget, don't block the UI
+    }
   } catch(err){
     document.getElementById('modal-status').innerHTML=`<span class="err">Upload failed: ${err.message}</span>`;
   }

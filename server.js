@@ -1041,6 +1041,32 @@ app.post('/api/student/topic/start', requireStudentToken, (req, res) => {
   res.json({ ok: true, slug });
 });
 
+// Mark topic as opened/in-progress (clears needs_revision back to draft)
+app.post('/api/student/topic/:slug/open', requireStudentToken, (req, res) => {
+  const { slug } = req.params;
+  const wf = readWorkflow();
+  const nameKey = req.studentName.toLowerCase();
+  if (!wf[nameKey]?.[slug]) return res.status(404).json({ error: 'Topic not found' });
+  if (wf[nameKey][slug].status === 'needs_revision') {
+    wf[nameKey][slug].status = 'draft';
+    wf[nameKey][slug].updated_at = new Date().toISOString().slice(0, 10);
+    writeWorkflow(wf);
+  }
+  res.json({ ok: true });
+});
+
+// Mark topic as submitted (called by ic_editor after Drive upload)
+app.post('/api/student/topic/:slug/submit', requireStudentToken, (req, res) => {
+  const { slug } = req.params;
+  const wf = readWorkflow();
+  const nameKey = req.studentName.toLowerCase();
+  if (!wf[nameKey]?.[slug]) return res.status(404).json({ error: 'Topic not found' });
+  wf[nameKey][slug].status = 'submitted';
+  wf[nameKey][slug].updated_at = new Date().toISOString().slice(0, 10);
+  writeWorkflow(wf);
+  res.json({ ok: true });
+});
+
 // ── Admin: workflow management ───────────────────────────────────
 app.get('/api/admin/workflow', requireAdmin, (req, res) => {
   res.json(readWorkflow());
