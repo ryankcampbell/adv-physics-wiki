@@ -299,13 +299,32 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     if (existingIdx >= 0) { contribs[existingIdx] = entry; } else { contribs.push(entry); }
     fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
 
-    // 6. Git commit + push
+    // 6. Sync workflow.json — mark matching student entry as complete on approve
+    if (decision !== 'revision') {
+      const wf = readWorkflow();
+      const authorKey = entryAuthor.toLowerCase().trim();
+      // Find any student whose name loosely matches the extracted author and has this concept
+      for (const [studentName, topics] of Object.entries(wf)) {
+        if (topics[conceptId] && authorKey.includes(studentName.split(' ')[0])) {
+          const stageMap = { ic: 'at', at: 'hw', hw: 'complete' };
+          const next = stageMap[fileType];
+          if (next) {
+            wf[studentName][conceptId].stage  = next;
+            wf[studentName][conceptId].status = next === 'complete' ? 'complete' : 'draft';
+            wf[studentName][conceptId].updated_at = new Date().toISOString().slice(0, 10);
+          }
+        }
+      }
+      writeWorkflow(wf);
+    }
+
+    // 7. Git commit + push
     const token = process.env.GITHUB_TOKEN;
     const user  = process.env.GITHUB_USER || 'ryankcampbell';
     const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
     const typeLabel = fileType.toUpperCase();
 
-    execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json`, { cwd: __dirname });
+    execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json state/workflow.json`, { cwd: __dirname });
     execSync(`git commit -m "Publish ${typeLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
 
     if (token) {
