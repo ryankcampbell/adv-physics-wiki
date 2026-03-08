@@ -285,6 +285,10 @@
     <option style="color:#000;background:#fff" value="modules/physical_optics.json">Physical Optics</option>
   </select>
   <span id="header-hint">Click a question or any node to explore</span>
+  <a href="workspace.html" id="workspace-link"
+     style="margin-left:auto;background:rgba(255,255,255,0.15);color:white;text-decoration:none;
+            padding:5px 13px;border-radius:6px;font-size:0.78rem;font-weight:600;white-space:nowrap;
+            border:1px solid rgba(255,255,255,0.25)">My Workspace →</a>
 </div>
 
 <div id="main">
@@ -312,13 +316,9 @@
       </div>
       <div id="coverage-text">0 of 0 concepts covered</div>
       <div class="legend">
-        <div class="legend-row"><div class="legend-dot" style="background:#16a34a"></div>Wiki contribution exists</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#16a34a"></div>IC published</div>
+        <div class="legend-row"><div class="legend-dot" style="background:#0d9488"></div>Published + on path</div>
         <div class="legend-row"><div class="legend-dot" style="background:#3b82f6"></div>On selected question path</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#0d9488"></div>Covered + on path</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#7c3aed"></div>Claimed — in progress</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#d97706"></div>Submitted — pending review</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#dc2626"></div>Needs revision</div>
-        <div class="legend-row"><div class="legend-dot" style="background:#0369a1"></div>Wanted — open call</div>
         <div class="legend-row"><div class="legend-dot" style="background:#475569"></div>Not yet covered</div>
       </div>
     </div>
@@ -364,7 +364,6 @@
 // ═══════════════════════════════════════════════════════════
 let mod = null;         // loaded module JSON
 let contribs = [];      // loaded contributions JSON
-let nodeStates = {};    // concept_id -> state string from state.json
 let selQuestion = null; // active anchor question id
 let selNode = null;     // active node id
 let highlighted = new Set(); // concept ids on highlighted path
@@ -388,15 +387,12 @@ async function init() {
   const sel = document.getElementById('module-select');
   if (sel) sel.value = lastModule;
   try {
-    const [modRes, cRes, sRes] = await Promise.all([
+    const [modRes, cRes] = await Promise.all([
       fetch(lastModule),
-      fetch('contributions.json'),
-      fetch('state/state.json')
+      fetch('contributions.json')
     ]);
     mod = await modRes.json();
     contribs = await cRes.json();
-    const stateArr = await sRes.json();
-    stateArr.forEach(s => { nodeStates[s.concept_id] = s; });
   } catch(e) {
     document.getElementById('graph-loading').textContent =
       'Could not load data. Serve from a local server: python3 -m http.server 8000';
@@ -615,21 +611,13 @@ function drawEdges(sel) { sel.attr('d', edgePath); }
 // STYLE HELPERS
 // ═══════════════════════════════════════════════════════════
 function nodeColor(d) {
-  // Only IC-type contributions count as "covered" (green)
   const covered = contribs.some(c => c.concept_id === d.id && (!c.type || c.type === 'ic'));
-  const onPath = highlighted.size > 0 && highlighted.has(d.id);
-  const selected = d.id === selNode;
-  const stObj = nodeStates[d.id];
-  const st = stObj?.status;  // full state object → extract .status
-  if (selected)                    return '#0f172a';
-  if (st === 'needs_revision')     return '#dc2626'; // red    — needs work (overrides green)
-  if (covered && onPath)           return '#0d9488';
-  if (covered)                     return '#16a34a'; // green  — IC published
-  if (st === 'submitted')          return '#d97706'; // orange — awaiting review
-  if (st === 'claimed')            return '#7c3aed'; // purple — in progress
-  if (st === 'wanted')             return '#0369a1'; // blue   — open call
-  if (onPath)                      return '#2563eb';
-  if (highlighted.size)            return '#64748b'; // dimmed
+  const onPath  = highlighted.size > 0 && highlighted.has(d.id);
+  if (d.id === selNode)  return '#0f172a';
+  if (covered && onPath) return '#0d9488';
+  if (covered)           return '#16a34a'; // green — IC published
+  if (onPath)            return '#2563eb';
+  if (highlighted.size)  return '#64748b'; // dimmed
   return '#475569';
 }
 
@@ -740,72 +728,22 @@ function selectNode(id) {
       }).join('')
     : '<span class="no-prereqs">None — this is an entry concept</span>';
 
-  // Wiki contributions — show only IC-type in main list
+  // Wiki contributions — IC-type only
   const icContribs = contribs.filter(x => x.concept_id === id && (!x.type || x.type === 'ic'));
-  const editorUrl  = `ic_editor.html?concept=${encodeURIComponent(id)}&name=${encodeURIComponent(c.name)}`;
-  const atEditorUrl = `ic_editor.html?at=${encodeURIComponent(id)}`;
-  const hasDraft   = !!localStorage.getItem('ic-draft-' + id);
-  const stObj      = nodeStates[id];       // full state object (or undefined)
-  const stStatus   = stObj?.status || 'unclaimed';
-  const feedback   = stObj?.feedback || '';
   let wikiHTML;
 
   if (icContribs.length) {
-    // Published ICs — hide contribution card while in revision (show Revise → instead)
-    const visibleContribs = stStatus === 'needs_revision' ? [] : icContribs;
-    wikiHTML = visibleContribs.map(x =>
+    wikiHTML = icContribs.map(x =>
       `<div class="wiki-entry">
         <a href="${x.url}" target="_blank">${x.title}</a>
         <div class="wiki-entry-author">by ${x.author}</div>
       </div>`
     ).join('');
-    if (stStatus === 'needs_revision') {
-      wikiHTML += `<a href="${editorUrl}" class="add-contrib-btn" style="display:block;margin-top:4px;color:#dc2626;font-weight:700">Revise →</a>`;
-    } else {
-      wikiHTML += hasDraft
-        ? `<a href="${editorUrl}" class="add-contrib-btn" style="color:#7c3aed;font-weight:700">Continue your draft →</a>`
-        : `<a href="${editorUrl}" class="add-contrib-btn">+ Write another IC</a>`;
-      wikiHTML += `<a href="${atEditorUrl}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#7c2d12;font-weight:600">Run AT →</a>`;
-    }
     wikiHTML += `<a href="concept.html?id=${encodeURIComponent(id)}" class="add-contrib-btn" style="display:block;margin-top:6px;color:#1e3a5f;font-weight:600">View IC / AT / HW →</a>`;
-
-  } else if (stStatus === 'needs_revision') {
-    const claimedBy = stObj?.claimed_by ? `<div style="font-size:0.78rem;color:#92400e;opacity:0.75;margin-bottom:4px">In revision by ${stObj.claimed_by}</div>` : '';
-    wikiHTML = `
-      <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:8px">
-        ${claimedBy}
-        <div style="display:flex;align-items:center;gap:10px;width:100%">
-          <span class="no-wiki-text" style="color:#dc2626">Needs revision</span>
-          <a href="${editorUrl}" class="claim-btn" style="background:#dc2626">Revise →</a>
-        </div>
-      </div>`;
-
-  } else if (stStatus === 'submitted') {
-    const claimedBy = stObj?.claimed_by || 'a student';
-    wikiHTML = `
-      <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:4px">
-        <span class="no-wiki-text" style="color:#d97706">Submitted by ${claimedBy} — awaiting review</span>
-      </div>`;
-
-  } else if (stStatus === 'claimed') {
-    const claimedBy = stObj?.claimed_by || 'a student';
-    wikiHTML = `
-      <div class="no-wiki" style="flex-direction:column;align-items:flex-start;gap:4px">
-        <span class="no-wiki-text" style="color:#7c3aed">Claimed by ${claimedBy} — IC in progress</span>
-      </div>`;
-
-  } else if (hasDraft) {
-    wikiHTML = `
-      <div class="no-wiki">
-        <span class="no-wiki-text" style="color:#7c3aed;font-weight:600">Draft in progress</span>
-        <a href="${editorUrl}" class="claim-btn" style="background:#7c3aed">Continue →</a>
-      </div>`;
-
   } else {
     wikiHTML = `
       <div class="no-wiki">
-        <span class="no-wiki-text">No contribution yet</span>
-        <a href="${editorUrl}" class="claim-btn">Claim →</a>
+        <span class="no-wiki-text">No contribution yet — start one in your workspace</span>
       </div>`;
   }
 
@@ -862,16 +800,12 @@ async function switchModule(url) {
   // Load new module
   document.getElementById('graph-loading').style.display = 'flex';
   try {
-    const [modRes, cRes, sRes] = await Promise.all([
+    const [modRes, cRes] = await Promise.all([
       fetch(url),
-      fetch('contributions.json'),
-      fetch('state/state.json')
+      fetch('contributions.json')
     ]);
     mod = await modRes.json();
     contribs = await cRes.json();
-    const stateArr2 = await sRes.json();
-    nodeStates = {};
-    stateArr2.forEach(s => { nodeStates[s.concept_id] = s; });
   } catch(e) {
     document.getElementById('graph-loading').textContent = 'Failed to load module.';
     return;
