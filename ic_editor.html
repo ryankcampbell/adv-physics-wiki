@@ -1258,7 +1258,14 @@ async function initMode() {
                   _applyDraft(JSON.parse(m[1]));  // baseline from published IC
                   const localDraft = localStorage.getItem('ic-draft-' + CONCEPT_ID);
                   if (localDraft) {
-                    try { _applyDraft(JSON.parse(localDraft)); } catch(e) {}  // overlay saved progress
+                    try {
+                      const ld = JSON.parse(localDraft);
+                      // Overlay only non-empty fields — an early empty save (from the update() at
+                      // page load) must not wipe the ic-source-data restore.
+                      FIDS.forEach(id => { const el = document.getElementById(id); if (el && ld[id]) el.value = ld[id]; });
+                      if (ld.__sim_html) { _restoreSim(ld.__sim_html, ld.__sim_name || 'simulation.html'); }
+                      if (Array.isArray(ld.__cits) && ld.__cits.length) { _restoreCits(ld.__cits); }
+                    } catch(e) {}  // overlay saved progress
                   }
                   update();
                   const banner = document.getElementById('feedback-banner');
