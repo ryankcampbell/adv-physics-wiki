@@ -555,8 +555,10 @@
         <table id="roster-table" style="width:100%;border-collapse:collapse;font-size:0.8rem;margin:6px 0;">
           <thead><tr style="color:#94a3b8;text-align:left;">
             <th style="padding:4px 8px;">Name</th>
-            <th style="padding:4px 8px;">Daily limit</th>
+            <th style="padding:4px 8px;">Password</th>
+            <th style="padding:4px 8px;">AI limit</th>
             <th style="padding:4px 8px;">Used today</th>
+            <th style="padding:4px 8px;">Locked</th>
             <th style="padding:4px 8px;"></th>
           </tr></thead>
           <tbody id="roster-tbody"></tbody>
@@ -1438,28 +1440,44 @@ async function loadSimLog() {
 }
 
 // ── Roster helpers ──────────────────────────────────────────────────
+function _normEntry(v) {
+  if (typeof v === 'number') return { limit: v, password: null, locked: false };
+  return { limit: v?.limit ?? 20, password: v?.password ?? null, locked: v?.locked ?? false };
+}
+
 function renderRoster(students, daily) {
   const today = new Date().toISOString().slice(0, 10);
   const tbody = document.getElementById('roster-tbody');
   tbody.innerHTML = '';
   const names = Object.keys(students);
   if (!names.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="padding:6px 8px;color:#94a3b8;font-size:0.78rem">No approved list — any name accepted</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:6px 8px;color:#94a3b8;font-size:0.78rem">No approved list — any name accepted</td></tr>';
     return;
   }
   names.sort().forEach(name => {
-    const limit = students[name];
+    const entry = _normEntry(students[name]);
     const usedKey = `${name}_${today}`;
     const used = daily[usedKey] || 0;
-    const bar = used >= limit ? 'color:#dc2626;font-weight:700' : used >= limit * 0.8 ? 'color:#d97706' : 'color:#16a34a';
+    const bar = used >= entry.limit ? 'color:#dc2626;font-weight:700' : used >= entry.limit * 0.8 ? 'color:#d97706' : 'color:#16a34a';
+    const pw = entry.password || '—';
+    const lockedStyle = entry.locked ? 'background:#dc2626;color:white' : 'background:#16a34a;color:white';
+    const lockedLabel = entry.locked ? 'Locked' : 'Active';
     const tr = document.createElement('tr');
+    tr.style.opacity = entry.locked ? '0.6' : '1';
     tr.innerHTML = `
       <td style="padding:4px 8px;text-transform:capitalize">${name}</td>
       <td style="padding:4px 8px;">
-        <input type="number" value="${limit}" min="1" max="200" style="width:55px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:0.8rem;"
+        <span id="pw-${name}" style="font-family:monospace;font-size:0.8rem;background:#12122a;padding:2px 6px;border-radius:3px;cursor:pointer;user-select:all" title="Click to copy" onclick="navigator.clipboard.writeText('${pw}');this.style.outline='1px solid #7eb8da'">${pw}</span>
+        <button onclick="rosterGenPassword('${name}')" style="background:none;border:1px solid #e2e8f0;border-radius:4px;padding:2px 6px;font-size:0.72rem;color:#94a3b8;cursor:pointer;margin-left:3px" title="Generate new password">↻</button>
+      </td>
+      <td style="padding:4px 8px;">
+        <input type="number" value="${entry.limit}" min="1" max="200" style="width:55px;padding:3px 6px;border:1px solid #e2e8f0;border-radius:4px;font-size:0.8rem;"
           onchange="rosterSetLimit('${name}', this.value, this)" />
       </td>
-      <td style="padding:4px 8px;${bar}">${used} / ${limit}</td>
+      <td style="padding:4px 8px;${bar}">${used} / ${entry.limit}</td>
+      <td style="padding:4px 8px;">
+        <button onclick="rosterSetLocked('${name}', ${!entry.locked})" style="border:none;border-radius:4px;padding:2px 8px;font-size:0.72rem;cursor:pointer;${lockedStyle}">${lockedLabel}</button>
+      </td>
       <td style="padding:4px 8px;"><button onclick="rosterRemove('${name}')"
         style="background:none;border:1px solid #e2e8f0;border-radius:4px;padding:2px 8px;font-size:0.75rem;color:#94a3b8;cursor:pointer;">✕</button></td>`;
     tbody.appendChild(tr);
@@ -1471,9 +1489,11 @@ async function rosterAdd() {
   const limit = parseInt(document.getElementById('roster-limit-input').value) || 20;
   const st = document.getElementById('roster-status');
   if (!name) { st.style.color = '#dc2626'; st.textContent = 'Enter a name first.'; return; }
-  await adminFetch('/api/sim/students/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, limit }) });
+  const r = await adminFetch('/api/sim/students/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, limit }) });
+  const data = await r.json();
   document.getElementById('roster-name-input').value = '';
-  st.style.color = '#16a34a'; st.textContent = `Added "${name}".`;
+  st.style.color = '#16a34a';
+  st.textContent = `Added "${name}" — password: ${data.password}`;
   loadSimLog();
 }
 
@@ -1487,6 +1507,22 @@ async function rosterSetLimit(name, limit, input) {
   if (isNaN(l) || l < 1) { input.value = 20; return; }
   await adminFetch('/api/sim/students/setLimit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, limit: l }) });
   document.getElementById('roster-status').textContent = '';
+}
+
+async function rosterGenPassword(name) {
+  const r = await adminFetch('/api/sim/students/genpassword', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+  const data = await r.json();
+  const el = document.getElementById(`pw-${name}`);
+  if (el) { el.textContent = data.password; el.setAttribute('onclick', `navigator.clipboard.writeText('${data.password}');this.style.outline='1px solid #7eb8da'`); }
+  document.getElementById('roster-status').style.color = '#16a34a';
+  document.getElementById('roster-status').textContent = `New password for "${name}": ${data.password}`;
+}
+
+async function rosterSetLocked(name, locked) {
+  await adminFetch('/api/sim/students/setLocked', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, locked }) });
+  document.getElementById('roster-status').style.color = locked ? '#dc2626' : '#16a34a';
+  document.getElementById('roster-status').textContent = locked ? `"${name}" AI access locked.` : `"${name}" AI access restored.`;
+  loadSimLog();
 }
 
 async function setSimModel(model) {

@@ -698,18 +698,43 @@ function incrementDailyTurns(name) {
   return data[key];
 }
 
+// ── Student entry helper (handles old format: number, new format: object) ──
+function getStudentEntry(students, nameKey) {
+  const v = students[nameKey];
+  if (v === undefined) return null;
+  if (typeof v === 'number') return { limit: v, password: null, locked: false };
+  return { limit: v.limit ?? 20, password: v.password ?? null, locked: v.locked ?? false };
+}
+
+// ── Password generator (6 readable chars, no ambiguous 0/O/1/l) ──
+function genStudentPassword() {
+  const chars = 'bcdfghjkmnpqrstvwxyz23456789';
+  return Array.from(require('crypto').randomBytes(6))
+    .map(b => chars[b % chars.length]).join('');
+}
+
 // ── Route: Auth ──────────────────────────────────────────────────
 app.post('/api/sim/auth', (req, res) => {
   const { name, password } = req.body;
   if (!name?.trim()) return res.status(400).json({ error: 'Name required' });
   const settings = readSimSettings();
-  if (password !== settings.password) return res.status(401).json({ error: 'Wrong password' });
-  // If approved list exists, enforce it
   const students = settings.students || {};
   const nameKey = name.trim().toLowerCase();
+
+  // If approved list exists, student must be on it
   if (Object.keys(students).length > 0 && !(nameKey in students)) {
     return res.status(403).json({ error: 'Name not on the approved list — check spelling or ask your teacher.' });
   }
+
+  const entry = getStudentEntry(students, nameKey);
+
+  // Check per-student password first; fall back to class password
+  const expectedPw = entry?.password || settings.password;
+  if (password !== expectedPw) return res.status(401).json({ error: 'Wrong password' });
+
+  // Locked students can't access AI
+  if (entry?.locked) return res.status(403).json({ error: 'Your AI access has been paused — see your teacher.' });
+
   const token = require('crypto').randomUUID();
   simSessions.set(token, { studentName: name.trim(), expires: Date.now() + 8 * 60 * 60 * 1000 });
   res.json({ token });
@@ -734,7 +759,8 @@ app.post('/api/sim/chat', requireSimToken, async (req, res) => {
   const token = req.simToken;
 
   const settings = readSimSettings();
-  const studentLimit = settings.students?.[req.simStudent.toLowerCase()] ?? DAILY_MAX_TURNS;
+  const _entry = getStudentEntry(settings.students || {}, req.simStudent.toLowerCase());
+  const studentLimit = _entry?.limit ?? DAILY_MAX_TURNS;
   const dailyTurns = getDailyTurns(req.simStudent);
   if (dailyTurns >= studentLimit) {
     return res.status(429).json({ error: `Daily turn limit (${studentLimit}) reached. Come back tomorrow!` });
@@ -884,9 +910,11 @@ app.post('/api/sim/students/add', requireAdmin, (req, res) => {
   if (!name) return res.status(400).json({ error: 'Name required' });
   const s = readSimSettings();
   s.students = s.students || {};
-  s.students[name] = limit;
+  const existing = getStudentEntry(s.students, name);
+  const pw = existing?.password || genStudentPassword();
+  s.students[name] = { limit, password: pw, locked: false };
   writeSimSettings(s);
-  res.json({ ok: true });
+  res.json({ ok: true, password: pw });
 });
 app.post('/api/sim/students/remove', requireAdmin, (req, res) => {
   const name = req.body.name?.trim().toLowerCase();
@@ -902,7 +930,30 @@ app.post('/api/sim/students/setLimit', requireAdmin, (req, res) => {
   if (!name || isNaN(limit)) return res.status(400).json({ error: 'Name and limit required' });
   const s = readSimSettings();
   if (!s.students?.[name]) return res.status(404).json({ error: 'Student not found' });
-  s.students[name] = limit;
+  const entry = getStudentEntry(s.students, name);
+  s.students[name] = { ...entry, limit };
+  writeSimSettings(s);
+  res.json({ ok: true });
+});
+app.post('/api/sim/students/genpassword', requireAdmin, (req, res) => {
+  const name = req.body.name?.trim().toLowerCase();
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const s = readSimSettings();
+  if (!s.students?.[name]) return res.status(404).json({ error: 'Student not found' });
+  const entry = getStudentEntry(s.students, name);
+  const pw = genStudentPassword();
+  s.students[name] = { ...entry, password: pw };
+  writeSimSettings(s);
+  res.json({ ok: true, password: pw });
+});
+app.post('/api/sim/students/setLocked', requireAdmin, (req, res) => {
+  const name = req.body.name?.trim().toLowerCase();
+  const locked = !!req.body.locked;
+  if (!name) return res.status(400).json({ error: 'Name required' });
+  const s = readSimSettings();
+  if (!s.students?.[name]) return res.status(404).json({ error: 'Student not found' });
+  const entry = getStudentEntry(s.students, name);
+  s.students[name] = { ...entry, locked };
   writeSimSettings(s);
   res.json({ ok: true });
 });
