@@ -219,23 +219,31 @@ app.get('/api/drive/preview/:fileId', async (req, res) => {
   }
 });
 
-// ── Publish: download → save → update state.json + contributions.json → git push ──
+// ── Review: download → save → update state/workflow/contributions → git push ──
+//
+// New pipeline semantics:
+//   IC  + approve  → save file, add type='ic-draft' to contributions.json, advance workflow to AT
+//   AT  + approve  → save file, advance workflow to HW (no contributions.json change)
+//   HW  + approve  → save file, flip ic-draft→ic (node turns green), advance workflow to complete
+//   any + revision → save file, write feedback to BOTH state.json AND workflow.json
+//
 app.post('/api/publish', requireAdmin, async (req, res) => {
   const { fileId, conceptId, label, decision, feedback } = req.body;
   if (!fileId || !conceptId) return res.status(400).json({ error: 'Missing fileId or conceptId' });
 
   const safeLabel = (label || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase() || 'index';
-  const fileType  = getFileType(safeLabel);  // at / hw / ic
+  const fileType  = getFileType(safeLabel);  // 'ic' / 'at' / 'hw'
+  const isRevision = decision === 'revision';
 
-  // For revisions: reuse the existing published filename so it's an in-place replace,
-  // not a new file. This prevents duplicate contributions.json entries.
+  // Reuse existing filename if available (prevents duplicate entries on re-submission)
   const contribPath = path.join(__dirname, 'contributions.json');
   const existingContribs = fs.existsSync(contribPath)
     ? JSON.parse(fs.readFileSync(contribPath, 'utf8')) : [];
-  const existingEntry = existingContribs.find(
-    c => c.concept_id === conceptId && (!c.type || c.type === fileType)
+  const existingIcEntry = existingContribs.find(
+    c => c.concept_id === conceptId && (c.type === 'ic' || c.type === 'ic-draft')
   );
-  const existingFilename = existingEntry ? existingEntry.url.split('/').pop() : null;
+  const existingFilename = (fileType === 'ic' && existingIcEntry)
+    ? existingIcEntry.url.split('/').pop() : null;
   const filename = existingFilename || (safeLabel + '.html');
 
   try {
@@ -251,7 +259,7 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(path.join(dir, filename), html);
 
-    // 3. Extract title & author from HTML (different title patterns per type)
+    // 3. Extract title & author from HTML
     const titleRe = fileType === 'at' ? /<title>AT:\s*([^|<]+)/i
                   : fileType === 'hw' ? /<title>HW:\s*([^|<]+)/i
                   :                     /<title>IC:\s*([^|<]+)/i;
@@ -259,83 +267,88 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     const authorM = html.match(/by\s+([^<]+)<\/span>/i);
     const entryTitle  = titleM  ? titleM[1].trim()  : conceptId.replace(/_/g, ' ');
     const entryAuthor = authorM ? authorM[1].trim()  : (label || 'Unknown');
+    const entryUrl    = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
 
-    // 4. Update state/state.json — each type updates a different field
+    // 4. Update state/state.json (used by IC editor feedback banner as fallback)
     const statePath = path.join(__dirname, 'state', 'state.json');
-    let state = [];
-    if (fs.existsSync(statePath)) {
-      state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
-    }
-    const stateIdx = state.findIndex(s => s.concept_id === conceptId);
+    let state = fs.existsSync(statePath) ? JSON.parse(fs.readFileSync(statePath, 'utf8')) : [];
+    const stateIdx   = state.findIndex(s => s.concept_id === conceptId);
     const stateEntry = stateIdx >= 0 ? { ...state[stateIdx] } : { concept_id: conceptId };
 
-    if (fileType === 'ic') {
-      if (decision === 'revision') {
-        stateEntry.status   = 'needs_revision';
-        stateEntry.feedback = feedback || '';
-      } else {
-        // approve: IC is published (covered=true → green node); clear any revision state
-        stateEntry.status = 'submitted';
-        delete stateEntry.feedback;
-        delete stateEntry.at_status;  // reset AT cycle so a new AT can be dispatched
-      }
-    } else if (fileType === 'at') {
-      stateEntry.at_status = 'submitted';
-    } else if (fileType === 'hw') {
-      stateEntry.hw_status = 'submitted';
+    if (isRevision) {
+      stateEntry.status   = 'needs_revision';
+      stateEntry.feedback = feedback || '';
+    } else {
+      // On any approval, clear revision state
+      delete stateEntry.feedback;
+      if (fileType === 'ic') stateEntry.status = 'in_progress';
+      if (fileType === 'hw') { stateEntry.status = 'complete'; delete stateEntry.at_status; }
     }
-
-    if (stateIdx >= 0) state[stateIdx] = stateEntry;
-    else state.push(stateEntry);
-
+    if (stateIdx >= 0) state[stateIdx] = stateEntry; else state.push(stateEntry);
     fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
     fs.writeFileSync(statePath, JSON.stringify(state, null, 2));
 
-    // 5. Auto-update contributions.json (with type field)
+    // 5. Update contributions.json
+    //    IC approve  → add/update with type='ic-draft' (AT editor can find it; node stays dark)
+    //    HW approve  → flip existing ic-draft → 'ic' (concept node turns green)
+    //    AT approve  → no contributions.json change
+    //    any revision → add/update with type='ic-draft' (so "View Submitted IC" works in editor)
     let contribs = [...existingContribs];
-    const entryUrl = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
-    const existingIdx = contribs.findIndex(c => c.concept_id === conceptId && c.url.endsWith('/' + filename));
-    const entry = { concept_id: conceptId, type: fileType, title: entryTitle, author: entryAuthor, url: entryUrl };
-    if (existingIdx >= 0) { contribs[existingIdx] = entry; } else { contribs.push(entry); }
+    if (fileType === 'ic' || isRevision) {
+      // IC file (approve or revision): upsert with ic-draft
+      const icIdx = contribs.findIndex(c => c.concept_id === conceptId && (c.type === 'ic' || c.type === 'ic-draft'));
+      const icEntry = { concept_id: conceptId, type: 'ic-draft', title: entryTitle, author: entryAuthor, url: entryUrl };
+      if (icIdx >= 0) contribs[icIdx] = icEntry; else contribs.push(icEntry);
+    } else if (fileType === 'hw' && !isRevision) {
+      // HW final approval: flip ic-draft → ic so concept node turns green
+      const icIdx = contribs.findIndex(c => c.concept_id === conceptId && c.type === 'ic-draft');
+      if (icIdx >= 0) contribs[icIdx] = { ...contribs[icIdx], type: 'ic' };
+      // Also add hw entry for concept viewer
+      const hwEntry = { concept_id: conceptId, type: 'hw', title: entryTitle, author: entryAuthor, url: entryUrl };
+      const hwIdx = contribs.findIndex(c => c.concept_id === conceptId && c.type === 'hw');
+      if (hwIdx >= 0) contribs[hwIdx] = hwEntry; else contribs.push(hwEntry);
+    }
     fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
 
-    // 6. Sync workflow.json — mark matching student entry as complete on approve
-    if (decision !== 'revision') {
-      const wf = readWorkflow();
-      const authorKey = entryAuthor.toLowerCase().trim();
-      // Find any student whose name loosely matches the extracted author and has this concept
-      for (const [studentName, topics] of Object.entries(wf)) {
-        if (topics[conceptId] && authorKey.includes(studentName.split(' ')[0])) {
-          const stageMap = { ic: 'at', at: 'hw', hw: 'complete' };
-          const next = stageMap[fileType];
-          if (next) {
-            wf[studentName][conceptId].stage  = next;
-            wf[studentName][conceptId].status = next === 'complete' ? 'complete' : 'draft';
-            wf[studentName][conceptId].updated_at = new Date().toISOString().slice(0, 10);
-          }
+    // 6. Sync workflow.json
+    const wf = readWorkflow();
+    const authorKey = entryAuthor.toLowerCase().trim();
+    for (const [studentName, topics] of Object.entries(wf)) {
+      if (!topics[conceptId]) continue;
+      const firstName = studentName.split(' ')[0];
+      if (!authorKey.includes(firstName)) continue;
+
+      if (isRevision) {
+        // Send to revision: set needs_revision + store notes for workspace card + IC editor
+        topics[conceptId].status         = 'needs_revision';
+        topics[conceptId].revision_notes = feedback || '';
+      } else {
+        // Approve: advance stage
+        const stageMap = { ic: 'at', at: 'hw', hw: 'complete' };
+        const next = stageMap[fileType];
+        if (next) {
+          topics[conceptId].stage          = next;
+          topics[conceptId].status         = next === 'complete' ? 'complete' : 'draft';
+          topics[conceptId].revision_notes = '';
         }
       }
-      writeWorkflow(wf);
+      topics[conceptId].updated_at = new Date().toISOString().slice(0, 10);
     }
+    writeWorkflow(wf);
 
     // 7. Git commit + push
     const token = process.env.GITHUB_TOKEN;
     const user  = process.env.GITHUB_USER || 'ryankcampbell';
     const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
-    const typeLabel = fileType.toUpperCase();
+    const actionLabel = isRevision ? 'Revision' : (fileType === 'hw' ? 'Publish' : `Approve-${fileType.toUpperCase()}`);
 
     execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json state/workflow.json`, { cwd: __dirname });
-    execSync(`git commit -m "Publish ${typeLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
-
-    if (token) {
-      execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
-    }
+    execSync(`git commit -m "${actionLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
+    if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
     execSync('git push', { cwd: __dirname });
-    if (token) {
-      execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
-    }
+    if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
 
-    res.json({ success: true, url: entryUrl, author: entryAuthor, title: entryTitle, type: fileType });
+    res.json({ success: true, url: entryUrl, author: entryAuthor, title: entryTitle, type: fileType, action: actionLabel });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

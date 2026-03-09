@@ -127,6 +127,8 @@
     }
     .btn-publish:hover { background: #6d28d9; }
     .btn-publish:disabled { background: #c4b5fd; cursor: default; }
+    .btn-publish-final { background: #15803d; }
+    .btn-publish-final:hover { background: #166534; }
     .btn-published {
       background: #16a34a; color: white; border: none;
       border-radius: 5px; padding: 5px 14px; font-size: 0.78rem;
@@ -474,7 +476,8 @@
   <div id="loading">Loading module…</div>
 
   <div id="table-wrap" style="display:none">
-    <div class="section-title">Concept States</div>
+    <details>
+    <summary class="section-title" style="cursor:pointer;list-style:none">Concept States <span style="font-size:0.72rem;color:#94a3b8;font-weight:400">(legacy — managed via Student Pipeline)</span></summary>
     <table class="concept-table" id="concept-table">
       <thead>
         <tr>
@@ -489,6 +492,7 @@
       </thead>
       <tbody id="table-body"></tbody>
     </table>
+    </details>
   </div>
 
   <div id="export-section" style="display:none">
@@ -758,51 +762,40 @@ function renderDriveList(files) {
         ? '<span class="type-badge type-badge-hw">HW</span>'
         : '<span class="type-badge type-badge-ic">IC</span>';
 
-    const publishBtn = `<button class="btn-publish" onclick="publishFile('${f.id}', this)">Publish →</button>`;
+    // Approve button label depends on file type
+    const approveLabel = fileType === 'hw' ? 'Publish to Class Wiki ✦'
+                       : fileType === 'at' ? 'Approve → HW'
+                       :                     'Approve → AT';
+    const approveCls   = fileType === 'hw' ? 'btn-publish btn-publish-final' : 'btn-publish';
     const actionBtn = f.dismissed
       ? `<button class="btn-restore" onclick="restoreFile('${f.id}', this)">Restore</button>`
       : `<button class="btn-dismiss" onclick="dismissFile('${f.id}', this)">✕ Dismiss</button>`;
 
-    if (fileType === 'ic') {
-      row.innerHTML = `
-        <div class="drive-row-main">
-          ${typeBadge}
-          <div class="drive-filename">${f.name}</div>
-          <div class="drive-date">${date}</div>
-          <select class="drive-concept-sel">
-            <option value="">— select concept —</option>
-            ${conceptOptions}
+    // All file types get the same row layout: decision dropdown + action button
+    row.innerHTML = `
+      <div class="drive-row-main">
+        ${typeBadge}
+        <div class="drive-filename">${f.name}</div>
+        <div class="drive-date">${date}</div>
+        <select class="drive-concept-sel">
+          <option value="">— select concept —</option>
+          ${conceptOptions}
+        </select>
+        <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html">
+        <button class="btn-preview" onclick="previewFile('${f.id}','${escHtml(f.name)}','${fileType}',this.closest('.drive-row'))">Preview</button>
+        ${f.dismissed ? '' : `
+          <select class="drive-decision-sel">
+            <option value="approve">${approveLabel}</option>
+            <option value="revision">↩ Send to Revision</option>
           </select>
-          <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html">
-          <button class="btn-preview" onclick="previewFile('${f.id}','${escHtml(f.name)}','${fileType}',this.closest('.drive-row'))">Preview</button>
-          ${f.dismissed ? '' : `<select class="drive-decision-sel">
-            <option value="approve">✓ Approve</option>
-            <option value="revision">↩ Request Revision</option>
-          </select>
-          ${publishBtn}`}
-          ${actionBtn}
-        </div>
-        <div class="drive-row-feedback" style="display:none">
-          <textarea class="drive-feedback-inp" placeholder="Feedback for student (required)…"></textarea>
-        </div>
-      `;
-    } else {
-      row.innerHTML = `
-        <div class="drive-row-main">
-          ${typeBadge}
-          <div class="drive-filename">${f.name}</div>
-          <div class="drive-date">${date}</div>
-          <select class="drive-concept-sel">
-            <option value="">— select concept —</option>
-            ${conceptOptions}
-          </select>
-          <input class="drive-label-inp" type="text" value="${escHtml(stem)}" placeholder="student name" title="Used as filename: label.html">
-          <button class="btn-preview" onclick="previewFile('${f.id}','${escHtml(f.name)}','${fileType}',this.closest('.drive-row'))">Preview</button>
-          ${f.dismissed ? '' : publishBtn}
-          ${actionBtn}
-        </div>
-      `;
-    }
+          <button class="${approveCls}" onclick="publishFile('${f.id}', this)">${approveLabel}</button>
+        `}
+        ${actionBtn}
+      </div>
+      <div class="drive-row-feedback" style="display:none">
+        <textarea class="drive-feedback-inp" placeholder="Revision notes for student (required)…"></textarea>
+      </div>
+    `;
 
     // When concept is selected, strip concept_id prefix from stem to suggest student name
     row.querySelector('.drive-concept-sel').addEventListener('change', function() {
@@ -816,12 +809,15 @@ function renderDriveList(files) {
       }
     });
 
-    // Show/hide feedback row based on decision selection (IC rows only)
-    if (fileType === 'ic' && !f.dismissed) {
-      const decisionSel   = row.querySelector('.drive-decision-sel');
-      const feedbackRow   = row.querySelector('.drive-row-feedback');
+    // Show/hide feedback row + update button label based on decision selection (all types)
+    if (!f.dismissed) {
+      const decisionSel = row.querySelector('.drive-decision-sel');
+      const feedbackRow = row.querySelector('.drive-row-feedback');
+      const actionButton = row.querySelector('.btn-publish');
       decisionSel.addEventListener('change', () => {
-        feedbackRow.style.display = decisionSel.value === 'revision' ? 'block' : 'none';
+        const isRevision = decisionSel.value === 'revision';
+        feedbackRow.style.display = isRevision ? 'block' : 'none';
+        if (actionButton) actionButton.textContent = isRevision ? '↩ Send to Revision' : approveLabel;
       });
     }
 

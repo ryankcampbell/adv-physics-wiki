@@ -1230,22 +1230,33 @@ async function initMode() {
 
     // Show teacher feedback banner + submitted IC toggle if concept is in needs_revision
     if (CONCEPT_ID) {
+      // Prefer workflow.json (via student API) for feedback; fall back to state.json
+      const _stok2 = localStorage.getItem('student-session-token');
       Promise.all([
         fetch('state/state.json').then(r => r.ok ? r.json() : []),
-        fetch('contributions.json').then(r => r.ok ? r.json() : [])
-      ]).then(([state, contribs]) => {
-        const entry = state.find(s => s.concept_id === CONCEPT_ID);
-        const published = contribs.find(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic'));
+        fetch('contributions.json').then(r => r.ok ? r.json() : []),
+        _stok2
+          ? fetch('/api/student/topics', { headers: { 'Authorization': `Bearer ${_stok2}` } })
+              .then(r => r.ok ? r.json() : {}).then(d => d.topics || {})
+          : Promise.resolve({})
+      ]).then(([state, contribs, wfTopics]) => {
+        const entry     = state.find(s => s.concept_id === CONCEPT_ID);
+        const wfTopic   = wfTopics[CONCEPT_ID];
+        const published = contribs.find(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic' || c.type === 'ic-draft'));
 
-        if (entry && entry.feedback) {
+        // Feedback: workflow revision_notes takes priority over state.json feedback
+        const feedbackText = wfTopic?.revision_notes || entry?.feedback || '';
+        const isRevision   = wfTopic?.status === 'needs_revision' || entry?.status === 'needs_revision';
+
+        if (feedbackText) {
           const banner = document.createElement('div');
           banner.id = 'feedback-banner';
-          const label = entry.status === 'needs_revision' ? '⚠ Revision Requested' : '📝 Teacher Note';
-          banner.innerHTML = `<strong>${label}:</strong> ${entry.feedback}`;
+          const label = isRevision ? '⚠ Revision Requested' : '📝 Teacher Note';
+          banner.innerHTML = `<strong>${label}:</strong> ${feedbackText}`;
           document.getElementById('form-panel').prepend(banner);
         }
 
-        if (entry?.status === 'needs_revision' && published) {
+        if (isRevision && published) {
           // Always fetch published IC as baseline, then overlay any saved local progress on top.
           // This prevents a race condition where a sim upload saves an empty draft before
           // the async fetch completes, which would cause the !localStorage check to skip restore.
@@ -1317,7 +1328,7 @@ async function initMode() {
   let icEntries = [], atEntries = [];
   try {
     const contribs = await fetch('contributions.json').then(r=>r.json());
-    icEntries = contribs.filter(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic'));
+    icEntries = contribs.filter(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic' || c.type === 'ic-draft'));
     atEntries = contribs.filter(c => c.concept_id === CONCEPT_ID && c.type === 'at');
     if (icEntries.length && icEntries[0].title) conceptName = icEntries[0].title;
   } catch(e) {}
