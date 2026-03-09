@@ -4,10 +4,10 @@
       "module": "Special Relativity",
       "title": "Spacetime Diagrams: Drawing Relativity on Paper",
       "stage": "ic",
-      "status": "needs_revision",
+      "status": "draft",
       "revision_notes": "The Minkowski diagram and worldline derivation are solid — two fixes before publishing: (1) label the ct and x axes on your diagram, and (2) specify which inertial frame the diagram is drawn in (S or S′).",
       "created_at": "2026-03-01",
-      "updated_at": "2026-03-05"
+      "updated_at": "2026-03-08"
     }
   },
   "sadie park": {

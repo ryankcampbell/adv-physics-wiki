@@ -1,0 +1,592 @@
+[
+  {
+    "token": "bc9d1e84-e9e4-4de9-91a6-60508eaf02ab",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-01T18:43:37.803Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-01T18:43:37.803Z",
+        "inputTokens": 1650,
+        "outputTokens": 4096,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 1650,
+    "totalOutputTokens": 4096
+  },
+  {
+    "token": "af244e14-d588-42e4-b1bd-ce9b2b1c78a8",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-01T18:57:31.680Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-01T18:57:31.680Z",
+        "inputTokens": 1659,
+        "outputTokens": 4096,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 1659,
+    "totalOutputTokens": 4096
+  },
+  {
+    "token": "38a08701-2f6e-4e6d-aedd-120b85384c73",
+    "studentName": "ryan campbell",
+    "startedAt": "2026-03-01T19:12:36.867Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-01T19:12:36.866Z",
+        "inputTokens": 1648,
+        "outputTokens": 4096,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-01T19:15:02.674Z",
+        "inputTokens": 1644,
+        "outputTokens": 4096,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 3292,
+    "totalOutputTokens": 8192
+  },
+  {
+    "token": "a3c0c5ca-2163-4c6d-bca9-4ba2fe1b8627",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-01T19:16:41.798Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-01T19:16:41.798Z",
+        "inputTokens": 1644,
+        "outputTokens": 4096,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-01T19:17:55.115Z",
+        "inputTokens": 5751,
+        "outputTokens": 4096,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 7395,
+    "totalOutputTokens": 8192
+  },
+  {
+    "token": "352dfa33-f5d9-4427-a3b0-48c5785df0b2",
+    "studentName": "ryan campbell",
+    "startedAt": "2026-03-01T19:25:51.918Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-01T19:25:51.918Z",
+        "inputTokens": 1647,
+        "outputTokens": 4096,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-01T19:38:16.020Z",
+        "inputTokens": 5685,
+        "outputTokens": 4096,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 7332,
+    "totalOutputTokens": 8192
+  },
+  {
+    "token": "b5a97007-1ad0-4c5c-a1e8-7fd3bc7b6653",
+    "studentName": "test",
+    "startedAt": "2026-03-05T18:30:22.763Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T18:30:22.763Z",
+        "inputTokens": 1551,
+        "outputTokens": 25,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 1551,
+    "totalOutputTokens": 25
+  },
+  {
+    "token": "253bb299-6353-4223-8a1c-7fcfcd303a95",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-05T18:41:57.252Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T18:41:57.252Z",
+        "inputTokens": 1668,
+        "outputTokens": 4096,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 1668,
+    "totalOutputTokens": 4096
+  },
+  {
+    "token": "213a7ad3-5b29-4e95-bd49-f111f91c04dd",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-05T18:54:32.896Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T18:54:32.896Z",
+        "inputTokens": 5691,
+        "outputTokens": 4096,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-05T19:01:16.715Z",
+        "inputTokens": 5706,
+        "outputTokens": 4096,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-05T19:02:35.940Z",
+        "inputTokens": 5685,
+        "outputTokens": 4096,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 17082,
+    "totalOutputTokens": 12288
+  },
+  {
+    "token": "932e79d5-5b57-4251-9d0a-95b08f2b7ab6",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-05T19:06:08.772Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T19:06:08.772Z",
+        "inputTokens": 5681,
+        "outputTokens": 5077,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 5681,
+    "totalOutputTokens": 5077
+  },
+  {
+    "token": "7ee5d529-0f9e-468e-8c4f-f75ea4112474",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-05T19:24:00.028Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T19:24:00.028Z",
+        "inputTokens": 1773,
+        "outputTokens": 8192,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 1773,
+    "totalOutputTokens": 8192
+  },
+  {
+    "token": "a8a3e78d-fad9-4285-829a-65832786d291",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-05T19:27:25.144Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T19:27:25.144Z",
+        "inputTokens": 10281,
+        "outputTokens": 7028,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-05T19:38:08.683Z",
+        "inputTokens": 6814,
+        "outputTokens": 3985,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 17095,
+    "totalOutputTokens": 11013
+  },
+  {
+    "token": "9fa12cf3-c2f6-442c-891a-970aca860311",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-05T23:53:15.740Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-05T23:53:15.740Z",
+        "inputTokens": 1689,
+        "outputTokens": 258,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-05T23:55:50.861Z",
+        "inputTokens": 2011,
+        "outputTokens": 4422,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 3700,
+    "totalOutputTokens": 4680
+  },
+  {
+    "token": "531ae376-d31a-489c-b689-e936d7af161d",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-06T00:47:40.750Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-06T00:47:40.750Z",
+        "inputTokens": 6133,
+        "outputTokens": 4230,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 6133,
+    "totalOutputTokens": 4230
+  },
+  {
+    "token": "30de2729-2daf-4203-8350-5ced74011424",
+    "studentName": "Ryan Cambpell",
+    "startedAt": "2026-03-06T01:01:13.467Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-06T01:01:13.467Z",
+        "inputTokens": 5987,
+        "outputTokens": 4486,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-06T01:02:56.739Z",
+        "inputTokens": 6255,
+        "outputTokens": 4294,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-06T01:10:27.639Z",
+        "inputTokens": 5951,
+        "outputTokens": 4361,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-06T01:11:25.613Z",
+        "inputTokens": 6079,
+        "outputTokens": 4363,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-06T01:12:46.670Z",
+        "inputTokens": 6200,
+        "outputTokens": 4331,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-06T01:14:08.085Z",
+        "inputTokens": 6681,
+        "outputTokens": 4317,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 37153,
+    "totalOutputTokens": 26152
+  },
+  {
+    "token": "4edf9c47-1106-43b9-8056-5359568f4ebd",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-06T15:43:28.231Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-06T15:43:28.231Z",
+        "inputTokens": 6945,
+        "outputTokens": 4570,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      },
+      {
+        "timestamp": "2026-03-06T15:44:35.322Z",
+        "inputTokens": 8377,
+        "outputTokens": 4761,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001"
+      }
+    ],
+    "totalInputTokens": 15322,
+    "totalOutputTokens": 9331
+  },
+  {
+    "token": "14307618-296d-4686-9e1e-0d3f27c7c242",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-06T17:02:56.906Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-06T17:02:56.906Z",
+        "inputTokens": 5522,
+        "outputTokens": 318,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:03:23.150Z",
+        "inputTokens": 6171,
+        "outputTokens": 114,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T17:03:35.182Z",
+        "inputTokens": 6294,
+        "outputTokens": 481,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:04:33.374Z",
+        "inputTokens": 7011,
+        "outputTokens": 904,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:05:16.497Z",
+        "inputTokens": 7158,
+        "outputTokens": 188,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T17:06:15.583Z",
+        "inputTokens": 7896,
+        "outputTokens": 490,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:06:48.361Z",
+        "inputTokens": 8231,
+        "outputTokens": 260,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:07:18.274Z",
+        "inputTokens": 8317,
+        "outputTokens": 78,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T17:07:23.802Z",
+        "inputTokens": 8734,
+        "outputTokens": 268,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:08:37.827Z",
+        "inputTokens": 8914,
+        "outputTokens": 251,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": true
+      }
+    ],
+    "totalInputTokens": 74248,
+    "totalOutputTokens": 3352
+  },
+  {
+    "token": "2b82c900-e5fc-4f2f-9388-c1a2beec7fe8",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-06T17:14:54.161Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-06T17:14:54.161Z",
+        "inputTokens": 5615,
+        "outputTokens": 5698,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T17:16:28.669Z",
+        "inputTokens": 7087,
+        "outputTokens": 433,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:17:48.420Z",
+        "inputTokens": 7258,
+        "outputTokens": 169,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T17:20:49.777Z",
+        "inputTokens": 7414,
+        "outputTokens": 195,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      }
+    ],
+    "totalInputTokens": 27374,
+    "totalOutputTokens": 6495
+  },
+  {
+    "token": "8a169bb2-7558-4c51-9609-b7c0825506d1",
+    "studentName": "Ryan Campbell",
+    "startedAt": "2026-03-06T19:40:36.366Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-06T19:40:36.366Z",
+        "inputTokens": 1694,
+        "outputTokens": 3175,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T21:31:44.598Z",
+        "inputTokens": 1687,
+        "outputTokens": 71,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T21:32:25.774Z",
+        "inputTokens": 1779,
+        "outputTokens": 52,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T22:52:28.298Z",
+        "inputTokens": 1744,
+        "outputTokens": 5284,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T22:53:13.612Z",
+        "inputTokens": 5633,
+        "outputTokens": 62,
+        "hasSim": false,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T23:01:39.885Z",
+        "inputTokens": 6902,
+        "outputTokens": 110,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T23:03:45.326Z",
+        "inputTokens": 6950,
+        "outputTokens": 8197,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T23:17:40.791Z",
+        "inputTokens": 8575,
+        "outputTokens": 191,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T23:19:00.969Z",
+        "inputTokens": 8556,
+        "outputTokens": 21,
+        "hasSim": false,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T23:21:00.037Z",
+        "inputTokens": 8558,
+        "outputTokens": 1235,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T23:21:58.289Z",
+        "inputTokens": 8575,
+        "outputTokens": 84,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-03-06T23:26:56.961Z",
+        "inputTokens": 1751,
+        "outputTokens": 273,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T23:29:23.055Z",
+        "inputTokens": 2072,
+        "outputTokens": 5551,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T23:32:40.334Z",
+        "inputTokens": 6233,
+        "outputTokens": 7997,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-03-06T23:36:06.443Z",
+        "inputTokens": 8928,
+        "outputTokens": 9961,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      }
+    ],
+    "totalInputTokens": 79637,
+    "totalOutputTokens": 42264
+  }
+]
