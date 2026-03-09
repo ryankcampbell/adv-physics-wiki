@@ -117,6 +117,7 @@
 <header>
   <div class="header-title">✦ Advanced Physics</div>
   <div class="header-name">Signed in as <span id="header-name">—</span></div>
+  <a href="index.html" style="margin-left:auto;color:#7eb8da;font-size:0.78rem;font-weight:600;text-decoration:none;white-space:nowrap">Concept Navigator →</a>
   <button class="logout-btn" onclick="logout()">Sign out</button>
 </header>
 
@@ -217,7 +218,7 @@ async function loadTopics() {
 
 function renderTopics(topics) {
   const grid = document.getElementById('topics-grid');
-  const entries = Object.values(topics);
+  const entries = Object.entries(topics).map(([slug, t]) => ({ ...t, slug }));
   if (!entries.length) {
     grid.innerHTML = `<div class="empty-state">
       <div class="big">📝</div>

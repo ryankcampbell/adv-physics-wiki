@@ -364,6 +364,8 @@
 // ═══════════════════════════════════════════════════════════
 let mod = null;         // loaded module JSON
 let contribs = [];      // loaded contributions JSON
+let studentTopics = {}; // logged-in student's workflow topics {slug: topicObj}
+let studentToken = null;
 let selQuestion = null; // active anchor question id
 let selNode = null;     // active node id
 let highlighted = new Set(); // concept ids on highlighted path
@@ -383,6 +385,15 @@ const NW = 144, NH = 44;
 // BOOT
 // ═══════════════════════════════════════════════════════════
 async function init() {
+  // Load student topics if logged in (non-blocking)
+  studentToken = localStorage.getItem('student-session-token');
+  if (studentToken) {
+    fetch('/api/student/topics', { headers: { 'Authorization': `Bearer ${studentToken}` } })
+      .then(r => r.ok ? r.json() : {})
+      .then(data => { studentTopics = data.topics || {}; })
+      .catch(() => {});
+  }
+
   const lastModule = localStorage.getItem('lastModule') || 'modules/special_relativity.json';
   const sel = document.getElementById('module-select');
   if (sel) sel.value = lastModule;
@@ -743,8 +754,55 @@ function selectNode(id) {
   } else {
     wikiHTML = `
       <div class="no-wiki">
-        <span class="no-wiki-text">No contribution yet — start one in your workspace</span>
+        <span class="no-wiki-text">No contribution yet.</span>
       </div>`;
+  }
+
+  // Student progress section (only when logged in)
+  let studentHTML = '';
+  if (studentToken) {
+    const STAGE_LABELS = {
+      'ic+draft':          { text: 'Writing IC',       bg: '#1e3a5f', color: '#7eb8da' },
+      'ic+submitted':      { text: 'IC submitted',     bg: '#422006', color: '#f59e0b' },
+      'ic+needs_revision': { text: 'Revise IC',        bg: '#450a0a', color: '#f87171' },
+      'at+draft':          { text: 'Adversarial Test', bg: '#1e3a5f', color: '#7eb8da' },
+      'at+submitted':      { text: 'AT submitted',     bg: '#422006', color: '#f59e0b' },
+      'at+needs_revision': { text: 'Revise AT',        bg: '#450a0a', color: '#f87171' },
+      'hw+draft':          { text: 'HW Questions',     bg: '#1e3a5f', color: '#7eb8da' },
+      'hw+submitted':      { text: 'HW submitted',     bg: '#422006', color: '#f59e0b' },
+      'hw+needs_revision': { text: 'Revise HW',        bg: '#450a0a', color: '#f87171' },
+      'complete+complete': { text: 'Complete',          bg: '#052e16', color: '#4ade80' },
+    };
+    const topic = studentTopics[id];
+    if (topic) {
+      const label = STAGE_LABELS[`${topic.stage}+${topic.status}`] || { text: `${topic.stage}/${topic.status}`, bg: '#1e3a5f', color: '#7eb8da' };
+      const canContinue = topic.stage !== 'complete' && topic.status !== 'submitted';
+      let editorUrl = null;
+      if (topic.stage === 'ic') editorUrl = `ic_editor.html?concept=${id}&name=${encodeURIComponent(topic.title||c.name)}`;
+      else if (topic.stage === 'at') editorUrl = `ic_editor.html?at=${id}`;
+      else if (topic.stage === 'hw') editorUrl = `ic_editor.html?hw=${id}`;
+      studentHTML = `
+        <div class="detail-section" style="margin-top:4px">
+          <div class="detail-section-label">Your Progress</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="background:${label.bg};color:${label.color};font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:0.04em">${label.text}</span>
+            ${canContinue && editorUrl ? `<a href="${editorUrl}" style="font-size:0.78rem;color:#2563eb;font-weight:600;text-decoration:none">Continue →</a>` : ''}
+            ${topic.status === 'submitted' ? `<span style="font-size:0.72rem;color:#64748b">Awaiting review</span>` : ''}
+          </div>
+          ${topic.revision_notes ? `<div style="margin-top:8px;font-size:0.73rem;color:#f87171;background:#450a0a22;border-left:2px solid #dc2626;padding:5px 8px;border-radius:0 4px 4px 0">${topic.revision_notes}</div>` : ''}
+        </div>`;
+    } else {
+      // Not yet started — show Start IC button
+      const moduleName = c.module || mod?.name || '';
+      studentHTML = `
+        <div class="detail-section" style="margin-top:4px">
+          <div class="detail-section-label">Your Progress</div>
+          <button onclick="startTopicFromNavigator('${id}', ${JSON.stringify(c.name)}, ${JSON.stringify(moduleName)})"
+            style="background:#2563eb;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:0.8rem;font-weight:600;cursor:pointer">
+            + Start IC on this concept
+          </button>
+        </div>`;
+    }
   }
 
   document.getElementById('detail-body').innerHTML = `
@@ -767,7 +825,8 @@ function selectNode(id) {
     <div class="detail-section">
       <div class="detail-section-label">Wiki Contributions</div>
       ${wikiHTML}
-    </div>`;
+    </div>
+    ${studentHTML}`;
 
   document.getElementById('detail-panel').classList.add('open');
 }
@@ -776,6 +835,16 @@ function closeDetail() {
   selNode = null;
   document.getElementById('detail-panel').classList.remove('open');
   refreshNodeStyles();
+}
+
+async function startTopicFromNavigator(slug, title, module) {
+  const r = await fetch('/api/student/topic/start', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${studentToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ module, title })
+  });
+  const data = await r.json();
+  if (r.ok) window.location.href = `ic_editor.html?concept=${data.slug}&name=${encodeURIComponent(title)}`;
 }
 
 
