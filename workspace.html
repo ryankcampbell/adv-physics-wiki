@@ -270,7 +270,7 @@ function editorUrl(topic) {
     // No session yet → go to ic_editor to launch AT investigation
     return `ic_editor.html?at=${s}`;
   }
-  if (topic.stage === 'hw') return `ic_editor.html?hw=${s}`;
+  if (topic.stage === 'hw') return `hw_workspace.html?concept=${s}`;
   return null; // complete
 }
 

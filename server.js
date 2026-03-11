@@ -1621,6 +1621,202 @@ app.patch('/api/admin/bug-reports/:id', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── HW Question Bank ───────────────────────────────────────────────
+const QUESTIONS_PATH = path.join(__dirname, 'state', 'questions.json');
+function readQuestions() {
+  try { return JSON.parse(fs.readFileSync(QUESTIONS_PATH, 'utf8')); } catch { return []; }
+}
+function writeQuestions(qs) {
+  fs.writeFileSync(QUESTIONS_PATH, JSON.stringify(qs, null, 2));
+}
+
+// HW daily limit (separate key from sim/AT)
+function _hwDailyKey(name) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `${name.toLowerCase().trim()}_hw_${today}`;
+}
+function getHWDailyTurns(name) {
+  try { return JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8'))[_hwDailyKey(name)] || 0; }
+  catch { return 0; }
+}
+function incrementHWDailyTurns(name) {
+  let data = {};
+  try { data = JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8')); } catch {}
+  const key = _hwDailyKey(name);
+  data[key] = (data[key] || 0) + 1;
+  fs.writeFileSync(DAILY_LIMITS_PATH, JSON.stringify(data, null, 2));
+}
+function checkHWLimit(req, res) {
+  const settings = readSimSettings();
+  const entry    = getStudentEntry(settings.students || {}, req.simStudent.toLowerCase());
+  const maxTurns = entry?.hw_limit ?? 20;
+  const used     = getHWDailyTurns(req.simStudent);
+  if (used >= maxTurns) {
+    res.status(429).json({ error: `HW daily limit (${maxTurns} turns) reached. Come back tomorrow!` });
+    return false;
+  }
+  return true;
+}
+
+const HW_SYSTEM_PROMPT = `You are helping a high school physics student write a homework problem based on their research investigation (Insight Card).
+
+YOUR ROLE:
+- Help the student craft a clear, well-structured physics problem that tests the concept they investigated
+- Draw on their own IC context: research question, explainer, simulation, and AT findings
+- Guide them toward 1–3 parts (a, b, c) with specific calculations or conceptual questions
+- Suggest concrete numbers and scenarios grounded in their actual work
+
+When you update the question structure, embed the current version as valid JSON in <question> tags on its own line:
+<question>{"stem":"...","parts":[{"label":"a","prompt":"...","answer":null}],"difficulty":"medium","tags":["..."]}</question>
+
+The "answer" field starts null during drafting. When the student writes their solution, it goes there.
+
+ANSWER VALIDATION — when the student presents their solution:
+- Do NOT reveal the correct answer
+- Say clearly whether their reasoning is correct or contains a flaw
+- If wrong: ask one guiding question that points toward the error without giving it away
+- If correct: confirm with a brief explanation of why it is right
+
+Keep responses concise (3–5 sentences). This is a working session.`;
+
+// POST /api/hw/chat — collaborative HW problem authoring + answer validation
+app.post('/api/hw/chat', requireSimToken, async (req, res) => {
+  if (!checkHWLimit(req, res)) return;
+  const { messages, icContext, currentQuestion } = req.body;
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'messages array required' });
+  }
+
+  incrementHWDailyTurns(req.simStudent);
+
+  const ctx = icContext || {};
+  const contextParts = [
+    `CONCEPT: ${(ctx.conceptTitle || 'Unknown').slice(0, 80)}`,
+    `MODULE: ${(ctx.module || '—').slice(0, 40)}`,
+    `RESEARCH QUESTION: ${(ctx.rq || '—').slice(0, 200)}`,
+    `EXPLAINER: ${(ctx.explainer || '—').slice(0, 600)}`,
+    ctx.simCaption ? `SIMULATION: ${ctx.simCaption.slice(0, 200)}` : null,
+    ctx.atSummary  ? `AT FINDINGS: ${ctx.atSummary.slice(0, 400)}` : null,
+    currentQuestion ? `CURRENT QUESTION:\n${JSON.stringify(currentQuestion)}` : null,
+  ].filter(Boolean).join('\n');
+
+  const safeMessages = messages.slice(-14).map(m => ({
+    role: m.role === 'assistant' ? 'assistant' : 'user',
+    content: String(m.content).slice(0, 3000)
+  }));
+
+  try {
+    const msg = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1200,
+      system: HW_SYSTEM_PROMPT + '\n\n' + contextParts,
+      messages: safeMessages
+    });
+    const rawText = msg.content[0]?.text || '';
+
+    // Extract <question>...</question> block if present
+    let question = null;
+    const qMatch = rawText.match(/<question>([\s\S]*?)<\/question>/);
+    if (qMatch) {
+      try { question = JSON.parse(qMatch[1].trim()); } catch {}
+    }
+    const message = rawText.replace(/<question>[\s\S]*?<\/question>/g, '').trim();
+    res.json({ message, question });
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/hw/submit — student submits finalized question + answer key
+app.post('/api/hw/submit', requireStudentToken, (req, res) => {
+  const { concept_slug, module, title, question, figure_dataurl } = req.body;
+  if (!concept_slug || !question?.stem) {
+    return res.status(400).json({ error: 'concept_slug and question.stem required' });
+  }
+  if (!Array.isArray(question.parts) || question.parts.length === 0) {
+    return res.status(400).json({ error: 'question must have at least one part' });
+  }
+  const hasAnswer = question.parts.some(p => p.answer && String(p.answer).trim());
+  if (!hasAnswer) {
+    return res.status(400).json({ error: 'At least one part must have a written answer' });
+  }
+  if (figure_dataurl && (typeof figure_dataurl !== 'string' || !figure_dataurl.startsWith('data:image/'))) {
+    return res.status(400).json({ error: 'figure_dataurl must be a data URL image' });
+  }
+  if (figure_dataurl && figure_dataurl.length > 4 * 1024 * 1024 * 1.37) {
+    return res.status(400).json({ error: 'Figure too large (max ~4 MB)' });
+  }
+
+  const questions = readQuestions();
+  const record = {
+    id: require('crypto').randomUUID(),
+    student: req.studentName,
+    concept_slug: concept_slug.trim().slice(0, 80),
+    module: (module || '').trim().slice(0, 40),
+    title: (title || question.stem.slice(0, 60)).trim().slice(0, 120),
+    stem: question.stem.slice(0, 2000),
+    parts: question.parts.slice(0, 5).map(p => ({
+      label: String(p.label || '').slice(0, 4),
+      prompt: String(p.prompt || '').slice(0, 1000),
+      answer: String(p.answer || '').slice(0, 2000)
+    })),
+    difficulty: ['easy','medium','hard'].includes(question.difficulty) ? question.difficulty : 'medium',
+    tags: Array.isArray(question.tags) ? question.tags.slice(0, 8).map(t => String(t).slice(0, 30)) : [],
+    figure_dataurl: figure_dataurl || null,
+    status: 'submitted',
+    admin_notes: '',
+    created_at: new Date().toISOString().slice(0, 10)
+  };
+  questions.unshift(record);
+  writeQuestions(questions);
+  res.json({ ok: true, id: record.id });
+});
+
+// GET /api/admin/hw/questions — list with optional ?concept= and ?status= filters
+app.get('/api/admin/hw/questions', requireAdmin, (req, res) => {
+  let qs = readQuestions();
+  if (req.query.concept) qs = qs.filter(q => q.concept_slug === req.query.concept);
+  if (req.query.status)  qs = qs.filter(q => q.status  === req.query.status);
+  res.json({ questions: qs });
+});
+
+// PATCH /api/admin/hw/questions/:id — approve / reject / reopen
+app.patch('/api/admin/hw/questions/:id', requireAdmin, (req, res) => {
+  const qs  = readQuestions();
+  const idx = qs.findIndex(q => q.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  const { status, admin_notes } = req.body;
+  if (!['approved','rejected','submitted'].includes(status)) {
+    return res.status(400).json({ error: 'status must be approved, rejected, or submitted' });
+  }
+  qs[idx].status = status;
+  if (typeof admin_notes === 'string') qs[idx].admin_notes = admin_notes.slice(0, 500);
+  writeQuestions(qs);
+  res.json({ ok: true });
+});
+
+// GET /api/admin/hw/export/:slug — clean text dump of approved questions
+app.get('/api/admin/hw/export/:slug', requireAdmin, (req, res) => {
+  const qs = readQuestions().filter(q => q.concept_slug === req.params.slug && q.status === 'approved');
+  if (qs.length === 0) return res.json({ text: '', count: 0 });
+  const lines = [
+    `APPROVED HW QUESTIONS — ${req.params.slug}`,
+    `Exported: ${new Date().toLocaleDateString()}`,
+    '='.repeat(60)
+  ];
+  qs.forEach((q, i) => {
+    lines.push('', `Q${i + 1}. [${q.difficulty.toUpperCase()}] — ${q.student}`);
+    if (q.tags.length) lines.push(`Tags: ${q.tags.join(', ')}`);
+    lines.push('', q.stem);
+    q.parts.forEach(p => {
+      lines.push('', `  (${p.label}) ${p.prompt}`, `  Answer: ${p.answer}`);
+    });
+    if (q.figure_dataurl) lines.push('  [Figure attached — see admin panel]');
+    lines.push('-'.repeat(60));
+  });
+  res.json({ text: lines.join('\n'), count: qs.length });
+});
+
 // ── Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

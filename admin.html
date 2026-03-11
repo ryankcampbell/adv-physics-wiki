@@ -376,6 +376,51 @@
     #snap-lightbox.open { display: flex; }
     #snap-lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 6px; }
 
+    /* ── QUESTION BANK ── */
+    .q-row {
+      background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .q-row-top { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .q-student { font-size: 0.78rem; font-weight: 700; color: #e2e8f0; }
+    .q-concept { font-size: 0.72rem; color: #64748b; }
+    .q-diff-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 1px 8px; border-radius: 99px;
+    }
+    .q-diff-badge.easy   { background: #052e16; color: #4ade80; }
+    .q-diff-badge.medium { background: #451a03; color: #fbbf24; }
+    .q-diff-badge.hard   { background: #450a0a; color: #f87171; }
+    .q-status-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 1px 8px; border-radius: 99px;
+    }
+    .q-status-badge.submitted { background: #422006; color: #f59e0b; }
+    .q-status-badge.approved  { background: #052e16; color: #4ade80; }
+    .q-status-badge.rejected  { background: #450a0a; color: #f87171; }
+    .q-stem-preview { font-size: 0.82rem; color: #94a3b8; margin-bottom: 8px; line-height: 1.5; }
+    .q-expand-btn {
+      background: none; border: 1px solid #334155; color: #64748b;
+      border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; cursor: pointer;
+    }
+    .q-expand-btn:hover { color: #e2e8f0; border-color: #64748b; }
+    .q-detail { display: none; margin-top: 10px; border-top: 1px solid #1e293b; padding-top: 10px; }
+    .q-detail.open { display: block; }
+    .q-part-block { margin-bottom: 10px; }
+    .q-part-lbl { font-size: 0.7rem; font-weight: 700; color: #a78bfa; text-transform: uppercase; margin-bottom: 4px; }
+    .q-part-text { font-size: 0.82rem; color: #cbd5e1; line-height: 1.5; }
+    .q-answer-lbl { font-size: 0.65rem; font-weight: 700; color: #4ade80; margin: 6px 0 3px; text-transform: uppercase; }
+    .q-answer-text { font-size: 0.82rem; color: #86efac; line-height: 1.5; background: #0f172a; padding: 6px 8px; border-radius: 4px; }
+    .q-fig-thumb { max-width: 140px; max-height: 100px; border-radius: 4px; cursor: pointer; margin-top: 8px; }
+    .q-actions { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+    .q-notes-input {
+      flex: 1; min-width: 160px; background: #0f172a; border: 1px solid #334155;
+      border-radius: 4px; color: #e2e8f0; font-size: 0.78rem; padding: 4px 8px;
+      font-family: inherit;
+    }
+    .q-approve-btn { background: #052e16; color: #4ade80; border: 1px solid #166534; border-radius: 4px; padding: 3px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+    .q-approve-btn:hover { background: #166534; }
+    .q-reject-btn  { background: #450a0a; color: #f87171; border: 1px solid #991b1b; border-radius: 4px; padding: 3px 10px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+    .q-reject-btn:hover { background: #991b1b; }
+
     /* ── H-INDEX ── */
     #hindex-section { margin-top: 24px; }
     #hindex-toggle {
@@ -743,6 +788,41 @@
     </div>
   </div>
 
+  <!-- ── 8. QUESTION BANK (closed by default) ── -->
+  <div id="qbank-section" style="margin-top:8px">
+    <button id="qbank-toggle" onclick="toggleQBank()" style="width:100%;display:flex;align-items:center;gap:8px;padding:12px 16px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:0.85rem;font-weight:600;cursor:pointer;text-align:left">
+      ✦ Question Bank
+      <span id="qbank-badge" style="margin-left:4px;background:#ede9fe;color:#5b21b6;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:10px;display:none"></span>
+      <span style="margin-left:auto;font-size:0.72rem;color:#94a3b8;font-weight:400">Student-authored HW problems · approve · export</span>
+      <button onclick="event.stopPropagation();loadQBank()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.9rem;padding:0 4px" title="Refresh">↻</button>
+    </button>
+    <div id="qbank-body" style="display:none;padding:14px;border:1px solid #334155;border-top:none;border-radius:0 0 8px 8px;background:#0f1a2e">
+      <!-- Filters -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+        <select id="qbank-concept" onchange="loadQBank()" style="background:#1e293b;border:1px solid #334155;border-radius:6px;color:#e2e8f0;font-size:0.8rem;padding:5px 8px">
+          <option value="">All concepts</option>
+        </select>
+        <select id="qbank-status" onchange="loadQBank()" style="background:#1e293b;border:1px solid #334155;border-radius:6px;color:#e2e8f0;font-size:0.8rem;padding:5px 8px">
+          <option value="">All statuses</option>
+          <option value="submitted">Submitted</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button id="qbank-export-btn" onclick="exportQBank()" style="margin-left:auto;background:#4c1d95;color:#ede9fe;border:none;border-radius:6px;padding:5px 14px;font-size:0.78rem;font-weight:600;cursor:pointer">Export approved ↓</button>
+      </div>
+      <!-- List -->
+      <div id="qbank-list" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:0.82rem;color:#475569">Loading…</div>
+      </div>
+      <!-- Export text area -->
+      <div id="qbank-export-area" style="display:none;margin-top:14px">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:6px">Exported text — copy and paste into Claude</div>
+        <textarea id="qbank-export-text" style="width:100%;height:220px;background:#0f172a;border:1px solid #334155;border-radius:6px;color:#94a3b8;font-size:0.78rem;padding:10px;font-family:monospace;resize:vertical" readonly></textarea>
+        <button onclick="document.getElementById('qbank-export-area').style.display='none'" style="margin-top:6px;background:none;border:none;color:#64748b;font-size:0.75rem;cursor:pointer">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Snapshot lightbox -->
   <div id="snap-lightbox" onclick="this.classList.remove('open')">
     <img id="snap-lightbox-img" src="" alt="snapshot">
@@ -807,6 +887,7 @@ function initAdmin() {
   loadPipeline();
   loadSimLog();
   loadBugBadge();
+  loadQBankBadge();
 }
 
 async function loadBugBadge() {
@@ -2035,6 +2116,151 @@ async function submitAdminBug() {
   } catch(e) {
     statusEl.style.color = '#dc2626'; statusEl.textContent = 'Error: ' + e.message;
   }
+}
+
+// ── QUESTION BANK ──────────────────────────────────────────────────
+let qbankOpen = false;
+
+function toggleQBank() {
+  qbankOpen = !qbankOpen;
+  document.getElementById('qbank-body').style.display = qbankOpen ? 'block' : 'none';
+  if (qbankOpen) loadQBank();
+}
+
+async function loadQBankBadge() {
+  try {
+    const r = await adminFetch('/api/admin/hw/questions?status=submitted');
+    const data = await r.json();
+    const count = (data.questions || []).length;
+    const badge = document.getElementById('qbank-badge');
+    if (count > 0) { badge.textContent = count + ' pending'; badge.style.display = 'inline'; }
+    else { badge.style.display = 'none'; }
+  } catch {}
+}
+
+async function loadQBank() {
+  const concept = document.getElementById('qbank-concept').value;
+  const status  = document.getElementById('qbank-status').value;
+  let url = '/api/admin/hw/questions';
+  const parts = [];
+  if (concept) parts.push('concept=' + encodeURIComponent(concept));
+  if (status)  parts.push('status='  + encodeURIComponent(status));
+  if (parts.length) url += '?' + parts.join('&');
+
+  const list = document.getElementById('qbank-list');
+  list.innerHTML = '<div style="font-size:0.82rem;color:#475569">Loading…</div>';
+
+  try {
+    const r = await adminFetch(url);
+    const { questions } = await r.json();
+
+    // Populate concept filter from all questions
+    const conceptSelect = document.getElementById('qbank-concept');
+    const allR = await adminFetch('/api/admin/hw/questions');
+    const { questions: allQ } = await allR.json();
+    const slugs = [...new Set(allQ.map(q => q.concept_slug))].sort();
+    const saved = conceptSelect.value;
+    conceptSelect.innerHTML = '<option value="">All concepts</option>' +
+      slugs.map(s => `<option value="${s}" ${s === saved ? 'selected' : ''}>${s.replace(/_/g,' ')}</option>`).join('');
+
+    if (!questions || questions.length === 0) {
+      list.innerHTML = '<div style="font-size:0.82rem;color:#475569">No questions found.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    questions.forEach(q => {
+      const div = document.createElement('div');
+      div.className = 'q-row';
+      div.id = 'qrow-' + q.id;
+
+      const partsHtml = (q.parts || []).map(p => `
+        <div class="q-part-block">
+          <div class="q-part-lbl">Part ${p.label}</div>
+          <div class="q-part-text">${escHtml(p.prompt)}</div>
+          <div class="q-answer-lbl">Answer key</div>
+          <div class="q-answer-text">${escHtml(p.answer)}</div>
+        </div>`).join('');
+
+      const figHtml = q.figure_dataurl
+        ? `<img src="${q.figure_dataurl}" class="q-fig-thumb" onclick="openQFig('${q.id}')" title="Click to enlarge">`
+        : '';
+
+      div.innerHTML = `
+        <div class="q-row-top">
+          <span class="q-student">${escHtml(q.student)}</span>
+          <span class="q-concept">${escHtml(q.concept_slug.replace(/_/g,' '))} · ${q.created_at}</span>
+          <span class="q-diff-badge ${q.difficulty}">${q.difficulty}</span>
+          <span class="q-status-badge ${q.status}" id="qstatus-${q.id}">${q.status}</span>
+          <button class="q-expand-btn" onclick="toggleQDetail('${q.id}')">▸ Details</button>
+        </div>
+        <div class="q-stem-preview">${escHtml(q.title || q.stem.slice(0,100))}</div>
+        <div class="q-detail" id="qdetail-${q.id}">
+          <div style="font-size:0.78rem;color:#64748b;margin-bottom:8px">${escHtml(q.stem)}</div>
+          ${partsHtml}
+          ${figHtml}
+          <div class="q-actions">
+            <input type="text" class="q-notes-input" id="qnotes-${q.id}"
+              value="${escHtml(q.admin_notes || '')}" placeholder="Notes for student (optional)">
+            <button class="q-approve-btn" onclick="setQStatus('${q.id}','approved')">✓ Approve</button>
+            <button class="q-reject-btn"  onclick="setQStatus('${q.id}','rejected')">✕ Reject</button>
+          </div>
+        </div>`;
+      list.appendChild(div);
+    });
+  } catch(err) {
+    list.innerHTML = `<div style="font-size:0.82rem;color:#f87171">Error: ${escHtml(err.message)}</div>`;
+  }
+}
+
+function toggleQDetail(id) {
+  const el = document.getElementById('qdetail-' + id);
+  if (!el) return;
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling?.previousElementSibling?.querySelector('.q-expand-btn');
+  if (btn) btn.textContent = el.classList.contains('open') ? '▾ Details' : '▸ Details';
+}
+
+async function setQStatus(id, status) {
+  const notes = document.getElementById('qnotes-' + id)?.value || '';
+  try {
+    const r = await adminFetch('/api/admin/hw/questions/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, admin_notes: notes })
+    });
+    if (!r.ok) { alert('Error updating question.'); return; }
+    const badge = document.getElementById('qstatus-' + id);
+    if (badge) { badge.textContent = status; badge.className = 'q-status-badge ' + status; }
+    loadQBankBadge();
+  } catch(err) { alert('Error: ' + err.message); }
+}
+
+function openQFig(id) {
+  // Reuse the snap lightbox for question figures
+  // Find the question's figure_dataurl from the rendered img
+  const row = document.getElementById('qrow-' + id);
+  const img = row?.querySelector('.q-fig-thumb');
+  if (!img) return;
+  document.getElementById('snap-lightbox-img').src = img.src;
+  document.getElementById('snap-lightbox').classList.add('open');
+}
+
+async function exportQBank() {
+  const concept = document.getElementById('qbank-concept').value;
+  if (!concept) {
+    alert('Select a specific concept to export.');
+    return;
+  }
+  try {
+    const r = await adminFetch('/api/admin/hw/export/' + encodeURIComponent(concept));
+    const { text, count } = await r.json();
+    if (count === 0) { alert('No approved questions for this concept yet.'); return; }
+    const area = document.getElementById('qbank-export-area');
+    document.getElementById('qbank-export-text').value = text;
+    area.style.display = 'block';
+    area.scrollIntoView({ behavior: 'smooth' });
+  } catch(err) { alert('Export error: ' + err.message); }
 }
 
 // ── Init ───────────────────────────────────────────────────────────

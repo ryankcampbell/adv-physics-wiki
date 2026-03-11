@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW Workshop — Advanced Physics</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+           background: #0f172a; color: #e2e8f0; }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    #hdr {
+      height: 50px; background: #3b0764; display: flex; align-items: center;
+      gap: 12px; padding: 0 18px; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    #hdr a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.78rem; }
+    #hdr a:hover { color: white; }
+    #hdr-title { font-size: 0.92rem; font-weight: 700; color: white; flex: 1; }
+    #hdr-concept { font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+    .hw-badge {
+      background: rgba(255,255,255,0.15); color: white; font-size: 0.65rem;
+      font-weight: 700; padding: 2px 8px; border-radius: 99px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    #body { display: flex; height: calc(100vh - 50px); }
+
+    /* ── Chat pane (left) ───────────────────────────────────────── */
+    #chat-pane {
+      width: 42%; min-width: 320px; display: flex; flex-direction: column;
+      border-right: 1px solid #1e293b; background: #0f172a;
+    }
+    #chat-hdr {
+      padding: 10px 14px; background: #1e293b; border-bottom: 1px solid #334155;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #94a3b8; flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    #turns-left { margin-left: auto; font-size: 0.68rem; color: #64748b; font-weight: 400; text-transform: none; letter-spacing: 0; }
+    #chat-msgs {
+      flex: 1; overflow-y: auto; padding: 14px; display: flex;
+      flex-direction: column; gap: 10px;
+    }
+    .msg { display: flex; flex-direction: column; gap: 3px; max-width: 92%; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+    .msg.assistant { align-self: flex-start; }
+    .msg-bubble {
+      padding: 9px 13px; border-radius: 12px; font-size: 0.84rem;
+      line-height: 1.55; white-space: pre-wrap; word-break: break-word;
+    }
+    .msg.user .msg-bubble { background: #4c1d95; color: #ede9fe; border-radius: 12px 12px 2px 12px; }
+    .msg.assistant .msg-bubble { background: #1e293b; color: #e2e8f0; border-radius: 12px 12px 12px 2px; }
+    .msg-label { font-size: 0.65rem; color: #475569; padding: 0 4px; }
+    #chat-input-area {
+      flex-shrink: 0; padding: 12px; border-top: 1px solid #1e293b;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    #phase-indicator {
+      font-size: 0.7rem; color: #a78bfa; font-weight: 600; padding: 2px 0;
+      display: flex; align-items: center; gap: 6px;
+    }
+    #phase-indicator::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; }
+    #chat-input {
+      width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+      color: #e2e8f0; font-size: 0.84rem; padding: 9px 12px; resize: none;
+      font-family: inherit; line-height: 1.5; min-height: 72px; max-height: 160px;
+    }
+    #chat-input:focus { outline: none; border-color: #7c3aed; }
+    #chat-send {
+      align-self: flex-end; background: #7c3aed; color: white; border: none;
+      border-radius: 8px; padding: 8px 18px; font-size: 0.83rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+    }
+    #chat-send:hover { background: #6d28d9; }
+    #chat-send:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    #chat-thinking {
+      display: none; font-size: 0.75rem; color: #64748b; padding: 4px 2px; align-self: flex-start;
+    }
+    #chat-thinking.visible { display: block; }
+
+    /* ── Preview pane (right) ───────────────────────────────────── */
+    #preview-pane {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+    #preview-hdr {
+      padding: 10px 16px; background: #1e293b; border-bottom: 1px solid #334155;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #94a3b8; flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #preview-hdr-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+    #preview-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+    /* Question preview card */
+    #q-card {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+      padding: 20px 22px; margin-bottom: 16px;
+    }
+    #q-card.empty {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 180px; color: #475569; font-size: 0.85rem; font-style: italic;
+      flex-direction: column; gap: 10px; text-align: center;
+    }
+    #q-card.empty .empty-icon { font-size: 2rem; opacity: 0.4; }
+    #q-stem {
+      font-size: 0.92rem; line-height: 1.65; color: #e2e8f0; margin-bottom: 14px;
+    }
+    .q-part { margin-bottom: 14px; }
+    .q-part-label {
+      font-size: 0.75rem; font-weight: 700; color: #a78bfa;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+    }
+    .q-part-prompt { font-size: 0.88rem; line-height: 1.6; color: #cbd5e1; margin-bottom: 6px; }
+    .q-part-answer-wrap { margin-top: 6px; }
+    .q-part-answer-label {
+      font-size: 0.65rem; font-weight: 700; color: #4ade80;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px;
+    }
+    .q-part-answer {
+      width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+      color: #86efac; font-size: 0.83rem; padding: 8px 10px; resize: vertical;
+      font-family: inherit; line-height: 1.5; min-height: 60px;
+    }
+    .q-part-answer:focus { outline: none; border-color: #4ade80; }
+
+    /* Meta row */
+    #q-meta {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #334155;
+    }
+    .diff-btn {
+      font-size: 0.7rem; font-weight: 700; padding: 2px 10px; border-radius: 99px;
+      border: 1px solid; cursor: pointer; background: none; transition: all 0.15s;
+    }
+    .diff-btn.easy  { color: #4ade80; border-color: #4ade80; }
+    .diff-btn.medium { color: #fbbf24; border-color: #fbbf24; }
+    .diff-btn.hard  { color: #f87171; border-color: #f87171; }
+    .diff-btn.active.easy   { background: #052e16; }
+    .diff-btn.active.medium { background: #451a03; }
+    .diff-btn.active.hard   { background: #450a0a; }
+    #q-tags { font-size: 0.72rem; color: #64748b; flex: 1; }
+
+    /* Figure zone */
+    #fig-section { margin-bottom: 16px; }
+    #fig-section-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #64748b; margin-bottom: 8px;
+    }
+    #fig-zone {
+      border: 2px dashed #334155; border-radius: 8px; padding: 18px;
+      text-align: center; font-size: 0.78rem; color: #475569; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    #fig-zone:hover { border-color: #7c3aed; color: #a78bfa; }
+    #fig-zone.has-image { border-style: solid; border-color: #4c1d95; padding: 6px; }
+    #fig-preview { max-width: 100%; max-height: 260px; border-radius: 6px; display: none; }
+    #fig-clear {
+      margin-top: 6px; background: none; border: none; color: #ef4444;
+      font-size: 0.75rem; cursor: pointer; display: none;
+    }
+
+    /* Submit area */
+    #submit-area {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+      padding: 16px 20px;
+    }
+    #submit-title-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 6px; }
+    #submit-title {
+      width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+      color: #e2e8f0; font-size: 0.85rem; padding: 7px 10px; margin-bottom: 12px;
+      font-family: inherit;
+    }
+    #submit-title:focus { outline: none; border-color: #7c3aed; }
+    #submit-btn {
+      width: 100%; background: #059669; color: white; border: none; border-radius: 8px;
+      padding: 10px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+      transition: background 0.15s;
+    }
+    #submit-btn:hover { background: #047857; }
+    #submit-btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+    #submit-status { margin-top: 8px; font-size: 0.78rem; text-align: center; min-height: 1.2em; }
+    #submit-status.ok  { color: #4ade80; }
+    #submit-status.err { color: #f87171; }
+
+    /* ── Validate button ─────────────────────────────────────────── */
+    #validate-btn {
+      background: none; border: 1px solid #7c3aed; color: #a78bfa; border-radius: 6px;
+      padding: 4px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      transition: all 0.15s;
+    }
+    #validate-btn:hover { background: #4c1d95; color: white; }
+
+    /* KaTeX overrides */
+    .katex { font-size: 1em !important; }
+  </style>
+</head>
+<body>
+
+<div id="hdr">
+  <a href="workspace.html">← Dashboard</a>
+  <div id="hdr-title">HW Workshop</div>
+  <span id="hdr-concept"></span>
+  <span class="hw-badge">HW</span>
+</div>
+
+<div id="body">
+
+  <!-- ── Chat pane ─────────────────────────────────────────────── -->
+  <div id="chat-pane">
+    <div id="chat-hdr">
+      AI Collaborator
+      <span id="turns-left"></span>
+    </div>
+    <div id="chat-msgs"></div>
+    <div id="chat-input-area">
+      <div id="phase-indicator">Drafting question</div>
+      <textarea id="chat-input" placeholder="Describe the kind of problem you want to write, or ask the AI for ideas…"></textarea>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="validate-btn" onclick="askValidate()" title="Ask AI to check your answers">✓ Validate my answers</button>
+        <div id="chat-thinking">Thinking…</div>
+        <button id="chat-send" onclick="sendChat()">Send ↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Preview pane ──────────────────────────────────────────── -->
+  <div id="preview-pane">
+    <div id="preview-hdr">
+      Question Preview
+      <div id="preview-hdr-right">
+        <span id="preview-status" style="font-size:0.72rem;color:#64748b"></span>
+      </div>
+    </div>
+    <div id="preview-body">
+
+      <!-- Question card -->
+      <div id="q-card" class="empty">
+        <div class="empty-icon">✎</div>
+        <div>Your question will appear here as you chat.</div>
+        <div style="font-size:0.75rem;color:#374151">Start by telling the AI what concept you want to ask about.</div>
+      </div>
+
+      <!-- Figure -->
+      <div id="fig-section" style="display:none">
+        <div id="fig-section-label">Figure (optional)</div>
+        <div id="fig-zone"
+          onclick="document.getElementById('fig-input').click()"
+          ondragover="event.preventDefault();this.style.borderColor='#7c3aed'"
+          ondragleave="this.style.borderColor='#334155'"
+          ondrop="handleFigDrop(event)">
+          Click to attach a figure, drag an image, or Ctrl+V to paste
+          <br><br>
+          <img id="fig-preview" src="" alt="figure">
+        </div>
+        <input type="file" id="fig-input" accept="image/*" style="display:none"
+          onchange="loadFigFile(this.files[0])">
+        <button id="fig-clear" onclick="clearFig()">✕ Remove figure</button>
+      </div>
+
+      <!-- Submit area -->
+      <div id="submit-area" style="display:none">
+        <div id="submit-title-label">Question title (for your records)</div>
+        <input type="text" id="submit-title" placeholder="e.g. Stern-Gerlach sequential measurement">
+        <button id="submit-btn" onclick="submitQuestion()">Submit to Teacher →</button>
+        <div id="submit-status"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Init ─────────────────────────────────────────────────────────
+const params    = new URLSearchParams(location.search);
+const SLUG      = params.get('concept') || '';
+const SIM_TOKEN = localStorage.getItem('sim-session-token') || '';
+const STU_TOKEN = localStorage.getItem('student-session-token') || '';
+const SESSION_KEY = `hw-session-${SLUG}`;
+
+// Guard: must have tokens
+if (!SIM_TOKEN || !STU_TOKEN) {
+  alert('Session expired. Please log in again.');
+  location.href = 'student.html';
+}
+
+// Load IC context from AT workspace localStorage (best source)
+const IC_KEY = `at-ic-${SLUG}`;
+let icContext = null;
+try {
+  const raw = localStorage.getItem(IC_KEY);
+  if (raw) icContext = JSON.parse(raw);
+} catch {}
+
+// Load or init session
+let session = { messages: [], question: null, figureDataUrl: null, submitted: false };
+try {
+  const saved = localStorage.getItem(SESSION_KEY);
+  if (saved) session = JSON.parse(saved);
+} catch {}
+
+function saveSession() {
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(session)); } catch {}
+}
+
+// ── Header ───────────────────────────────────────────────────────
+document.getElementById('hdr-concept').textContent =
+  icContext?.conceptTitle || SLUG.replace(/_/g,' ');
+
+// ── Render chat ──────────────────────────────────────────────────
+function renderChat() {
+  const el = document.getElementById('chat-msgs');
+  if (session.messages.length === 0) {
+    el.innerHTML = `<div style="font-size:0.82rem;color:#475569;text-align:center;padding:20px 10px">
+      Chat with the AI to draft your homework problem.<br>
+      ${icContext ? 'Your IC context has been loaded.' : 'Tip: describe your research question to give the AI context.'}
+    </div>`;
+    return;
+  }
+  el.innerHTML = session.messages.map(m => `
+    <div class="msg ${m.role}">
+      <div class="msg-label">${m.role === 'user' ? 'You' : 'AI'}</div>
+      <div class="msg-bubble">${escHtml(m.content)}</div>
+    </div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── Render question preview ───────────────────────────────────────
+function renderQuestion() {
+  const q = session.question;
+  const card = document.getElementById('q-card');
+  document.getElementById('fig-section').style.display = q ? 'block' : 'none';
+  document.getElementById('submit-area').style.display = q ? 'block' : 'none';
+
+  if (!q) {
+    card.className = 'empty';
+    card.innerHTML = `<div class="empty-icon">✎</div>
+      <div>Your question will appear here as you chat.</div>
+      <div style="font-size:0.75rem;color:#374151">Start by telling the AI what concept you want to ask about.</div>`;
+    return;
+  }
+
+  card.className = '';
+  const metaHtml = `
+    <div id="q-meta">
+      ${['easy','medium','hard'].map(d =>
+        `<button class="diff-btn ${d} ${q.difficulty === d ? 'active' : ''}"
+          onclick="setDifficulty('${d}')">${d}</button>`
+      ).join('')}
+      <div id="q-tags">${(q.tags || []).join(' · ')}</div>
+    </div>`;
+
+  const partsHtml = (q.parts || []).map((p, i) => `
+    <div class="q-part">
+      <div class="q-part-label">Part ${p.label || String.fromCharCode(97 + i)}</div>
+      <div class="q-part-prompt">${escHtml(p.prompt)}</div>
+      <div class="q-part-answer-wrap">
+        <div class="q-part-answer-label">Your answer / solution</div>
+        <textarea class="q-part-answer" data-part="${i}"
+          placeholder="Write your solution here…"
+          oninput="updateAnswer(${i}, this.value)">${escHtml(p.answer || '')}</textarea>
+      </div>
+    </div>`).join('');
+
+  card.innerHTML = `${metaHtml}<div id="q-stem">${escHtml(q.stem)}</div>${partsHtml}`;
+
+  // Render KaTeX
+  renderMathInElement(card, {
+    delimiters: [
+      { left: '$$', right: '$$', display: true },
+      { left: '$', right: '$', display: false },
+      { left: '\\(', right: '\\)', display: false },
+      { left: '\\[', right: '\\]', display: true }
+    ],
+    throwOnError: false
+  });
+}
+
+function setDifficulty(d) {
+  if (!session.question) return;
+  session.question.difficulty = d;
+  saveSession();
+  renderQuestion();
+}
+
+function updateAnswer(partIdx, val) {
+  if (!session.question?.parts?.[partIdx]) return;
+  session.question.parts[partIdx].answer = val;
+  saveSession();
+  document.getElementById('preview-status').textContent =
+    'Answer saved locally';
+  setTimeout(() => document.getElementById('preview-status').textContent = '', 1500);
+}
+
+// ── Figure handling ───────────────────────────────────────────────
+document.addEventListener('paste', e => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      if (file) loadFigFile(file);
+      break;
+    }
+  }
+});
+
+function loadFigFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => setFig(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function handleFigDrop(e) {
+  e.preventDefault();
+  document.getElementById('fig-zone').style.borderColor = '#334155';
+  const file = e.dataTransfer.files[0];
+  if (file) loadFigFile(file);
+}
+
+function setFig(dataUrl) {
+  session.figureDataUrl = dataUrl;
+  saveSession();
+  const zone = document.getElementById('fig-zone');
+  const preview = document.getElementById('fig-preview');
+  const clear = document.getElementById('fig-clear');
+  zone.classList.add('has-image');
+  preview.src = dataUrl;
+  preview.style.display = 'block';
+  clear.style.display = 'block';
+}
+
+function clearFig() {
+  session.figureDataUrl = null;
+  saveSession();
+  const zone = document.getElementById('fig-zone');
+  const preview = document.getElementById('fig-preview');
+  const clear = document.getElementById('fig-clear');
+  zone.classList.remove('has-image');
+  preview.src = '';
+  preview.style.display = 'none';
+  clear.style.display = 'none';
+}
+
+// Restore figure on load
+if (session.figureDataUrl) setFig(session.figureDataUrl);
+
+// ── Chat ─────────────────────────────────────────────────────────
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const sendBtn = document.getElementById('chat-send');
+  sendBtn.disabled = true;
+  document.getElementById('chat-thinking').classList.add('visible');
+
+  session.messages.push({ role: 'user', content: text });
+  input.value = '';
+  saveSession();
+  renderChat();
+
+  try {
+    const res = await fetch('/api/hw/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SIM_TOKEN}` },
+      body: JSON.stringify({
+        messages: session.messages,
+        icContext,
+        currentQuestion: session.question
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      session.messages.push({ role: 'assistant', content: `⚠ ${data.error || 'Error'}` });
+    } else {
+      session.messages.push({ role: 'assistant', content: data.message });
+      if (data.question) {
+        // Preserve existing answers when question structure updates
+        if (session.question?.parts) {
+          data.question.parts = data.question.parts.map((p, i) => ({
+            ...p,
+            answer: session.question.parts[i]?.answer || p.answer || null
+          }));
+        }
+        session.question = data.question;
+        renderQuestion();
+        document.getElementById('phase-indicator').textContent = 'Refining question';
+      }
+    }
+  } catch(err) {
+    session.messages.push({ role: 'assistant', content: `⚠ Network error: ${err.message}` });
+  }
+
+  saveSession();
+  renderChat();
+  sendBtn.disabled = false;
+  document.getElementById('chat-thinking').classList.remove('visible');
+}
+
+async function askValidate() {
+  if (!session.question) return;
+  const answers = (session.question.parts || [])
+    .map(p => `(${p.label}) ${p.answer || '(no answer written)'}`)
+    .join('\n');
+  document.getElementById('chat-input').value =
+    `Here are my answers for validation:\n\n${answers}`;
+  document.getElementById('phase-indicator').textContent = 'Validating answers';
+  await sendChat();
+}
+
+// ── Submit ───────────────────────────────────────────────────────
+async function submitQuestion() {
+  const q = session.question;
+  if (!q) return;
+
+  const hasAnswer = (q.parts || []).some(p => p.answer && p.answer.trim());
+  if (!hasAnswer) {
+    setStatus('Write your answer for at least one part before submitting.', 'err');
+    return;
+  }
+
+  const title = document.getElementById('submit-title').value.trim() ||
+    q.stem.slice(0, 60);
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  setStatus('Submitting…', '');
+
+  try {
+    const res = await fetch('/api/hw/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${STU_TOKEN}` },
+      body: JSON.stringify({
+        concept_slug: SLUG,
+        module: icContext?.module || '',
+        title,
+        question: q,
+        figure_dataurl: session.figureDataUrl || null
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setStatus(data.error || 'Submit failed.', 'err');
+      btn.disabled = false;
+    } else {
+      session.submitted = true;
+      saveSession();
+      setStatus('✓ Submitted! Your teacher will review it.', 'ok');
+      btn.textContent = '✓ Submitted';
+    }
+  } catch(err) {
+    setStatus('Network error — try again.', 'err');
+    btn.disabled = false;
+  }
+}
+
+function setStatus(msg, cls) {
+  const el = document.getElementById('submit-status');
+  el.textContent = msg;
+  el.className = cls;
+}
+
+// ── Utilities ────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+renderChat();
+renderQuestion();
+
+// If brand new session, prompt AI for an opening draft
+if (session.messages.length === 0) {
+  const opener = icContext
+    ? `I'm starting to write a homework problem about "${icContext.conceptTitle}". My research question was: "${icContext.rq}". Can you help me draft a good question based on my work?`
+    : `I'm starting to write a homework problem${SLUG ? ' about ' + SLUG.replace(/_/g,' ') : ''}. Can you help me get started?`;
+  document.getElementById('chat-input').value = opener;
+}
+
+if (session.submitted) {
+  document.getElementById('submit-btn').textContent = '✓ Already submitted';
+  document.getElementById('submit-btn').disabled = true;
+  setStatus('This question has been submitted to your teacher.', 'ok');
+}
+</script>
+</body>
+</html>

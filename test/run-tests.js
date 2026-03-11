@@ -797,6 +797,142 @@ async function main() {
   });
 
   // ══════════════════════════════════════════════════════════════
+  await section('15. HW Question Bank');
+  // ══════════════════════════════════════════════════════════════
+
+  let testQId = null;
+
+  await test('GET /api/admin/hw/questions — no auth → 401', async () => {
+    const { status } = await req('GET', '/api/admin/hw/questions');
+    assertEqual(status, 401, 'status');
+  });
+
+  await test('POST /api/hw/submit — no token → 401', async () => {
+    const { status } = await req('POST', '/api/hw/submit', { concept_slug: 'x', question: { stem: 'x', parts: [] } });
+    assertEqual(status, 401, 'status');
+  });
+
+  await test('POST /api/hw/submit — missing concept_slug → 400', async () => {
+    const { status } = await req('POST', '/api/hw/submit',
+      { question: { stem: 'A ball falls.', parts: [{ label: 'a', prompt: 'Why?', answer: 'Gravity.' }] } },
+      studentToken);
+    assertEqual(status, 400, 'status');
+  });
+
+  await test('POST /api/hw/submit — missing answer → 400', async () => {
+    const { status } = await req('POST', '/api/hw/submit',
+      { concept_slug: TEST_SLUG, question: { stem: 'A ball falls.', parts: [{ label: 'a', prompt: 'Why?', answer: '' }] } },
+      studentToken);
+    assertEqual(status, 400, 'status');
+  });
+
+  await test('POST /api/hw/submit — invalid figure → 400', async () => {
+    const { status } = await req('POST', '/api/hw/submit',
+      { concept_slug: TEST_SLUG, question: { stem: 'Q.', parts: [{ label: 'a', prompt: 'P?', answer: 'A.' }] },
+        figure_dataurl: 'not-a-data-url' }, studentToken);
+    assertEqual(status, 400, 'status');
+  });
+
+  await test('POST /api/hw/submit — valid question submitted', async () => {
+    const { status, data } = await req('POST', '/api/hw/submit', {
+      concept_slug: TEST_SLUG,
+      module: '[TEST]',
+      title: '[TEST] Question',
+      question: {
+        stem: '[TEST] A particle moves through a magnetic field.',
+        parts: [
+          { label: 'a', prompt: 'What is the direction of the force?', answer: 'Perpendicular to both v and B.' },
+          { label: 'b', prompt: 'What is the magnitude?', answer: 'F = qvB sin θ' }
+        ],
+        difficulty: 'medium',
+        tags: ['magnetism', 'force']
+      }
+    }, studentToken);
+    assertEqual(status, 200, 'status');
+    assert(data.ok, 'ok');
+    assert(data.id, 'has id');
+    testQId = data.id;
+  });
+
+  await test('GET /api/admin/hw/questions — returns submitted question', async () => {
+    const { status, data } = await req('GET', '/api/admin/hw/questions', null, adminToken);
+    assertEqual(status, 200, 'status');
+    assert(Array.isArray(data.questions), 'questions is array');
+    assert(data.questions.some(q => q.id === testQId), 'test question present');
+  });
+
+  await test('GET /api/admin/hw/questions?concept= — filters correctly', async () => {
+    const { data } = await req('GET', `/api/admin/hw/questions?concept=${TEST_SLUG}`, null, adminToken);
+    assert(data.questions.every(q => q.concept_slug === TEST_SLUG), 'all match concept');
+  });
+
+  await test('GET /api/admin/hw/questions?status=submitted — filters by status', async () => {
+    const { data } = await req('GET', `/api/admin/hw/questions?status=submitted`, null, adminToken);
+    assert(data.questions.every(q => q.status === 'submitted'), 'all submitted');
+  });
+
+  await test('PATCH /api/admin/hw/questions/:id — approve', async () => {
+    const { status, data } = await req('PATCH', `/api/admin/hw/questions/${testQId}`,
+      { status: 'approved', admin_notes: 'Good question.' }, adminToken);
+    assertEqual(status, 200, 'status');
+    assert(data.ok, 'ok');
+  });
+
+  await test('PATCH /api/admin/hw/questions/:id — status persisted', async () => {
+    const { data } = await req('GET', `/api/admin/hw/questions?concept=${TEST_SLUG}`, null, adminToken);
+    const q = data.questions.find(q => q.id === testQId);
+    assertEqual(q?.status, 'approved', 'status is approved');
+    assertEqual(q?.admin_notes, 'Good question.', 'notes persisted');
+  });
+
+  await test('PATCH /api/admin/hw/questions/:id — invalid status → 400', async () => {
+    const { status } = await req('PATCH', `/api/admin/hw/questions/${testQId}`,
+      { status: 'unknown_status' }, adminToken);
+    assertEqual(status, 400, 'status');
+  });
+
+  await test('PATCH /api/admin/hw/questions/:id — 404 for unknown id', async () => {
+    const { status } = await req('PATCH', `/api/admin/hw/questions/no-such-id-xyz`,
+      { status: 'approved' }, adminToken);
+    assertEqual(status, 404, 'status');
+  });
+
+  await test('GET /api/admin/hw/export/:slug — approved questions text dump', async () => {
+    const { status, data } = await req('GET', `/api/admin/hw/export/${TEST_SLUG}`, null, adminToken);
+    assertEqual(status, 200, 'status');
+    assert(data.count >= 1, 'count >= 1');
+    assert(typeof data.text === 'string', 'text is string');
+    assert(data.text.includes('[TEST]'), 'text contains question content');
+  });
+
+  await test('GET /api/admin/hw/export/:slug — empty for concept with no approved Qs', async () => {
+    const { status, data } = await req('GET', '/api/admin/hw/export/no_such_concept_xyz', null, adminToken);
+    assertEqual(status, 200, 'status');
+    assertEqual(data.count, 0, 'count is 0');
+    assertEqual(data.text, '', 'text is empty');
+  });
+
+  await test('POST /api/hw/chat — no token → 401', async () => {
+    const { status } = await req('POST', '/api/hw/chat', { messages: [{ role: 'user', content: 'hi' }] });
+    assertEqual(status, 401, 'status');
+  });
+
+  await test('POST /api/hw/chat — missing messages → 400', async () => {
+    const { status } = await req('POST', '/api/hw/chat', { messages: [] }, simToken);
+    assertEqual(status, 400, 'status');
+  });
+
+  // Cleanup test questions from questions.json
+  function cleanupTestQuestions() {
+    try {
+      const qPath = require('path').join(__dirname, '..', 'state', 'questions.json');
+      const qs = JSON.parse(require('fs').readFileSync(qPath, 'utf8'));
+      const filtered = qs.filter(q => q.module !== '[TEST]' && !q.title?.startsWith('[TEST]'));
+      require('fs').writeFileSync(qPath, JSON.stringify(filtered, null, 2));
+    } catch {}
+  }
+
+  // ══════════════════════════════════════════════════════════════
   // CLEANUP
   // ══════════════════════════════════════════════════════════════
 
@@ -804,6 +940,7 @@ async function main() {
   cleanupTestStudent();
   cleanupTestWorkflow();
   cleanupTestBugs();
+  cleanupTestQuestions();
 
   // Remove test student also via API for clean server state
   await req('POST', '/api/sim/students/remove', { name: TEST_STUDENT }, adminToken).catch(() => {});
