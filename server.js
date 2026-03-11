@@ -7,6 +7,23 @@ const { execSync } = require('child_process');
 
 const app = express();
 app.use(express.json({ limit: '20mb' }));
+
+// ── Content Security Policy ────────────────────────────────────────
+// Prevents browsers from executing scripts or making network requests
+// outside of our server and the explicitly trusted physics CDNs.
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com unpkg.com cdn.plot.ly; " +
+    "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com unpkg.com; " +
+    "img-src 'self' data: blob:; " +
+    "font-src 'self' cdnjs.cloudflare.com; " +
+    "connect-src 'self'; " +        // allows fetch to our own /api/* only
+    "frame-ancestors 'self';"       // prevents clickjacking
+  );
+  next();
+});
+
 app.use(express.static(__dirname));
 
 // ── Google Drive auth ──────────────────────────────────────────────
@@ -608,17 +625,53 @@ function requireSimToken(req, res, next) {
 // Trusted CDNs: jsdelivr, cdnjs, unpkg — read-only library hosts, no data exfiltration risk.
 // fetch/XHR/WebSocket remain blocked to prevent sims from phoning home.
 const TRUSTED_CDNS = /https?:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|unpkg\.com|cdn\.plot\.ly)\//i;
+// Runtime nullification injected at the top of every sim <head>.
+// This is a second layer: even if a regex pattern is bypassed, the
+// browser-level APIs are overwritten to no-ops before any sim code runs.
+const SIM_SECURITY_PREAMBLE = `<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>`;
+
 function sanitizeSimHtml(html) {
-  // Block network APIs in JS (data exfiltration vectors)
-  html = html.replace(/fetch\s*\(/gi,     '/* fetch blocked */ void(');
-  html = html.replace(/XMLHttpRequest/gi, '/* XHR blocked */ Object');
-  html = html.replace(/WebSocket\s*\(/gi, '/* WS blocked */ void(');
+  // ── Static regex blocklist ────────────────────────────────────────
+  // Catches the obvious patterns before the file is stored.
+  html = html.replace(/\bfetch\s*\(/gi,          '/* fetch blocked */ void(');
+  html = html.replace(/XMLHttpRequest/gi,         '/* XHR blocked */ Object');
+  html = html.replace(/\bWebSocket\s*\(/gi,       '/* WS blocked */ void(');
+  // Dynamic bypass patterns (e.g. window['fetch'](...), eval(), new Function())
+  html = html.replace(/window\s*\[\s*['"`]fetch['"`]\s*\]/gi, '/* fetch blocked */ window.__blocked__');
+  html = html.replace(/\beval\s*\(/gi,            '/* eval blocked */ void(');
+  html = html.replace(/new\s+Function\s*\(/gi,    '/* Function blocked */ void(');
+  html = html.replace(/setTimeout\s*\(\s*['"`]/gi,'/* setTimeout string blocked */ setTimeout(()=>{},');
+  html = html.replace(/setInterval\s*\(\s*['"`]/gi,'/* setInterval string blocked */ setInterval(()=>{},');
+  // Block creating script tags at runtime
+  html = html.replace(/createElement\s*\(\s*['"`]script['"`]\s*\)/gi, 'createElement("span")');
   // Strip external <script src> — but allow trusted CDNs
   html = html.replace(/<script([^>]+)src=["'](https?:\/\/[^"']*)["']([^>]*)>/gi, (m, pre, url, post) =>
     TRUSTED_CDNS.test(url) ? m : '<!-- external script blocked -->');
   // Strip <link> — but allow trusted CDNs
   html = html.replace(/<link\b([^>]*)>/gi, (m, attrs) =>
     TRUSTED_CDNS.test(attrs) ? m : '<!-- link blocked -->');
+  // ── Runtime preamble injection ────────────────────────────────────
+  // Inject nullification script immediately after <head> (or at top if no head)
+  if (/<head\b/i.test(html)) {
+    html = html.replace(/(<head\b[^>]*>)/i, `$1\n${SIM_SECURITY_PREAMBLE}`);
+  } else {
+    html = SIM_SECURITY_PREAMBLE + '\n' + html;
+  }
   return html;
 }
 

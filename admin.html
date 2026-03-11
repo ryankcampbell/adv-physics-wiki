@@ -1459,7 +1459,7 @@ function renderRoster(students, daily) {
     tr.innerHTML = `
       <td style="padding:4px 8px;text-transform:capitalize">${name}</td>
       <td style="padding:4px 8px;">
-        <span id="pw-${name}" style="font-family:monospace;font-size:0.8rem;background:#12122a;padding:2px 6px;border-radius:3px;cursor:pointer;user-select:all" title="Click to copy" onclick="navigator.clipboard.writeText('${pw}');this.style.outline='1px solid #7eb8da'">${pw}</span>
+        <span id="pw-${name}" style="font-family:monospace;font-size:0.8rem;background:#12122a;color:#7eb8da;padding:2px 6px;border-radius:3px;cursor:pointer;user-select:all" title="Click to copy" onclick="navigator.clipboard.writeText('${pw}');this.style.outline='1px solid #7eb8da'">${pw}</span>
         <button onclick="rosterGenPassword('${name}')" style="background:none;border:1px solid #e2e8f0;border-radius:4px;padding:2px 6px;font-size:0.72rem;color:#94a3b8;cursor:pointer;margin-left:3px" title="Generate new password">↻</button>
       </td>
       <td style="padding:4px 8px;">
