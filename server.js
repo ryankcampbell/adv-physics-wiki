@@ -1185,6 +1185,87 @@ app.get('/api/sim/daily', requireAdmin, (req, res) => {
   catch { res.json({}); }
 });
 
+// ── Concept Resources ───────────────────────────────────────────────
+const RESOURCES_PATH = path.join(__dirname, 'state', 'resources.json');
+const RESOURCES_DIR  = path.join(__dirname, 'resources');
+
+function readResources() {
+  try { return JSON.parse(fs.readFileSync(RESOURCES_PATH, 'utf8')); }
+  catch { return {}; }
+}
+function writeResources(data) {
+  fs.writeFileSync(RESOURCES_PATH, JSON.stringify(data, null, 2));
+}
+
+// Public: list resources for a concept
+app.get('/api/resources/:slug', (req, res) => {
+  const { slug } = req.params;
+  const all = readResources();
+  res.json({ resources: all[slug] || [] });
+});
+
+// Public: serve a resource file
+app.get('/api/resources/file/:slug/:filename', (req, res) => {
+  const { slug, filename } = req.params;
+  // Sanitize: no path traversal
+  if (filename.includes('..') || filename.includes('/') || slug.includes('..')) {
+    return res.status(400).json({ error: 'Invalid path' });
+  }
+  const filePath = path.join(RESOURCES_DIR, slug, filename);
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'Not found' });
+  res.sendFile(filePath);
+});
+
+// Admin: upload a resource file (multipart via raw body + query params)
+// Client sends: POST /api/admin/resources/upload?slug=SLUG&title=TITLE
+// with Content-Type: application/octet-stream and filename header
+app.post('/api/admin/resources/upload', requireAdmin, (req, res) => {
+  const { slug, title } = req.query;
+  const filename = req.headers['x-filename'];
+  if (!slug || !filename) return res.status(400).json({ error: 'slug and x-filename required' });
+  if (filename.includes('..') || filename.includes('/') || slug.includes('..')) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+
+  const dir = path.join(RESOURCES_DIR, slug);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const chunks = [];
+  req.on('data', chunk => chunks.push(chunk));
+  req.on('end', () => {
+    const buf = Buffer.concat(chunks);
+    fs.writeFileSync(path.join(dir, filename), buf);
+
+    const all = readResources();
+    if (!all[slug]) all[slug] = [];
+    // Remove any existing entry with same filename, then add fresh
+    all[slug] = all[slug].filter(r => r.filename !== filename);
+    all[slug].push({ filename, title: title || filename, uploaded: new Date().toISOString().slice(0, 10) });
+    writeResources(all);
+
+    res.json({ ok: true, filename });
+  });
+  req.on('error', () => res.status(500).json({ error: 'Upload failed' }));
+});
+
+// Admin: delete a resource file
+app.delete('/api/admin/resources/:slug/:filename', requireAdmin, (req, res) => {
+  const { slug, filename } = req.params;
+  if (filename.includes('..') || filename.includes('/') || slug.includes('..')) {
+    return res.status(400).json({ error: 'Invalid path' });
+  }
+  const filePath = path.join(RESOURCES_DIR, slug, filename);
+  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+  const all = readResources();
+  if (all[slug]) {
+    all[slug] = all[slug].filter(r => r.filename !== filename);
+    if (all[slug].length === 0) delete all[slug];
+  }
+  writeResources(all);
+  res.json({ ok: true });
+});
+
 // ── Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

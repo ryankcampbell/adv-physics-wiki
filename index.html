@@ -713,7 +713,7 @@ function setLayout(mode) {
 // ═══════════════════════════════════════════════════════════
 // DETAIL PANEL
 // ═══════════════════════════════════════════════════════════
-function selectNode(id) {
+async function selectNode(id) {
   selNode = id;
   refreshNodeStyles();
   const c = mod.concepts.find(x => x.id === id);
@@ -805,6 +805,26 @@ function selectNode(id) {
     }
   }
 
+  // Supporting documents for this concept
+  let resourcesHTML = '';
+  try {
+    const rRes = await fetch(`/api/resources/${id}`);
+    if (rRes.ok) {
+      const { resources } = await rRes.json();
+      if (resources.length) {
+        resourcesHTML = `
+          <div class="detail-section">
+            <div class="detail-section-label">Supporting Documents</div>
+            ${resources.map(f => `
+              <a href="/api/resources/file/${id}/${encodeURIComponent(f.filename)}" target="_blank"
+                 style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid #e2e8f0;text-decoration:none;color:#1e3a5f;font-size:0.8rem;font-weight:500">
+                <span>📄</span><span>${f.title}</span>
+              </a>`).join('')}
+          </div>`;
+      }
+    }
+  } catch {}
+
   document.getElementById('detail-body').innerHTML = `
     <div class="detail-section">
       <div class="detail-section-label">Description</div>
@@ -822,6 +842,7 @@ function selectNode(id) {
       <div class="detail-section-label">Prerequisites</div>
       <div class="prereq-chips">${prereqHTML}</div>
     </div>
+    ${resourcesHTML}
     <div class="detail-section">
       <div class="detail-section-label">Wiki Contributions</div>
       ${wikiHTML}

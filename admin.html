@@ -589,7 +589,48 @@
     </div>
   </div>
 
-  <!-- ── 5. H-INDEX (closed by default) ── -->
+  <!-- ── 5. CONCEPT RESOURCES (closed by default) ── -->
+  <div id="resources-section" style="margin-top:8px">
+    <button id="resources-toggle" onclick="toggleResources()" style="width:100%;display:flex;align-items:center;gap:8px;padding:12px 16px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;font-size:0.85rem;font-weight:600;cursor:pointer;text-align:left">
+      📄 Concept Resources
+      <span style="margin-left:auto;font-size:0.72rem;color:#94a3b8;font-weight:400">Upload supporting documents to concept nodes</span>
+    </button>
+    <div id="resources-body" style="display:none;background:white;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:16px">
+
+      <!-- Concept selector -->
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
+        <div style="flex:1;min-width:160px">
+          <label style="display:block;font-size:0.72rem;font-weight:600;color:#475569;margin-bottom:4px">Concept</label>
+          <select id="res-concept-sel" style="width:100%;border:1px solid #d1d5db;border-radius:6px;padding:7px 9px;font-size:0.83rem" onchange="loadResourcesList()">
+            <option value="">— select concept —</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- File list for selected concept -->
+      <div id="res-file-list" style="margin-bottom:14px;min-height:24px">
+        <span style="font-size:0.8rem;color:#94a3b8">Select a concept to see its documents.</span>
+      </div>
+
+      <!-- Drop zone -->
+      <div id="res-drop" style="border:2px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:#f8fafc;transition:all 0.15s" onclick="document.getElementById('res-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='#2563eb';this.style.background='#eff6ff'" ondragleave="this.style.borderColor='#cbd5e1';this.style.background='#f8fafc'" ondrop="handleResDrop(event)">
+        <div style="font-size:1.4rem;margin-bottom:6px">📎</div>
+        <p style="font-size:0.82rem;color:#64748b">Drop a file here, or <strong style="color:#1e3a5f">click to browse</strong></p>
+        <p style="font-size:0.72rem;color:#94a3b8;margin-top:4px">PDF, HTML, TXT, DOCX accepted · Select a concept first</p>
+      </div>
+      <input type="file" id="res-file-input" style="display:none" accept=".pdf,.html,.txt,.docx" onchange="handleResFileSelect(this.files[0])">
+
+      <!-- Title override -->
+      <div id="res-title-row" style="display:none;margin-top:10px;display:flex;gap:8px;align-items:center">
+        <input id="res-title-input" type="text" placeholder="Document title (optional — defaults to filename)" style="flex:1;border:1px solid #d1d5db;border-radius:6px;padding:7px 9px;font-size:0.83rem">
+        <button id="res-upload-btn" onclick="uploadResource()" style="background:#2563eb;color:white;border:none;border-radius:6px;padding:8px 16px;font-size:0.83rem;font-weight:600;cursor:pointer;white-space:nowrap">Upload</button>
+      </div>
+      <div id="res-status" style="font-size:0.78rem;margin-top:8px;min-height:18px"></div>
+
+    </div>
+  </div>
+
+  <!-- ── 6. H-INDEX (closed by default) ── -->
   <div id="hindex-section">
     <button id="hindex-toggle" onclick="toggleHIndex()">
       <div class="toggle-pill"></div>
@@ -1307,6 +1348,123 @@ async function submitNewConcept() {
     btn.disabled = false;
     btn.textContent = 'Add to Module & Push';
   }
+}
+
+// ── Concept Resources ──────────────────────────────────────────────
+let resourcesOpen = false;
+let resPendingFile = null;  // File object waiting for upload
+
+function toggleResources() {
+  resourcesOpen = !resourcesOpen;
+  document.getElementById('resources-body').style.display = resourcesOpen ? 'block' : 'none';
+  if (resourcesOpen) populateResConceptSelector();
+}
+
+async function populateResConceptSelector() {
+  const sel = document.getElementById('res-concept-sel');
+  const currentVal = sel.value;
+  // Pull concept list from the currently loaded module
+  sel.innerHTML = '<option value="">— select concept —</option>';
+  if (!mod || !mod.concepts) return;
+  mod.concepts.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    sel.appendChild(opt);
+  });
+  if (currentVal) sel.value = currentVal;
+}
+
+async function loadResourcesList() {
+  const slug = document.getElementById('res-concept-sel').value;
+  const listEl = document.getElementById('res-file-list');
+  if (!slug) {
+    listEl.innerHTML = '<span style="font-size:0.8rem;color:#94a3b8">Select a concept to see its documents.</span>';
+    return;
+  }
+  listEl.innerHTML = '<span style="font-size:0.8rem;color:#94a3b8">Loading…</span>';
+  try {
+    const r = await fetch(`/api/resources/${slug}`);
+    const { resources } = await r.json();
+    if (!resources.length) {
+      listEl.innerHTML = '<span style="font-size:0.8rem;color:#94a3b8">No documents yet for this concept.</span>';
+      return;
+    }
+    listEl.innerHTML = resources.map(f => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <span style="font-size:0.85rem">📄</span>
+        <a href="/api/resources/file/${slug}/${encodeURIComponent(f.filename)}" target="_blank"
+           style="font-size:0.82rem;color:#1e3a5f;font-weight:500;flex:1;text-decoration:none"
+           title="${f.filename}">${f.title}</a>
+        <span style="font-size:0.7rem;color:#94a3b8;white-space:nowrap">${f.uploaded}</span>
+        <button onclick="deleteResource('${slug}','${f.filename}')"
+          style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:1rem;padding:0 2px"
+          title="Remove">×</button>
+      </div>`).join('');
+  } catch {
+    listEl.innerHTML = '<span style="font-size:0.8rem;color:#ef4444">Could not load documents.</span>';
+  }
+}
+
+function handleResDrop(e) {
+  e.preventDefault();
+  document.getElementById('res-drop').style.borderColor = '#cbd5e1';
+  document.getElementById('res-drop').style.background = '#f8fafc';
+  const file = e.dataTransfer.files[0];
+  if (file) prepareResUpload(file);
+}
+
+function handleResFileSelect(file) {
+  if (file) prepareResUpload(file);
+}
+
+function prepareResUpload(file) {
+  resPendingFile = file;
+  document.getElementById('res-title-input').value = file.name.replace(/\.[^.]+$/, '');
+  document.getElementById('res-title-row').style.display = 'flex';
+  document.getElementById('res-status').textContent = `Ready to upload: ${file.name}`;
+  document.getElementById('res-status').style.color = '#475569';
+}
+
+async function uploadResource() {
+  const slug = document.getElementById('res-concept-sel').value;
+  const title = document.getElementById('res-title-input').value.trim() || resPendingFile.name;
+  const statusEl = document.getElementById('res-status');
+  if (!slug) { statusEl.textContent = 'Select a concept first.'; statusEl.style.color = '#ef4444'; return; }
+  if (!resPendingFile) { statusEl.textContent = 'No file selected.'; statusEl.style.color = '#ef4444'; return; }
+
+  statusEl.textContent = 'Uploading…'; statusEl.style.color = '#94a3b8';
+  document.getElementById('res-upload-btn').disabled = true;
+
+  try {
+    const r = await adminFetch(
+      `/api/admin/resources/upload?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/octet-stream', 'x-filename': resPendingFile.name },
+        body: resPendingFile
+      }
+    );
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Upload failed');
+    statusEl.textContent = `✓ Uploaded: ${title}`;
+    statusEl.style.color = '#16a34a';
+    resPendingFile = null;
+    document.getElementById('res-title-row').style.display = 'none';
+    document.getElementById('res-file-input').value = '';
+    loadResourcesList();
+  } catch(e) {
+    statusEl.textContent = `Error: ${e.message}`;
+    statusEl.style.color = '#ef4444';
+  } finally {
+    document.getElementById('res-upload-btn').disabled = false;
+  }
+}
+
+async function deleteResource(slug, filename) {
+  if (!confirm(`Remove "${filename}" from this concept?`)) return;
+  const r = await adminFetch(`/api/admin/resources/${slug}/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+  if (r.ok) loadResourcesList();
 }
 
 // ── H-Index ────────────────────────────────────────────────────────
