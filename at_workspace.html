@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AT Workspace — Advanced Physics</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+           background: #0f172a; color: #e2e8f0; }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    #hdr {
+      height: 50px; background: #7c2d12; display: flex; align-items: center;
+      gap: 12px; padding: 0 18px; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    #hdr a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.78rem; white-space: nowrap; }
+    #hdr a:hover { color: white; }
+    #hdr-title { font-size: 0.9rem; font-weight: 700; color: white; flex: 1; }
+    #hdr-concept { font-size: 0.78rem; color: rgba(255,255,255,0.65); }
+    .at-badge {
+      background: rgba(255,255,255,0.15); color: white; font-size: 0.65rem;
+      font-weight: 700; padding: 2px 8px; border-radius: 99px;
+      text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
+    }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
+    #body { display: flex; height: calc(100vh - 50px - 44px); }
+
+    /* ── Reference IC panel (collapsible top) ────────────────────── */
+    #ref-bar {
+      height: 44px; background: #1e293b; border-bottom: 1px solid #334155;
+      display: flex; align-items: center; padding: 0 16px; gap: 10px;
+      flex-shrink: 0; cursor: pointer; user-select: none;
+    }
+    #ref-bar:hover { background: #263347; }
+    #ref-bar-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
+    #ref-bar-title { font-size: 0.82rem; color: #7eb8da; font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #ref-caret { font-size: 0.7rem; color: #64748b; transition: transform 0.2s; }
+    #ref-caret.open { transform: rotate(180deg); }
+    #ref-panel {
+      display: none; position: fixed; top: 94px; left: 0; right: 0;
+      bottom: 44px; background: white; z-index: 50; overflow: auto;
+    }
+    #ref-panel.open { display: block; }
+    #ref-frame { width: 100%; height: 100%; border: none; }
+
+    /* ── Tool workspace (left) ───────────────────────────────────── */
+    #tool-panel {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+      border-right: 1px solid #1e293b;
+    }
+
+    /* Tool tabs */
+    #tool-tabs {
+      display: none; background: #1e293b; border-bottom: 1px solid #334155;
+      padding: 0 12px; gap: 2px; flex-shrink: 0; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    #tool-tabs.visible { display: flex; align-items: flex-end; }
+    .tool-tab {
+      padding: 9px 14px 8px; font-size: 0.78rem; font-weight: 600;
+      color: #64748b; cursor: pointer; border-bottom: 2px solid transparent;
+      white-space: nowrap; transition: color 0.15s;
+    }
+    .tool-tab:hover { color: #94a3b8; }
+    .tool-tab.active { color: #7eb8da; border-bottom-color: #7eb8da; }
+    .tool-tab.done { color: #4ade80; }
+    .tool-tab.done.active { border-bottom-color: #4ade80; }
+    .tab-check { font-size: 0.65rem; margin-left: 5px; }
+
+    /* Tool content area */
+    #tool-content { flex: 1; overflow-y: auto; }
+
+    /* ── Tool picker screen ──────────────────────────────────────── */
+    #picker-screen {
+      padding: 28px 24px; overflow-y: auto; height: 100%;
+    }
+    #picker-screen h2 {
+      font-size: 1rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;
+    }
+    #picker-screen p { font-size: 0.82rem; color: #64748b; margin-bottom: 22px; }
+    .tool-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .tool-card {
+      background: #1e293b; border: 2px solid #334155; border-radius: 10px;
+      padding: 14px 16px; cursor: pointer; transition: all 0.15s; position: relative;
+    }
+    .tool-card:hover { border-color: #475569; }
+    .tool-card.selected { border-color: #7eb8da; background: #1a2d45; }
+    .tool-card.selected .tool-card-check { opacity: 1; }
+    .tool-card-check {
+      position: absolute; top: 10px; right: 12px; width: 20px; height: 20px;
+      background: #7eb8da; border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 0.65rem; color: #0f172a; font-weight: 700;
+      opacity: 0; transition: opacity 0.15s;
+    }
+    .tool-card-icon { font-size: 1.4rem; margin-bottom: 7px; }
+    .tool-card-name { font-size: 0.88rem; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+    .tool-card-desc { font-size: 0.75rem; color: #64748b; line-height: 1.4; margin-bottom: 6px; }
+    .tool-card-tag {
+      display: inline-block; font-size: 0.65rem; font-weight: 600;
+      background: #0f172a; color: #94a3b8; padding: 2px 7px; border-radius: 99px;
+    }
+    #picker-counter {
+      font-size: 0.82rem; color: #94a3b8; margin-bottom: 14px;
+    }
+    #picker-counter span { color: #7eb8da; font-weight: 700; }
+    #btn-start-tools {
+      display: none; background: #7eb8da; color: #0f172a; border: none;
+      border-radius: 8px; padding: 11px 28px; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+    }
+    #btn-start-tools:hover { background: #93c5fd; }
+    #btn-start-tools.visible { display: inline-block; }
+
+    /* ── Individual tool panel ───────────────────────────────────── */
+    .tool-pane { padding: 22px 22px 40px; display: none; }
+    .tool-pane.active { display: block; }
+    .tool-pane-hdr {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+      padding-bottom: 12px; border-bottom: 1px solid #1e293b;
+    }
+    .tool-pane-icon { font-size: 1.5rem; }
+    .tool-pane-title { font-size: 1rem; font-weight: 700; color: #e2e8f0; }
+    .tool-pane-sub { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
+    .tool-placeholder {
+      background: #1e293b; border: 1px dashed #334155; border-radius: 8px;
+      padding: 32px; text-align: center; color: #475569; font-size: 0.85rem;
+    }
+    .mark-done-btn {
+      margin-top: 20px; background: #16a34a; color: white; border: none;
+      border-radius: 6px; padding: 9px 20px; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer;
+    }
+    .mark-done-btn:hover { background: #15803d; }
+    .done-indicator {
+      display: none; align-items: center; gap: 6px; color: #4ade80;
+      font-size: 0.82rem; font-weight: 600; margin-top: 16px;
+    }
+    .done-indicator.visible { display: flex; }
+
+    /* ── Socratic Chat (right) ───────────────────────────────────── */
+    #chat-panel {
+      width: 340px; min-width: 280px; display: flex; flex-direction: column;
+      background: #0f172a; border-left: 1px solid #1e293b; flex-shrink: 0;
+    }
+    #chat-hdr {
+      padding: 12px 14px; background: #1e293b; border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+    }
+    #chat-hdr-title {
+      font-size: 0.8rem; font-weight: 700; color: #e2e8f0; display: flex;
+      align-items: center; gap: 6px;
+    }
+    #chat-hdr-sub { font-size: 0.7rem; color: #475569; margin-top: 2px; line-height: 1.4; }
+    #chat-msgs {
+      flex: 1; overflow-y: auto; padding: 12px; display: flex;
+      flex-direction: column; gap: 10px;
+    }
+    .chat-msg { max-width: 95%; }
+    .chat-msg.user { align-self: flex-end; }
+    .chat-msg.assistant { align-self: flex-start; }
+    .chat-msg.system { align-self: center; max-width: 100%; }
+    .chat-bubble {
+      padding: 8px 11px; border-radius: 10px; font-size: 0.8rem; line-height: 1.5;
+    }
+    .chat-msg.user .chat-bubble {
+      background: #1e3a5f; color: #bfdbfe; border-bottom-right-radius: 3px;
+    }
+    .chat-msg.assistant .chat-bubble {
+      background: #1e293b; color: #e2e8f0; border-bottom-left-radius: 3px;
+    }
+    .chat-msg.system .chat-bubble {
+      background: transparent; color: #475569; font-style: italic;
+      font-size: 0.72rem; text-align: center;
+    }
+    .chat-thinking {
+      align-self: flex-start; padding: 8px 12px; background: #1e293b;
+      border-radius: 10px; border-bottom-left-radius: 3px; display: none;
+    }
+    .chat-thinking.visible { display: flex; gap: 4px; align-items: center; }
+    .chat-dot {
+      width: 6px; height: 6px; background: #475569; border-radius: 50%;
+      animation: chatdot 1.2s infinite ease-in-out;
+    }
+    .chat-dot:nth-child(2) { animation-delay: 0.2s; }
+    .chat-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes chatdot { 0%,80%,100%{opacity:0.3;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+    #chat-input-area {
+      padding: 10px 12px; background: #1e293b; border-top: 1px solid #334155;
+      display: flex; flex-direction: column; gap: 7px; flex-shrink: 0;
+    }
+    #chat-input {
+      width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 7px;
+      color: #e2e8f0; padding: 8px 10px; font-size: 0.8rem; font-family: inherit;
+      resize: none; min-height: 64px; max-height: 120px;
+    }
+    #chat-input:focus { outline: none; border-color: #7eb8da; }
+    #chat-input::placeholder { color: #475569; }
+    #chat-send-row { display: flex; gap: 6px; align-items: center; }
+    #btn-chat-send {
+      background: #7c2d12; color: white; border: none; border-radius: 6px;
+      padding: 6px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      white-space: nowrap;
+    }
+    #btn-chat-send:hover { background: #991b1b; }
+    #btn-chat-send:disabled { background: #374151; cursor: default; }
+    #chat-turns { font-size: 0.68rem; color: #475569; margin-left: auto; }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    #footer {
+      height: 44px; background: #1e293b; border-top: 1px solid #334155;
+      display: flex; align-items: center; padding: 0 18px; gap: 14px;
+      flex-shrink: 0;
+    }
+    #progress-text { font-size: 0.78rem; color: #64748b; flex: 1; }
+    #progress-text span { color: #7eb8da; font-weight: 600; }
+    #btn-finish {
+      display: none; background: #16a34a; color: white; border: none;
+      border-radius: 6px; padding: 7px 18px; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+    }
+    #btn-finish:hover { background: #15803d; }
+    #btn-finish.visible { display: block; }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div id="hdr">
+  <a href="javascript:goBack()" id="back-link">← Back to Editor</a>
+  <div id="hdr-title">AT Workspace</div>
+  <div id="hdr-concept"></div>
+  <span class="at-badge">Adversarial Test</span>
+</div>
+
+<!-- Reference IC bar (collapsible) -->
+<div id="ref-bar" onclick="toggleRefPanel()">
+  <span id="ref-caret">▾</span>
+  <span id="ref-bar-label">Reference IC</span>
+  <span id="ref-bar-title">Loading…</span>
+  <span style="font-size:0.7rem;color:#475569;white-space:nowrap">click to expand</span>
+</div>
+<div id="ref-panel">
+  <iframe id="ref-frame" title="Reference IC"></iframe>
+</div>
+
+<!-- Main body -->
+<div id="body">
+
+  <!-- Tool workspace -->
+  <div id="tool-panel">
+
+    <!-- Tabs (shown after tool selection) -->
+    <div id="tool-tabs"></div>
+
+    <!-- Tool content (picker or active tool) -->
+    <div id="tool-content">
+
+      <!-- Tool picker screen -->
+      <div id="picker-screen">
+        <h2>Choose 3 investigation tools</h2>
+        <p>Each tool gives you a different lens on the simulation. Pick the three that best match this IC's physics.</p>
+        <div class="tool-cards" id="tool-cards"></div>
+        <div id="picker-counter">Selected: <span id="picker-count">0</span> / 3</div>
+        <button id="btn-start-tools" onclick="startTools()">Begin Investigation →</button>
+      </div>
+
+      <!-- Tool panes (one per tool, shown after selection) -->
+      <div id="pane-caseBuilder" class="tool-pane">
+        <div class="tool-pane-hdr">
+          <div class="tool-pane-icon">🔬</div>
+          <div>
+            <div class="tool-pane-title">Case Builder</div>
+            <div class="tool-pane-sub">Test boundary conditions and limiting cases</div>
+          </div>
+        </div>
+        <div class="tool-placeholder">Case Builder tool — coming in Phase 5a</div>
+        <div class="done-indicator" id="done-caseBuilder">✓ Complete — results saved</div>
+      </div>
+
+      <div id="pane-measurementTable" class="tool-pane">
+        <div class="tool-pane-hdr">
+          <div class="tool-pane-icon">📊</div>
+          <div>
+            <div class="tool-pane-title">Measurement Table</div>
+            <div class="tool-pane-sub">Sweep parameters and compare to theory</div>
+          </div>
+        </div>
+        <div class="tool-placeholder">Measurement Table tool — coming in Phase 5b</div>
+        <div class="done-indicator" id="done-measurementTable">✓ Complete — results saved</div>
+      </div>
+
+      <div id="pane-statisticalSpread" class="tool-pane">
+        <div class="tool-pane-hdr">
+          <div class="tool-pane-icon">📈</div>
+          <div>
+            <div class="tool-pane-title">Statistical Spread</div>
+            <div class="tool-pane-sub">Error analysis and uncertainty propagation</div>
+          </div>
+        </div>
+        <div class="tool-placeholder">Statistical Spread tool — coming in Phase 5c</div>
+        <div class="done-indicator" id="done-statisticalSpread">✓ Complete — results saved</div>
+      </div>
+
+      <div id="pane-litReview" class="tool-pane">
+        <div class="tool-pane-hdr">
+          <div class="tool-pane-icon">📚</div>
+          <div>
+            <div class="tool-pane-title">Lit Review</div>
+            <div class="tool-pane-sub">Ground findings in external sources</div>
+          </div>
+        </div>
+        <div class="tool-placeholder">Lit Review tool — coming in Phase 5e</div>
+        <div class="done-indicator" id="done-litReview">✓ Complete — results saved</div>
+      </div>
+
+      <div id="pane-claimAudit" class="tool-pane">
+        <div class="tool-pane-hdr">
+          <div class="tool-pane-icon">🔍</div>
+          <div>
+            <div class="tool-pane-title">Claim Audit</div>
+            <div class="tool-pane-sub">Evaluate every testable claim in the IC</div>
+          </div>
+        </div>
+        <div class="tool-placeholder">Claim Audit tool — coming in Phase 5d</div>
+        <div class="done-indicator" id="done-claimAudit">✓ Complete — results saved</div>
+      </div>
+
+    </div><!-- /tool-content -->
+  </div><!-- /tool-panel -->
+
+  <!-- Socratic Chat -->
+  <div id="chat-panel">
+    <div id="chat-hdr">
+      <div id="chat-hdr-title">✦ Socratic Chat</div>
+      <div id="chat-hdr-sub">Ask about the physics or your findings — always available</div>
+    </div>
+    <div id="chat-msgs">
+      <div class="chat-msg system">
+        <div class="chat-bubble">Chat is ready once the server is connected. Ask about the physics or what your results mean.</div>
+      </div>
+    </div>
+    <div class="chat-thinking" id="chat-thinking">
+      <div class="chat-dot"></div>
+      <div class="chat-dot"></div>
+      <div class="chat-dot"></div>
+    </div>
+    <div id="chat-input-area">
+      <textarea id="chat-input" placeholder="Ask about the physics, or paste a finding…" rows="3"></textarea>
+      <div id="chat-send-row">
+        <button id="btn-chat-send" onclick="sendChat()">Send</button>
+        <span id="chat-turns"></span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /body -->
+
+<!-- Footer -->
+<div id="footer">
+  <div id="progress-text"><span id="done-count">0</span> of <span id="total-count">3</span> tools complete</div>
+  <button id="btn-finish" onclick="finishAndReturn()">Finish &amp; Return to Editor →</button>
+</div>
+
+<script>
+// ── Constants ────────────────────────────────────────────────────
+const STUDENT_TOKEN_KEY = 'student-session-token';
+const STUDENT_NAME_KEY  = 'student-name';
+const SIM_TOKEN_KEY     = 'sim-session-token';
+
+const TOOL_DEFS = [
+  {
+    id: 'caseBuilder',
+    icon: '🔬',
+    name: 'Case Builder',
+    desc: 'AI proposes specific boundary and limiting cases to test. You run each and record what you observe.',
+    tag: 'Any sim type'
+  },
+  {
+    id: 'measurementTable',
+    icon: '📊',
+    name: 'Measurement Table',
+    desc: 'Record systematic measurements across a parameter range. Optional formula comparison and plot.',
+    tag: 'Numerical or qualitative outputs'
+  },
+  {
+    id: 'statisticalSpread',
+    icon: '📈',
+    name: 'Statistical Spread',
+    desc: 'Input uncertainty propagation (Mode A) or repeated observation histogram (Mode B for quantum sims).',
+    tag: 'Deterministic or stochastic'
+  },
+  {
+    id: 'litReview',
+    icon: '📚',
+    name: 'Lit Review',
+    desc: 'Ground your findings in external sources. Requires 2 sources from 2 different paths.',
+    tag: 'Any topic'
+  },
+  {
+    id: 'claimAudit',
+    icon: '🔍',
+    name: 'Claim Audit',
+    desc: 'AI extracts every testable claim from the IC explainer. You evaluate each one against the sim.',
+    tag: 'Any IC with an explainer'
+  }
+];
+
+// ── State ────────────────────────────────────────────────────────
+const params   = new URLSearchParams(location.search);
+const SLUG     = params.get('concept') || '';
+const IC_KEY   = `at-ic-${SLUG}`;
+const SESS_KEY = `at-session-${SLUG}`;
+
+let icData  = null;   // loaded from localStorage
+let session = null;   // at-session object
+let activeTab = null; // currently visible tool id
+
+// ── Init ─────────────────────────────────────────────────────────
+function init() {
+  if (!SLUG) { showError('No concept specified. Return to your workspace.'); return; }
+
+  // Load IC snapshot
+  try { icData = JSON.parse(localStorage.getItem(IC_KEY) || 'null'); } catch {}
+
+  // Load existing session
+  try { session = JSON.parse(localStorage.getItem(SESS_KEY) || 'null'); } catch {}
+
+  // Set header
+  const title = icData?.conceptTitle || session?.conceptTitle || SLUG.replace(/_/g, ' ');
+  document.getElementById('hdr-concept').textContent = title;
+  document.getElementById('ref-bar-title').textContent = title;
+
+  // Load reference IC if we have a URL
+  if (icData?.icUrl) {
+    document.getElementById('ref-frame').src = icData.icUrl;
+  }
+
+  // Show picker or resume session
+  if (session?.selectedTools?.length === 3) {
+    resumeSession();
+  } else {
+    showPicker();
+  }
+
+  // Wire chat keyboard shortcut
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+
+  // Load chat turns display
+  updateTurnsDisplay();
+}
+
+// ── Tool picker ──────────────────────────────────────────────────
+function showPicker() {
+  document.getElementById('picker-screen').style.display = 'block';
+  document.getElementById('tool-tabs').classList.remove('visible');
+  renderToolCards();
+}
+
+function renderToolCards() {
+  const container = document.getElementById('tool-cards');
+  const existing  = session?.selectedTools || [];
+  container.innerHTML = '';
+  TOOL_DEFS.forEach(t => {
+    const selected = existing.includes(t.id);
+    const card = document.createElement('div');
+    card.className = 'tool-card' + (selected ? ' selected' : '');
+    card.dataset.id = t.id;
+    card.onclick = () => toggleToolCard(t.id, card);
+    card.innerHTML = `
+      <div class="tool-card-check">✓</div>
+      <div class="tool-card-icon">${t.icon}</div>
+      <div class="tool-card-name">${t.name}</div>
+      <div class="tool-card-desc">${t.desc}</div>
+      <span class="tool-card-tag">${t.tag}</span>`;
+    container.appendChild(card);
+  });
+  updatePickerCounter();
+}
+
+function toggleToolCard(id, card) {
+  const selected = getSelectedTools();
+  if (card.classList.contains('selected')) {
+    card.classList.remove('selected');
+  } else {
+    if (selected.length >= 3) return; // max 3
+    card.classList.add('selected');
+  }
+  updatePickerCounter();
+}
+
+function getSelectedTools() {
+  return Array.from(document.querySelectorAll('.tool-card.selected')).map(c => c.dataset.id);
+}
+
+function updatePickerCounter() {
+  const n = getSelectedTools().length;
+  document.getElementById('picker-count').textContent = n;
+  const btn = document.getElementById('btn-start-tools');
+  if (n === 3) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+}
+
+function startTools() {
+  const selected = getSelectedTools();
+  if (selected.length !== 3) return;
+
+  // Create or update session
+  session = session || {};
+  session.slug          = SLUG;
+  session.conceptTitle  = icData?.conceptTitle || SLUG.replace(/_/g,'  ');
+  session.selectedTools = selected;
+  session.completed     = session.completed?.filter(id => selected.includes(id)) || [];
+  session.tools         = session.tools || {};
+  session.startedAt     = session.startedAt || new Date().toISOString();
+  session.lastUpdated   = new Date().toISOString();
+  saveSession();
+
+  document.getElementById('picker-screen').style.display = 'none';
+  buildTabs();
+  switchTab(selected[0]);
+}
+
+// ── Session (resume) ─────────────────────────────────────────────
+function resumeSession() {
+  document.getElementById('picker-screen').style.display = 'none';
+  buildTabs();
+  // Go to first incomplete tool, or first tool if all done
+  const first = session.selectedTools.find(id => !session.completed.includes(id))
+                || session.selectedTools[0];
+  switchTab(first);
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────
+function buildTabs() {
+  const tabsEl = document.getElementById('tool-tabs');
+  tabsEl.innerHTML = '';
+  session.selectedTools.forEach(id => {
+    const def  = TOOL_DEFS.find(t => t.id === id);
+    const done = session.completed.includes(id);
+    const tab  = document.createElement('div');
+    tab.className  = 'tool-tab' + (done ? ' done' : '');
+    tab.dataset.id = id;
+    tab.onclick    = () => switchTab(id);
+    tab.innerHTML  = `${def.icon} ${def.name}<span class="tab-check">${done ? '✓' : '○'}</span>`;
+    tabsEl.appendChild(tab);
+  });
+  tabsEl.classList.add('visible');
+  updateFooter();
+}
+
+function switchTab(id) {
+  activeTab = id;
+  // Update tab styles
+  document.querySelectorAll('.tool-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.id === id);
+  });
+  // Show correct pane
+  document.querySelectorAll('.tool-pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById(`pane-${id}`);
+  if (pane) pane.classList.add('active');
+  // Show done indicator if complete
+  const doneEl = document.getElementById(`done-${id}`);
+  if (doneEl) doneEl.classList.toggle('visible', session.completed.includes(id));
+}
+
+// ── Mark tool done (placeholder — tools will call this) ──────────
+function markToolDone(id, toolData) {
+  if (!session.completed.includes(id)) session.completed.push(id);
+  if (!session.tools) session.tools = {};
+  session.tools[id] = { ...toolData, completedAt: new Date().toISOString() };
+  session.lastUpdated = new Date().toISOString();
+  saveSession();
+
+  // Update tab check
+  const tab = document.querySelector(`.tool-tab[data-id="${id}"]`);
+  if (tab) {
+    tab.classList.add('done');
+    tab.querySelector('.tab-check').textContent = '✓';
+  }
+  // Show done indicator in pane
+  const doneEl = document.getElementById(`done-${id}`);
+  if (doneEl) doneEl.classList.add('visible');
+
+  updateFooter();
+
+  // Auto-advance to next incomplete tool
+  const next = session.selectedTools.find(tid => !session.completed.includes(tid));
+  if (next) switchTab(next);
+}
+
+// ── Footer / progress ────────────────────────────────────────────
+function updateFooter() {
+  const done  = session?.completed?.length || 0;
+  const total = session?.selectedTools?.length || 3;
+  document.getElementById('done-count').textContent  = done;
+  document.getElementById('total-count').textContent = total;
+  const finishBtn = document.getElementById('btn-finish');
+  if (done >= total) finishBtn.classList.add('visible');
+  else finishBtn.classList.remove('visible');
+}
+
+function finishAndReturn() {
+  session.finishedAt  = new Date().toISOString();
+  session.lastUpdated = new Date().toISOString();
+  saveSession();
+  window.location.href = `ic_editor.html?at=${SLUG}`;
+}
+
+// ── Reference IC panel ───────────────────────────────────────────
+function toggleRefPanel() {
+  const panel  = document.getElementById('ref-panel');
+  const caret  = document.getElementById('ref-caret');
+  const isOpen = panel.classList.contains('open');
+  panel.classList.toggle('open', !isOpen);
+  caret.classList.toggle('open', !isOpen);
+  document.getElementById('ref-bar').querySelector('span:last-child').textContent =
+    isOpen ? 'click to expand' : 'click to collapse';
+}
+
+// ── Socratic Chat (UI — API wired in Phase 6) ────────────────────
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg   = input.value.trim();
+  if (!msg) return;
+  appendChatMsg('user', msg);
+  input.value = '';
+
+  // Phase 6 will replace this with real API call
+  const tok = localStorage.getItem(SIM_TOKEN_KEY);
+  if (!tok) {
+    appendChatMsg('system', 'Chat requires a student login. Please log in via student.html first.');
+    return;
+  }
+  appendChatMsg('system', 'Socratic Chat API — connecting in Phase 6.');
+}
+
+function appendChatMsg(role, text) {
+  const msgs = document.getElementById('chat-msgs');
+  const div  = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  div.innerHTML = `<div class="chat-bubble">${escHtml(text)}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  if (session) {
+    if (!session.socratiLog) session.socratiLog = [];
+    session.socratiLog.push({ role, content: text, ts: new Date().toISOString() });
+    saveSession();
+  }
+}
+
+function updateTurnsDisplay() {
+  // Will show actual remaining turns once AT daily limit route exists (Phase 6)
+  document.getElementById('chat-turns').textContent = '';
+}
+
+// ── Helpers ──────────────────────────────────────────────────────
+function saveSession() {
+  localStorage.setItem(SESS_KEY, JSON.stringify(session));
+}
+
+function goBack() {
+  window.location.href = `ic_editor.html?at=${SLUG}`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+
+function showError(msg) {
+  document.getElementById('tool-content').innerHTML =
+    `<div style="padding:40px;text-align:center;color:#94a3b8">${msg}</div>`;
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
