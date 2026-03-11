@@ -102,7 +102,12 @@ async function loadNames() {
       sel.appendChild(opt);
     });
   } catch(e) {
-    showError('Could not reach the server. Is it running?');
+    const isGithubPages = location.hostname.includes('github.io');
+    if (isGithubPages) {
+      showError('The student portal requires the local server. Navigate to http://localhost:3000/student.html instead.');
+    } else {
+      showError('Could not reach the server (' + e.message + '). Make sure node server.js is running.');
+    }
   }
 }
 
