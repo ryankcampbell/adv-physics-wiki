@@ -869,6 +869,26 @@ function genATHTML() {
   const atVerdict = d.__at_verdict || 'pass';
   const atSummary = d.__at_summary || '';
   const verdictLabel = { pass: '✓ Pass — no significant errors found', minor: '⚠ Minor revisions needed', major: '✗ Major revision required' }[atVerdict] || atVerdict;
+
+  // Read AT workspace session for embedding (Phase 7)
+  let _atSession = null;
+  try { _atSession = JSON.parse(localStorage.getItem(`at-session-${CONCEPT_ID}`) || 'null'); } catch {}
+  const _atFullData = JSON.stringify({
+    verification: {
+      lc1t: d['f-lc1t'] || '', lc1e: d['f-lc1e'] || '', lc1o: d['f-lc1o'] || '',
+      lc2t: d['f-lc2t'] || '', lc2e: d['f-lc2e'] || '', lc2o: d['f-lc2o'] || '',
+      scs: d['f-scs'] || '', scp: d['f-scp'] || '', scr: d['f-scr'] || '',
+      authors: atAuthors, verdict: atVerdict, summary: atSummary
+    },
+    toolSession:  _atSession?.tools         || {},
+    socratiLog:   _atSession?.socratiLog    || [],
+    sessionMeta: {
+      selectedTools: _atSession?.selectedTools || [],
+      completed:     _atSession?.completed     || [],
+      startedAt:     _atSession?.startedAt,
+      finishedAt:    _atSession?.finishedAt
+    }
+  }).replace(/<\//g, '<\\/');
   const verdictColor = { pass: '#15803d', minor: '#d97706', major: '#dc2626' }[atVerdict] || '#64748b';
 
   const simBlock = simHtml
@@ -990,7 +1010,7 @@ setMath('anchor',${j(anchor)});
   bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied!';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2000);}).catch(()=>prompt('Copy:',url));});
 })();
 ${_sc}
-<script type="application/json" id="at-source-data">${_atDraftJson}<${_sc.slice(1)}
+<script type="application/json" id="at-source-data">${_atFullData}<${_sc.slice(1)}
 </body>
 </html>`;
 }

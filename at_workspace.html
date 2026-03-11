@@ -678,13 +678,28 @@ function init() {
     showPicker();
   }
 
+  // Restore chat history from session
+  if (session?.socratiLog?.length) {
+    const chatEl = document.getElementById('chat-msgs');
+    chatEl.innerHTML = ''; // clear placeholder
+    session.socratiLog.forEach(m => {
+      if (m.role === 'user' || m.role === 'assistant' || m.role === 'system') {
+        const div = document.createElement('div');
+        div.className = `chat-msg ${m.role}`;
+        div.innerHTML = `<div class="chat-bubble">${escHtml(m.content)}</div>`;
+        chatEl.appendChild(div);
+      }
+    });
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+
   // Wire chat keyboard shortcut
   document.getElementById('chat-input').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
 
-  // Load chat turns display
   updateTurnsDisplay();
+  resetNudgeTimer();
 }
 
 // ── Tool picker ──────────────────────────────────────────────────
@@ -867,31 +882,127 @@ function toggleRefPanel() {
     isOpen ? 'click to expand' : 'click to collapse';
 }
 
-// ── Socratic Chat (UI — API wired in Phase 6) ────────────────────
+// ── Socratic Chat ─────────────────────────────────────────────────
+let _chatBusy   = false;
+let _nudgeTimer = null;
+
 function sendChat() {
+  if (_chatBusy) return;
   const input = document.getElementById('chat-input');
   const msg   = input.value.trim();
   if (!msg) return;
-  appendChatMsg('user', msg);
-  input.value = '';
 
-  // Phase 6 will replace this with real API call
   const tok = localStorage.getItem(SIM_TOKEN_KEY);
   if (!tok) {
-    appendChatMsg('system', 'Chat requires a student login. Please log in via student.html first.');
+    appendChatMsg('system', 'Log in via student.html to use Socratic Chat.');
     return;
   }
-  appendChatMsg('system', 'Socratic Chat API — connecting in Phase 6.');
+
+  // Save user message
+  if (!session.socratiLog) session.socratiLog = [];
+  session.socratiLog.push({ role: 'user', content: msg, ts: new Date().toISOString() });
+  saveSession();
+  appendChatMsg('user', msg, /* save */ false);
+  input.value = '';
+
+  _chatBusy = true;
+  document.getElementById('btn-chat-send').disabled = true;
+  document.getElementById('chat-thinking').classList.add('visible');
+  resetNudgeTimer();
+
+  // Build context for server
+  const messages = session.socratiLog
+    .filter(m => m.role === 'user' || m.role === 'assistant')
+    .map(m => ({ role: m.role, content: m.content }));
+
+  const toolResults = {};
+  (session.completed || []).forEach(id => {
+    const t = session.tools?.[id];
+    if (t?.summary)   toolResults[id] = { summary:  t.summary };
+    if (t?.findings)  toolResults[id] = { findings: t.findings };
+  });
+
+  const icContext = {
+    conceptTitle: icData?.conceptTitle || session.conceptTitle || SLUG.replace(/_/g,' '),
+    rq:           icData?.researchQuestion || '',
+    explainer:    (icData?.explainer || '').slice(0, 500)
+  };
+
+  // Create streaming assistant bubble
+  const msgsEl = document.getElementById('chat-msgs');
+  const div    = document.createElement('div');
+  div.className = 'chat-msg assistant';
+  div.innerHTML = '<div class="chat-bubble"></div>';
+  const bubble = div.querySelector('.chat-bubble');
+  msgsEl.appendChild(div);
+
+  fetch('/api/at/chat', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+    body:    JSON.stringify({ messages, icContext, toolResults })
+  }).then(res => {
+    if (!res.ok) return res.json().then(d => { throw new Error(d.error || 'Chat error'); });
+    document.getElementById('chat-thinking').classList.remove('visible');
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buf = '';
+
+    function pump() {
+      reader.read().then(({ done, value }) => {
+        if (done) {
+          session.socratiLog.push({ role: 'assistant', content: fullText, ts: new Date().toISOString() });
+          saveSession();
+          _chatBusy = false;
+          document.getElementById('btn-chat-send').disabled = false;
+          updateTurnsDisplay();
+          resetNudgeTimer();
+          return;
+        }
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split('\n');
+        buf = lines.pop();
+        lines.forEach(line => {
+          if (!line.startsWith('data: ')) return;
+          try {
+            const obj = JSON.parse(line.slice(6));
+            if (obj.type === 'text') {
+              fullText += obj.delta;
+              bubble.textContent = fullText;
+              msgsEl.scrollTop = msgsEl.scrollHeight;
+            } else if (obj.type === 'error') {
+              bubble.textContent = 'Error: ' + obj.message;
+              _chatBusy = false;
+              document.getElementById('btn-chat-send').disabled = false;
+            }
+          } catch {}
+        });
+        pump();
+      }).catch(err => {
+        bubble.textContent = 'Connection error: ' + err.message;
+        _chatBusy = false;
+        document.getElementById('btn-chat-send').disabled = false;
+      });
+    }
+    pump();
+  }).catch(err => {
+    document.getElementById('chat-thinking').classList.remove('visible');
+    bubble.textContent = 'Error: ' + err.message;
+    div.className = 'chat-msg system';
+    _chatBusy = false;
+    document.getElementById('btn-chat-send').disabled = false;
+  });
 }
 
-function appendChatMsg(role, text) {
+function appendChatMsg(role, text, save = true) {
   const msgs = document.getElementById('chat-msgs');
   const div  = document.createElement('div');
   div.className = `chat-msg ${role}`;
   div.innerHTML = `<div class="chat-bubble">${escHtml(text)}</div>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
-  if (session) {
+  if (save && session) {
     if (!session.socratiLog) session.socratiLog = [];
     session.socratiLog.push({ role, content: text, ts: new Date().toISOString() });
     saveSession();
@@ -899,8 +1010,26 @@ function appendChatMsg(role, text) {
 }
 
 function updateTurnsDisplay() {
-  // Will show actual remaining turns once AT daily limit route exists (Phase 6)
-  document.getElementById('chat-turns').textContent = '';
+  const sent = (session?.socratiLog || []).filter(m => m.role === 'user').length;
+  const el = document.getElementById('chat-turns');
+  if (el) el.textContent = sent > 0 ? `${sent} messages` : '';
+}
+
+// Proactive nudge after 5 min of chat inactivity when tools have results
+function resetNudgeTimer() {
+  clearTimeout(_nudgeTimer);
+  _nudgeTimer = setTimeout(() => {
+    if (_chatBusy || !session?.completed?.length) return;
+    const nudges = {
+      measurementTable:  'I noticed your measurement table has some data. What patterns do you see in the % error column?',
+      caseBuilder:       'You\'ve worked through some test cases. Are there any results that surprised you?',
+      statisticalSpread: 'Your statistical spread is in. What does the width of that distribution tell you about the sim\'s precision?',
+      claimAudit:        'You\'ve evaluated the IC\'s claims. Were any of them harder to verify than you expected?',
+      litReview:         'You\'ve found some sources. How does what they say compare to what the IC claims?'
+    };
+    const id = session.completed.find(tid => nudges[tid]);
+    if (id) appendChatMsg('system', '💬 ' + nudges[id]);
+  }, 5 * 60 * 1000);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────
