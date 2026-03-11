@@ -33,6 +33,12 @@
     #feedback-banner { background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; font-size: 0.83rem; color: #92400e; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
     #at-banner { background: #fee2e2; border-left: 4px solid #dc2626; padding: 10px 16px; font-size: 0.83rem; color: #7f1d1d; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
     #hw-banner { background: #ccfbf1; border-left: 4px solid #0d9488; padding: 10px 16px; font-size: 0.83rem; color: #134e4a; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; }
+    #at-prefill-banner { background: #fff7ed; border-left: 4px solid #ea580c; padding: 10px 16px; font-size: 0.83rem; color: #7c2d12; margin-bottom: 16px; border-radius: 0 6px 6px 0; line-height: 1.5; display: none; }
+    #at-prefill-banner a { color: #9a3412; font-weight: 600; }
+    /* AT Workspace launch button */
+    #btn-at-workspace { background: rgba(255,255,255,0.13); color: rgba(255,255,255,0.88); border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; padding: 5px 12px; font-size: 0.76rem; font-weight: 600; cursor: pointer; white-space: nowrap; display: none; }
+    #btn-at-workspace:hover { background: rgba(255,255,255,0.22); }
+    #btn-at-workspace.at-done { background: rgba(255,255,255,0.9); color: #7c2d12; border-color: white; }
 
     /* Layout */
     #workspace { display: flex; height: calc(100vh - 50px); }
@@ -198,6 +204,7 @@
   <input type="file" id="load-draft-input" accept=".json" style="display:none" onchange="loadDraftFile(this.files[0])">
   <button class="hdr-btn" onclick="document.getElementById('load-draft-input').click()" title="Restore a draft saved by a teammate">↑ Load Draft</button>
   <button class="hdr-btn" onclick="downloadDraft()" title="Download draft as a JSON file to share or back up">↓ Save Draft</button>
+  <button id="btn-at-workspace" onclick="launchATWorkspace()">Begin AT Investigation ✦</button>
   <button id="btn-submit" onclick="openModal()">Submit to Class Drive →</button>
 </div>
 
@@ -219,6 +226,9 @@
 
   <!-- ── FORM PANEL ── -->
   <div id="form-panel">
+
+    <!-- AT investigation progress banner (shown in AT mode when session exists) -->
+    <div id="at-prefill-banner"></div>
 
     <!-- ── IC CORE SECTIONS (always in DOM; locked read-only in AT/HW) ── -->
     <div id="ic-sections">
@@ -361,6 +371,8 @@ const FOLDER_ID   = '1zu-3Yc0o94EJiFKxOIYJY-_CGjr0USiB';
 let simHtml = null, simFileName = '', citN = 0, tokenClient = null, timer = null;
 let simHistory = [];  // undo stack for sim builder
 let hwQN = 0;
+let _conceptName = '';  // captured in initMode for AT launch
+let _icFirstUrl  = '';  // first IC URL, for AT workspace reference frame
 
 // ── Mode detection ─────────────────────────────────────────────────
 const _urlP = new URLSearchParams(window.location.search);
@@ -1324,13 +1336,16 @@ async function initMode() {
   hdr.classList.add('mode-' + MODE);
 
   // Fetch contributions to find IC (and AT for HW mode)
-  let conceptName = CONCEPT_ID.replace(/_/g,' ');
+  _conceptName = CONCEPT_ID.replace(/_/g,' ');
+  let conceptName = _conceptName;  // local alias used below
   let icEntries = [], atEntries = [];
   try {
     const contribs = await fetch('contributions.json').then(r=>r.json());
     icEntries = contribs.filter(c => c.concept_id === CONCEPT_ID && (!c.type || c.type === 'ic' || c.type === 'ic-draft'));
     atEntries = contribs.filter(c => c.concept_id === CONCEPT_ID && c.type === 'at');
     if (icEntries.length && icEntries[0].title) conceptName = icEntries[0].title;
+    _conceptName = conceptName;
+    if (icEntries.length) _icFirstUrl = icEntries[0].url;
   } catch(e) {}
 
   document.querySelector('#hdr h1').textContent =
@@ -1396,10 +1411,15 @@ async function initMode() {
   // Lock all IC core fields
   lockICFields();
 
-  // ── AT mode: load saved AT draft ────────────────────────────
+  // ── AT mode: load saved AT draft + show AT workspace button ────
   if (MODE === 'at') {
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
     if (saved && Object.keys(saved).length) applyATDraft(saved);
+
+    // Show the AT workspace button and update its state
+    const btnAT = document.getElementById('btn-at-workspace');
+    if (btnAT) btnAT.style.display = 'inline-block';
+    prefillFromATSession();
   }
 
   // ── HW mode: load AT data → populate verification read-only ──
@@ -1444,6 +1464,81 @@ async function initMode() {
     setTimeout(() => {
       if (document.querySelectorAll('.hw-q-block').length === 0) addHWQuestion();
     }, 50);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// AT WORKSPACE LAUNCH + PREFILL
+// ══════════════════════════════════════════════════════════════════
+
+function launchATWorkspace() {
+  // Bundle current IC data for at_workspace to load
+  const bundle = {
+    conceptSlug:      CONCEPT_ID,
+    conceptTitle:     _conceptName,
+    icUrl:            _icFirstUrl || null,
+    researchQuestion: document.getElementById('f-rq')?.value  || '',
+    explainer:        document.getElementById('f-expl')?.value || '',
+  };
+  localStorage.setItem(`at-ic-${CONCEPT_ID}`, JSON.stringify(bundle));
+  window.location.href = `at_workspace.html?concept=${encodeURIComponent(CONCEPT_ID)}`;
+}
+
+function prefillFromATSession() {
+  const sess = JSON.parse(localStorage.getItem(`at-session-${CONCEPT_ID}`) || 'null');
+  const btn    = document.getElementById('btn-at-workspace');
+  const banner = document.getElementById('at-prefill-banner');
+  if (!btn) return;
+
+  if (!sess || !sess.selectedTools?.length) {
+    btn.textContent = 'Begin AT Investigation ✦';
+    return;
+  }
+
+  const doneCount  = (sess.completed || []).length;
+  const totalCount = (sess.selectedTools || []).length;
+
+  // Update button label
+  if (doneCount >= totalCount && totalCount > 0) {
+    btn.textContent = 'Review AT Results ✓';
+    btn.classList.add('at-done');
+  } else if (doneCount > 0) {
+    btn.textContent = `Continue AT (${doneCount}/${totalCount}) →`;
+  } else {
+    btn.textContent = 'Continue AT Investigation →';
+  }
+
+  // Show progress banner when any tool work has been started
+  if (doneCount > 0 && banner) {
+    banner.style.display = 'block';
+    const returnLink = `<a href="at_workspace.html?concept=${encodeURIComponent(CONCEPT_ID)}">Return to AT Workspace →</a>`;
+    if (doneCount >= totalCount) {
+      banner.innerHTML = `<strong>AT Investigation complete</strong> — all ${totalCount} tools finished. ` +
+        `Review the pre-filled summary below, adjust as needed, then submit. ${returnLink}`;
+      prefillATSummaryFromSession(sess);
+    } else {
+      banner.innerHTML = `<strong>AT Investigation in progress</strong> — ${doneCount} of ${totalCount} tools complete. ` +
+        `${returnLink}`;
+    }
+  }
+}
+
+function prefillATSummaryFromSession(sess) {
+  const el = document.getElementById('at-summary');
+  if (!el || el.value) return;  // don't overwrite existing text
+
+  const parts = [];
+  const tools = sess.tools || {};
+
+  if (tools.caseBuilder?.findings)       parts.push('**Case Builder:** ' + tools.caseBuilder.findings);
+  if (tools.claimAudit?.summary)         parts.push('**Claim Audit:** ' + tools.claimAudit.summary);
+  if (tools.statisticalSpread?.summary)  parts.push('**Statistical Spread:** ' + tools.statisticalSpread.summary);
+  if (tools.measurementTable?.summary)   parts.push('**Measurement Table:** ' + tools.measurementTable.summary);
+  if (tools.litReview?.summary)          parts.push('**Lit Review:** ' + tools.litReview.summary);
+
+  if (parts.length) {
+    el.value = parts.join('\n\n');
+    save();
   }
 }
 
