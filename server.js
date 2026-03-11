@@ -1266,6 +1266,275 @@ app.delete('/api/admin/resources/:slug/:filename', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// ══════════════════════════════════════════════════════════════════
+// AT TOOL ROUTES
+// ══════════════════════════════════════════════════════════════════
+
+const LIT_SOURCES_PATH = path.join(__dirname, 'state', 'lit-sources.json');
+
+function readLitSources() {
+  try { return JSON.parse(fs.readFileSync(LIT_SOURCES_PATH, 'utf8')); }
+  catch { return { approved_domains: [] }; }
+}
+
+// AT daily limit helpers (separate key from sim builder)
+function _atDailyKey(name) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `${name.toLowerCase().trim()}_at_${today}`;
+}
+function getATDailyTurns(name) {
+  try { return JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8'))[_atDailyKey(name)] || 0; }
+  catch { return 0; }
+}
+function incrementATDailyTurns(name) {
+  let data = {};
+  try { data = JSON.parse(fs.readFileSync(DAILY_LIMITS_PATH, 'utf8')); } catch {}
+  const key = _atDailyKey(name);
+  data[key] = (data[key] || 0) + 1;
+  fs.writeFileSync(DAILY_LIMITS_PATH, JSON.stringify(data, null, 2));
+  return data[key];
+}
+function checkATLimit(req, res) {
+  const settings = readSimSettings();
+  const entry    = getStudentEntry(settings.students || {}, req.simStudent.toLowerCase());
+  const maxTurns = entry?.at_limit ?? Math.max(30, (entry?.limit ?? 20) * 2);
+  const used     = getATDailyTurns(req.simStudent);
+  if (used >= maxTurns) {
+    res.status(429).json({ error: `AT daily limit (${maxTurns}) reached. Come back tomorrow!` });
+    return false;
+  }
+  return true;
+}
+
+// Socratic system prompt (server-side only — never from client)
+const AT_SOCRATIC_PROMPT = `You are a Socratic dialogue partner for physics adversarial testing at a high school level.
+
+YOUR ROLE:
+- Help students understand what their findings mean — never tell them the answer
+- Never state "the simulation passes" or "the simulation fails" — the student decides
+- When a student asks a conceptual question, first ask what they already understand
+- When a student shows you data, ask what they think it means before interpreting
+- When a student is stuck, ask a simpler question that builds toward the answer
+- You may confirm that a calculation is correct or incorrect once the student has done it
+- Keep responses concise (2–4 sentences). Ask one focused question at a time.
+
+IMPORTANT: Do not give verdicts. Do not answer physics questions directly without first checking understanding. Be encouraging but do not validate incorrect reasoning.`;
+
+// POST /api/at/chat — Socratic chat (SSE streaming)
+app.post('/api/at/chat', requireSimToken, async (req, res) => {
+  if (!checkATLimit(req, res)) return;
+  const { messages, icContext, toolResults } = req.body;
+  if (!messages?.length) return res.status(400).json({ error: 'messages required' });
+
+  incrementATDailyTurns(req.simStudent);
+
+  // Build dynamic system prompt with IC context
+  const ctx = icContext || {};
+  const toolSummary = toolResults ? JSON.stringify(toolResults, null, 2).slice(0, 800) : 'No tool results yet.';
+  const systemPrompt = AT_SOCRATIC_PROMPT + `\n\nCONCEPT: ${ctx.conceptTitle || 'Unknown'}\n` +
+    `IC RESEARCH QUESTION: ${ctx.rq || '—'}\n` +
+    `IC EXPLAINER EXCERPT: ${(ctx.explainer || '').slice(0, 400)}\n\n` +
+    `CURRENT TOOL RESULTS:\n${toolSummary}`;
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  const send = obj => { if (!res.writableEnded) res.write(`data: ${JSON.stringify(obj)}\n\n`); };
+
+  try {
+    const stream = anthropic.messages.stream({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 600,
+      system: systemPrompt,
+      messages: messages.slice(-12)   // keep context window manageable
+    });
+    stream.on('text', text => send({ type: 'text', delta: text }));
+    stream.on('finalMessage', () => send({ type: 'done' }));
+    stream.on('error', err => { send({ type: 'error', message: err.message }); res.end(); });
+  } catch(err) {
+    send({ type: 'error', message: err.message });
+    res.end();
+  }
+});
+
+// POST /api/at/propose-cases — Case Builder AI proposals
+app.post('/api/at/propose-cases', requireSimToken, async (req, res) => {
+  if (!checkATLimit(req, res)) return;
+  const { conceptTitle, rq, explainer, simCaption } = req.body;
+
+  incrementATDailyTurns(req.simStudent);
+
+  const prompt = `You are helping a physics student adversarially test an interactive simulation.
+
+CONCEPT: ${conceptTitle || 'Unknown'}
+RESEARCH QUESTION: ${rq || '—'}
+EXPLAINER: ${(explainer || '').slice(0, 600)}
+SIM DESCRIPTION: ${simCaption || 'An interactive simulation.'}
+
+Propose 4–5 boundary/limiting test cases a scientist would use to validate this simulation.
+For each case, provide:
+- label: short name for the case (e.g. "Zero velocity limit")
+- reasoning: WHY this case reveals whether the physics is correct (1–2 sentences)
+- suggestedInput: what the student should set in the sim (specific, concrete)
+- expectedBehavior: what should happen if the physics is correct
+
+Return ONLY valid JSON: { "cases": [ { "label", "reasoning", "suggestedInput", "expectedBehavior" }, ... ] }`;
+
+  try {
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const text = msg.content[0]?.text || '';
+    const m = text.match(/\{[\s\S]*\}/);
+    const parsed = m ? JSON.parse(m[0]) : { cases: [] };
+    res.json(parsed);
+  } catch(err) {
+    res.status(500).json({ error: err.message, cases: [] });
+  }
+});
+
+// POST /api/at/parse-claims — Claim Audit AI extraction
+app.post('/api/at/parse-claims', requireSimToken, async (req, res) => {
+  if (!checkATLimit(req, res)) return;
+  const { explainer, rq, conceptTitle } = req.body;
+
+  incrementATDailyTurns(req.simStudent);
+
+  const prompt = `You are helping a physics student audit the testable claims in an Insight Card.
+
+CONCEPT: ${conceptTitle || 'Unknown'}
+RESEARCH QUESTION: ${rq || '—'}
+EXPLAINER TEXT: ${(explainer || '').slice(0, 800)}
+
+Extract 3–6 specific, testable factual claims from the explainer.
+For each claim:
+- text: the exact or close-paraphrase claim from the text
+- testable: true/false
+- howToTest: concrete suggestion for how to verify this claim using the simulation (if testable)
+
+Return ONLY valid JSON: { "claims": [ { "text", "testable", "howToTest" }, ... ] }`;
+
+  try {
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const text = msg.content[0]?.text || '';
+    const m = text.match(/\{[\s\S]*\}/);
+    const parsed = m ? JSON.parse(m[0]) : { claims: [] };
+    res.json(parsed);
+  } catch(err) {
+    res.status(500).json({ error: err.message, claims: [] });
+  }
+});
+
+// POST /api/at/fetch-url — URL proxy with domain allowlist + SSRF guards
+app.post('/api/at/fetch-url', requireSimToken, async (req, res) => {
+  if (!checkATLimit(req, res)) return;
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'url required' });
+
+  let parsed;
+  try { parsed = new URL(url); } catch { return res.status(400).json({ error: 'Invalid URL' }); }
+  if (!['http:', 'https:'].includes(parsed.protocol)) return res.status(400).json({ error: 'Only http/https URLs allowed' });
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  // SSRF hard-blocks (belt-and-suspenders regardless of allowlist)
+  const blocked = /^(localhost|127\.|0\.0\.0\.0|::1|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|.*\.(local|internal|lan))/.test(hostname);
+  if (blocked) return res.status(403).json({ error: 'That address is not allowed.' });
+
+  // Domain allowlist check
+  const { approved_domains } = readLitSources();
+  const isApproved = approved_domains.some(d => hostname === d || hostname.endsWith('.' + d));
+  if (!isApproved) {
+    return res.status(403).json({
+      error: 'notApproved', domain: hostname,
+      message: `${hostname} is not on the approved sources list. Ask your teacher to add it, or use Text Paste instead.`
+    });
+  }
+
+  incrementATDailyTurns(req.simStudent);
+
+  try {
+    const https = require('https'), http = require('http');
+    const fetcher = parsed.protocol === 'https:' ? https : http;
+    const text = await new Promise((resolve, reject) => {
+      const reqOut = fetcher.get(url, { timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0 (AdvPhysics Wiki; educational)' } }, r => {
+        let body = '';
+        r.on('data', chunk => { body += chunk; if (body.length > 100000) reqOut.destroy(); });
+        r.on('end', () => resolve(body));
+      });
+      reqOut.on('error', reject);
+      reqOut.on('timeout', () => { reqOut.destroy(); reject(new Error('Timeout')); });
+    });
+    // Strip HTML tags, collapse whitespace, cap at 50KB
+    const stripped = text.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'')
+      .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0, 50000);
+    const titleMatch = text.match(/<title[^>]*>([^<]+)<\/title>/i);
+    res.json({ text: stripped, title: titleMatch?.[1]?.trim() || hostname });
+  } catch(err) {
+    res.status(502).json({ error: err.message });
+  }
+});
+
+// POST /api/at/lit-search — AI-assisted literature search
+app.post('/api/at/lit-search', requireSimToken, async (req, res) => {
+  if (!checkATLimit(req, res)) return;
+  const { query, conceptTitle } = req.body;
+  if (!query) return res.status(400).json({ error: 'query required' });
+
+  incrementATDailyTurns(req.simStudent);
+
+  const { approved_domains } = readLitSources();
+  const domainList = approved_domains.slice(0, 8).join(', ');
+
+  const prompt = `A high school physics student needs to find a reliable source for their literature review.
+
+Concept they are studying: ${conceptTitle || 'physics'}
+What they need: ${query}
+
+Suggest 3–4 specific sources from trusted educational/scientific sites (prefer: ${domainList}).
+For each, provide:
+- title: specific article/chapter/page title
+- description: 1–2 sentences explaining what it covers and why it's relevant
+- url: a real, working URL to the specific page (not just a homepage)
+- sourceType: "textbook" | "educational" | "peer-reviewed" | "reference"
+
+Return ONLY valid JSON: { "results": [ { "title", "description", "url", "sourceType" }, ... ] }`;
+
+  try {
+    const msg = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    });
+    const text = msg.content[0]?.text || '';
+    const m = text.match(/\{[\s\S]*\}/);
+    const parsed = m ? JSON.parse(m[0]) : { results: [] };
+    res.json(parsed);
+  } catch(err) {
+    res.status(500).json({ error: err.message, results: [] });
+  }
+});
+
+// GET /api/lit-sources — public, returns approved domain list
+app.get('/api/lit-sources', (req, res) => {
+  res.json(readLitSources());
+});
+
+// POST /api/admin/lit-sources — admin, replace the approved domain list
+app.post('/api/admin/lit-sources', requireAdmin, (req, res) => {
+  const { approved_domains } = req.body;
+  if (!Array.isArray(approved_domains)) return res.status(400).json({ error: 'approved_domains array required' });
+  const sanitized = approved_domains.map(d => d.trim().toLowerCase()).filter(d => /^[a-z0-9.\-]+$/.test(d));
+  fs.writeFileSync(LIT_SOURCES_PATH, JSON.stringify({ approved_domains: sanitized }, null, 2));
+  res.json({ ok: true, approved_domains: sanitized });
+});
+
 // ── Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

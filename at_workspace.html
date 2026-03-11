@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
@@ -232,6 +233,103 @@
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+    /* ── Tool common ─────────────────────────────────────────────── */
+    .tool-loading { text-align:center; padding:32px; color:#64748b; font-size:0.85rem; }
+    .tool-spin { display:inline-block; font-size:1.4rem; animation:spin 1s linear infinite; margin-bottom:8px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .tool-section-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#475569; margin-bottom:8px; }
+    .tool-done-btn { margin-top:16px; background:#16a34a; color:white; border:none; border-radius:6px; padding:9px 20px; font-size:0.82rem; font-weight:600; cursor:pointer; }
+    .tool-done-btn:disabled { background:#1e293b; color:#334155; cursor:not-allowed; }
+    .tool-done-btn:not(:disabled):hover { background:#15803d; }
+    .at-btn { font-size:0.74rem; padding:5px 12px; border-radius:5px; border:none; cursor:pointer; }
+    .at-btn.green { background:#16a34a; color:white; }
+    .at-btn.slate { background:#334155; color:#94a3b8; }
+    .at-btn.blue  { background:#1e3a5f; color:#7eb8da; border:1px solid #7eb8da; }
+    .at-btn:hover { opacity:0.85; }
+    .at-field { background:#1e293b; border:1px solid #334155; border-radius:5px; color:#e2e8f0; font-size:0.8rem; padding:6px 9px; font-family:inherit; width:100%; }
+    .at-field:focus { outline:none; border-color:#7eb8da; }
+    .at-label { font-size:0.7rem; color:#94a3b8; display:block; margin-bottom:3px; margin-top:8px; }
+
+    /* ── Case Builder ────────────────────────────────────────────── */
+    .cb-card { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:10px; }
+    .cb-card-label { font-size:0.82rem; font-weight:700; color:#e2e8f0; margin-bottom:4px; }
+    .cb-card-reasoning { font-size:0.74rem; color:#64748b; line-height:1.4; margin-bottom:6px; }
+    .cb-card-suggest { font-size:0.74rem; color:#7eb8da; margin-bottom:8px; }
+    .cb-prop-row { display:flex; gap:6px; }
+    .cb-active-card { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:10px; }
+    .cb-active-card.pass-bg { border-color:#16a34a; }
+    .cb-active-card.fail-bg { border-color:#dc2626; }
+    .cb-verdict-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .cb-vbtn { font-size:0.7rem; padding:4px 10px; border-radius:99px; border:1px solid #334155; background:#0f172a; color:#64748b; cursor:pointer; }
+    .cb-vbtn.active.pass { background:#052e16; color:#4ade80; border-color:#16a34a; }
+    .cb-vbtn.active.fail { background:#450a0a; color:#f87171; border-color:#dc2626; }
+    .cb-vbtn.active.inconclusive { background:#422006; color:#f59e0b; border-color:#d97706; }
+
+    /* ── Measurement Table ───────────────────────────────────────── */
+    .mt-config { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; align-items:flex-end; }
+    .mt-config > div { flex:1; min-width:90px; }
+    .mt-table-wrap { overflow-x:auto; margin-bottom:10px; }
+    .mt-table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    .mt-table th { background:#1e293b; color:#94a3b8; padding:7px 8px; text-align:left; font-size:0.67rem; text-transform:uppercase; letter-spacing:0.05em; font-weight:600; white-space:nowrap; }
+    .mt-table td { padding:5px 6px; border-bottom:1px solid #1e293b; vertical-align:middle; }
+    .mt-table td input { background:#0f172a; border:1px solid #1e293b; border-radius:4px; color:#e2e8f0; font-size:0.78rem; padding:4px 6px; width:75px; }
+    .mt-table td input:focus { outline:none; border-color:#7eb8da; }
+    .mt-err-hi { color:#f87171; }
+    .mt-err-ok { color:#4ade80; }
+    .mt-chart-wrap { background:#1e293b; border-radius:8px; padding:14px; margin-bottom:10px; }
+
+    /* ── Statistical Spread ──────────────────────────────────────── */
+    .ss-mode-row { display:flex; gap:6px; margin-bottom:14px; }
+    .ss-mode-btn { flex:1; padding:8px; border-radius:6px; border:1px solid #334155; background:#1e293b; color:#94a3b8; font-size:0.78rem; font-weight:600; cursor:pointer; }
+    .ss-mode-btn.active { background:#1e3a5f; color:#7eb8da; border-color:#7eb8da; }
+    .ss-config { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; align-items:flex-end; }
+    .ss-config > div { flex:1; min-width:100px; }
+    .ss-chart-wrap { background:#1e293b; border-radius:8px; padding:14px; margin-bottom:10px; }
+    .ss-stats { font-size:0.8rem; color:#e2e8f0; margin-bottom:10px; }
+    .ss-stats b { color:#7eb8da; }
+    .ss-obs-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+    .ss-rec-btn { padding:8px 18px; background:#7c2d12; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer; white-space:nowrap; }
+    .ss-rec-btn:hover { background:#9a3412; }
+    .ss-tally { font-size:0.78rem; color:#94a3b8; margin-bottom:8px; }
+
+    /* ── Claim Audit ─────────────────────────────────────────────── */
+    .ca-card { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; margin-bottom:10px; }
+    .ca-claim-text { font-size:0.83rem; color:#e2e8f0; font-style:italic; line-height:1.5; margin-bottom:4px; }
+    .ca-how { font-size:0.72rem; color:#475569; margin-bottom:10px; }
+    .ca-eval-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:6px; }
+    .ca-ebtn { font-size:0.7rem; padding:4px 9px; border-radius:99px; border:1px solid #334155; background:#0f172a; color:#64748b; cursor:pointer; }
+    .ca-ebtn.active.supported    { background:#052e16; color:#4ade80; border-color:#16a34a; }
+    .ca-ebtn.active.contradicted { background:#450a0a; color:#f87171; border-color:#dc2626; }
+    .ca-ebtn.active.not-testable { background:#1e293b; color:#94a3b8; border-color:#475569; }
+    .ca-evidence { display:none; width:100%; margin-top:6px; resize:vertical; }
+    .ca-evidence.visible { display:block; }
+
+    /* ── Lit Review ──────────────────────────────────────────────── */
+    .lr-two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    .lr-source-box { background:#1e293b; border:1px solid #334155; border-radius:8px; padding:14px; }
+    .lr-source-label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#7eb8da; margin-bottom:10px; }
+    .lr-source-label.done { color:#4ade80; }
+    .lr-doc-card { background:#0f172a; border:1px solid #1e293b; border-radius:6px; padding:9px 11px; margin-bottom:7px; cursor:pointer; transition:border-color 0.15s; }
+    .lr-doc-card:hover { border-color:#7eb8da; }
+    .lr-doc-title { font-size:0.8rem; font-weight:600; color:#e2e8f0; }
+    .lr-doc-meta  { font-size:0.68rem; color:#475569; margin-top:2px; }
+    .lr-path-tabs { display:flex; gap:5px; margin-bottom:10px; }
+    .lr-ptab { flex:1; padding:5px; border-radius:5px; border:1px solid #334155; background:#0f172a; color:#64748b; font-size:0.7rem; text-align:center; cursor:pointer; }
+    .lr-ptab.active { background:#1e293b; color:#7eb8da; border-color:#7eb8da; }
+    .lr-extract { background:#0f172a; border-radius:6px; padding:11px; margin-top:10px; }
+    .lr-url-row { display:flex; gap:7px; margin-bottom:7px; }
+    .lr-url-input { flex:1; background:#1e293b; border:1px solid #334155; border-radius:5px; color:#e2e8f0; font-size:0.78rem; padding:5px 8px; }
+    .lr-content-box { background:#0f172a; border:1px solid #1e293b; border-radius:5px; padding:9px; font-size:0.73rem; color:#94a3b8; max-height:130px; overflow-y:auto; margin-bottom:8px; white-space:pre-wrap; display:none; }
+    .lr-rel-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+    .lr-rbtn { font-size:0.7rem; padding:3px 9px; border-radius:99px; border:1px solid #334155; background:#0f172a; color:#64748b; cursor:pointer; }
+    .lr-rbtn.active { background:#1e3a5f; color:#7eb8da; border-color:#7eb8da; }
+    .lr-complete { font-size:0.73rem; color:#4ade80; margin-top:6px; display:none; }
+    .lr-complete.visible { display:block; }
+    .lr-ai-result { background:#0f172a; border:1px solid #1e293b; border-radius:6px; padding:9px; margin-bottom:7px; cursor:pointer; }
+    .lr-ai-result:hover { border-color:#7eb8da; }
+    .lr-ai-result-title { font-size:0.78rem; font-weight:600; color:#e2e8f0; }
+    .lr-ai-result-desc  { font-size:0.72rem; color:#475569; margin-top:3px; line-height:1.4; }
   </style>
 </head>
 <body>
@@ -285,7 +383,18 @@
             <div class="tool-pane-sub">Test boundary conditions and limiting cases</div>
           </div>
         </div>
-        <div class="tool-placeholder">Case Builder tool — coming in Phase 5a</div>
+        <div id="cb-loading" class="tool-loading"><div class="tool-spin">⟳</div><div>Asking AI to propose test cases…</div></div>
+        <div id="cb-proposals-wrap" style="display:none">
+          <div class="tool-section-label">AI-Proposed Cases — accept the ones you want to test</div>
+          <div id="cb-proposals"></div>
+        </div>
+        <div id="cb-active-wrap" style="display:none">
+          <div class="tool-section-label" style="margin-top:14px">Your Active Test Cases</div>
+          <div id="cb-active-cases"></div>
+          <button class="at-btn blue" onclick="cb_addCustomCase()" style="margin-bottom:10px">+ Add my own case</button>
+        </div>
+        <div id="cb-hint" style="font-size:0.74rem;color:#475569;display:none;margin-top:4px">Mark at least 2 cases with an observed outcome to complete.</div>
+        <button class="tool-done-btn" id="cb-done-btn" onclick="cb_markDone()" disabled>Mark Complete</button>
         <div class="done-indicator" id="done-caseBuilder">✓ Complete — results saved</div>
       </div>
 
@@ -297,7 +406,31 @@
             <div class="tool-pane-sub">Sweep parameters and compare to theory</div>
           </div>
         </div>
-        <div class="tool-placeholder">Measurement Table tool — coming in Phase 5b</div>
+        <div class="mt-config">
+          <div><label class="at-label">Parameter name</label><input class="at-field" id="mt-param" placeholder="β" oninput="mt_saveConfig()"></div>
+          <div><label class="at-label">Formula for predicted value</label><input class="at-field" id="mt-formula" placeholder="1/sqrt(1-b^2)" oninput="mt_recalcAll()"></div>
+        </div>
+        <div class="mt-config" style="margin-top:-4px">
+          <div><label class="at-label">Min</label><input class="at-field" id="mt-min" type="number" step="any" placeholder="0"></div>
+          <div><label class="at-label">Max</label><input class="at-field" id="mt-max" type="number" step="any" placeholder="0.9"></div>
+          <div><label class="at-label">Step</label><input class="at-field" id="mt-step" type="number" step="any" placeholder="0.1"></div>
+          <div style="flex:0;align-self:flex-end"><button class="at-btn green" onclick="mt_generateRows()">Generate Rows</button></div>
+        </div>
+        <div class="mt-table-wrap">
+          <table class="mt-table">
+            <thead><tr>
+              <th id="mt-th-param">Input</th><th>Predicted</th><th>Observed</th><th>% Error</th><th title="Flag anomalous row">!</th><th></th>
+            </tr></thead>
+            <tbody id="mt-tbody"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="at-btn green" onclick="mt_addRow()">+ Add Row</button>
+          <button class="at-btn blue" onclick="mt_generatePlot()">📊 Generate Plot</button>
+        </div>
+        <div class="mt-chart-wrap" id="mt-chart-wrap" style="display:none"><canvas id="mt-chart" height="180"></canvas></div>
+        <div id="mt-hint" style="font-size:0.74rem;color:#475569;margin-top:4px">Enter at least 3 observed values to complete.</div>
+        <button class="tool-done-btn" id="mt-done-btn" onclick="mt_markDone()" disabled>Mark Complete</button>
         <div class="done-indicator" id="done-measurementTable">✓ Complete — results saved</div>
       </div>
 
@@ -309,7 +442,39 @@
             <div class="tool-pane-sub">Error analysis and uncertainty propagation</div>
           </div>
         </div>
-        <div class="tool-placeholder">Statistical Spread tool — coming in Phase 5c</div>
+        <div class="ss-mode-row">
+          <button class="ss-mode-btn active" id="ss-btn-a" onclick="ss_setMode('A')">A — Input Uncertainty</button>
+          <button class="ss-mode-btn" id="ss-btn-b" onclick="ss_setMode('B')">B — Repeated Observation</button>
+        </div>
+        <!-- Mode A -->
+        <div id="ss-panel-a">
+          <div class="ss-config">
+            <div><label class="at-label">Parameter name</label><input class="at-field" id="ss-param" placeholder="β"></div>
+            <div><label class="at-label">Nominal value</label><input class="at-field" id="ss-nominal" type="number" step="any" placeholder="0.6"></div>
+            <div><label class="at-label">Uncertainty (±δ)</label><input class="at-field" id="ss-delta" type="number" step="any" placeholder="0.05"></div>
+          </div>
+          <div class="ss-config">
+            <div><label class="at-label">Formula (use same variable name)</label><input class="at-field" id="ss-formula" placeholder="1/sqrt(1-b^2)"></div>
+            <div><label class="at-label">N samples</label><input class="at-field" id="ss-n" type="number" value="300" min="20" max="1000"></div>
+            <div style="flex:0;align-self:flex-end"><button class="at-btn green" onclick="ss_runModeA()">▶ Run</button></div>
+          </div>
+        </div>
+        <!-- Mode B -->
+        <div id="ss-panel-b" style="display:none">
+          <div class="ss-config">
+            <div><label class="at-label">What are you observing?</label><input class="at-field" id="ss-obs-label" placeholder="e.g. spin direction"></div>
+            <div><label class="at-label">Possible outcomes (comma-separated)</label><input class="at-field" id="ss-outcomes" placeholder="spin up, spin down" oninput="ss_updateOutcomeSelect()"></div>
+          </div>
+          <div class="ss-obs-row">
+            <select class="at-field" id="ss-outcome-sel" style="flex:1"></select>
+            <button class="ss-rec-btn" onclick="ss_recordObs()">Record</button>
+          </div>
+          <div class="ss-tally" id="ss-tally">Observations: 0</div>
+        </div>
+        <div class="ss-chart-wrap" id="ss-chart-wrap" style="display:none"><canvas id="ss-chart" height="200"></canvas></div>
+        <div class="ss-stats" id="ss-stats"></div>
+        <div id="ss-hint" style="font-size:0.74rem;color:#475569;margin-top:4px">Need at least 20 data points to complete.</div>
+        <button class="tool-done-btn" id="ss-done-btn" onclick="ss_markDone()" disabled>Mark Complete</button>
         <div class="done-indicator" id="done-statisticalSpread">✓ Complete — results saved</div>
       </div>
 
@@ -321,7 +486,60 @@
             <div class="tool-pane-sub">Ground findings in external sources</div>
           </div>
         </div>
-        <div class="tool-placeholder">Lit Review tool — coming in Phase 5e</div>
+        <div class="lr-two-col">
+          <!-- Source 1: Class Library -->
+          <div class="lr-source-box">
+            <div class="lr-source-label" id="lr-s1-label">Source 1 — Class Library</div>
+            <div id="lr-s1-library"><div class="tool-loading" style="padding:16px"><div class="tool-spin">⟳</div></div></div>
+            <div id="lr-s1-extract" style="display:none" class="lr-extract">
+              <div style="font-size:0.75rem;font-weight:600;color:#7eb8da;margin-bottom:6px" id="lr-s1-doc-title"></div>
+              <label class="at-label">In your own words, what does this source claim?</label>
+              <textarea class="at-field" id="lr-s1-claim" rows="3" oninput="lr_checkDone()" style="resize:vertical"></textarea>
+              <label class="at-label">How does this compare to the IC?</label>
+              <div class="lr-rel-row" id="lr-s1-rel"></div>
+              <label class="at-label">Citation</label>
+              <input class="at-field" id="lr-s1-citation" placeholder="Author, Title, Year" oninput="lr_checkDone()">
+              <div class="lr-complete" id="lr-s1-done">✓ Source 1 complete</div>
+            </div>
+          </div>
+          <!-- Source 2: Own Research -->
+          <div class="lr-source-box">
+            <div class="lr-source-label" id="lr-s2-label">Source 2 — Your Research</div>
+            <div class="lr-path-tabs">
+              <div class="lr-ptab active" onclick="lr_setPath('url',this)">URL Import</div>
+              <div class="lr-ptab" onclick="lr_setPath('paste',this)">Text Paste</div>
+              <div class="lr-ptab" onclick="lr_setPath('ai',this)">AI Search</div>
+            </div>
+            <div id="lr-path-url">
+              <div class="lr-url-row">
+                <input class="lr-url-input" id="lr-s2-url" placeholder="https://feynmanlectures.caltech.edu/…">
+                <button class="at-btn blue" onclick="lr_fetchUrl()" style="white-space:nowrap">Fetch</button>
+              </div>
+              <div class="lr-content-box" id="lr-s2-content"></div>
+            </div>
+            <div id="lr-path-paste" style="display:none">
+              <textarea class="at-field" id="lr-s2-paste" rows="5" placeholder="Paste the relevant passage here…" oninput="lr_s2EnableExtract()" style="resize:vertical"></textarea>
+            </div>
+            <div id="lr-path-ai" style="display:none">
+              <div class="lr-url-row">
+                <input class="lr-url-input" id="lr-ai-query" placeholder="Describe what you're looking for…">
+                <button class="at-btn blue" onclick="lr_searchAI()" style="white-space:nowrap">Search</button>
+              </div>
+              <div id="lr-ai-results"></div>
+            </div>
+            <div id="lr-s2-extract" style="display:none" class="lr-extract">
+              <div style="font-size:0.75rem;font-weight:600;color:#7eb8da;margin-bottom:6px" id="lr-s2-doc-title"></div>
+              <label class="at-label">In your own words, what does this source claim?</label>
+              <textarea class="at-field" id="lr-s2-claim" rows="3" oninput="lr_checkDone()" style="resize:vertical"></textarea>
+              <label class="at-label">How does this compare to the IC?</label>
+              <div class="lr-rel-row" id="lr-s2-rel"></div>
+              <label class="at-label">Citation</label>
+              <input class="at-field" id="lr-s2-citation" placeholder="Author, Title, Year, URL" oninput="lr_checkDone()">
+              <div class="lr-complete" id="lr-s2-done">✓ Source 2 complete</div>
+            </div>
+          </div>
+        </div>
+        <button class="tool-done-btn" id="lr-done-btn" onclick="lr_markDone()" disabled>Mark Complete</button>
         <div class="done-indicator" id="done-litReview">✓ Complete — results saved</div>
       </div>
 
@@ -333,7 +551,13 @@
             <div class="tool-pane-sub">Evaluate every testable claim in the IC</div>
           </div>
         </div>
-        <div class="tool-placeholder">Claim Audit tool — coming in Phase 5d</div>
+        <div id="ca-loading" class="tool-loading"><div class="tool-spin">⟳</div><div>Extracting testable claims from the IC…</div></div>
+        <div id="ca-claims-wrap" style="display:none">
+          <div id="ca-claims-list"></div>
+          <button class="at-btn blue" onclick="ca_addCustomClaim()" style="margin-top:4px">+ Add a claim I noticed</button>
+        </div>
+        <div id="ca-hint" style="font-size:0.74rem;color:#475569;margin-top:8px;display:none">Evaluate every claim to complete this tool.</div>
+        <button class="tool-done-btn" id="ca-done-btn" onclick="ca_markDone()" disabled style="margin-top:12px">Mark Complete</button>
         <div class="done-indicator" id="done-claimAudit">✓ Complete — results saved</div>
       </div>
 
@@ -564,17 +788,29 @@ function buildTabs() {
 
 function switchTab(id) {
   activeTab = id;
-  // Update tab styles
   document.querySelectorAll('.tool-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.id === id);
   });
-  // Show correct pane
   document.querySelectorAll('.tool-pane').forEach(p => p.classList.remove('active'));
   const pane = document.getElementById(`pane-${id}`);
   if (pane) pane.classList.add('active');
-  // Show done indicator if complete
   const doneEl = document.getElementById(`done-${id}`);
   if (doneEl) doneEl.classList.toggle('visible', session.completed.includes(id));
+  // Initialize tool on first open
+  if (!session.tools) session.tools = {};
+  if (!session.tools[id]?._initialized) {
+    if (!session.tools[id]) session.tools[id] = {};
+    session.tools[id]._initialized = true;
+    if (id === 'caseBuilder')      cb_init();
+    if (id === 'measurementTable') mt_init();
+    if (id === 'statisticalSpread') ss_init();
+    if (id === 'claimAudit')       ca_init();
+    if (id === 'litReview')        lr_init();
+  } else {
+    // Re-render on revisit for tools that need it
+    if (id === 'caseBuilder')      cb_renderActiveCases();
+    if (id === 'measurementTable') mt_renderTable();
+  }
 }
 
 // ── Mark tool done (placeholder — tools will call this) ──────────
@@ -684,6 +920,836 @@ function escHtml(s) {
 function showError(msg) {
   document.getElementById('tool-content').innerHTML =
     `<div style="padding:40px;text-align:center;color:#94a3b8">${msg}</div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SHARED HELPERS
+// ══════════════════════════════════════════════════════════════════
+
+function safeEval(expr, varName, varVal) {
+  if (!expr || varName === undefined || varVal === undefined) return NaN;
+  let e = expr.trim()
+    .replace(new RegExp('\\b' + varName + '\\b', 'g'), `(${varVal})`)
+    .replace(/\^/g, '**')
+    .replace(/\bsqrt\b/g, 'Math.sqrt').replace(/\bsin\b/g, 'Math.sin')
+    .replace(/\bcos\b/g, 'Math.cos').replace(/\btan\b/g, 'Math.tan')
+    .replace(/\babs\b/g, 'Math.abs').replace(/\bexp\b/g, 'Math.exp')
+    .replace(/\bln\b/g, 'Math.log').replace(/\bpi\b/g, 'Math.PI');
+  try { return Function('"use strict"; return (' + e + ')')(); } catch { return NaN; }
+}
+
+function pctErr(predicted, observed) {
+  if (isNaN(predicted) || isNaN(observed) || predicted === 0) return '';
+  return Math.abs((observed - predicted) / predicted * 100).toFixed(2);
+}
+
+let _mtChart = null, _ssChart = null;
+
+// ══════════════════════════════════════════════════════════════════
+// TOOL 1: CASE BUILDER
+// ══════════════════════════════════════════════════════════════════
+
+let _cbCases = [];    // proposed cases from AI
+let _cbActive = [];   // accepted / custom cases
+
+function cb_init() {
+  const saved = session.tools.caseBuilder;
+  if (saved?.activeCases?.length) {
+    _cbActive = saved.activeCases;
+    _cbCases  = saved.proposedCases || [];
+    document.getElementById('cb-loading').style.display = 'none';
+    document.getElementById('cb-proposals-wrap').style.display = 'block';
+    cb_renderProposals();
+    document.getElementById('cb-active-wrap').style.display = 'block';
+    cb_renderActiveCases();
+    document.getElementById('cb-hint').style.display = 'block';
+    cb_checkDone();
+    return;
+  }
+  cb_loadProposals();
+}
+
+async function cb_loadProposals() {
+  const tok = localStorage.getItem(SIM_TOKEN_KEY);
+  if (!tok) {
+    document.getElementById('cb-loading').innerHTML = 'Log in via student.html to use AI-proposed cases.';
+    cb_showActiveOnly();
+    return;
+  }
+  try {
+    const r = await fetch('/api/at/propose-cases', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+      body: JSON.stringify({
+        conceptTitle: icData?.conceptTitle || SLUG,
+        rq:           icData?.researchQuestion || '',
+        explainer:    icData?.explainer || '',
+        simCaption:   icData?.simCaption || ''
+      })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const { cases } = await r.json();
+    _cbCases = cases || [];
+    if (!session.tools.caseBuilder) session.tools.caseBuilder = {};
+    session.tools.caseBuilder.proposedCases = _cbCases;
+    saveSession();
+  } catch(e) {
+    _cbCases = [];
+    console.warn('propose-cases failed:', e.message);
+  }
+  document.getElementById('cb-loading').style.display = 'none';
+  cb_showActiveOnly();
+  if (_cbCases.length) {
+    document.getElementById('cb-proposals-wrap').style.display = 'block';
+    cb_renderProposals();
+  }
+  document.getElementById('cb-hint').style.display = 'block';
+}
+
+function cb_showActiveOnly() {
+  document.getElementById('cb-active-wrap').style.display = 'block';
+  cb_renderActiveCases();
+  cb_checkDone();
+}
+
+function cb_renderProposals() {
+  const wrap = document.getElementById('cb-proposals');
+  wrap.innerHTML = '';
+  _cbCases.forEach((c, i) => {
+    const isAccepted = _cbActive.some(a => a._proposedIdx === i);
+    if (isAccepted) return;
+    const div = document.createElement('div');
+    div.className = 'cb-card';
+    div.innerHTML = `<div class="cb-card-label">${escHtml(c.label || `Case ${i+1}`)}</div>
+      <div class="cb-card-reasoning">${escHtml(c.reasoning || '')}</div>
+      ${c.suggestedInput ? `<div class="cb-card-suggest">→ Try: ${escHtml(c.suggestedInput)}</div>` : ''}
+      <div class="cb-prop-row">
+        <button class="at-btn green" onclick="cb_acceptCase(${i})">Accept</button>
+        <button class="at-btn slate" onclick="cb_skipCase(${i})">Skip</button>
+      </div>`;
+    wrap.appendChild(div);
+  });
+  if (!wrap.children.length) wrap.innerHTML = '<div style="font-size:0.75rem;color:#475569">All proposed cases accepted or skipped.</div>';
+}
+
+function cb_acceptCase(i) {
+  const c = _cbCases[i];
+  _cbActive.push({
+    _proposedIdx: i,
+    id: Date.now(),
+    label: c.label,
+    expected: c.expectedBehavior || '',
+    observed: '',
+    verdict: null
+  });
+  cb_saveToSession();
+  cb_renderProposals();
+  cb_renderActiveCases();
+  cb_checkDone();
+}
+
+function cb_skipCase(i) {
+  _cbCases[i]._skipped = true;
+  cb_renderProposals();
+}
+
+function cb_addCustomCase() {
+  _cbActive.push({ id: Date.now(), label: 'Custom case', expected: '', observed: '', verdict: null });
+  cb_saveToSession();
+  cb_renderActiveCases();
+  cb_checkDone();
+}
+
+function cb_renderActiveCases() {
+  const wrap = document.getElementById('cb-active-cases');
+  wrap.innerHTML = '';
+  _cbActive.forEach((c, i) => {
+    const v = c.verdict;
+    const borderCls = v === 'pass' ? ' pass-bg' : v === 'fail' ? ' fail-bg' : '';
+    const div = document.createElement('div');
+    div.className = 'cb-active-card' + borderCls;
+    div.innerHTML = `
+      <label class="at-label">Label</label>
+      <input class="at-field" value="${escHtml(c.label)}" oninput="cb_updateField(${i},'label',this.value)">
+      <label class="at-label">Expected behavior</label>
+      <input class="at-field" value="${escHtml(c.expected)}" oninput="cb_updateField(${i},'expected',this.value)">
+      <label class="at-label">Observed (run the sim and record what you see)</label>
+      <textarea class="at-field" rows="2" oninput="cb_updateField(${i},'observed',this.value)" style="resize:vertical">${escHtml(c.observed)}</textarea>
+      <div class="cb-verdict-row">
+        ${['pass','fail','inconclusive'].map(val => `<button class="cb-vbtn${v===val?' active '+val:''}" onclick="cb_setVerdict(${i},'${val}',this)">${val.charAt(0).toUpperCase()+val.slice(1)}</button>`).join('')}
+        <button class="at-btn slate" style="font-size:0.68rem;padding:3px 8px;margin-left:auto" onclick="cb_removeCase(${i})">Remove</button>
+      </div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function cb_updateField(i, field, val) {
+  _cbActive[i][field] = val;
+  cb_saveToSession();
+  cb_checkDone();
+  // Refresh border color if verdict set
+  if (field === 'observed') cb_renderActiveCases();
+}
+
+function cb_setVerdict(i, val, btn) {
+  _cbActive[i].verdict = val;
+  cb_saveToSession();
+  cb_checkDone();
+  cb_renderActiveCases();
+}
+
+function cb_removeCase(i) {
+  _cbActive.splice(i, 1);
+  cb_saveToSession();
+  cb_renderActiveCases();
+  cb_checkDone();
+}
+
+function cb_checkDone() {
+  const readyCases = _cbActive.filter(c => c.observed.trim() && c.verdict);
+  document.getElementById('cb-done-btn').disabled = readyCases.length < 2;
+}
+
+function cb_saveToSession() {
+  if (!session.tools.caseBuilder) session.tools.caseBuilder = {};
+  session.tools.caseBuilder.proposedCases = _cbCases;
+  session.tools.caseBuilder.activeCases   = _cbActive;
+  saveSession();
+}
+
+function cb_markDone() {
+  cb_saveToSession();
+  const summary = _cbActive.filter(c => c.verdict).map(c =>
+    `${c.label}: expected "${c.expected}", observed "${c.observed}" → ${c.verdict}`).join('; ');
+  markToolDone('caseBuilder', { proposedCases: _cbCases, activeCases: _cbActive, findings: summary });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TOOL 2: MEASUREMENT TABLE
+// ══════════════════════════════════════════════════════════════════
+
+let _mtRows = [];   // {input, predicted, observed, flagged}
+
+function mt_init() {
+  const saved = session.tools.measurementTable;
+  if (saved?.rows) {
+    _mtRows = saved.rows;
+    if (saved.param)   document.getElementById('mt-param').value   = saved.param;
+    if (saved.formula) document.getElementById('mt-formula').value = saved.formula;
+    mt_renderTable();
+    mt_checkDone();
+    return;
+  }
+  mt_addRow(); mt_addRow(); mt_addRow();
+}
+
+function mt_generateRows() {
+  const min  = parseFloat(document.getElementById('mt-min').value);
+  const max  = parseFloat(document.getElementById('mt-max').value);
+  const step = parseFloat(document.getElementById('mt-step').value);
+  if (isNaN(min) || isNaN(max) || isNaN(step) || step <= 0) return;
+  _mtRows = [];
+  for (let v = min; v <= max + step * 0.001; v = Math.round((v + step) * 1e10) / 1e10) {
+    _mtRows.push({ input: String(v), predicted: '', observed: '', flagged: false });
+  }
+  mt_recalcAll();
+  mt_renderTable();
+  mt_checkDone();
+}
+
+function mt_addRow() {
+  _mtRows.push({ input: '', predicted: '', observed: '', flagged: false });
+  mt_renderTable();
+}
+
+function mt_removeRow(i) {
+  _mtRows.splice(i, 1);
+  mt_renderTable();
+  mt_checkDone();
+}
+
+function mt_recalcAll() {
+  const formula  = document.getElementById('mt-formula').value.trim();
+  const varName  = document.getElementById('mt-param').value.trim() || 'x';
+  _mtRows.forEach(r => {
+    const v = parseFloat(r.input);
+    r.predicted = isNaN(v) || !formula ? '' : String(+safeEval(formula, varName, v).toFixed(6) || '');
+  });
+  mt_renderTable();
+}
+
+function mt_saveConfig() {
+  if (!session.tools.measurementTable) session.tools.measurementTable = {};
+  session.tools.measurementTable.param   = document.getElementById('mt-param').value;
+  session.tools.measurementTable.formula = document.getElementById('mt-formula').value;
+  saveSession();
+}
+
+function mt_renderTable() {
+  const varName = document.getElementById('mt-param').value.trim() || 'Input';
+  document.getElementById('mt-th-param').textContent = varName;
+  const tbody = document.getElementById('mt-tbody');
+  tbody.innerHTML = '';
+  _mtRows.forEach((r, i) => {
+    const pe = pctErr(parseFloat(r.predicted), parseFloat(r.observed));
+    const errCls = pe !== '' && parseFloat(pe) > 10 ? ' mt-err-hi' : ' mt-err-ok';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input value="${escHtml(r.input)}" oninput="mt_setCell(${i},'input',this.value)" title="Input value"></td>
+      <td><input value="${r.predicted}" readonly style="background:#0f172a;color:#64748b" title="Auto-calculated"></td>
+      <td><input value="${escHtml(r.observed)}" oninput="mt_setCell(${i},'observed',this.value)" title="Enter from sim"></td>
+      <td style="font-size:0.78rem;${pe!==''?'font-weight:600':'color:#334155'}" class="${pe!==''?errCls:''}">${pe !== '' ? pe+'%' : '—'}</td>
+      <td style="text-align:center"><input type="checkbox" ${r.flagged?'checked':''} onchange="mt_setCell(${i},'flagged',this.checked)" title="Flag as anomalous"></td>
+      <td><button class="at-btn slate" style="padding:2px 7px;font-size:0.68rem" onclick="mt_removeRow(${i})">×</button></td>`;
+    tbody.appendChild(tr);
+  });
+  mt_saveRows();
+}
+
+function mt_setCell(i, field, val) {
+  _mtRows[i][field] = val === true || val === false ? val : val;
+  if (field === 'input') mt_recalcRow(i);
+  mt_checkDone();
+  mt_saveRows();
+}
+
+function mt_recalcRow(i) {
+  const formula = document.getElementById('mt-formula').value.trim();
+  const varName = document.getElementById('mt-param').value.trim() || 'x';
+  const v = parseFloat(_mtRows[i].input);
+  _mtRows[i].predicted = !isNaN(v) && formula ? String(+safeEval(formula, varName, v).toFixed(6)) : '';
+  mt_renderTable();
+}
+
+function mt_saveRows() {
+  if (!session.tools.measurementTable) session.tools.measurementTable = {};
+  session.tools.measurementTable.rows    = _mtRows;
+  session.tools.measurementTable.param   = document.getElementById('mt-param').value;
+  session.tools.measurementTable.formula = document.getElementById('mt-formula').value;
+  saveSession();
+}
+
+function mt_checkDone() {
+  const withObs = _mtRows.filter(r => r.observed.trim()).length;
+  document.getElementById('mt-done-btn').disabled = withObs < 3;
+}
+
+function mt_generatePlot() {
+  const labels    = _mtRows.map(r => r.input);
+  const predicted = _mtRows.map(r => parseFloat(r.predicted));
+  const observed  = _mtRows.map(r => r.observed !== '' ? parseFloat(r.observed) : null);
+  const wrap = document.getElementById('mt-chart-wrap');
+  wrap.style.display = 'block';
+  const ctx = document.getElementById('mt-chart').getContext('2d');
+  if (_mtChart) _mtChart.destroy();
+  _mtChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        { label: 'Predicted', data: labels.map((x,i)=>({x:parseFloat(x)||i,y:predicted[i]})).filter(p=>!isNaN(p.y)),
+          borderColor:'#7eb8da', backgroundColor:'rgba(126,184,218,0.15)', showLine:true, pointRadius:3 },
+        { label: 'Observed',  data: labels.map((x,i)=>observed[i]!==null?{x:parseFloat(x)||i,y:observed[i]}:null).filter(Boolean),
+          borderColor:'#f87171', backgroundColor:'#f87171', showLine:false, pointRadius:5 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:'#e2e8f0', font:{ size:11 } } } },
+      scales:{
+        x:{ ticks:{ color:'#94a3b8' }, grid:{ color:'#334155' } },
+        y:{ ticks:{ color:'#94a3b8' }, grid:{ color:'#334155' } }
+      }
+    }
+  });
+}
+
+function mt_markDone() {
+  mt_saveRows();
+  const worstRow = [..._mtRows].sort((a,b) => parseFloat(pctErr(parseFloat(b.predicted),parseFloat(b.observed))||0) - parseFloat(pctErr(parseFloat(a.predicted),parseFloat(a.observed))||0))[0];
+  const summary = `Measured ${_mtRows.filter(r=>r.observed).length} data points. Worst-case error: ${pctErr(parseFloat(worstRow?.predicted),parseFloat(worstRow?.observed)) || '—'}%`;
+  markToolDone('measurementTable', { rows: _mtRows, param: document.getElementById('mt-param').value, formula: document.getElementById('mt-formula').value, summary });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TOOL 3: STATISTICAL SPREAD
+// ══════════════════════════════════════════════════════════════════
+
+let _ssMode = 'A';
+let _ssSamples = [];    // Mode A outputs
+let _ssTally = {};      // Mode B counts
+
+function ss_init() {
+  const saved = session.tools.statisticalSpread;
+  if (saved) {
+    _ssMode    = saved.mode || 'A';
+    _ssSamples = saved.samples || [];
+    _ssTally   = saved.tally   || {};
+    ss_setMode(_ssMode, true);
+    if (saved.param)     document.getElementById('ss-param').value    = saved.param;
+    if (saved.nominal !== undefined) document.getElementById('ss-nominal').value  = saved.nominal;
+    if (saved.delta !== undefined)   document.getElementById('ss-delta').value    = saved.delta;
+    if (saved.formula)   document.getElementById('ss-formula').value  = saved.formula;
+    if (saved.outcomes)  document.getElementById('ss-outcomes').value = saved.outcomes;
+    if (saved.obsLabel)  document.getElementById('ss-obs-label').value= saved.obsLabel;
+    ss_updateOutcomeSelect();
+    if (_ssSamples.length || Object.keys(_ssTally).length) ss_renderResults();
+    ss_checkDone();
+  }
+}
+
+function ss_setMode(m, silent) {
+  _ssMode = m;
+  document.getElementById('ss-panel-a').style.display = m === 'A' ? 'block' : 'none';
+  document.getElementById('ss-panel-b').style.display = m === 'B' ? 'block' : 'none';
+  document.getElementById('ss-btn-a').classList.toggle('active', m === 'A');
+  document.getElementById('ss-btn-b').classList.toggle('active', m === 'B');
+  if (!silent) ss_saveState();
+}
+
+function ss_runModeA() {
+  const param    = document.getElementById('ss-param').value.trim()   || 'x';
+  const nominal  = parseFloat(document.getElementById('ss-nominal').value);
+  const delta    = parseFloat(document.getElementById('ss-delta').value);
+  const formula  = document.getElementById('ss-formula').value.trim();
+  const n        = Math.min(1000, Math.max(20, parseInt(document.getElementById('ss-n').value) || 300));
+  if (isNaN(nominal) || isNaN(delta) || !formula) {
+    alert('Please fill in nominal value, uncertainty, and formula first.'); return;
+  }
+  _ssSamples = [];
+  for (let i = 0; i < n; i++) {
+    const x = nominal + (Math.random() * 2 - 1) * delta;
+    const y = safeEval(formula, param, x);
+    if (!isNaN(y) && isFinite(y)) _ssSamples.push(y);
+  }
+  ss_saveState();
+  ss_renderResults();
+  ss_checkDone();
+}
+
+function ss_updateOutcomeSelect() {
+  const raw = document.getElementById('ss-outcomes').value;
+  const opts = raw.split(',').map(s=>s.trim()).filter(Boolean);
+  const sel = document.getElementById('ss-outcome-sel');
+  sel.innerHTML = opts.length
+    ? opts.map(o => `<option value="${escHtml(o)}">${escHtml(o)}</option>`).join('')
+    : '<option>Set possible outcomes first</option>';
+  ss_saveState();
+}
+
+function ss_recordObs() {
+  const sel = document.getElementById('ss-outcome-sel');
+  const val = sel.value;
+  if (!val || val === 'Set possible outcomes first') return;
+  _ssTally[val] = (_ssTally[val] || 0) + 1;
+  const total = Object.values(_ssTally).reduce((a,b)=>a+b,0);
+  document.getElementById('ss-tally').textContent = `Observations: ${total} — ` +
+    Object.entries(_ssTally).map(([k,v])=>`${k}: ${v}`).join(', ');
+  ss_saveState();
+  ss_renderResults();
+  ss_checkDone();
+}
+
+function ss_renderResults() {
+  const wrap = document.getElementById('ss-chart-wrap');
+  wrap.style.display = 'block';
+  const ctx = document.getElementById('ss-chart').getContext('2d');
+  if (_ssChart) _ssChart.destroy();
+
+  if (_ssMode === 'A' && _ssSamples.length) {
+    // Build histogram
+    const mn = Math.min(..._ssSamples), mx = Math.max(..._ssSamples);
+    const bins = 20, bw = (mx - mn) / bins || 1;
+    const counts = Array(bins).fill(0);
+    const labels = [];
+    for (let i = 0; i < bins; i++) labels.push((mn + i * bw).toFixed(3));
+    _ssSamples.forEach(v => {
+      const bi = Math.min(bins - 1, Math.floor((v - mn) / bw));
+      counts[bi]++;
+    });
+    const mean = _ssSamples.reduce((a,b)=>a+b,0) / _ssSamples.length;
+    const sd   = Math.sqrt(_ssSamples.reduce((a,b)=>a+(b-mean)**2,0) / _ssSamples.length);
+    document.getElementById('ss-stats').innerHTML = `Mean: <b>${mean.toFixed(4)}</b> &nbsp; SD: <b>${sd.toFixed(4)}</b> &nbsp; N: <b>${_ssSamples.length}</b>`;
+    _ssChart = new Chart(ctx, {
+      type:'bar', data:{ labels, datasets:[{ label:'Output distribution', data:counts, backgroundColor:'rgba(126,184,218,0.5)', borderColor:'#7eb8da', borderWidth:1 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{color:'#e2e8f0',font:{size:11}}}},
+        scales:{ x:{ticks:{color:'#94a3b8',maxRotation:45},grid:{color:'#334155'}}, y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}} } }
+    });
+  } else if (_ssMode === 'B' && Object.keys(_ssTally).length) {
+    const labels = Object.keys(_ssTally);
+    const data   = Object.values(_ssTally);
+    const total  = data.reduce((a,b)=>a+b,0);
+    document.getElementById('ss-stats').innerHTML = `Total observations: <b>${total}</b> — ` + labels.map((l,i)=>`${l}: <b>${(data[i]/total*100).toFixed(1)}%</b>`).join(', ');
+    _ssChart = new Chart(ctx, {
+      type:'bar', data:{ labels, datasets:[{ label:'Observation counts', data, backgroundColor:labels.map((_,i)=>['rgba(126,184,218,0.6)','rgba(248,113,113,0.6)','rgba(74,222,128,0.6)','rgba(245,158,11,0.6)'][i%4]), borderWidth:1 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ x:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}}, y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}} } }
+    });
+  }
+}
+
+function ss_checkDone() {
+  const n = _ssMode === 'A' ? _ssSamples.length : Object.values(_ssTally).reduce((a,b)=>a+b,0);
+  document.getElementById('ss-done-btn').disabled = n < 20;
+  document.getElementById('ss-hint').textContent = n < 20 ? `Need at least 20 data points (have ${n}).` : `✓ ${n} data points recorded.`;
+}
+
+function ss_saveState() {
+  if (!session.tools.statisticalSpread) session.tools.statisticalSpread = {};
+  Object.assign(session.tools.statisticalSpread, {
+    mode:     _ssMode,
+    samples:  _ssSamples,
+    tally:    _ssTally,
+    param:    document.getElementById('ss-param').value,
+    nominal:  document.getElementById('ss-nominal').value,
+    delta:    document.getElementById('ss-delta').value,
+    formula:  document.getElementById('ss-formula').value,
+    outcomes: document.getElementById('ss-outcomes').value,
+    obsLabel: document.getElementById('ss-obs-label').value
+  });
+  saveSession();
+}
+
+function ss_markDone() {
+  ss_saveState();
+  const n = _ssMode === 'A' ? _ssSamples.length : Object.values(_ssTally).reduce((a,b)=>a+b,0);
+  const summary = _ssMode === 'A'
+    ? `Mode A (input uncertainty): ${n} samples, results show spread in outputs.`
+    : `Mode B (repeated observation): ${n} total observations — ` + Object.entries(_ssTally).map(([k,v])=>`${k}: ${v}`).join(', ');
+  markToolDone('statisticalSpread', { mode: _ssMode, samples: _ssSamples, tally: _ssTally, summary });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TOOL 4: CLAIM AUDIT
+// ══════════════════════════════════════════════════════════════════
+
+let _caClaims = [];
+let _caNextId = 1;
+
+function ca_init() {
+  const saved = session.tools.claimAudit;
+  if (saved?.claims?.length) {
+    _caClaims = saved.claims;
+    _caNextId = Math.max(..._caClaims.map(c=>c.id||0)) + 1;
+    document.getElementById('ca-loading').style.display = 'none';
+    document.getElementById('ca-claims-wrap').style.display = 'block';
+    document.getElementById('ca-hint').style.display = 'block';
+    ca_renderClaims();
+    ca_checkDone();
+    return;
+  }
+  ca_loadClaims();
+}
+
+async function ca_loadClaims() {
+  const tok = localStorage.getItem(SIM_TOKEN_KEY);
+  if (!tok) {
+    document.getElementById('ca-loading').innerHTML = 'Log in via student.html to extract claims with AI.';
+    ca_showEmpty();
+    return;
+  }
+  try {
+    const r = await fetch('/api/at/parse-claims', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+      body: JSON.stringify({
+        explainer:    icData?.explainer || '',
+        rq:           icData?.researchQuestion || '',
+        conceptTitle: icData?.conceptTitle || SLUG
+      })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const { claims } = await r.json();
+    _caClaims = (claims || []).map(c => ({ ...c, id: _caNextId++, evaluation: null, evidence: '' }));
+    ca_saveToSession();
+  } catch(e) {
+    console.warn('parse-claims failed:', e.message);
+    _caClaims = [];
+  }
+  document.getElementById('ca-loading').style.display = 'none';
+  document.getElementById('ca-claims-wrap').style.display = 'block';
+  document.getElementById('ca-hint').style.display = 'block';
+  ca_renderClaims();
+  ca_checkDone();
+}
+
+function ca_showEmpty() {
+  document.getElementById('ca-loading').style.display = 'none';
+  document.getElementById('ca-claims-wrap').style.display = 'block';
+  document.getElementById('ca-hint').style.display = 'block';
+}
+
+function ca_renderClaims() {
+  const list = document.getElementById('ca-claims-list');
+  list.innerHTML = '';
+  _caClaims.forEach((c, i) => {
+    const ev = c.evaluation;
+    const div = document.createElement('div');
+    div.className = 'ca-card';
+    div.innerHTML = `
+      <div class="ca-claim-text">"${escHtml(c.text)}"</div>
+      ${c.howToTest ? `<div class="ca-how">How to test: ${escHtml(c.howToTest)}</div>` : ''}
+      <div class="ca-eval-row">
+        ${['supported','contradicted','not-testable'].map(val => `<button class="ca-ebtn${ev===val?' active '+val:''}" onclick="ca_setEval(${i},'${val}',this)">${val==='not-testable'?'Not testable':val.charAt(0).toUpperCase()+val.slice(1)}</button>`).join('')}
+        <button class="at-btn slate" style="font-size:0.68rem;padding:3px 7px;margin-left:auto" onclick="ca_removeClaim(${i})">×</button>
+      </div>
+      <textarea class="at-field ca-evidence${ev==='contradicted'?' visible':''}" rows="2"
+        placeholder="Describe what you observed…" oninput="ca_setEvidence(${i},this.value)"
+        style="resize:vertical;display:${ev==='contradicted'?'block':'none'}">${escHtml(c.evidence||'')}</textarea>`;
+    list.appendChild(div);
+  });
+  if (!_caClaims.length) list.innerHTML = '<div style="font-size:0.75rem;color:#475569;padding:8px 0">No claims loaded. Add one below.</div>';
+}
+
+function ca_setEval(i, val, btn) {
+  _caClaims[i].evaluation = val;
+  ca_saveToSession();
+  ca_renderClaims();
+  ca_checkDone();
+}
+
+function ca_setEvidence(i, val) {
+  _caClaims[i].evidence = val;
+  ca_saveToSession();
+}
+
+function ca_addCustomClaim() {
+  _caClaims.push({ id: _caNextId++, text: 'New claim (click to edit)', howToTest: '', evaluation: null, evidence: '' });
+  ca_saveToSession();
+  ca_renderClaims();
+  ca_checkDone();
+}
+
+function ca_removeClaim(i) {
+  _caClaims.splice(i, 1);
+  ca_saveToSession();
+  ca_renderClaims();
+  ca_checkDone();
+}
+
+function ca_checkDone() {
+  const unevaluated = _caClaims.filter(c => !c.evaluation).length;
+  const hasClaims   = _caClaims.length > 0;
+  document.getElementById('ca-done-btn').disabled = !hasClaims || unevaluated > 0;
+}
+
+function ca_saveToSession() {
+  if (!session.tools.claimAudit) session.tools.claimAudit = {};
+  session.tools.claimAudit.claims = _caClaims;
+  saveSession();
+}
+
+function ca_markDone() {
+  ca_saveToSession();
+  const contradicted = _caClaims.filter(c => c.evaluation === 'contradicted');
+  const summary = contradicted.length
+    ? `${contradicted.length} claim(s) contradicted: ` + contradicted.map(c => `"${c.text.slice(0,40)}…"`).join(', ')
+    : 'All claims supported or not testable.';
+  markToolDone('claimAudit', { claims: _caClaims, summary });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TOOL 5: LIT REVIEW
+// ══════════════════════════════════════════════════════════════════
+
+let _lrS1 = { rel: null };
+let _lrS2 = { rel: null, path: 'url' };
+
+function lr_init() {
+  const saved = session.tools.litReview;
+  if (saved) {
+    _lrS1 = saved.source1 || { rel: null };
+    _lrS2 = saved.source2 || { rel: null, path: 'url' };
+    if (_lrS1.claim)    document.getElementById('lr-s1-claim').value    = _lrS1.claim;
+    if (_lrS1.citation) document.getElementById('lr-s1-citation').value = _lrS1.citation;
+    if (_lrS1.title) {
+      document.getElementById('lr-s1-doc-title').textContent = _lrS1.title;
+      document.getElementById('lr-s1-extract').style.display = 'block';
+      document.getElementById('lr-s1-library').style.display = 'none';
+    }
+    lr_buildRelRow('lr-s1-rel', 's1', _lrS1.rel);
+    if (_lrS1.claim && _lrS1.rel) document.getElementById('lr-s1-done').classList.add('visible');
+
+    if (_lrS2.path) lr_setPath(_lrS2.path, null, true);
+    if (_lrS2.claim)    document.getElementById('lr-s2-claim').value    = _lrS2.claim;
+    if (_lrS2.citation) document.getElementById('lr-s2-citation').value = _lrS2.citation;
+    if (_lrS2.title) {
+      document.getElementById('lr-s2-doc-title').textContent = _lrS2.title;
+      document.getElementById('lr-s2-extract').style.display = 'block';
+    }
+    lr_buildRelRow('lr-s2-rel', 's2', _lrS2.rel);
+    if (_lrS2.claim && _lrS2.rel) document.getElementById('lr-s2-done').classList.add('visible');
+    lr_checkDone();
+  }
+  lr_loadLibrary();
+}
+
+async function lr_loadLibrary() {
+  const libWrap = document.getElementById('lr-s1-library');
+  try {
+    const r = await fetch(`/api/resources/${SLUG}`);
+    const { resources } = await r.json();
+    if (!resources.length) {
+      libWrap.innerHTML = '<div style="font-size:0.75rem;color:#475569">No class documents uploaded for this concept.<br>Use a URL, paste, or AI search for Source 1 instead.</div>';
+      // If no library docs, unlock alt paths for s1 too (future enhancement)
+      return;
+    }
+    libWrap.innerHTML = '';
+    resources.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'lr-doc-card';
+      card.innerHTML = `<div class="lr-doc-title">${escHtml(f.title)}</div><div class="lr-doc-meta">Uploaded ${f.uploaded}</div>`;
+      card.onclick = () => lr_selectLibraryDoc(f);
+      libWrap.appendChild(card);
+    });
+  } catch {
+    libWrap.innerHTML = '<div style="font-size:0.75rem;color:#f87171">Could not load class library.</div>';
+  }
+}
+
+function lr_selectLibraryDoc(f) {
+  _lrS1.title = f.title;
+  _lrS1.citation = `${f.title}. (${f.uploaded}). [Class library document]`;
+  document.getElementById('lr-s1-doc-title').textContent = f.title;
+  document.getElementById('lr-s1-citation').value = _lrS1.citation;
+  document.getElementById('lr-s1-library').style.display = 'none';
+  document.getElementById('lr-s1-extract').style.display = 'block';
+  lr_buildRelRow('lr-s1-rel', 's1', _lrS1.rel);
+  lr_saveToSession();
+}
+
+function lr_buildRelRow(containerId, src, current) {
+  const row = document.getElementById(containerId);
+  row.innerHTML = '';
+  ['consistent','contradicts','partial','unclear'].forEach(val => {
+    const btn = document.createElement('button');
+    btn.className = 'lr-rbtn' + (current === val ? ' active' : '');
+    btn.textContent = { consistent:'✓ Consistent', contradicts:'✗ Contradicts', partial:'~ Partial', unclear:'? Unclear' }[val];
+    btn.onclick = () => lr_setRel(src, val, btn);
+    row.appendChild(btn);
+  });
+}
+
+function lr_setRel(src, val, btn) {
+  if (src === 's1') _lrS1.rel = val;
+  else              _lrS2.rel = val;
+  // Update button styles
+  const row = document.getElementById(`lr-${src}-rel`);
+  row.querySelectorAll('.lr-rbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  lr_checkDone();
+  lr_saveToSession();
+}
+
+function lr_setPath(path, tabEl, silent) {
+  _lrS2.path = path;
+  ['url','paste','ai'].forEach(p => {
+    document.getElementById(`lr-path-${p}`).style.display = p === path ? 'block' : 'none';
+  });
+  document.querySelectorAll('.lr-ptab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+  if (!silent) lr_saveToSession();
+}
+
+async function lr_fetchUrl() {
+  const url = document.getElementById('lr-s2-url').value.trim();
+  if (!url) return;
+  const tok = localStorage.getItem(SIM_TOKEN_KEY);
+  const box = document.getElementById('lr-s2-content');
+  box.style.display = 'block';
+  box.textContent = 'Fetching…';
+  try {
+    const r = await fetch('/api/at/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+      body: JSON.stringify({ url })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      box.textContent = data.message || data.error || 'Could not fetch that URL.';
+      return;
+    }
+    box.textContent = data.text.slice(0, 1000) + (data.text.length > 1000 ? '\n[truncated…]' : '');
+    _lrS2.title    = data.title || url;
+    _lrS2.citation = `${data.title || 'Untitled'}. Retrieved from ${url}`;
+    document.getElementById('lr-s2-doc-title').textContent = _lrS2.title;
+    document.getElementById('lr-s2-citation').value = _lrS2.citation;
+    document.getElementById('lr-s2-extract').style.display = 'block';
+    lr_buildRelRow('lr-s2-rel', 's2', _lrS2.rel);
+    lr_saveToSession();
+  } catch(e) {
+    box.textContent = 'Network error: ' + e.message;
+  }
+}
+
+function lr_s2EnableExtract() {
+  const text = document.getElementById('lr-s2-paste').value.trim();
+  if (!text) return;
+  _lrS2.title = 'Pasted source';
+  document.getElementById('lr-s2-doc-title').textContent = 'Pasted text';
+  document.getElementById('lr-s2-extract').style.display = 'block';
+  lr_buildRelRow('lr-s2-rel', 's2', _lrS2.rel);
+}
+
+async function lr_searchAI() {
+  const query = document.getElementById('lr-ai-query').value.trim();
+  if (!query) return;
+  const tok = localStorage.getItem(SIM_TOKEN_KEY);
+  const wrap = document.getElementById('lr-ai-results');
+  wrap.innerHTML = '<div style="font-size:0.75rem;color:#475569">Searching…</div>';
+  try {
+    const r = await fetch('/api/at/lit-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
+      body: JSON.stringify({ query, conceptTitle: icData?.conceptTitle || SLUG })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const { results } = await r.json();
+    wrap.innerHTML = '';
+    (results || []).forEach(res => {
+      const div = document.createElement('div');
+      div.className = 'lr-ai-result';
+      div.innerHTML = `<div class="lr-ai-result-title">${escHtml(res.title)}</div><div class="lr-ai-result-desc">${escHtml(res.description)}</div>`;
+      div.onclick = () => {
+        document.getElementById('lr-s2-url').value = res.url || '';
+        lr_setPath('url', document.querySelector('.lr-ptab'));
+        if (res.url) lr_fetchUrl();
+        _lrS2.title = res.title;
+      };
+      wrap.appendChild(div);
+    });
+    if (!results?.length) wrap.innerHTML = '<div style="font-size:0.75rem;color:#475569">No results found.</div>';
+  } catch(e) {
+    wrap.innerHTML = `<div style="font-size:0.75rem;color:#f87171">${escHtml(e.message)}</div>`;
+  }
+}
+
+function lr_checkDone() {
+  // s1 done if claim + rel + citation
+  const s1done = !!(document.getElementById('lr-s1-claim')?.value.trim() && _lrS1.rel && document.getElementById('lr-s1-citation')?.value.trim());
+  const s2done = !!(document.getElementById('lr-s2-claim')?.value.trim() && _lrS2.rel && document.getElementById('lr-s2-citation')?.value.trim());
+  document.getElementById('lr-s1-done').classList.toggle('visible', s1done);
+  document.getElementById('lr-s2-done').classList.toggle('visible', s2done);
+  document.getElementById('lr-done-btn').disabled = !(s1done && s2done);
+
+  // Sync to session
+  _lrS1.claim    = document.getElementById('lr-s1-claim')?.value    || '';
+  _lrS1.citation = document.getElementById('lr-s1-citation')?.value || '';
+  _lrS2.claim    = document.getElementById('lr-s2-claim')?.value    || '';
+  _lrS2.citation = document.getElementById('lr-s2-citation')?.value || '';
+  lr_saveToSession();
+}
+
+function lr_saveToSession() {
+  if (!session.tools.litReview) session.tools.litReview = {};
+  session.tools.litReview.source1 = _lrS1;
+  session.tools.litReview.source2 = _lrS2;
+  saveSession();
+}
+
+function lr_markDone() {
+  lr_checkDone();
+  const summary = `Source 1 (${_lrS1.title||'class library'}) — ${_lrS1.rel||'?'}: "${(_lrS1.claim||'').slice(0,80)}". Source 2 (${_lrS2.title||'own research'}) — ${_lrS2.rel||'?'}: "${(_lrS2.claim||'').slice(0,80)}".`;
+  markToolDone('litReview', { source1: _lrS1, source2: _lrS2, summary });
 }
 
 // ── Boot ─────────────────────────────────────────────────────────

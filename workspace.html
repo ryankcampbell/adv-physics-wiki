@@ -80,6 +80,12 @@
     }
     .empty-state .big { font-size: 2rem; margin-bottom: 12px; }
     .empty-state p { font-size: 0.85rem; }
+    /* AT investigation progress bar */
+    .at-progress-wrap { margin: 6px 0 2px; }
+    .at-progress-bar { height: 4px; background: #0f172a; border-radius: 2px; overflow: hidden; }
+    .at-progress-fill { height: 100%; background: #7c2d12; border-radius: 2px; transition: width 0.3s; }
+    .at-progress-fill.complete { background: #16a34a; }
+    .at-progress-label { font-size: 0.68rem; color: #64748b; margin-top: 3px; }
 
     /* ── New topic modal ── */
     .modal-overlay {
@@ -193,9 +199,27 @@ function editorUrl(topic) {
   const s = topic.slug;
   const t = encodeURIComponent(topic.title);
   if (topic.stage === 'ic') return `ic_editor.html?concept=${s}&name=${t}`;
-  if (topic.stage === 'at') return `ic_editor.html?at=${s}`;
+  if (topic.stage === 'at') {
+    const atSess = JSON.parse(localStorage.getItem(`at-session-${s}`) || 'null');
+    const doneCount  = (atSess?.completed  || []).length;
+    const totalCount = (atSess?.selectedTools || []).length;
+    // All tools done → go to ic_editor to review + submit
+    if (atSess && totalCount > 0 && doneCount >= totalCount) return `ic_editor.html?at=${s}`;
+    // Tools in progress → go directly to AT workspace
+    if (atSess?.selectedTools?.length) return `at_workspace.html?concept=${s}`;
+    // No session yet → go to ic_editor to launch AT investigation
+    return `ic_editor.html?at=${s}`;
+  }
   if (topic.stage === 'hw') return `ic_editor.html?hw=${s}`;
   return null; // complete
+}
+
+function getATProgress(slug) {
+  try {
+    const sess = JSON.parse(localStorage.getItem(`at-session-${slug}`) || 'null');
+    if (!sess?.selectedTools?.length) return null;
+    return { done: (sess.completed || []).length, total: sess.selectedTools.length };
+  } catch { return null; }
 }
 
 function canContinue(topic) {
@@ -239,10 +263,25 @@ function renderTopics(topics) {
     card.className = 'topic-card' + (canGo ? '' : ' locked');
     if (canGo && url) card.onclick = () => window.location.href = url;
 
+    // AT progress (read from localStorage — sync)
+    let atProgressHTML = '';
+    if (topic.stage === 'at') {
+      const prog = getATProgress(topic.slug);
+      if (prog) {
+        const pct = Math.round(prog.done / prog.total * 100);
+        const cls = prog.done >= prog.total ? ' complete' : '';
+        atProgressHTML = `<div class="at-progress-wrap">
+          <div class="at-progress-bar"><div class="at-progress-fill${cls}" style="width:${pct}%"></div></div>
+          <div class="at-progress-label">AT investigation: ${prog.done}/${prog.total} tools complete</div>
+        </div>`;
+      }
+    }
+
     card.innerHTML = `
       <div class="topic-module">${topic.module || 'General'}</div>
       <div class="topic-title">${topic.title}</div>
       ${topic.revision_notes ? `<div class="topic-notes">📋 ${topic.revision_notes}</div>` : ''}
+      ${atProgressHTML}
       <div class="topic-footer">
         <span class="stage-badge ${badge.cls}">${badge.text}</span>
         ${canGo && url ? '<span class="continue-btn">Continue →</span>' : ''}
