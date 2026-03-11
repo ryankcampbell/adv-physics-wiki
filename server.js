@@ -1535,6 +1535,92 @@ app.post('/api/admin/lit-sources', requireAdmin, (req, res) => {
   res.json({ ok: true, approved_domains: sanitized });
 });
 
+// ── Bug Reports ────────────────────────────────────────────────────
+const BUG_REPORTS_PATH = path.join(__dirname, 'state', 'bug-reports.json');
+function readBugReports() {
+  try { return JSON.parse(fs.readFileSync(BUG_REPORTS_PATH, 'utf8')); } catch { return []; }
+}
+function writeBugReports(reports) {
+  fs.writeFileSync(BUG_REPORTS_PATH, JSON.stringify(reports, null, 2));
+}
+
+// POST /api/bug-report — student submits a bug report (student token required)
+app.post('/api/bug-report', requireSimToken, (req, res) => {
+  const { description, snapshot, page } = req.body;
+  if (!description || typeof description !== 'string' || !description.trim()) {
+    return res.status(400).json({ error: 'description required' });
+  }
+  // Validate snapshot: must be a data URL image or absent
+  if (snapshot && (typeof snapshot !== 'string' || !snapshot.startsWith('data:image/'))) {
+    return res.status(400).json({ error: 'snapshot must be a data URL image' });
+  }
+  // Limit snapshot size to 4 MB (base64)
+  if (snapshot && snapshot.length > 4 * 1024 * 1024 * 1.37) {
+    return res.status(400).json({ error: 'snapshot too large (max ~4 MB)' });
+  }
+  const reports = readBugReports();
+  const report = {
+    id: require('crypto').randomUUID(),
+    timestamp: new Date().toISOString(),
+    reporter: req.simStudent,
+    source: 'student',
+    page: (page || '').slice(0, 80),
+    description: description.trim().slice(0, 2000),
+    snapshot: snapshot || null,
+    status: 'open',
+    admin_notes: ''
+  };
+  reports.unshift(report);  // newest first
+  writeBugReports(reports);
+  res.json({ ok: true, id: report.id });
+});
+
+// GET /api/admin/bug-reports — admin reads all reports
+app.get('/api/admin/bug-reports', requireAdmin, (req, res) => {
+  res.json(readBugReports());
+});
+
+// POST /api/admin/bug-reports — admin logs a bug directly
+app.post('/api/admin/bug-reports', requireAdmin, (req, res) => {
+  const { description, snapshot } = req.body;
+  if (!description || typeof description !== 'string' || !description.trim()) {
+    return res.status(400).json({ error: 'description required' });
+  }
+  if (snapshot && (typeof snapshot !== 'string' || !snapshot.startsWith('data:image/'))) {
+    return res.status(400).json({ error: 'snapshot must be a data URL image' });
+  }
+  if (snapshot && snapshot.length > 4 * 1024 * 1024 * 1.37) {
+    return res.status(400).json({ error: 'snapshot too large (max ~4 MB)' });
+  }
+  const reports = readBugReports();
+  const report = {
+    id: require('crypto').randomUUID(),
+    timestamp: new Date().toISOString(),
+    reporter: 'admin',
+    source: 'admin',
+    page: '',
+    description: description.trim().slice(0, 2000),
+    snapshot: snapshot || null,
+    status: 'open',
+    admin_notes: ''
+  };
+  reports.unshift(report);
+  writeBugReports(reports);
+  res.json({ ok: true, id: report.id });
+});
+
+// PATCH /api/admin/bug-reports/:id — update status and/or notes
+app.patch('/api/admin/bug-reports/:id', requireAdmin, (req, res) => {
+  const reports = readBugReports();
+  const idx = reports.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not found' });
+  const { status, admin_notes } = req.body;
+  if (status && ['open', 'resolved'].includes(status)) reports[idx].status = status;
+  if (typeof admin_notes === 'string') reports[idx].admin_notes = admin_notes.slice(0, 1000);
+  writeBugReports(reports);
+  res.json({ ok: true });
+});
+
 // ── Start ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

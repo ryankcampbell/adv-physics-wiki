@@ -309,6 +309,73 @@
     .p-advance-btn { background: #16a34a; color: white; border: none; border-radius: 4px; padding: 3px 9px; font-size: 0.72rem; cursor: pointer; margin-right: 4px; }
     .p-back-btn    { background: none; border: 1px solid #e2e8f0; color: #64748b; border-radius: 4px; padding: 3px 9px; font-size: 0.72rem; cursor: pointer; }
 
+    /* ── BUG REPORTS ── */
+    #bugs-section { margin-top: 24px; }
+    #bugs-toggle {
+      background: white; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 12px 18px; width: 100%; text-align: left; cursor: pointer;
+      font-size: 0.83rem; font-weight: 600; color: #475569;
+      display: flex; align-items: center; gap: 12px;
+    }
+    #bugs-toggle:hover { background: #f8fafc; }
+    #bugs-body {
+      display: none; background: white; border: 1px solid #e2e8f0;
+      border-top: none; border-radius: 0 0 8px 8px; padding: 16px;
+    }
+    #bugs-body.open { display: block; }
+    .bug-row {
+      border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;
+      margin-bottom: 10px; background: #fafafa; transition: background 0.1s;
+    }
+    .bug-row.resolved { opacity: 0.55; }
+    .bug-row-top { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+    .bug-source-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 8px; letter-spacing: 0.04em; flex-shrink: 0; margin-top: 2px;
+    }
+    .bug-source-student { background: #dbeafe; color: #1d4ed8; }
+    .bug-source-admin   { background: #f3e8ff; color: #7c3aed; }
+    .bug-status-open     { background: #fee2e2; color: #991b1b; }
+    .bug-status-resolved { background: #dcfce7; color: #166534; }
+    .bug-meta { font-size: 0.72rem; color: #94a3b8; white-space: nowrap; }
+    .bug-desc { flex: 1; font-size: 0.83rem; color: #1e293b; line-height: 1.5; }
+    .bug-snap-thumb {
+      width: 80px; height: 60px; object-fit: cover; border-radius: 5px;
+      border: 1px solid #e2e8f0; cursor: zoom-in; flex-shrink: 0;
+    }
+    .bug-row-notes { margin-top: 8px; display: flex; gap: 8px; align-items: center; }
+    .bug-notes-inp {
+      flex: 1; border: 1px solid #e2e8f0; border-radius: 5px; padding: 5px 8px;
+      font-size: 0.8rem; font-family: inherit; color: #374151;
+    }
+    .bug-resolve-btn {
+      background: #16a34a; color: white; border: none; border-radius: 5px;
+      padding: 5px 10px; font-size: 0.75rem; cursor: pointer; white-space: nowrap;
+    }
+    .bug-resolve-btn.unresolve { background: #64748b; }
+    .bug-resolve-btn:hover { filter: brightness(1.1); }
+    /* Admin log form */
+    #bug-admin-form { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 2px dashed #e2e8f0; }
+    #bug-admin-desc {
+      width: 100%; border: 1px solid #d1d5db; border-radius: 6px;
+      padding: 8px 10px; font-size: 0.83rem; font-family: inherit; resize: vertical;
+      min-height: 70px; margin-bottom: 8px;
+    }
+    #bug-admin-snap-zone {
+      border: 2px dashed #d1d5db; border-radius: 6px; padding: 10px;
+      text-align: center; cursor: pointer; font-size: 0.78rem; color: #94a3b8;
+      margin-bottom: 8px; transition: border-color 0.15s;
+    }
+    #bug-admin-snap-zone:hover { border-color: #2563eb; color: #2563eb; }
+    #bug-admin-snap-preview { max-width: 100%; max-height: 120px; display: none; border-radius: 4px; margin-top: 6px; }
+    /* Snapshot lightbox */
+    #snap-lightbox {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 9000; align-items: center; justify-content: center; cursor: zoom-out;
+    }
+    #snap-lightbox.open { display: flex; }
+    #snap-lightbox img { max-width: 95vw; max-height: 95vh; border-radius: 6px; }
+
     /* ── H-INDEX ── */
     #hindex-section { margin-top: 24px; }
     #hindex-toggle {
@@ -643,6 +710,44 @@
     </div>
   </div>
 
+  <!-- ── 7. BUG REPORTS (closed by default) ── -->
+  <div id="bugs-section">
+    <button id="bugs-toggle" onclick="toggleBugs()">
+      ⚑ Bug Reports
+      <span id="bugs-badge" style="margin-left:4px;background:#fee2e2;color:#991b1b;font-size:0.65rem;font-weight:700;padding:1px 7px;border-radius:10px;display:none"></span>
+      <span style="margin-left:auto;font-size:0.72rem;color:#94a3b8;font-weight:400">Student-reported issues · log your own</span>
+      <button onclick="event.stopPropagation();loadBugReports()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:0.9rem;padding:0 4px" title="Refresh">↻</button>
+    </button>
+    <div id="bugs-body">
+      <!-- Admin log form -->
+      <div id="bug-admin-form">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px">Log a bug yourself</div>
+        <textarea id="bug-admin-desc" placeholder="Describe the bug you observed…"></textarea>
+        <div id="bug-admin-snap-zone"
+          onclick="document.getElementById('bug-admin-snap-input').click()"
+          ondragover="event.preventDefault();this.style.borderColor='#2563eb'"
+          ondragleave="this.style.borderColor='#d1d5db'"
+          ondrop="handleAdminSnapDrop(event)">
+          Click to attach a screenshot, drag an image, or Ctrl+V to paste
+          <img id="bug-admin-snap-preview" src="" alt="preview">
+        </div>
+        <input type="file" id="bug-admin-snap-input" accept="image/*" style="display:none"
+          onchange="loadAdminSnapFile(this.files[0])">
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="submitAdminBug()" style="background:#1e3a5f;color:white;border:none;border-radius:6px;padding:7px 16px;font-size:0.83rem;font-weight:600;cursor:pointer">Log Bug</button>
+          <span id="bug-admin-status" style="font-size:0.78rem;color:#16a34a"></span>
+        </div>
+      </div>
+      <!-- Report list -->
+      <div id="bug-list"><div style="font-size:0.83rem;color:#94a3b8">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- Snapshot lightbox -->
+  <div id="snap-lightbox" onclick="this.classList.remove('open')">
+    <img id="snap-lightbox-img" src="" alt="snapshot">
+  </div>
+
   <!-- hidden legacy elements (kept for JS compatibility) -->
   <div id="loading" style="display:none">Loading module…</div>
   <div id="table-wrap" style="display:none"><table class="concept-table" id="concept-table"><thead><tr></tr></thead><tbody id="table-body"></tbody></table></div>
@@ -701,6 +806,17 @@ function initAdmin() {
   loadDrive();
   loadPipeline();
   loadSimLog();
+  loadBugBadge();
+}
+
+async function loadBugBadge() {
+  try {
+    const r = await adminFetch('/api/admin/bug-reports');
+    const reports = await r.json();
+    const openCount = reports.filter(r => r.status === 'open').length;
+    const badge = document.getElementById('bugs-badge');
+    if (openCount > 0) { badge.textContent = openCount + ' open'; badge.style.display = 'inline'; }
+  } catch {}
 }
 
 // ── DRIVE INBOX ────────────────────────────────────────────────────
@@ -1781,6 +1897,144 @@ async function pSendBack(name, slug) {
     body: JSON.stringify({ name, slug, action: 'sendback', notes })
   });
   loadPipeline();
+}
+
+// ── Bug Reports ────────────────────────────────────────────────────
+let bugsOpen = false;
+let adminSnapDataUrl = null;
+
+function toggleBugs() {
+  bugsOpen = !bugsOpen;
+  document.getElementById('bugs-body').classList.toggle('open', bugsOpen);
+  if (bugsOpen) loadBugReports();
+}
+
+async function loadBugReports() {
+  const listEl = document.getElementById('bug-list');
+  listEl.innerHTML = '<div style="font-size:0.83rem;color:#94a3b8">Loading…</div>';
+  try {
+    const r = await adminFetch('/api/admin/bug-reports');
+    const reports = await r.json();
+
+    // Update badge count (open reports)
+    const openCount = reports.filter(r => r.status === 'open').length;
+    const badge = document.getElementById('bugs-badge');
+    if (openCount > 0) { badge.textContent = openCount + ' open'; badge.style.display = 'inline'; }
+    else { badge.style.display = 'none'; }
+
+    if (!reports.length) {
+      listEl.innerHTML = '<div style="font-size:0.83rem;color:#94a3b8;padding:8px 0">No bug reports yet.</div>';
+      return;
+    }
+
+    listEl.innerHTML = reports.map(rep => {
+      const srcCls  = rep.source === 'admin' ? 'bug-source-admin' : 'bug-source-student';
+      const srcLbl  = rep.source === 'admin' ? 'Admin' : rep.reporter;
+      const stsCls  = rep.status === 'resolved' ? 'bug-status-resolved' : 'bug-status-open';
+      const stsLbl  = rep.status === 'resolved' ? '✓ Resolved' : 'Open';
+      const ts      = new Date(rep.timestamp).toLocaleString();
+      const page    = rep.page ? ` · ${rep.page}` : '';
+      const snapHtml = rep.snapshot
+        ? `<img class="bug-snap-thumb" src="${rep.snapshot}" alt="snapshot" onclick="openSnapLightbox('${rep.id}')" data-src="${rep.snapshot.replace(/'/g, "\\'")}">`
+        : '';
+      const btnLabel  = rep.status === 'resolved' ? 'Reopen' : 'Mark Resolved';
+      const btnCls    = rep.status === 'resolved' ? 'bug-resolve-btn unresolve' : 'bug-resolve-btn';
+      const nextStatus = rep.status === 'resolved' ? 'open' : 'resolved';
+
+      return `<div class="bug-row${rep.status === 'resolved' ? ' resolved' : ''}" id="bug-row-${rep.id}">
+        <div class="bug-row-top">
+          <span class="bug-source-badge ${srcCls}">${srcLbl}</span>
+          <span class="bug-source-badge ${stsCls}">${stsLbl}</span>
+          <span class="bug-meta">${ts}${page}</span>
+          <div class="bug-desc">${escHtml(rep.description)}</div>
+          ${snapHtml}
+        </div>
+        <div class="bug-row-notes">
+          <input class="bug-notes-inp" type="text" placeholder="Admin notes…"
+            id="bug-notes-${rep.id}" value="${escHtml(rep.admin_notes || '')}"
+            onblur="saveBugNotes('${rep.id}', this.value)">
+          <button class="${btnCls}" onclick="setBugStatus('${rep.id}','${nextStatus}')">${btnLabel}</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    listEl.innerHTML = `<div style="font-size:0.83rem;color:#dc2626">Could not load: ${e.message}</div>`;
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openSnapLightbox(id) {
+  const img = document.querySelector(`#bug-row-${id} .bug-snap-thumb`);
+  if (!img) return;
+  document.getElementById('snap-lightbox-img').src = img.dataset.src;
+  document.getElementById('snap-lightbox').classList.add('open');
+}
+
+async function setBugStatus(id, status) {
+  await adminFetch(`/api/admin/bug-reports/${id}`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  loadBugReports();
+}
+
+async function saveBugNotes(id, notes) {
+  await adminFetch(`/api/admin/bug-reports/${id}`, {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ admin_notes: notes })
+  });
+}
+
+// ── Admin snap capture ─────────────────────────────────────────────
+function loadAdminSnapFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    adminSnapDataUrl = e.target.result;
+    const prev = document.getElementById('bug-admin-snap-preview');
+    prev.src = adminSnapDataUrl;
+    prev.style.display = 'block';
+    document.getElementById('bug-admin-snap-zone').textContent = '';
+    document.getElementById('bug-admin-snap-zone').appendChild(prev);
+  };
+  reader.readAsDataURL(file);
+}
+function handleAdminSnapDrop(e) {
+  e.preventDefault();
+  document.getElementById('bug-admin-snap-zone').style.borderColor = '#d1d5db';
+  loadAdminSnapFile(e.dataTransfer.files[0]);
+}
+document.getElementById('bugs-body').addEventListener('paste', e => {
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+  if (item) { e.preventDefault(); loadAdminSnapFile(item.getAsFile()); }
+});
+
+async function submitAdminBug() {
+  const desc = document.getElementById('bug-admin-desc').value.trim();
+  const statusEl = document.getElementById('bug-admin-status');
+  if (!desc) { statusEl.style.color = '#dc2626'; statusEl.textContent = 'Description required.'; return; }
+  statusEl.style.color = '#94a3b8'; statusEl.textContent = 'Logging…';
+  try {
+    const r = await adminFetch('/api/admin/bug-reports', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: desc, snapshot: adminSnapDataUrl })
+    });
+    if (!r.ok) throw new Error((await r.json()).error);
+    statusEl.style.color = '#16a34a'; statusEl.textContent = '✓ Logged';
+    document.getElementById('bug-admin-desc').value = '';
+    adminSnapDataUrl = null;
+    document.getElementById('bug-admin-snap-preview').style.display = 'none';
+    document.getElementById('bug-admin-snap-preview').src = '';
+    document.getElementById('bug-admin-snap-input').value = '';
+    document.getElementById('bug-admin-snap-zone').textContent = 'Click to attach a screenshot, drag an image, or Ctrl+V to paste';
+    loadBugReports();
+    setTimeout(() => { statusEl.textContent = ''; }, 2000);
+  } catch(e) {
+    statusEl.style.color = '#dc2626'; statusEl.textContent = 'Error: ' + e.message;
+  }
 }
 
 // ── Init ───────────────────────────────────────────────────────────

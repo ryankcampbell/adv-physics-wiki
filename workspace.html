@@ -116,6 +116,39 @@
       font-size: 0.85rem; font-weight: 600; cursor: pointer; }
     .modal-btns .submit:hover { background: #1d4ed8; }
     .modal-error { font-size: 0.78rem; color: #f87171; margin-top: 10px; min-height: 18px; }
+
+    /* ── Bug report button + modal ── */
+    .bug-btn {
+      background: none; border: 1px solid #334155; color: #64748b;
+      border-radius: 5px; padding: 5px 11px; font-size: 0.75rem; cursor: pointer;
+    }
+    .bug-btn:hover { color: #f87171; border-color: #7f1d1d; }
+    #bug-modal textarea {
+      width: 100%; background: #0f172a; border: 1px solid #334155;
+      border-radius: 6px; color: #e2e8f0; font-size: 0.85rem; padding: 9px 11px;
+      resize: vertical; min-height: 90px; font-family: inherit;
+    }
+    #bug-modal textarea:focus { outline: none; border-color: #7eb8da; }
+    #bug-snap-zone {
+      margin-top: 12px; border: 2px dashed #334155; border-radius: 8px;
+      padding: 14px; text-align: center; cursor: pointer; transition: border-color 0.15s;
+      font-size: 0.78rem; color: #64748b; position: relative;
+    }
+    #bug-snap-zone:hover, #bug-snap-zone.drag-over { border-color: #7eb8da; color: #7eb8da; }
+    #bug-snap-zone.has-image { border-color: #334155; padding: 6px; }
+    #bug-snap-preview {
+      display: none; max-width: 100%; border-radius: 5px; max-height: 160px;
+      object-fit: contain;
+    }
+    #bug-snap-zone.has-image #bug-snap-preview { display: block; margin: 0 auto; }
+    #bug-snap-zone.has-image .snap-hint { display: none; }
+    #bug-snap-clear {
+      display: none; position: absolute; top: 6px; right: 8px;
+      background: #7f1d1d; color: white; border: none; border-radius: 4px;
+      font-size: 0.7rem; padding: 2px 7px; cursor: pointer;
+    }
+    #bug-snap-zone.has-image #bug-snap-clear { display: block; }
+    #bug-status { font-size: 0.78rem; margin-top: 10px; min-height: 18px; }
   </style>
 </head>
 <body>
@@ -124,6 +157,7 @@
   <div class="header-title">✦ Advanced Physics</div>
   <div class="header-name">Signed in as <span id="header-name">—</span></div>
   <a href="index.html" style="margin-left:auto;color:#7eb8da;font-size:0.78rem;font-weight:600;text-decoration:none;white-space:nowrap">Concept Navigator →</a>
+  <button class="bug-btn" onclick="openBugModal()" title="Report a bug or technical issue">⚑ Report Bug</button>
   <button class="logout-btn" onclick="logout()">Sign out</button>
 </header>
 
@@ -140,6 +174,32 @@
     </div>
   </div>
 </main>
+
+<!-- Bug report modal -->
+<div class="modal-overlay" id="bug-modal">
+  <div class="modal" style="max-width:460px">
+    <h2>⚑ Report a Bug</h2>
+    <label style="margin-top:0">Describe what happened</label>
+    <textarea id="bug-desc" placeholder="e.g. When I click Submit, the page goes blank and nothing uploads…" rows="4"></textarea>
+    <label style="margin-top:12px">Screenshot (optional)</label>
+    <div id="bug-snap-zone"
+      onclick="document.getElementById('bug-snap-input').click()"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleBugDrop(event)">
+      <span class="snap-hint">Click to upload, drag an image, or paste (Ctrl+V) a screenshot</span>
+      <img id="bug-snap-preview" src="" alt="snapshot preview">
+      <button id="bug-snap-clear" onclick="event.stopPropagation();clearBugSnap()">✕ Remove</button>
+    </div>
+    <input type="file" id="bug-snap-input" accept="image/*" style="display:none"
+      onchange="loadBugSnapFile(this.files[0])">
+    <div id="bug-status"></div>
+    <div class="modal-btns">
+      <button class="cancel" onclick="closeBugModal()">Cancel</button>
+      <button class="submit" onclick="submitBugReport()">Send Report</button>
+    </div>
+  </div>
+</div>
 
 <!-- New topic modal -->
 <div class="modal-overlay" id="new-modal">
@@ -344,11 +404,81 @@ async function startTopic() {
 
 // ── Keyboard ───────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeNewModal();
+  if (e.key === 'Escape') { closeNewModal(); closeBugModal(); }
 });
 document.getElementById('new-title').addEventListener('keydown', e => {
   if (e.key === 'Enter') startTopic();
 });
+
+// ── Bug Report ─────────────────────────────────────────────────────
+let bugSnapDataUrl = null;
+
+function openBugModal() {
+  document.getElementById('bug-desc').value = '';
+  document.getElementById('bug-status').textContent = '';
+  clearBugSnap();
+  document.getElementById('bug-modal').classList.add('open');
+  document.getElementById('bug-desc').focus();
+}
+function closeBugModal() {
+  document.getElementById('bug-modal').classList.remove('open');
+}
+
+function loadBugSnapFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = e => setBugSnap(e.target.result);
+  reader.readAsDataURL(file);
+}
+function handleBugDrop(e) {
+  e.preventDefault();
+  document.getElementById('bug-snap-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) loadBugSnapFile(file);
+}
+function setBugSnap(dataUrl) {
+  bugSnapDataUrl = dataUrl;
+  const zone = document.getElementById('bug-snap-zone');
+  document.getElementById('bug-snap-preview').src = dataUrl;
+  zone.classList.add('has-image');
+}
+function clearBugSnap() {
+  bugSnapDataUrl = null;
+  document.getElementById('bug-snap-preview').src = '';
+  document.getElementById('bug-snap-zone').classList.remove('has-image');
+  document.getElementById('bug-snap-input').value = '';
+}
+
+// Paste anywhere in the modal captures clipboard images
+document.getElementById('bug-modal').addEventListener('paste', e => {
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+  if (item) { e.preventDefault(); loadBugSnapFile(item.getAsFile()); }
+});
+
+async function submitBugReport() {
+  const desc = document.getElementById('bug-desc').value.trim();
+  const statusEl = document.getElementById('bug-status');
+  if (!desc) { statusEl.style.color = '#f87171'; statusEl.textContent = 'Please describe the issue first.'; return; }
+
+  statusEl.style.color = '#94a3b8';
+  statusEl.textContent = 'Sending…';
+
+  try {
+    const r = await fetch('/api/bug-report', {
+      method: 'POST',
+      headers: { ...authHeaders() },
+      body: JSON.stringify({ description: desc, snapshot: bugSnapDataUrl, page: 'workspace' })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Server error');
+    statusEl.style.color = '#4ade80';
+    statusEl.textContent = '✓ Report sent — thanks!';
+    setTimeout(closeBugModal, 1400);
+  } catch(e) {
+    statusEl.style.color = '#f87171';
+    statusEl.textContent = 'Could not send: ' + e.message;
+  }
+}
 
 // ── Logout ─────────────────────────────────────────────────────────
 function logout() {
