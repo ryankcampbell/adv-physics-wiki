@@ -4,19 +4,9 @@
       "module": "Special Relativity",
       "title": "Spacetime Diagrams: Drawing Relativity on Paper",
       "stage": "ic",
-      "status": "draft",
+      "status": "needs_revision",
       "revision_notes": "The Minkowski diagram and worldline derivation are solid — two fixes before publishing: (1) label the ct and x axes on your diagram, and (2) specify which inertial frame the diagram is drawn in (S or S′).",
       "created_at": "2026-03-01",
-      "updated_at": "2026-03-12"
-    },
-    "galilean_velocity_addition": {
-      "slug": "galilean_velocity_addition",
-      "title": "Galilean Velocity Addition",
-      "module": "General",
-      "stage": "ic",
-      "status": "draft",
-      "revision_notes": "",
-      "created_at": "2026-03-12",
       "updated_at": "2026-03-12"
     }
   },
@@ -29,15 +19,14 @@
       "created_at": "2026-03-02",
       "updated_at": "2026-03-06"
     },
-    "clock_synchronization": {
-      "slug": "clock_synchronization",
+    "clock_sync": {
       "title": "Clock Synchronization",
       "module": "Special Relativity",
-      "stage": "ic",
+      "stage": "at",
       "status": "draft",
-      "revision_notes": "",
       "created_at": "2026-03-12",
-      "updated_at": "2026-03-12"
+      "updated_at": "2026-03-12",
+      "revision_notes": ""
     }
   },
   "alex rodriguez": {
