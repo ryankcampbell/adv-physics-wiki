@@ -922,6 +922,64 @@ async function main() {
     assertEqual(status, 400, 'status');
   });
 
+  // ══════════════════════════════════════════════════════════════
+  // 16. DRAFT SAVE / RESTORE
+  // ══════════════════════════════════════════════════════════════
+  section('16. Draft Save / Restore');
+
+  await test('POST /api/student/draft/:slug — no token → 401', async () => {
+    const { status } = await req('POST', '/api/student/draft/test_concept', { html: '<p>hi</p>' });
+    assertEqual(status, 401, 'status');
+  });
+
+  await test('GET /api/student/draft/:slug — no token → 401', async () => {
+    const { status } = await req('GET', '/api/student/draft/test_concept');
+    assertEqual(status, 401, 'status');
+  });
+
+  await test('POST /api/student/draft/:slug — saves draft', async () => {
+    const html = '<html><body><script type="application/json" id="ic-source-data">{"title":"test"}</script></body></html>';
+    const { status } = await req('POST', '/api/student/draft/test_draft_slug', { html }, studentToken);
+    assertEqual(status, 200, 'status');
+  });
+
+  await test('GET /api/student/draft/:slug — restores own draft', async () => {
+    const { status, data } = await req('GET', '/api/student/draft/test_draft_slug', null, studentToken);
+    assertEqual(status, 200, 'status');
+    assert(typeof data === 'string' && data.includes('ic-source-data'), 'contains draft content');
+  });
+
+  await test('GET /api/student/draft/:slug — 404 for nonexistent slug', async () => {
+    const { status } = await req('GET', '/api/student/draft/no_such_slug_xyz', null, studentToken);
+    assertEqual(status, 404, 'status');
+  });
+
+  await test('GET /api/admin/draft/:studentName/:slug — no token → 401', async () => {
+    const { status } = await req('GET', `/api/admin/draft/${TEST_STUDENT}/test_draft_slug`);
+    assertEqual(status, 401, 'status');
+  });
+
+  await test('GET /api/admin/draft/:studentName/:slug — admin can read any draft', async () => {
+    const { status, data } = await req('GET', `/api/admin/draft/${TEST_STUDENT}/test_draft_slug`, null, adminToken);
+    assertEqual(status, 200, 'status');
+    assert(typeof data === 'string' && data.includes('ic-source-data'), 'admin sees draft content');
+  });
+
+  await test('GET /api/admin/draft/:studentName/:slug — 404 for missing draft', async () => {
+    const { status } = await req('GET', `/api/admin/draft/${TEST_STUDENT}/no_such_slug_xyz`, null, adminToken);
+    assertEqual(status, 404, 'status');
+  });
+
+  // Cleanup test draft file
+  function cleanupTestDraft() {
+    try {
+      const draftsDir = require('path').join(__dirname, '..', 'state', 'drafts');
+      const safeName = TEST_STUDENT.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
+      const fname = `${safeName}__test_draft_slug.html`;
+      require('fs').unlinkSync(require('path').join(draftsDir, fname));
+    } catch {}
+  }
+
   // Cleanup test questions from questions.json
   function cleanupTestQuestions() {
     try {
@@ -941,6 +999,7 @@ async function main() {
   cleanupTestWorkflow();
   cleanupTestBugs();
   cleanupTestQuestions();
+  cleanupTestDraft();
 
   // Remove test student also via API for clean server state
   await req('POST', '/api/sim/students/remove', { name: TEST_STUDENT }, adminToken).catch(() => {});

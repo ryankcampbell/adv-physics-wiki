@@ -828,6 +828,17 @@
     <img id="snap-lightbox-img" src="" alt="snapshot">
   </div>
 
+  <!-- Draft preview modal -->
+  <div id="draft-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:#1e293b;border:1px solid #334155;border-radius:10px;width:92vw;height:90vh;display:flex;flex-direction:column;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #334155;flex-shrink:0">
+        <span id="draft-modal-title" style="font-size:0.85rem;font-weight:600;color:#e2e8f0;flex:1"></span>
+        <button onclick="closeDraftModal()" style="background:#334155;color:#e2e8f0;border:none;border-radius:5px;padding:5px 12px;cursor:pointer;font-size:0.82rem">✕ Close</button>
+      </div>
+      <iframe id="draft-modal-iframe" sandbox="allow-scripts" style="flex:1;border:none;width:100%"></iframe>
+    </div>
+  </div>
+
   <!-- hidden legacy elements (kept for JS compatibility) -->
   <div id="loading" style="display:none">Loading module…</div>
   <div id="table-wrap" style="display:none"><table class="concept-table" id="concept-table"><thead><tr></tr></thead><tbody id="table-body"></tbody></table></div>
@@ -1948,6 +1959,7 @@ async function loadPipeline() {
           <td>
             ${canAdvance ? `<button class="p-advance-btn" onclick="pAdvance('${student}','${topic.slug}')">→ ${nextLabel}</button>` : ''}
             ${canSendBack ? `<button class="p-back-btn" onclick="pSendBack('${student}','${topic.slug}')">Send back</button>` : ''}
+            <button class="p-back-btn" onclick="viewStudentDraft('${student}','${topic.slug}')" style="background:#1e293b;color:#7eb8da;border-color:#334155" title="Preview last submission">View Draft</button>
             ${topic.revision_notes ? `<div style="font-size:0.7rem;color:#dc2626;margin-top:3px">📋 ${topic.revision_notes}</div>` : ''}
           </td>
         </tr>`;
@@ -1978,6 +1990,41 @@ async function pSendBack(name, slug) {
     body: JSON.stringify({ name, slug, action: 'sendback', notes })
   });
   loadPipeline();
+}
+
+async function viewStudentDraft(student, slug) {
+  const modal = document.getElementById('draft-modal');
+  const title = document.getElementById('draft-modal-title');
+  const iframe = document.getElementById('draft-modal-iframe');
+
+  title.textContent = `Draft preview — ${student} / ${slug}`;
+  iframe.src = '';
+  modal.style.display = 'flex';
+
+  try {
+    const r = await adminFetch(`/api/admin/draft/${encodeURIComponent(student)}/${encodeURIComponent(slug)}`);
+    if (r.status === 404) {
+      const blob = new Blob(['<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#94a3b8">No draft saved yet for this student / concept.</body>'], { type: 'text/html' });
+      iframe.src = URL.createObjectURL(blob);
+      return;
+    }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const html = await r.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    iframe.src = URL.createObjectURL(blob);
+  } catch (e) {
+    const blob = new Blob([`<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#fca5a5">Error loading draft: ${e.message}</body>`], { type: 'text/html' });
+    iframe.src = URL.createObjectURL(blob);
+  }
+}
+
+function closeDraftModal() {
+  const modal = document.getElementById('draft-modal');
+  const iframe = document.getElementById('draft-modal-iframe');
+  // Revoke old blob URL to free memory
+  if (iframe.src && iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
+  iframe.src = '';
+  modal.style.display = 'none';
 }
 
 // ── Bug Reports ────────────────────────────────────────────────────

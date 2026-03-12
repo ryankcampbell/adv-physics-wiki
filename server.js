@@ -1621,6 +1621,56 @@ app.patch('/api/admin/bug-reports/:id', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// ── Submitted Draft Snapshots ──────────────────────────────────────
+// Saves a copy of submitted IC/AT/HW HTML server-side so students can
+// restore their work if sent back for revision (localStorage is cleared
+// on submit). Admin can also preview any student's last submission.
+
+const DRAFTS_DIR = path.join(__dirname, 'state', 'drafts');
+fs.mkdirSync(DRAFTS_DIR, { recursive: true });
+
+function draftFilename(studentName, slug) {
+  const safeName = studentName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
+  const safeSlug = slug.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
+  return `${safeName}__${safeSlug}.html`;
+}
+
+// POST /api/student/draft/:slug — save submitted HTML snapshot
+app.post('/api/student/draft/:slug', requireStudentToken, (req, res) => {
+  const { html } = req.body;
+  if (!html || typeof html !== 'string') {
+    return res.status(400).json({ error: 'html required' });
+  }
+  if (html.length > 5 * 1024 * 1024) {
+    return res.status(400).json({ error: 'Draft too large (max 5 MB)' });
+  }
+  const slug = req.params.slug.replace(/[^a-z0-9_-]/gi, '').slice(0, 80);
+  if (!slug) return res.status(400).json({ error: 'invalid slug' });
+  const filename = draftFilename(req.studentName, slug);
+  fs.writeFileSync(path.join(DRAFTS_DIR, filename), html, 'utf8');
+  res.json({ ok: true });
+});
+
+// GET /api/student/draft/:slug — restore own submitted draft
+app.get('/api/student/draft/:slug', requireStudentToken, (req, res) => {
+  const slug = req.params.slug.replace(/[^a-z0-9_-]/gi, '').slice(0, 80);
+  const filename = draftFilename(req.studentName, slug);
+  const filepath = path.join(DRAFTS_DIR, filename);
+  if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'No saved draft found' });
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(fs.readFileSync(filepath, 'utf8'));
+});
+
+// GET /api/admin/draft/:studentName/:slug — admin preview of any student's draft
+app.get('/api/admin/draft/:studentName/:slug', requireAdmin, (req, res) => {
+  const slug = req.params.slug.replace(/[^a-z0-9_-]/gi, '').slice(0, 80);
+  const filename = draftFilename(req.params.studentName, slug);
+  const filepath = path.join(DRAFTS_DIR, filename);
+  if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'No saved draft found' });
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(fs.readFileSync(filepath, 'utf8'));
+});
+
 // ── HW Question Bank ───────────────────────────────────────────────
 const QUESTIONS_PATH = path.join(__dirname, 'state', 'questions.json');
 function readQuestions() {
