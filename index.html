@@ -797,7 +797,7 @@ async function selectNode(id) {
       studentHTML = `
         <div class="detail-section" style="margin-top:4px">
           <div class="detail-section-label">Your Progress</div>
-          <button onclick="startTopicFromNavigator('${id}', ${JSON.stringify(c.name)}, ${JSON.stringify(moduleName)})"
+          <button onclick="startTopicFromNavigator('${id}', ${JSON.stringify(c.name).replace(/"/g,'&quot;')}, ${JSON.stringify(moduleName).replace(/"/g,'&quot;')})"
             style="background:#2563eb;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:0.8rem;font-weight:600;cursor:pointer">
             + Start IC on this concept
           </button>

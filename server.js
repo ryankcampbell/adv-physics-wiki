@@ -19,7 +19,7 @@ app.use((req, res, next) => {
     "img-src 'self' data: blob:; " +
     "font-src 'self' cdnjs.cloudflare.com; " +
     "connect-src 'self'; " +        // allows fetch to our own /api/* only
-    "frame-src 'self' blob:; " +    // allows blob: URLs in iframes (admin draft preview)
+    "frame-src 'self' blob: https://ryankcampbell.github.io; " + // blob: for admin draft preview; github.io for reference IC
     "frame-ancestors 'self';"       // prevents clickjacking
   );
   next();

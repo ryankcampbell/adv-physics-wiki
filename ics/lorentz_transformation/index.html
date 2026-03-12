@@ -44,7 +44,1314 @@ p{margin-bottom:14px;color:#334155;font-size:.93rem}
 <h2>Simulation</h2>
 <div class="sim-wrap">
   <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
-  <iframe src="../../sims/lorentz.html" style="width:100%;height:100%;border:none"></iframe>
+  <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+    <meta charset=&quot;UTF-8&quot;>
+    <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+    <title>Linear Transformations &amp;amp; the Lorentz Boost</title>
+    <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+    <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+    <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+            margin: 0; padding: 15px;
+            background: #1a1a2e; color: #eee;
+        }
+        h1 { text-align: center; margin: 8px 0 4px; font-size: 22px; color: #c8d8e8; }
+        .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }
+
+        /* ---- Tabs ---- */
+        .tabs { display: flex; gap: 5px; margin-bottom: 12px; justify-content: center; }
+        .tab-btn {
+            padding: 9px 22px; border: none; background: #2a2a4a; color: #aaa;
+            cursor: pointer; border-radius: 8px 8px 0 0; font-size: 13px; transition: all 0.2s;
+        }
+        .tab-btn:hover { background: #3a3a5a; }
+        .tab-btn.active { background: #4a4a7a; color: #fff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ---- Layout ---- */
+        .main-row { display: flex; gap: 14px; max-width: 1500px; margin: 0 auto; align-items: flex-start; }
+        .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+        .canvas-wrap { flex: 1; min-width: 0; }
+        canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+
+        .panel {
+            background: #252540; padding: 12px; border-radius: 8px;
+        }
+        .panel h3 {
+            margin: 0 0 8px 0; color: #7eb8da; font-size: 13px;
+            border-bottom: 1px solid #3a3a5a; padding-bottom: 5px;
+        }
+
+        /* ---- Matrix Input ---- */
+        .matrix-outer { display: flex; align-items: center; justify-content: center; gap: 0; }
+        .bracket {
+            font-size: 52px; font-weight: 100; color: #8899aa; line-height: 1;
+            font-family: 'Times New Roman', serif; user-select: none;
+        }
+        .matrix-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px;
+            padding: 4px 8px;
+        }
+        .matrix-grid .col-label {
+            font-size: 9px; text-align: center; padding-bottom: 2px; font-weight: 600; letter-spacing: 0.5px;
+        }
+        .matrix-grid input {
+            width: 52px; height: 34px; text-align: center; font-size: 18px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #1a1a2e; border: 1px solid #3a3a5a; border-radius: 4px;
+            outline: none; transition: border-color 0.2s;
+        }
+        .matrix-grid input:focus { border-color: #7eb8da; }
+        .col1-label { color: #6ecf6e; }
+        .col2-label { color: #e07050; }
+        .mat-col1 { color: #6ecf6e; }
+        .mat-col2 { color: #e07050; }
+
+        /* ---- Preset Chips ---- */
+        .chip-group { display: flex; flex-wrap: wrap; gap: 5px; }
+        .chip {
+            padding: 5px 10px; font-size: 11px; border-radius: 14px;
+            border: 1px solid #3a3a5a; background: #2a2a4a; color: #bbb;
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .chip:hover { background: #3a3a6a; color: #fff; border-color: #7eb8da; }
+        .chip.active { background: #4a4a8a; color: #fff; border-color: #7eb8da; }
+
+        /* ---- Slider Row ---- */
+        .slider-row {
+            display: flex; align-items: center; gap: 8px; margin: 6px 0;
+        }
+        .slider-row label { font-size: 11px; color: #aab; min-width: 70px; }
+        .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }
+        .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 36px; text-align: right; font-family: monospace; }
+
+        /* ---- Info Text ---- */
+        .info-text { font-size: 11px; color: #99a; line-height: 1.5; }
+        .info-text .hl-green { color: #6ecf6e; font-weight: 600; }
+        .info-text .hl-red { color: #e07050; font-weight: 600; }
+        .info-text .hl-blue { color: #7eb8da; font-weight: 600; }
+        .info-text .hl-gold { color: #e8c050; font-weight: 600; }
+
+        /* ---- Vector Input (Tab 2) ---- */
+        .vec-outer { display: flex; align-items: center; justify-content: center; gap: 0; }
+        .vec-grid {
+            display: flex; flex-direction: column; gap: 2px; padding: 4px 6px;
+        }
+        .vec-grid input {
+            width: 48px; height: 30px; text-align: center; font-size: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            background: #1a1a2e; border: 1px solid #3a3a5a; border-radius: 4px;
+            color: #e8c050; outline: none;
+        }
+        .vec-grid input:focus { border-color: #e8c050; }
+
+        /* ---- Equation Display ---- */
+        .eq-display {
+            background: #1a1a2e; border-radius: 6px; padding: 10px;
+            font-family: 'SF Mono', monospace; font-size: 13px;
+            line-height: 1.8; text-align: center; margin-top: 8px;
+        }
+
+        /* ---- Tab 3 dual matrix ---- */
+        .dual-matrix { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        .mat-label { font-size: 13px; color: #8899aa; font-weight: 600; }
+
+        /* ---- Animate Button ---- */
+        .btn {
+            padding: 7px 16px; border: none; border-radius: 6px;
+            font-size: 12px; cursor: pointer; transition: all 0.15s;
+            background: #3a3a6a; color: #ccc;
+        }
+        .btn:hover { background: #5a5a8a; color: #fff; }
+        .btn.primary { background: #4a6a9a; color: #fff; }
+        .btn.primary:hover { background: #5a7aaa; }
+        .btn-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+        .toggle-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 11px; color: #aab; }
+        .toggle-row input[type=checkbox] { accent-color: #7eb8da; }
+
+        @media (max-width: 800px) {
+            .main-row { flex-direction: column; }
+            .sidebar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Linear Transformations &amp;amp; the Lorentz Boost</h1>
+<div class=&quot;subtitle&quot;>Matrices as geometric transformations of space</div>
+
+<div class=&quot;tabs&quot;>
+    <button class=&quot;tab-btn active&quot; onclick=&quot;switchTab(0)&quot;>1. Transformation</button>
+    <button class=&quot;tab-btn&quot; onclick=&quot;switchTab(1)&quot;>2. Matrix &amp;times; Vector</button>
+    <button class=&quot;tab-btn&quot; onclick=&quot;switchTab(2)&quot;>3. Matrix &amp;times; Matrix</button>
+    <button class=&quot;tab-btn&quot; onclick=&quot;switchTab(3)&quot;>4. Lorentz Transformation</button>
+</div>
+
+<!-- ===================== TAB 1: TRANSFORMATION ===================== -->
+<div class=&quot;tab-content active&quot; id=&quot;tab0&quot;>
+<div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+        <div class=&quot;panel&quot;>
+            <h3>Transformation Matrix</h3>
+            <div class=&quot;matrix-outer&quot;>
+                <span class=&quot;bracket&quot;>[</span>
+                <div class=&quot;matrix-grid&quot;>
+                    <div class=&quot;col-label col1-label&quot;>new x&amp;#770;</div>
+                    <div class=&quot;col-label col2-label&quot;>new y&amp;#770;</div>
+                    <input type=&quot;text&quot; id=&quot;m1a&quot; class=&quot;mat-col1&quot; value=&quot;1&quot; oninput=&quot;onMatInput(1)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m1b&quot; class=&quot;mat-col2&quot; value=&quot;0&quot; oninput=&quot;onMatInput(1)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m1c&quot; class=&quot;mat-col1&quot; value=&quot;0&quot; oninput=&quot;onMatInput(1)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m1d&quot; class=&quot;mat-col2&quot; value=&quot;1&quot; oninput=&quot;onMatInput(1)&quot;>
+                </div>
+                <span class=&quot;bracket&quot;>]</span>
+            </div>
+            <div style=&quot;text-align:center; margin-top:6px;&quot;>
+                <span class=&quot;info-text&quot;>det = <span id=&quot;detVal&quot; class=&quot;hl-blue&quot;>1.00</span></span>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Presets</h3>
+            <div class=&quot;chip-group&quot; id=&quot;presetChips1&quot;></div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Animation</h3>
+            <div class=&quot;slider-row&quot;>
+                <label>Progress</label>
+                <input type=&quot;range&quot; id=&quot;animSlider1&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.005&quot; value=&quot;1&quot;>
+                <span class=&quot;val&quot; id=&quot;animVal1&quot;>1.00</span>
+            </div>
+            <div class=&quot;btn-row&quot;>
+                <button class=&quot;btn primary&quot; id=&quot;animBtn1&quot; onclick=&quot;toggleAnim(1)&quot;>&amp;#9654; Animate</button>
+                <button class=&quot;btn&quot; onclick=&quot;resetAnim(1)&quot;>Reset</button>
+            </div>
+            <div class=&quot;toggle-row&quot; style=&quot;margin-top:8px;&quot;>
+                <input type=&quot;checkbox&quot; id=&quot;togGrid1&quot; checked><label for=&quot;togGrid1&quot;>Show transformed grid</label>
+            </div>
+            <div class=&quot;toggle-row&quot;>
+                <input type=&quot;checkbox&quot; id=&quot;togBasis1&quot; checked><label for=&quot;togBasis1&quot;>Show basis vectors</label>
+            </div>
+            <div class=&quot;toggle-row&quot;>
+                <input type=&quot;checkbox&quot; id=&quot;togUnitCircle1&quot;><label for=&quot;togUnitCircle1&quot;>Show unit circle</label>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>How It Works</h3>
+            <div class=&quot;info-text&quot;>
+                Column 1 <span class=&quot;hl-green&quot;>(green)</span> shows where the old <span class=&quot;hl-green&quot;>x&amp;#770;</span> basis vector lands.<br>
+                Column 2 <span class=&quot;hl-red&quot;>(coral)</span> shows where the old <span class=&quot;hl-red&quot;>y&amp;#770;</span> basis vector lands.<br><br>
+                The entire grid deforms because every point is a linear combination of the basis vectors.
+            </div>
+        </div>
+    </div>
+    <div class=&quot;canvas-wrap&quot;>
+        <canvas id=&quot;c1&quot;></canvas>
+    </div>
+</div>
+</div>
+
+<!-- ===================== TAB 2: MATRIX × VECTOR ===================== -->
+<div class=&quot;tab-content&quot; id=&quot;tab1&quot;>
+<div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+        <div class=&quot;panel&quot;>
+            <h3>Matrix A</h3>
+            <div class=&quot;matrix-outer&quot;>
+                <span class=&quot;bracket&quot;>[</span>
+                <div class=&quot;matrix-grid&quot;>
+                    <div class=&quot;col-label col1-label&quot;>new x&amp;#770;</div>
+                    <div class=&quot;col-label col2-label&quot;>new y&amp;#770;</div>
+                    <input type=&quot;text&quot; id=&quot;m2a&quot; class=&quot;mat-col1&quot; value=&quot;2&quot; oninput=&quot;onMatInput(2)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m2b&quot; class=&quot;mat-col2&quot; value=&quot;1&quot; oninput=&quot;onMatInput(2)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m2c&quot; class=&quot;mat-col1&quot; value=&quot;0&quot; oninput=&quot;onMatInput(2)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m2d&quot; class=&quot;mat-col2&quot; value=&quot;1&quot; oninput=&quot;onMatInput(2)&quot;>
+                </div>
+                <span class=&quot;bracket&quot;>]</span>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Input Vector x</h3>
+            <div class=&quot;vec-outer&quot;>
+                <span class=&quot;bracket&quot; style=&quot;font-size:42px;&quot;>[</span>
+                <div class=&quot;vec-grid&quot;>
+                    <input type=&quot;text&quot; id=&quot;vx2&quot; value=&quot;2&quot; oninput=&quot;onVecInput(2)&quot;>
+                    <input type=&quot;text&quot; id=&quot;vy2&quot; value=&quot;1&quot; oninput=&quot;onVecInput(2)&quot;>
+                </div>
+                <span class=&quot;bracket&quot; style=&quot;font-size:42px;&quot;>]</span>
+            </div>
+            <div class=&quot;info-text&quot; style=&quot;text-align:center; margin-top:6px;&quot;>
+                = <span id=&quot;vecDecomp2&quot; class=&quot;hl-gold&quot;>2</span> x&amp;#770; + <span id=&quot;vecDecomp2b&quot; class=&quot;hl-gold&quot;>1</span> y&amp;#770;
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Presets</h3>
+            <div class=&quot;chip-group&quot; id=&quot;presetChips2&quot;></div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Result b = Ax</h3>
+            <div class=&quot;eq-display&quot; id=&quot;eqDisplay2&quot;></div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Animation</h3>
+            <div class=&quot;slider-row&quot;>
+                <label>Progress</label>
+                <input type=&quot;range&quot; id=&quot;animSlider2&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.005&quot; value=&quot;1&quot;>
+                <span class=&quot;val&quot; id=&quot;animVal2&quot;>1.00</span>
+            </div>
+            <div class=&quot;btn-row&quot;>
+                <button class=&quot;btn primary&quot; id=&quot;animBtn2&quot; onclick=&quot;toggleAnim(2)&quot;>&amp;#9654; Animate</button>
+                <button class=&quot;btn&quot; onclick=&quot;resetAnim(2)&quot;>Reset</button>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Key Idea</h3>
+            <div class=&quot;info-text&quot;>
+                <span class=&quot;hl-gold&quot;>x</span> = 2x&amp;#770; + 1y&amp;#770; in the <em>old</em> basis.<br>
+                <span class=&quot;hl-blue&quot;>b</span> = Ax uses the <em>same</em> coefficients but with the <em>new</em> basis vectors:<br>
+                <span class=&quot;hl-blue&quot;>b</span> = 2(<span class=&quot;hl-green&quot;>new x&amp;#770;</span>) + 1(<span class=&quot;hl-red&quot;>new y&amp;#770;</span>)
+            </div>
+        </div>
+    </div>
+    <div class=&quot;canvas-wrap&quot;>
+        <canvas id=&quot;c2&quot;></canvas>
+    </div>
+</div>
+</div>
+
+<!-- ===================== TAB 3: MATRIX × MATRIX ===================== -->
+<div class=&quot;tab-content&quot; id=&quot;tab2&quot;>
+<div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+        <div class=&quot;panel&quot;>
+            <h3>Matrix B (applied second)</h3>
+            <div class=&quot;matrix-outer&quot;>
+                <span class=&quot;bracket&quot;>[</span>
+                <div class=&quot;matrix-grid&quot;>
+                    <div class=&quot;col-label col1-label&quot;>new x&amp;#770;</div>
+                    <div class=&quot;col-label col2-label&quot;>new y&amp;#770;</div>
+                    <input type=&quot;text&quot; id=&quot;m3Ba&quot; class=&quot;mat-col1&quot; value=&quot;0&quot; oninput=&quot;onMatInput(3)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m3Bb&quot; class=&quot;mat-col2&quot; value=&quot;-1&quot; oninput=&quot;onMatInput(3)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m3Bc&quot; class=&quot;mat-col1&quot; value=&quot;1&quot; oninput=&quot;onMatInput(3)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m3Bd&quot; class=&quot;mat-col2&quot; value=&quot;0&quot; oninput=&quot;onMatInput(3)&quot;>
+                </div>
+                <span class=&quot;bracket&quot;>]</span>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Matrix A (applied first)</h3>
+            <div class=&quot;matrix-outer&quot;>
+                <span class=&quot;bracket&quot;>[</span>
+                <div class=&quot;matrix-grid&quot;>
+                    <div class=&quot;col-label col1-label&quot;>new x&amp;#770;</div>
+                    <div class=&quot;col-label col2-label&quot;>new y&amp;#770;</div>
+                    <input type=&quot;text&quot; id=&quot;m3Aa&quot; class=&quot;mat-col1&quot; value=&quot;2&quot; oninput=&quot;onMatInput(3)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m3Ab&quot; class=&quot;mat-col2&quot; value=&quot;0&quot; oninput=&quot;onMatInput(3)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m3Ac&quot; class=&quot;mat-col1&quot; value=&quot;0&quot; oninput=&quot;onMatInput(3)&quot;>
+                    <input type=&quot;text&quot; id=&quot;m3Ad&quot; class=&quot;mat-col2&quot; value=&quot;1&quot; oninput=&quot;onMatInput(3)&quot;>
+                </div>
+                <span class=&quot;bracket&quot;>]</span>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Product BA =</h3>
+            <div class=&quot;eq-display&quot; id=&quot;eqDisplay3&quot;></div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Presets</h3>
+            <div class=&quot;chip-group&quot; id=&quot;presetChips3&quot;></div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Animation</h3>
+            <div class=&quot;slider-row&quot;>
+                <label>Progress</label>
+                <input type=&quot;range&quot; id=&quot;animSlider3&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.005&quot; value=&quot;1&quot;>
+                <span class=&quot;val&quot; id=&quot;animVal3&quot;>1.00</span>
+            </div>
+            <div class=&quot;btn-row&quot;>
+                <button class=&quot;btn primary&quot; id=&quot;animBtn3&quot; onclick=&quot;toggleAnim(3)&quot;>&amp;#9654; Animate</button>
+                <button class=&quot;btn&quot; onclick=&quot;resetAnim(3)&quot;>Reset</button>
+            </div>
+            <div class=&quot;toggle-row&quot; style=&quot;margin-top:8px;&quot;>
+                <input type=&quot;checkbox&quot; id=&quot;togShowA3&quot; checked><label for=&quot;togShowA3&quot;>Show A intermediate</label>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Key Idea</h3>
+            <div class=&quot;info-text&quot;>
+                Applying <strong>A</strong> first, then <strong>B</strong>, is the same as applying <strong>BA</strong> in one step. Matrix multiplication composes transformations.
+            </div>
+        </div>
+    </div>
+    <div class=&quot;canvas-wrap&quot;>
+        <canvas id=&quot;c3&quot;></canvas>
+    </div>
+</div>
+</div>
+
+<!-- ===================== TAB 4: LORENTZ BOOST ===================== -->
+<div class=&quot;tab-content&quot; id=&quot;tab3&quot;>
+<div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+        <div class=&quot;panel&quot;>
+            <h3>Velocity Parameter</h3>
+            <div style=&quot;display:flex; align-items:center; gap:8px; margin:6px 0;&quot;>
+                <label style=&quot;font-size:12px; color:#aab; white-space:nowrap;&quot;>β =</label>
+                <span class=&quot;val&quot; id=&quot;betaVal&quot; style=&quot;font-size:15px; min-width:42px; text-align:center;&quot;>0.60</span>
+            </div>
+            <div style=&quot;margin:4px 0;&quot;>
+                <input type=&quot;range&quot; id=&quot;betaSlider&quot; min=&quot;-0.99&quot; max=&quot;0.99&quot; step=&quot;0.01&quot; value=&quot;0.6&quot; style=&quot;width:100%; accent-color:#7eb8da;&quot;>
+            </div>
+            <div style=&quot;text-align:center; margin-top:6px;&quot;>
+                <span class=&quot;info-text&quot; style=&quot;font-size:12px;&quot;>γ = <span id=&quot;gammaVal&quot; class=&quot;hl-blue&quot;>1.25</span> &amp;nbsp; γβ = <span id=&quot;gammaBetaVal&quot; class=&quot;hl-blue&quot;>0.75</span></span>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3 id=&quot;lorentzLabel&quot;>Forward Lorentz Transform (Λ)</h3>
+            <div id=&quot;lorentzMatrixWrap&quot; style=&quot;display:flex; justify-content:center; margin:8px 0;&quot;>
+                <div class=&quot;matrix-outer&quot;>
+                    <span class=&quot;bracket&quot;>[</span>
+                    <div style=&quot;display:grid; grid-template-columns:1fr 1fr; gap:2px 14px; padding:4px 8px; text-align:center;&quot;>
+                        <div class=&quot;col-label&quot; style=&quot;color:#aab; font-size:8px;&quot;>t</div>
+                        <div class=&quot;col-label&quot; style=&quot;color:#aab; font-size:8px;&quot;>x</div>
+                        <span id=&quot;lm00&quot; style=&quot;font-family:monospace; font-size:16px; color:#6ecf6e;&quot;>γ</span>
+                        <span id=&quot;lm01&quot; style=&quot;font-family:monospace; font-size:16px; color:#e07050;&quot;>−γβ</span>
+                        <span id=&quot;lm10&quot; style=&quot;font-family:monospace; font-size:16px; color:#6ecf6e;&quot;>−γβ</span>
+                        <span id=&quot;lm11&quot; style=&quot;font-family:monospace; font-size:16px; color:#e07050;&quot;>γ</span>
+                    </div>
+                    <span class=&quot;bracket&quot;>]</span>
+                </div>
+            </div>
+            <div class=&quot;eq-display&quot; id=&quot;lorentzMatrixNum&quot; style=&quot;margin-top:4px;&quot;></div>
+            <div style=&quot;text-align:center; margin-top:6px;&quot;>
+                <span class=&quot;info-text&quot;>det = <span id=&quot;detVal4&quot; class=&quot;hl-blue&quot;>1.00</span></span>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Common β Values</h3>
+            <div class=&quot;chip-group&quot; id=&quot;betaChips&quot;></div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Animation</h3>
+            <div class=&quot;slider-row&quot;>
+                <label>Progress</label>
+                <input type=&quot;range&quot; id=&quot;animSlider4&quot; min=&quot;0&quot; max=&quot;1&quot; step=&quot;0.005&quot; value=&quot;1&quot;>
+                <span class=&quot;val&quot; id=&quot;animVal4&quot;>1.00</span>
+            </div>
+            <div class=&quot;btn-row&quot;>
+                <button class=&quot;btn primary&quot; id=&quot;animBtn4&quot; onclick=&quot;toggleAnim(4)&quot;>&amp;#9654; Animate</button>
+                <button class=&quot;btn&quot; onclick=&quot;resetAnim(4)&quot;>Reset</button>
+            </div>
+            <div class=&quot;toggle-row&quot; style=&quot;margin-top:8px;&quot;>
+                <input type=&quot;checkbox&quot; id=&quot;togGrid4&quot; checked><label for=&quot;togGrid4&quot;>Show transformed grid</label>
+            </div>
+            <div class=&quot;toggle-row&quot;>
+                <input type=&quot;checkbox&quot; id=&quot;togLightLine4&quot; checked><label for=&quot;togLightLine4&quot;>Show light line (45°)</label>
+            </div>
+        </div>
+
+        <div class=&quot;panel&quot;>
+            <h3>Key Idea</h3>
+            <div class=&quot;info-text&quot;>
+                The Lorentz boost squeezes both axes <em>toward</em> the 45° light line. Faster speeds (larger |β|) squeeze more.<br><br>
+                <span class=&quot;hl-green&quot;>new x̂</span> → the new spatial basis<br>
+                <span class=&quot;hl-red&quot;>new t̂</span> → the new temporal basis<br><br>
+                β &amp;gt; 0: forward transform Λ (S → S′)<br>
+                β &amp;lt; 0: inverse transform Λ⁻¹ (S′ → S)<br><br>
+                The grid shows how the primed coordinate system appears on an unprimed spacetime diagram.
+            </div>
+        </div>
+    </div>
+    <div class=&quot;canvas-wrap&quot;>
+        <canvas id=&quot;c4&quot;></canvas>
+    </div>
+</div>
+</div>
+
+<script>
+// ======================== GLOBALS ========================
+const DPR = window.devicePixelRatio || 1;
+const COL_X = '#6ecf6e';
+const COL_Y = '#e07050';
+const COL_VEC = '#e8c050';
+const COL_RES = '#50a0e8';
+const COL_GRID_OLD = 'rgba(90,140,200,0.15)';
+const COL_GRID_NEW = 'rgba(180,140,255,0.18)';
+const COL_AXIS_OLD = 'rgba(90,140,200,0.5)';
+
+const anims = {
+    1: { playing: false, t: 1, raf: null },
+    2: { playing: false, t: 1, raf: null },
+    3: { playing: false, t: 1, raf: null },
+    4: { playing: false, t: 1, raf: null },
+};
+
+let activeTab = 0;
+
+// ======================== PAN / ZOOM STATE ========================
+// Per-canvas view state: center (world coords) and zoom (pixels per unit)
+const views = {
+    c1: { cx: 0, cy: 0, zoom: 0 },
+    c2: { cx: 0, cy: 0, zoom: 0 },
+    c3: { cx: 0, cy: 0, zoom: 0 },
+    c4: { cx: 0, cy: 0, zoom: 0 },
+};
+const panState = { active: false, canvasId: null, startSx: 0, startSy: 0, startCx: 0, startCy: 0 };
+
+const selectedBasis = { c1: null, c2: null, c3: null, c4: null };
+
+function getCanvasId() { return 'c' + (activeTab + 1); }
+
+function getView(cid) {
+    const v = views[cid];
+    return v;
+}
+
+function defaultZoom(W, H) { return Math.min(W, H) / 12; }
+
+function getScale(cid, W, H) {
+    const v = views[cid];
+    return v.zoom > 0 ? v.zoom : defaultZoom(W, H);
+}
+
+// ======================== PRESETS ========================
+const PRESETS_1 = [
+    { name: 'Identity', m: [1,0,0,1] },
+    { name: 'Rotation 90°', m: [0,-1,1,0] },
+    { name: 'Rotation 45°', m: [0.707,-0.707,0.707,0.707] },
+    { name: 'Rotation 30°', m: [0.866,-0.5,0.5,0.866] },
+    { name: 'Scale ×2', m: [2,0,0,2] },
+    { name: 'Scale x×2', m: [2,0,0,1] },
+    { name: 'Shear x', m: [1,1,0,1] },
+    { name: 'Shear y', m: [1,0,1,1] },
+    { name: 'Reflect x', m: [1,0,0,-1] },
+    { name: 'Reflect y', m: [-1,0,0,1] },
+    { name: 'Reflect y=x', m: [0,1,1,0] },
+    { name: 'Squeeze', m: [2,0,0,0.5] },
+    { name: 'Boost 45°', m: () => { const b=3/5, g=1/Math.sqrt(1-b*b); return [g, b*g, b*g, g]; } },
+    { name: 'Boost 135°', m: () => { const b=3/5, g=1/Math.sqrt(1-b*b); return [g, -b*g, -b*g, g]; } },
+];
+
+function buildChips(containerId, presets, tabNum) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    presets.forEach(p => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = p.name;
+        chip.onclick = () => applyPreset(p, tabNum);
+        el.appendChild(chip);
+    });
+}
+
+function applyPreset(preset, tabNum) {
+    const m = typeof preset.m === 'function' ? preset.m() : preset.m;
+    if (tabNum === 1) setMatInputs('m1', m);
+    else if (tabNum === 2) setMatInputs('m2', m);
+    else if (tabNum === 3) setMatInputs('m3B', m);
+    onMatInput(tabNum);
+}
+
+function setMatInputs(prefix, m) {
+    document.getElementById(prefix + 'a').value = fmtN(m[0]);
+    document.getElementById(prefix + 'b').value = fmtN(m[1]);
+    document.getElementById(prefix + 'c').value = fmtN(m[2]);
+    document.getElementById(prefix + 'd').value = fmtN(m[3]);
+}
+
+function fmtN(v) {
+    if (Math.abs(v - Math.round(v)) < 0.0001) return Math.round(v).toString();
+    return v.toFixed(3);
+}
+
+function getMatValues(prefix) {
+    const p = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+    return [
+        p(document.getElementById(prefix + 'a').value),
+        p(document.getElementById(prefix + 'b').value),
+        p(document.getElementById(prefix + 'c').value),
+        p(document.getElementById(prefix + 'd').value),
+    ];
+}
+
+// ======================== CANVAS SETUP ========================
+function setupCanvas(id) {
+    const canvas = document.getElementById(id);
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const w = rect.width;
+    const h = Math.min(w * 0.75, window.innerHeight - 160);
+    canvas.style.height = h + 'px';
+    canvas.width = w * DPR;
+    canvas.height = h * DPR;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(DPR, DPR);
+    return { canvas, ctx, W: w, H: h };
+}
+
+// ======================== COORDINATE TRANSFORMS ========================
+function worldToScreen(x, y, W, H, scale, v) {
+    return { x: W / 2 + (x - v.cx) * scale, y: H / 2 - (y - v.cy) * scale };
+}
+
+function screenToWorld(sx, sy, W, H, scale, v) {
+    return { x: (sx - W / 2) / scale + v.cx, y: -(sy - H / 2) / scale + v.cy };
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function lerpMat(I, M, t) {
+    return [lerp(I[0], M[0], t), lerp(I[1], M[1], t), lerp(I[2], M[2], t), lerp(I[3], M[3], t)];
+}
+
+function matMul(A, B) {
+    return [
+        A[0]*B[0] + A[1]*B[2], A[0]*B[1] + A[1]*B[3],
+        A[2]*B[0] + A[3]*B[2], A[2]*B[1] + A[3]*B[3],
+    ];
+}
+
+function matVec(M, v) {
+    return [M[0]*v[0] + M[1]*v[1], M[2]*v[0] + M[3]*v[1]];
+}
+
+// ======================== DRAWING HELPERS ========================
+function drawGrid(ctx, W, H, scale, v, M, color, alpha) {
+    const range = Math.ceil(Math.max(W, H) / scale) + 5;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha;
+    ctx.lineWidth = 0.8;
+    for (let i = -range; i <= range; i++) {
+        ctx.beginPath();
+        for (let j = -range; j <= range; j++) {
+            const tx = M[0] * i + M[1] * j;
+            const ty = M[2] * i + M[3] * j;
+            const sp = worldToScreen(tx, ty, W, H, scale, v);
+            if (j === -range) ctx.moveTo(sp.x, sp.y); else ctx.lineTo(sp.x, sp.y);
+        }
+        ctx.stroke();
+    }
+    for (let j = -range; j <= range; j++) {
+        ctx.beginPath();
+        for (let i = -range; i <= range; i++) {
+            const tx = M[0] * i + M[1] * j;
+            const ty = M[2] * i + M[3] * j;
+            const sp = worldToScreen(tx, ty, W, H, scale, v);
+            if (i === -range) ctx.moveTo(sp.x, sp.y); else ctx.lineTo(sp.x, sp.y);
+        }
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawAxes(ctx, W, H, scale, v, M, color, lineWidth) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    const range = Math.ceil(Math.max(W, H) / scale) + 5;
+    const x1 = worldToScreen(M[0]*(-range), M[2]*(-range), W, H, scale, v);
+    const x2 = worldToScreen(M[0]*range, M[2]*range, W, H, scale, v);
+    ctx.beginPath(); ctx.moveTo(x1.x, x1.y); ctx.lineTo(x2.x, x2.y); ctx.stroke();
+    const y1 = worldToScreen(M[1]*(-range), M[3]*(-range), W, H, scale, v);
+    const y2 = worldToScreen(M[1]*range, M[3]*range, W, H, scale, v);
+    ctx.beginPath(); ctx.moveTo(y1.x, y1.y); ctx.lineTo(y2.x, y2.y); ctx.stroke();
+    ctx.restore();
+}
+
+function drawArrow(ctx, W, H, scale, v, fx, fy, tx, ty, color, lineWidth, headSize) {
+    const sp1 = worldToScreen(fx, fy, W, H, scale, v);
+    const sp2 = worldToScreen(tx, ty, W, H, scale, v);
+    const angle = Math.atan2(sp2.y - sp1.y, sp2.x - sp1.x);
+    ctx.save();
+    ctx.strokeStyle = color; ctx.fillStyle = color;
+    ctx.lineWidth = lineWidth; ctx.lineCap = 'round';
+    ctx.shadowColor = color; ctx.shadowBlur = 8;
+    ctx.beginPath(); ctx.moveTo(sp1.x, sp1.y); ctx.lineTo(sp2.x, sp2.y); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(sp2.x, sp2.y);
+    ctx.lineTo(sp2.x - headSize * Math.cos(angle - 0.35), sp2.y - headSize * Math.sin(angle - 0.35));
+    ctx.lineTo(sp2.x - headSize * Math.cos(angle + 0.35), sp2.y - headSize * Math.sin(angle + 0.35));
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+}
+
+function drawLabel(ctx, W, H, scale, v, wx, wy, text, color, offsetX, offsetY) {
+    const sp = worldToScreen(wx, wy, W, H, scale, v);
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = '600 13px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+    ctx.fillText(text, sp.x + (offsetX || 0), sp.y + (offsetY || 0));
+    ctx.restore();
+}
+
+function drawUnitCircle(ctx, W, H, scale, v, M, color) {
+    ctx.save();
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.6; ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    const steps = 120;
+    for (let i = 0; i <= steps; i++) {
+        const theta = (i / steps) * Math.PI * 2;
+        const cx = Math.cos(theta), cy = Math.sin(theta);
+        const tx = M[0]*cx + M[1]*cy, ty = M[2]*cx + M[3]*cy;
+        const sp = worldToScreen(tx, ty, W, H, scale, v);
+        if (i === 0) ctx.moveTo(sp.x, sp.y); else ctx.lineTo(sp.x, sp.y);
+    }
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawAxisLabels(ctx, W, H, scale, v) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(120,150,200,0.5)';
+    ctx.font = '9px SF Mono, monospace';
+    const rangeX = Math.ceil(W / (2 * scale)) + Math.ceil(Math.abs(v.cx)) + 2;
+    const rangeY = Math.ceil(H / (2 * scale)) + Math.ceil(Math.abs(v.cy)) + 2;
+    ctx.textAlign = 'center';
+    for (let i = -rangeX; i <= rangeX; i++) {
+        if (i === 0) continue;
+        const sp = worldToScreen(i, 0, W, H, scale, v);
+        if (sp.x > 10 &amp;&amp; sp.x < W - 10 &amp;&amp; sp.y > -20 &amp;&amp; sp.y < H + 20) {
+            // Clamp label to visible area
+            const ly = Math.max(12, Math.min(H - 4, sp.y + 14));
+            ctx.fillText(i, sp.x, ly);
+            ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(sp.x, sp.y - 3); ctx.lineTo(sp.x, sp.y + 3); ctx.stroke();
+        }
+    }
+    for (let i = -rangeY; i <= rangeY; i++) {
+        if (i === 0) continue;
+        const sp = worldToScreen(0, i, W, H, scale, v);
+        if (sp.y > 10 &amp;&amp; sp.y < H - 10 &amp;&amp; sp.x > -20 &amp;&amp; sp.x < W + 20) {
+            const lx = Math.max(20, Math.min(W - 4, sp.x - 8));
+            ctx.textAlign = 'right';
+            ctx.fillText(i, lx, sp.y + 4);
+            ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(sp.x - 3, sp.y); ctx.lineTo(sp.x + 3, sp.y); ctx.stroke();
+        }
+    }
+    ctx.restore();
+}
+
+// ======================== COMPONENT TRIANGLE ========================
+function drawComponentTriangle(ctx, W, H, scale, v, vx, vy, color) {
+    // Triangle: origin → (vx, 0) → (vx, vy) → origin
+    const o = worldToScreen(0, 0, W, H, scale, v);
+    const px = worldToScreen(vx, 0, W, H, scale, v);
+    const pt = worldToScreen(vx, vy, W, H, scale, v);
+
+    // Semi-transparent filled triangle
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(o.x, o.y); ctx.lineTo(px.x, px.y); ctx.lineTo(pt.x, pt.y);
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+
+    // Dashed outline
+    ctx.save();
+    ctx.setLineDash([5, 3]);
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(o.x, o.y); ctx.lineTo(px.x, px.y); ctx.lineTo(pt.x, pt.y); ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+
+    // Labels on legs
+    ctx.save();
+    ctx.font = '600 12px SF Mono, Fira Code, monospace';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+
+    // Horizontal leg label (x component)
+    const hMid = { x: (o.x + px.x) / 2, y: (o.y + px.y) / 2 };
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.fillText(fmtN(vx), hMid.x, hMid.y + (vy >= 0 ? 16 : -8));
+
+    // Vertical leg label (y component)
+    const vMid = { x: (px.x + pt.x) / 2, y: (px.y + pt.y) / 2 };
+    ctx.textAlign = 'left';
+    ctx.fillText(fmtN(vy), vMid.x + 8, vMid.y + 4);
+    ctx.restore();
+}
+
+// ======================== TAB 1: RENDER ========================
+function renderTab1() {
+    const { ctx, W, H } = setupCanvas('c1');
+    const v = getView('c1');
+    const scale = getScale('c1', W, H);
+    const M = getMatValues('m1');
+    const t = anims[1].t;
+    const Mt = lerpMat([1,0,0,1], M, t);
+
+    const det = M[0]*M[3] - M[1]*M[2];
+    document.getElementById('detVal').textContent = det.toFixed(2);
+
+    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);
+    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);
+    drawAxisLabels(ctx, W, H, scale, v);
+
+    if (document.getElementById('togGrid1').checked) {
+        drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 1);
+    }
+
+    if (document.getElementById('togUnitCircle1').checked) {
+        drawUnitCircle(ctx, W, H, scale, v, [1,0,0,1], 'rgba(100,140,200,0.3)');
+        drawUnitCircle(ctx, W, H, scale, v, Mt, '#b08aff');
+    }
+
+    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);
+
+    if (document.getElementById('togBasis1').checked) {
+        if (t > 0.01) {
+            drawArrow(ctx, W, H, scale, v, 0, 0, 1, 0, 'rgba(110,207,110,0.25)', 2, 8);
+            drawArrow(ctx, W, H, scale, v, 0, 0, 0, 1, 'rgba(224,112,80,0.25)', 2, 8);
+        }
+
+        // Component triangles for selected basis
+        if (selectedBasis.c1 === 'x') {
+            drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);
+        }
+        if (selectedBasis.c1 === 'y') {
+            drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);
+        }
+
+        drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 3, 10);
+        drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 3, 10);
+        drawLabel(ctx, W, H, scale, v, Mt[0], Mt[2], 'new x\u0302', COL_X, 14, -8);
+        drawLabel(ctx, W, H, scale, v, Mt[1], Mt[3], 'new y\u0302', COL_Y, 14, -8);
+    }
+}
+
+// ======================== TAB 2: RENDER ========================
+function renderTab2() {
+    const { ctx, W, H } = setupCanvas('c2');
+    const v = getView('c2');
+    const scale = getScale('c2', W, H);
+    const M = getMatValues('m2');
+    const t = anims[2].t;
+    const Mt = lerpMat([1,0,0,1], M, t);
+
+    const vx = parseFloat(document.getElementById('vx2').value) || 0;
+    const vy = parseFloat(document.getElementById('vy2').value) || 0;
+
+    document.getElementById('vecDecomp2').textContent = fmtN(vx);
+    document.getElementById('vecDecomp2b').textContent = fmtN(vy);
+
+    const b = matVec(M, [vx, vy]);
+    const bt = matVec(Mt, [vx, vy]);
+
+    const eqEl = document.getElementById('eqDisplay2');
+    eqEl.innerHTML =
+        `<span style=&quot;color:${COL_RES}&quot;>b</span> = ` +
+        `<span style=&quot;color:${COL_VEC}&quot;>${fmtN(vx)}</span>` +
+        `(<span style=&quot;color:${COL_X}&quot;>${fmtN(M[0])}, ${fmtN(M[2])}</span>) + ` +
+        `<span style=&quot;color:${COL_VEC}&quot;>${fmtN(vy)}</span>` +
+        `(<span style=&quot;color:${COL_Y}&quot;>${fmtN(M[1])}, ${fmtN(M[3])}</span>)<br>` +
+        `<span style=&quot;color:${COL_RES}&quot;>b</span> = ` +
+        `(<span style=&quot;color:${COL_RES}&quot;>${fmtN(b[0])}, ${fmtN(b[1])}</span>)`;
+
+    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);
+    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);
+    drawAxisLabels(ctx, W, H, scale, v);
+
+    drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 0.7);
+    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);
+
+    // Component triangles for selected basis
+    if (selectedBasis.c2 === 'x') {
+        drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);
+    }
+    if (selectedBasis.c2 === 'y') {
+        drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);
+    }
+
+    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 2.5, 9);
+    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 2.5, 9);
+
+    if (t > 0.5) {
+        const compAlpha = Math.min(1, (t - 0.5) * 2);
+        ctx.save(); ctx.globalAlpha = compAlpha * 0.35;
+        const cx = vx * Mt[0], cy = vx * Mt[2];
+        drawArrow(ctx, W, H, scale, v, 0, 0, cx, cy, COL_X, 2, 7);
+        const dx = vy * Mt[1], dy = vy * Mt[3];
+        drawArrow(ctx, W, H, scale, v, cx, cy, cx + dx, cy + dy, COL_Y, 2, 7);
+        ctx.restore();
+    }
+
+    if (t < 0.99) {
+        drawArrow(ctx, W, H, scale, v, 0, 0, vx, vy, 'rgba(232,192,80,0.3)', 2, 8);
+    }
+
+    drawArrow(ctx, W, H, scale, v, 0, 0, bt[0], bt[1], COL_RES, 3, 10);
+    drawLabel(ctx, W, H, scale, v, bt[0], bt[1], 'b = Ax', COL_RES, 0, -12);
+
+    if (t < 0.5) {
+        drawLabel(ctx, W, H, scale, v, vx, vy, 'x', COL_VEC, 10, -8);
+    }
+}
+
+// ======================== TAB 3: RENDER ========================
+function renderTab3() {
+    const { ctx, W, H } = setupCanvas('c3');
+    const v = getView('c3');
+    const scale = getScale('c3', W, H);
+    const A = getMatValues('m3A');
+    const B = getMatValues('m3B');
+    const BA = matMul(B, A);
+    const t = anims[3].t;
+    const showIntermediate = document.getElementById('togShowA3').checked;
+
+    const eqEl = document.getElementById('eqDisplay3');
+    eqEl.innerHTML =
+        `BA = <span style=&quot;color:${COL_RES}&quot;>[${fmtN(BA[0])}, ${fmtN(BA[1])}; ${fmtN(BA[2])}, ${fmtN(BA[3])}]</span>`;
+
+    let Mt;
+    if (t <= 0.5) {
+        Mt = lerpMat([1,0,0,1], A, t * 2);
+    } else {
+        Mt = lerpMat(A, BA, (t - 0.5) * 2);
+    }
+
+    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);
+    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);
+    drawAxisLabels(ctx, W, H, scale, v);
+
+    if (showIntermediate &amp;&amp; t > 0.5) {
+        const alpha = Math.max(0.15, 1 - (t - 0.5) * 2);
+        drawGrid(ctx, W, H, scale, v, A, 'rgba(110,207,110,0.12)', alpha);
+        drawAxes(ctx, W, H, scale, v, A, 'rgba(110,207,110,0.25)', 1);
+    }
+
+    drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 1);
+    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);
+
+    // Component triangles for selected basis
+    if (selectedBasis.c3 === 'x') {
+        drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);
+    }
+    if (selectedBasis.c3 === 'y') {
+        drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);
+    }
+
+    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 3, 10);
+    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 3, 10);
+
+    ctx.save();
+    ctx.fillStyle = '#aab';
+    ctx.font = '600 14px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
+    if (t <= 0.5) ctx.fillText('Applying A...', W / 2, H - 20);
+    else if (t < 1) ctx.fillText('Applying B...', W / 2, H - 20);
+    else { ctx.fillStyle = COL_RES; ctx.fillText('BA = combined transformation', W / 2, H - 20); }
+    ctx.restore();
+}
+
+// ======================== TAB 4: LORENTZ BOOST ========================
+function getLorentzMatrix(beta) {
+    if (Math.abs(beta) >= 1) return [Infinity, Infinity, Infinity, Infinity];
+    const g = 1 / Math.sqrt(1 - beta * beta);
+    // Visualization shows how primed axes sit in unprimed frame = Λ⁻¹
+    // Λ⁻¹ in (x,t) ordering: [[γ, γβ], [γβ, γ]]
+    // This makes axes collapse toward 45° for positive β, matching spacetime diagrams
+    return [g, beta * g, beta * g, g];
+}
+
+function drawAxisLabelsSpacetime(ctx, W, H, scale, v) {
+    // Same as drawAxisLabels but label x-axis as &quot;x&quot; and y-axis as &quot;t&quot;
+    drawAxisLabels(ctx, W, H, scale, v);
+    // Add axis name labels
+    ctx.save();
+    ctx.fillStyle = 'rgba(120,150,200,0.7)';
+    ctx.font = '600 14px -apple-system, sans-serif';
+    const right = worldToScreen(Math.floor((W/2)/scale + v.cx) - 0.3, 0, W, H, scale, v);
+    const top = worldToScreen(0, Math.floor((H/2)/scale + v.cy) - 0.3, W, H, scale, v);
+    ctx.textAlign = 'left';
+    if (right.x < W - 30) ctx.fillText('x', W - 18, right.y + 16);
+    ctx.textAlign = 'center';
+    if (top.y > 10) ctx.fillText('t', top.x - 16, 18);
+    ctx.restore();
+}
+
+function drawLightLine(ctx, W, H, scale, v) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(200,168,78,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    const range = Math.max(W, H) / scale + 10;
+    // t = x line
+    const p1 = worldToScreen(-range, -range, W, H, scale, v);
+    const p2 = worldToScreen(range, range, W, H, scale, v);
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    // t = -x line
+    const p3 = worldToScreen(-range, range, W, H, scale, v);
+    const p4 = worldToScreen(range, -range, W, H, scale, v);
+    ctx.beginPath(); ctx.moveTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.stroke();
+    ctx.restore();
+}
+
+function renderTab4() {
+    const { ctx, W, H } = setupCanvas('c4');
+    const v = getView('c4');
+    const scale = getScale('c4', W, H);
+    const beta = parseFloat(document.getElementById('betaSlider').value) || 0;
+    const absBeta = Math.abs(beta);
+    const gamma = absBeta < 1 ? 1 / Math.sqrt(1 - beta * beta) : Infinity;
+
+    // Update sidebar
+    document.getElementById('betaVal').textContent = beta.toFixed(2);
+    document.getElementById('gammaVal').textContent = gamma === Infinity ? '∞' : gamma.toFixed(4);
+    const gb = gamma === Infinity ? Infinity : gamma * Math.abs(beta);
+    document.getElementById('gammaBetaVal').textContent = gb === Infinity ? '∞' : gb.toFixed(4);
+
+    const M = getLorentzMatrix(beta);
+    const t = anims[4].t;
+    const Mt = lerpMat([1,0,0,1], M, t);
+
+    // Label &amp; symbolic matrix
+    const labelEl = document.getElementById('lorentzLabel');
+    const gStr = gamma === Infinity ? '∞' : gamma.toFixed(4);
+    const gbStr = gb === Infinity ? '∞' : gb.toFixed(4);
+    if (beta >= 0) {
+        labelEl.textContent = 'Forward Lorentz Transform (Λ)';
+        document.getElementById('lm00').textContent = 'γ';
+        document.getElementById('lm01').textContent = '−γβ';
+        document.getElementById('lm10').textContent = '−γβ';
+        document.getElementById('lm11').textContent = 'γ';
+    } else {
+        labelEl.textContent = 'Inverse Lorentz Transform (Λ⁻¹)';
+        document.getElementById('lm00').textContent = 'γ';
+        document.getElementById('lm01').textContent = 'γβ';
+        document.getElementById('lm10').textContent = 'γβ';
+        document.getElementById('lm11').textContent = 'γ';
+    }
+
+    // Numerical matrix
+    const numEl = document.getElementById('lorentzMatrixNum');
+    if (beta >= 0) {
+        numEl.innerHTML =
+            `= [<span style=&quot;color:${COL_X}&quot;>${gStr}</span>, <span style=&quot;color:${COL_Y}&quot;>−${gbStr}</span>; ` +
+            `<span style=&quot;color:${COL_X}&quot;>−${gbStr}</span>, <span style=&quot;color:${COL_Y}&quot;>${gStr}</span>]`;
+    } else {
+        numEl.innerHTML =
+            `= [<span style=&quot;color:${COL_X}&quot;>${gStr}</span>, <span style=&quot;color:${COL_Y}&quot;>${gbStr}</span>; ` +
+            `<span style=&quot;color:${COL_X}&quot;>${gbStr}</span>, <span style=&quot;color:${COL_Y}&quot;>${gStr}</span>]`;
+    }
+
+    // Det
+    const det = M[0]*M[3] - M[1]*M[2];
+    document.getElementById('detVal4').textContent = isFinite(det) ? det.toFixed(2) : '∞';
+
+    // Draw
+    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);
+    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);
+    drawAxisLabelsSpacetime(ctx, W, H, scale, v);
+
+    if (document.getElementById('togLightLine4').checked) {
+        drawLightLine(ctx, W, H, scale, v);
+    }
+
+    if (document.getElementById('togGrid4').checked) {
+        drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 1);
+    }
+
+    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);
+
+    // Component triangles
+    if (selectedBasis.c4 === 'x') {
+        drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);
+    }
+    if (selectedBasis.c4 === 'y') {
+        drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);
+    }
+
+    // Old basis (faint)
+    if (t > 0.01) {
+        drawArrow(ctx, W, H, scale, v, 0, 0, 1, 0, 'rgba(110,207,110,0.25)', 2, 8);
+        drawArrow(ctx, W, H, scale, v, 0, 0, 0, 1, 'rgba(224,112,80,0.25)', 2, 8);
+    }
+
+    // New basis
+    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 3, 10);
+    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 3, 10);
+    drawLabel(ctx, W, H, scale, v, Mt[0], Mt[2], &quot;new x\u0302&quot;, COL_X, 14, -8);
+    drawLabel(ctx, W, H, scale, v, Mt[1], Mt[3], &quot;new t\u0302&quot;, COL_Y, 14, -8);
+}
+
+// Beta chip presets
+const BETA_PRESETS = [
+    { label: '3/5', val: 3/5 },
+    { label: '4/5', val: 4/5 },
+    { label: '5/13', val: 5/13 },
+    { label: '12/13', val: 12/13 },
+    { label: '0.5', val: 0.5 },
+    { label: '0.9', val: 0.9 },
+    { label: '0.99', val: 0.99 },
+    { label: '−3/5', val: -3/5 },
+    { label: '−4/5', val: -4/5 },
+    { label: '−5/13', val: -5/13 },
+    { label: '−12/13', val: -12/13 },
+    { label: '−0.5', val: -0.5 },
+    { label: '−0.9', val: -0.9 },
+    { label: '−0.99', val: -0.99 },
+];
+
+function buildBetaChips() {
+    const el = document.getElementById('betaChips');
+    el.innerHTML = '';
+    BETA_PRESETS.forEach(p => {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.textContent = 'β = ' + p.label;
+        chip.onclick = () => {
+            document.getElementById('betaSlider').value = p.val;
+            document.getElementById('betaVal').textContent = p.val.toFixed(2);
+            render();
+        };
+        el.appendChild(chip);
+    });
+}
+
+// ======================== RENDER DISPATCH ========================
+function render() {
+    if (activeTab === 0) renderTab1();
+    else if (activeTab === 1) renderTab2();
+    else if (activeTab === 2) renderTab3();
+    else if (activeTab === 3) renderTab4();
+}
+
+// ======================== TABS ========================
+function switchTab(idx) {
+    activeTab = idx;
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+    document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+    render();
+}
+
+// ======================== INPUTS ========================
+function onMatInput(tabNum) { render(); }
+function onVecInput(tabNum) { render(); }
+
+// ======================== ANIMATION ========================
+function toggleAnim(tabNum) {
+    const a = anims[tabNum];
+    if (a.playing) {
+        a.playing = false; cancelAnimationFrame(a.raf);
+        document.getElementById('animBtn' + tabNum).innerHTML = '&amp;#9654; Animate';
+    } else {
+        a.playing = true; a.t = 0;
+        document.getElementById('animBtn' + tabNum).innerHTML = '&amp;#9724; Stop';
+        const startTime = performance.now();
+        const duration = tabNum === 3 ? 3000 : 1500;
+        function step(now) {
+            if (!a.playing) return;
+            a.t = Math.min(1, (now - startTime) / duration);
+            document.getElementById('animSlider' + tabNum).value = a.t;
+            document.getElementById('animVal' + tabNum).textContent = a.t.toFixed(2);
+            render();
+            if (a.t < 1) a.raf = requestAnimationFrame(step);
+            else { a.playing = false; document.getElementById('animBtn' + tabNum).innerHTML = '&amp;#9654; Animate'; }
+        }
+        a.raf = requestAnimationFrame(step);
+    }
+}
+
+function resetAnim(tabNum) {
+    const a = anims[tabNum];
+    a.playing = false; cancelAnimationFrame(a.raf); a.t = 0;
+    document.getElementById('animSlider' + tabNum).value = 0;
+    document.getElementById('animVal' + tabNum).textContent = '0.00';
+    document.getElementById('animBtn' + tabNum).innerHTML = '&amp;#9654; Animate';
+    render();
+}
+
+[1, 2, 3, 4].forEach(n => {
+    document.getElementById('animSlider' + n).addEventListener('input', e => {
+        anims[n].t = parseFloat(e.target.value);
+        document.getElementById('animVal' + n).textContent = anims[n].t.toFixed(2);
+        if (anims[n].playing) {
+            anims[n].playing = false; cancelAnimationFrame(anims[n].raf);
+            document.getElementById('animBtn' + n).innerHTML = '&amp;#9654; Animate';
+        }
+        render();
+    });
+});
+
+['togGrid1', 'togBasis1', 'togUnitCircle1', 'togShowA3', 'togGrid4', 'togLightLine4'].forEach(id => {
+    document.getElementById(id).addEventListener('change', render);
+});
+
+// Beta slider for tab 4
+document.getElementById('betaSlider').addEventListener('input', e => {
+    document.getElementById('betaVal').textContent = parseFloat(e.target.value).toFixed(2);
+    render();
+});
+
+// ======================== PAN / ZOOM / CLICK HANDLERS ========================
+function getActiveCanvas() { return document.getElementById(getCanvasId()); }
+
+function canvasMouseDown(e) {
+    const cid = getCanvasId();
+    const canvas = document.getElementById(cid);
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const v = getView(cid);
+    panState.active = true;
+    panState.canvasId = cid;
+    panState.startSx = sx; panState.startSy = sy;
+    panState.startCx = v.cx; panState.startCy = v.cy;
+    panState.moved = false;
+}
+
+function canvasMouseMove(e) {
+    if (!panState.active) return;
+    const cid = panState.canvasId;
+    const canvas = document.getElementById(cid);
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const W = rect.width, H = parseFloat(canvas.style.height);
+    const scale = getScale(cid, W, H);
+    const v = getView(cid);
+    const dx = sx - panState.startSx, dy = sy - panState.startSy;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) panState.moved = true;
+    v.cx = panState.startCx - dx / scale;
+    v.cy = panState.startCy + dy / scale;
+    render();
+}
+
+function canvasMouseUp(e) {
+    if (!panState.active) return;
+    const cid = panState.canvasId;
+    panState.active = false;
+    if (panState.moved) return; // was a drag, not a click
+
+    // Click: check if near a basis vector tip for decomposition
+    const canvas = document.getElementById(cid);
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const W = rect.width, H = parseFloat(canvas.style.height);
+    const scale = getScale(cid, W, H);
+    const v = getView(cid);
+
+    // Get current animated matrix for this tab
+    let Mt;
+    const tabNum = activeTab + 1;
+    const t = anims[tabNum].t;
+    if (tabNum === 1) {
+        Mt = lerpMat([1,0,0,1], getMatValues('m1'), t);
+    } else if (tabNum === 2) {
+        Mt = lerpMat([1,0,0,1], getMatValues('m2'), t);
+    } else if (tabNum === 3) {
+        const A = getMatValues('m3A'), B = getMatValues('m3B'), BA = matMul(B, A);
+        if (t <= 0.5) Mt = lerpMat([1,0,0,1], A, t * 2);
+        else Mt = lerpMat(A, BA, (t - 0.5) * 2);
+    } else {
+        const beta = parseFloat(document.getElementById('betaSlider').value) || 0;
+        Mt = lerpMat([1,0,0,1], getLorentzMatrix(beta), t);
+    }
+
+    // Check distance to basis vector tips
+    const tipX = worldToScreen(Mt[0], Mt[2], W, H, scale, v);
+    const tipY = worldToScreen(Mt[1], Mt[3], W, H, scale, v);
+    const distX = Math.sqrt((sx - tipX.x) ** 2 + (sy - tipX.y) ** 2);
+    const distY = Math.sqrt((sx - tipY.x) ** 2 + (sy - tipY.y) ** 2);
+
+    // Also check midpoints of the vectors (more forgiving)
+    const midX = worldToScreen(Mt[0]/2, Mt[2]/2, W, H, scale, v);
+    const midY = worldToScreen(Mt[1]/2, Mt[3]/2, W, H, scale, v);
+    const distMidX = Math.sqrt((sx - midX.x) ** 2 + (sy - midX.y) ** 2);
+    const distMidY = Math.sqrt((sx - midY.x) ** 2 + (sy - midY.y) ** 2);
+
+    const threshold = 25;
+    const nearX = Math.min(distX, distMidX) < threshold;
+    const nearY = Math.min(distY, distMidY) < threshold;
+
+    if (nearX &amp;&amp; (!nearY || Math.min(distX, distMidX) <= Math.min(distY, distMidY))) {
+        selectedBasis[cid] = selectedBasis[cid] === 'x' ? null : 'x';
+    } else if (nearY) {
+        selectedBasis[cid] = selectedBasis[cid] === 'y' ? null : 'y';
+    } else {
+        selectedBasis[cid] = null;
+    }
+    render();
+}
+
+function canvasWheel(e) {
+    e.preventDefault();
+    const cid = getCanvasId();
+    const canvas = document.getElementById(cid);
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
+    const W = rect.width, H = parseFloat(canvas.style.height);
+    const v = getView(cid);
+    const oldScale = getScale(cid, W, H);
+
+    // Zoom toward mouse position
+    const worldBefore = screenToWorld(sx, sy, W, H, oldScale, v);
+
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    const newScale = Math.max(10, Math.min(oldScale * factor, 2000));
+    v.zoom = newScale;
+
+    const worldAfter = screenToWorld(sx, sy, W, H, newScale, v);
+    v.cx -= (worldAfter.x - worldBefore.x);
+    v.cy -= (worldAfter.y - worldBefore.y);
+
+    render();
+}
+
+// Attach to all canvases
+['c1', 'c2', 'c3', 'c4'].forEach(id => {
+    const c = document.getElementById(id);
+    c.addEventListener('mousedown', canvasMouseDown);
+    c.addEventListener('wheel', canvasWheel, { passive: false });
+});
+document.addEventListener('mousemove', canvasMouseMove);
+document.addEventListener('mouseup', canvasMouseUp);
+
+// ======================== INIT ========================
+function init() {
+    buildChips('presetChips1', PRESETS_1, 1);
+    buildChips('presetChips2', PRESETS_1, 2);
+    buildChips('presetChips3', PRESETS_1, 3);
+    buildBetaChips();
+    render();
+}
+
+window.addEventListener('resize', render);
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
+" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
   <div class="sim-caption" id="sim-cap"></div>
 </div>
@@ -93,6 +1400,6 @@ setMath('anchor',"The Lorentz transformation is the mathematical engine of the t
   bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='\u2713 Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='\uD83D\uDCCB Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
 })();
 </script>
-<script type="application/json" id="ic-source-data">{"f-author":"Sadie Park","f-title":"The Lorentz Transformation as a Matrix: Rotating Through Spacetime","f-rq":"What does the Lorentz transformation actually transform \u2014 and why is it fundamentally different from a Galilean boost, even though it reduces to one at low speeds?","f-expl":"Start with what we already know. In Newtonian mechanics, when frame $S'$ moves at constant velocity $v$ along the $x$-axis relative to frame $S$, the Galilean transformation tells us: $x' = x - vt$ and, crucially, $t' = t$. Time is the same for every observer. Space transforms, but time is left completely untouched \u2014 it is a universal background parameter that ticks identically for everyone.\n\nSpecial relativity dismantles that picture. The two postulates \u2014 that the laws of physics are the same in all inertial frames, and that the speed of light $c$ is constant for all observers \u2014 force us to abandon absolute simultaneity. If the same light pulse must travel at $c$ as measured by both $S$ and $S'$, then the transformation connecting them cannot leave time alone. Space and time must mix.\n\nThe result is the Lorentz transformation. Writing coordinates as a four-vector $(ct,\\, x)$ \u2014 we use $ct$ so both components carry units of length \u2014 the transformation is a matrix multiplication:\n$$\\begin{pmatrix} ct' \\\\ x' \\end{pmatrix} = \\begin{pmatrix} \\gamma & -\\gamma\\beta \\\\ -\\gamma\\beta & \\gamma \\end{pmatrix} \\begin{pmatrix} ct \\\\ x \\end{pmatrix}$$\nwhere $\\beta = v\/c$ and $\\gamma = 1\/\\!\\sqrt{1 - \\beta^2}$. Both rows involve $\\gamma$ and $\\gamma\\beta$: the new time $ct'$ depends on the old spatial coordinate $x$, and the new position $x'$ depends on the old time $ct$. This is the mixing that the Galilean transformation never had.\n\nThere is a deep geometric reason this works. The Lorentz transformation is a hyperbolic rotation of spacetime: instead of rotating by an ordinary angle $\\theta$, it rotates by rapidity $\\varphi = \\tanh^{-1}(\\beta)$. Ordinary rotations preserve Euclidean distance. Lorentz boosts preserve the spacetime interval:\n$$\\Delta s^2 = -(c\\,\\Delta t)^2 + \\Delta x^2 = -(c\\,\\Delta t')^2 + \\Delta x'^2$$\nThe minus sign on the time term makes the geometry pseudo-Euclidean (Minkowskian). Because $\\Delta s^2$ is the same for all inertial observers, it encodes what is absolute: if two events are causally connected ($\\Delta s^2 < 0$, time-like separation), every frame agrees on their time-ordering.\n\nFinally, when $\\beta \\to 0$: $\\gamma \\to 1$ and $\\gamma\\beta \\to 0$. The matrix approaches the identity for the time row ($ct' \\approx ct$) and gives $x' \\approx x - vt$ for the space row \u2014 the Galilean transformation exactly. The Galilean boost is the Lorentz transformation in the regime where corrections of order $\\beta^2$ are negligible.","f-sim-cap":"Enter an event\u2019s $(ct, x)$ coordinates in frame S and a velocity $\\beta$. The transformation is computed step by step, showing each matrix element. Verify that $\\Delta s^2$ is the same in both frames.","f-lc1t":"\u03b2 = 0 (identity \u2014 zero relative velocity)","f-lc1e":"When \u03b2 = 0, \u03b3 = 1 and \u03b3\u03b2 = 0, so the matrix becomes the 2\u00d72 identity. Output equals input: ct' = ct, x' = x. If S' is not moving relative to S, the two frames are the same frame and every event must have identical coordinates in both.","f-lc1o":"Setting \u03b2 = 0 in the simulation confirms the output matches the input exactly. \u2713","f-lc2t":"Spacetime interval preservation at \u03b2 = 3\/5","f-lc2e":"The Lorentz transformation must preserve \u0394s\u00b2 = \u2212(ct)\u00b2 + x\u00b2 for any event. For (ct = 5, x = 4): \u0394s\u00b2 = \u221225 + 16 = \u22129 in frame S. After transformation, the same event should give \u0394s\u00b2 = \u22129 in frame S'.","f-lc2o":"Computed ct' = 3.25, x' = 1.25. In S': \u0394s\u00b2 = \u2212(3.25)\u00b2 + (1.25)\u00b2 = \u221210.5625 + 1.5625 = \u22129. Interval preserved. \u2713","f-scs":"Event: (ct = 5, x = 4), \u03b2 = 3\/5, \u03b3 = 5\/4.","f-scp":"$$ct' = \\gamma(ct - \\beta x) = \\tfrac{5}{4}\\!\\left(5 - \\tfrac{3}{5}\\cdot 4\\right) = \\tfrac{5}{4}(2.6) = 3.25$$\n$$x' = \\gamma(x - \\beta\\,ct) = \\tfrac{5}{4}\\!\\left(4 - \\tfrac{3}{5}\\cdot 5\\right) = \\tfrac{5}{4}(1) = 1.25$$","f-scr":"(ct', x') = (3.25, 1.25). Verified by hand against the matrix formula and confirmed with the simulation. \u2713","f-anchor":"The Lorentz transformation is the mathematical engine of the twin paradox resolution: it is the tool applied at each leg of the traveling twin\u2019s journey to convert between the rocket frame and Earth frame, and the asymmetry in proper time falls directly out of those calculations. Time dilation follows from the $ct$-row of the matrix evaluated at $\\Delta x' = 0$ (giving $\\Delta t = \\gamma\\,\\Delta\\tau$), and length contraction follows from the $x$-row evaluated at $\\Delta t' = 0$. Every quantitative result in special relativity \u2014 from the relativistic Doppler shift to the energy-momentum relation \u2014 ultimately traces back to applying this matrix.","__cits":[{"t":"A. Rodriguez \u2014 Galilean Velocity Addition and the Problem with Light","u":"..\/..\/sims\/sr.html","p":"We used Rodriguez\u2019s result that Galilean addition breaks down for light to motivate why the transformation law for coordinates must also change \u2014 the Galilean boost is the direct coordinate analogue of Galilean velocity addition. If the velocity rule fails, the coordinate rule must fail too."},{"t":"Jimmy Chen \u2014 Spacetime Diagrams: Drawing Relativity on Paper","u":"..\/spacetime_diagrams\/index.html","p":"The spacetime diagram gave us the geometric picture of what the Lorentz transformation does: it tilts the coordinate axes, which is exactly the hyperbolic rotation interpretation we use in our explainer. Without the diagram it would have been harder to see why the transformation mixes space and time."}]}</script>
+<script type="application/json" id="ic-source-data">{"f-author":"Sadie Park","f-title":"The Lorentz Transformation as a Matrix: Rotating Through Spacetime","f-rq":"What does the Lorentz transformation actually transform — and why is it fundamentally different from a Galilean boost, even though it reduces to one at low speeds?","f-expl":"Start with what we already know. In Newtonian mechanics, when frame $S'$ moves at constant velocity $v$ along the $x$-axis relative to frame $S$, the Galilean transformation tells us: $x' = x - vt$ and, crucially, $t' = t$. Time is the same for every observer. Space transforms, but time is left completely untouched — it is a universal background parameter that ticks identically for everyone.\n\nSpecial relativity dismantles that picture. The two postulates — that the laws of physics are the same in all inertial frames, and that the speed of light $c$ is constant for all observers — force us to abandon absolute simultaneity. If the same light pulse must travel at $c$ as measured by both $S$ and $S'$, then the transformation connecting them cannot leave time alone. Space and time must mix.\n\nThe result is the Lorentz transformation. Writing coordinates as a four-vector $(ct,\\, x)$ — we use $ct$ so both components carry units of length — the transformation is a matrix multiplication:\n$\\begin{pmatrix} ct' \\\\ x' \\end{pmatrix} = \\begin{pmatrix} \\gamma & -\\gamma\\beta \\\\ -\\gamma\\beta & \\gamma \\end{pmatrix} \\begin{pmatrix} ct \\\\ x \\end{pmatrix}$\nwhere $\\beta = v/c$ and $\\gamma = 1/\\!\\sqrt{1 - \\beta^2}$. Both rows involve $\\gamma$ and $\\gamma\\beta$: the new time $ct'$ depends on the old spatial coordinate $x$, and the new position $x'$ depends on the old time $ct$. This is the mixing that the Galilean transformation never had.\n\nThere is a deep geometric reason this works. The Lorentz transformation is a hyperbolic rotation of spacetime: instead of rotating by an ordinary angle $\\theta$, it rotates by rapidity $\\varphi = \\tanh^{-1}(\\beta)$. Ordinary rotations preserve Euclidean distance. Lorentz boosts preserve the spacetime interval:\n$\\Delta s^2 = -(c\\,\\Delta t)^2 + \\Delta x^2 = -(c\\,\\Delta t')^2 + \\Delta x'^2$\nThe minus sign on the time term makes the geometry pseudo-Euclidean (Minkowskian). Because $\\Delta s^2$ is the same for all inertial observers, it encodes what is absolute: if two events are causally connected ($\\Delta s^2 < 0$, time-like separation), every frame agrees on their time-ordering.\n\nFinally, when $\\beta \\to 0$: $\\gamma \\to 1$ and $\\gamma\\beta \\to 0$. The matrix approaches the identity for the time row ($ct' \\approx ct$) and gives $x' \\approx x - vt$ for the space row — the Galilean transformation exactly. The Galilean boost is the Lorentz transformation in the regime where corrections of order $\\beta^2$ are negligible.","f-sim-cap":"Enter an event’s $(ct, x)$ coordinates in frame S and a velocity $\\beta$. The transformation is computed step by step, showing each matrix element. Verify that $\\Delta s^2$ is the same in both frames.","f-lc1t":"β = 0 (identity — zero relative velocity)","f-lc1e":"When β = 0, γ = 1 and γβ = 0, so the matrix becomes the 2×2 identity. Output equals input: ct' = ct, x' = x. If S' is not moving relative to S, the two frames are the same frame and every event must have identical coordinates in both.","f-lc1o":"Setting β = 0 in the simulation confirms the output matches the input exactly. ✓","f-lc2t":"Spacetime interval preservation at β = 3/5","f-lc2e":"The Lorentz transformation must preserve Δs² = −(ct)² + x² for any event. For (ct = 5, x = 4): Δs² = −25 + 16 = −9 in frame S. After transformation, the same event should give Δs² = −9 in frame S'.","f-lc2o":"Computed ct' = 3.25, x' = 1.25. In S': Δs² = −(3.25)² + (1.25)² = −10.5625 + 1.5625 = −9. Interval preserved. ✓","f-scs":"Event: (ct = 5, x = 4), β = 3/5, γ = 5/4.","f-scp":"$ct' = \\gamma(ct - \\beta x) = \\tfrac{5}{4}\\!\\left(5 - \\tfrac{3}{5}\\cdot 4\\right) = \\tfrac{5}{4}(2.6) = 3.25$\n$x' = \\gamma(x - \\beta\\,ct) = \\tfrac{5}{4}\\!\\left(4 - \\tfrac{3}{5}\\cdot 5\\right) = \\tfrac{5}{4}(1) = 1.25$","f-scr":"(ct', x') = (3.25, 1.25). Verified by hand against the matrix formula and confirmed with the simulation. ✓","f-anchor":"The Lorentz transformation is the mathematical engine of the twin paradox resolution: it is the tool applied at each leg of the traveling twin’s journey to convert between the rocket frame and Earth frame, and the asymmetry in proper time falls directly out of those calculations. Time dilation follows from the $ct$-row of the matrix evaluated at $\\Delta x' = 0$ (giving $\\Delta t = \\gamma\\,\\Delta\\tau$), and length contraction follows from the $x$-row evaluated at $\\Delta t' = 0$. Every quantitative result in special relativity — from the relativistic Doppler shift to the energy-momentum relation — ultimately traces back to applying this matrix.","__cits":[{"t":"A. Rodriguez — Galilean Velocity Addition and the Problem with Light","u":"../../sims/sr.html","p":"We used Rodriguez’s result that Galilean addition breaks down for light to motivate why the transformation law for coordinates must also change — the Galilean boost is the direct coordinate analogue of Galilean velocity addition. If the velocity rule fails, the coordinate rule must fail too."},{"t":"Jimmy Chen — Spacetime Diagrams: Drawing Relativity on Paper","u":"../spacetime_diagrams/index.html","p":"The spacetime diagram gave us the geometric picture of what the Lorentz transformation does: it tilts the coordinate axes, which is exactly the hyperbolic rotation interpretation we use in our explainer. Without the diagram it would have been harder to see why the transformation mixes space and time."}],"__sim_html":"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Linear Transformations &amp; the Lorentz Boost</title>\n    <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css\">\n    <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js\"></script>\n    <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js\"></script>\n    <style>\n        * { box-sizing: border-box; }\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n            margin: 0; padding: 15px;\n            background: #1a1a2e; color: #eee;\n        }\n        h1 { text-align: center; margin: 8px 0 4px; font-size: 22px; color: #c8d8e8; }\n        .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }\n\n        /* ---- Tabs ---- */\n        .tabs { display: flex; gap: 5px; margin-bottom: 12px; justify-content: center; }\n        .tab-btn {\n            padding: 9px 22px; border: none; background: #2a2a4a; color: #aaa;\n            cursor: pointer; border-radius: 8px 8px 0 0; font-size: 13px; transition: all 0.2s;\n        }\n        .tab-btn:hover { background: #3a3a5a; }\n        .tab-btn.active { background: #4a4a7a; color: #fff; }\n        .tab-content { display: none; }\n        .tab-content.active { display: block; }\n\n        /* ---- Layout ---- */\n        .main-row { display: flex; gap: 14px; max-width: 1500px; margin: 0 auto; align-items: flex-start; }\n        .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }\n        .canvas-wrap { flex: 1; min-width: 0; }\n        canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; cursor: grab; }\n        canvas:active { cursor: grabbing; }\n\n        .panel {\n            background: #252540; padding: 12px; border-radius: 8px;\n        }\n        .panel h3 {\n            margin: 0 0 8px 0; color: #7eb8da; font-size: 13px;\n            border-bottom: 1px solid #3a3a5a; padding-bottom: 5px;\n        }\n\n        /* ---- Matrix Input ---- */\n        .matrix-outer { display: flex; align-items: center; justify-content: center; gap: 0; }\n        .bracket {\n            font-size: 52px; font-weight: 100; color: #8899aa; line-height: 1;\n            font-family: 'Times New Roman', serif; user-select: none;\n        }\n        .matrix-grid {\n            display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px;\n            padding: 4px 8px;\n        }\n        .matrix-grid .col-label {\n            font-size: 9px; text-align: center; padding-bottom: 2px; font-weight: 600; letter-spacing: 0.5px;\n        }\n        .matrix-grid input {\n            width: 52px; height: 34px; text-align: center; font-size: 18px;\n            font-family: 'SF Mono', 'Fira Code', monospace;\n            background: #1a1a2e; border: 1px solid #3a3a5a; border-radius: 4px;\n            outline: none; transition: border-color 0.2s;\n        }\n        .matrix-grid input:focus { border-color: #7eb8da; }\n        .col1-label { color: #6ecf6e; }\n        .col2-label { color: #e07050; }\n        .mat-col1 { color: #6ecf6e; }\n        .mat-col2 { color: #e07050; }\n\n        /* ---- Preset Chips ---- */\n        .chip-group { display: flex; flex-wrap: wrap; gap: 5px; }\n        .chip {\n            padding: 5px 10px; font-size: 11px; border-radius: 14px;\n            border: 1px solid #3a3a5a; background: #2a2a4a; color: #bbb;\n            cursor: pointer; transition: all 0.15s; white-space: nowrap;\n        }\n        .chip:hover { background: #3a3a6a; color: #fff; border-color: #7eb8da; }\n        .chip.active { background: #4a4a8a; color: #fff; border-color: #7eb8da; }\n\n        /* ---- Slider Row ---- */\n        .slider-row {\n            display: flex; align-items: center; gap: 8px; margin: 6px 0;\n        }\n        .slider-row label { font-size: 11px; color: #aab; min-width: 70px; }\n        .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }\n        .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 36px; text-align: right; font-family: monospace; }\n\n        /* ---- Info Text ---- */\n        .info-text { font-size: 11px; color: #99a; line-height: 1.5; }\n        .info-text .hl-green { color: #6ecf6e; font-weight: 600; }\n        .info-text .hl-red { color: #e07050; font-weight: 600; }\n        .info-text .hl-blue { color: #7eb8da; font-weight: 600; }\n        .info-text .hl-gold { color: #e8c050; font-weight: 600; }\n\n        /* ---- Vector Input (Tab 2) ---- */\n        .vec-outer { display: flex; align-items: center; justify-content: center; gap: 0; }\n        .vec-grid {\n            display: flex; flex-direction: column; gap: 2px; padding: 4px 6px;\n        }\n        .vec-grid input {\n            width: 48px; height: 30px; text-align: center; font-size: 16px;\n            font-family: 'SF Mono', 'Fira Code', monospace;\n            background: #1a1a2e; border: 1px solid #3a3a5a; border-radius: 4px;\n            color: #e8c050; outline: none;\n        }\n        .vec-grid input:focus { border-color: #e8c050; }\n\n        /* ---- Equation Display ---- */\n        .eq-display {\n            background: #1a1a2e; border-radius: 6px; padding: 10px;\n            font-family: 'SF Mono', monospace; font-size: 13px;\n            line-height: 1.8; text-align: center; margin-top: 8px;\n        }\n\n        /* ---- Tab 3 dual matrix ---- */\n        .dual-matrix { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }\n        .mat-label { font-size: 13px; color: #8899aa; font-weight: 600; }\n\n        /* ---- Animate Button ---- */\n        .btn {\n            padding: 7px 16px; border: none; border-radius: 6px;\n            font-size: 12px; cursor: pointer; transition: all 0.15s;\n            background: #3a3a6a; color: #ccc;\n        }\n        .btn:hover { background: #5a5a8a; color: #fff; }\n        .btn.primary { background: #4a6a9a; color: #fff; }\n        .btn.primary:hover { background: #5a7aaa; }\n        .btn-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }\n\n        .toggle-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; font-size: 11px; color: #aab; }\n        .toggle-row input[type=checkbox] { accent-color: #7eb8da; }\n\n        @media (max-width: 800px) {\n            .main-row { flex-direction: column; }\n            .sidebar { width: 100%; }\n        }\n    </style>\n</head>\n<body>\n\n<h1>Linear Transformations &amp; the Lorentz Boost</h1>\n<div class=\"subtitle\">Matrices as geometric transformations of space</div>\n\n<div class=\"tabs\">\n    <button class=\"tab-btn active\" onclick=\"switchTab(0)\">1. Transformation</button>\n    <button class=\"tab-btn\" onclick=\"switchTab(1)\">2. Matrix &times; Vector</button>\n    <button class=\"tab-btn\" onclick=\"switchTab(2)\">3. Matrix &times; Matrix</button>\n    <button class=\"tab-btn\" onclick=\"switchTab(3)\">4. Lorentz Transformation</button>\n</div>\n\n<!-- ===================== TAB 1: TRANSFORMATION ===================== -->\n<div class=\"tab-content active\" id=\"tab0\">\n<div class=\"main-row\">\n    <div class=\"sidebar\">\n        <div class=\"panel\">\n            <h3>Transformation Matrix</h3>\n            <div class=\"matrix-outer\">\n                <span class=\"bracket\">[</span>\n                <div class=\"matrix-grid\">\n                    <div class=\"col-label col1-label\">new x&#770;</div>\n                    <div class=\"col-label col2-label\">new y&#770;</div>\n                    <input type=\"text\" id=\"m1a\" class=\"mat-col1\" value=\"1\" oninput=\"onMatInput(1)\">\n                    <input type=\"text\" id=\"m1b\" class=\"mat-col2\" value=\"0\" oninput=\"onMatInput(1)\">\n                    <input type=\"text\" id=\"m1c\" class=\"mat-col1\" value=\"0\" oninput=\"onMatInput(1)\">\n                    <input type=\"text\" id=\"m1d\" class=\"mat-col2\" value=\"1\" oninput=\"onMatInput(1)\">\n                </div>\n                <span class=\"bracket\">]</span>\n            </div>\n            <div style=\"text-align:center; margin-top:6px;\">\n                <span class=\"info-text\">det = <span id=\"detVal\" class=\"hl-blue\">1.00</span></span>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Presets</h3>\n            <div class=\"chip-group\" id=\"presetChips1\"></div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Animation</h3>\n            <div class=\"slider-row\">\n                <label>Progress</label>\n                <input type=\"range\" id=\"animSlider1\" min=\"0\" max=\"1\" step=\"0.005\" value=\"1\">\n                <span class=\"val\" id=\"animVal1\">1.00</span>\n            </div>\n            <div class=\"btn-row\">\n                <button class=\"btn primary\" id=\"animBtn1\" onclick=\"toggleAnim(1)\">&#9654; Animate</button>\n                <button class=\"btn\" onclick=\"resetAnim(1)\">Reset</button>\n            </div>\n            <div class=\"toggle-row\" style=\"margin-top:8px;\">\n                <input type=\"checkbox\" id=\"togGrid1\" checked><label for=\"togGrid1\">Show transformed grid</label>\n            </div>\n            <div class=\"toggle-row\">\n                <input type=\"checkbox\" id=\"togBasis1\" checked><label for=\"togBasis1\">Show basis vectors</label>\n            </div>\n            <div class=\"toggle-row\">\n                <input type=\"checkbox\" id=\"togUnitCircle1\"><label for=\"togUnitCircle1\">Show unit circle</label>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>How It Works</h3>\n            <div class=\"info-text\">\n                Column 1 <span class=\"hl-green\">(green)</span> shows where the old <span class=\"hl-green\">x&#770;</span> basis vector lands.<br>\n                Column 2 <span class=\"hl-red\">(coral)</span> shows where the old <span class=\"hl-red\">y&#770;</span> basis vector lands.<br><br>\n                The entire grid deforms because every point is a linear combination of the basis vectors.\n            </div>\n        </div>\n    </div>\n    <div class=\"canvas-wrap\">\n        <canvas id=\"c1\"></canvas>\n    </div>\n</div>\n</div>\n\n<!-- ===================== TAB 2: MATRIX × VECTOR ===================== -->\n<div class=\"tab-content\" id=\"tab1\">\n<div class=\"main-row\">\n    <div class=\"sidebar\">\n        <div class=\"panel\">\n            <h3>Matrix A</h3>\n            <div class=\"matrix-outer\">\n                <span class=\"bracket\">[</span>\n                <div class=\"matrix-grid\">\n                    <div class=\"col-label col1-label\">new x&#770;</div>\n                    <div class=\"col-label col2-label\">new y&#770;</div>\n                    <input type=\"text\" id=\"m2a\" class=\"mat-col1\" value=\"2\" oninput=\"onMatInput(2)\">\n                    <input type=\"text\" id=\"m2b\" class=\"mat-col2\" value=\"1\" oninput=\"onMatInput(2)\">\n                    <input type=\"text\" id=\"m2c\" class=\"mat-col1\" value=\"0\" oninput=\"onMatInput(2)\">\n                    <input type=\"text\" id=\"m2d\" class=\"mat-col2\" value=\"1\" oninput=\"onMatInput(2)\">\n                </div>\n                <span class=\"bracket\">]</span>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Input Vector x</h3>\n            <div class=\"vec-outer\">\n                <span class=\"bracket\" style=\"font-size:42px;\">[</span>\n                <div class=\"vec-grid\">\n                    <input type=\"text\" id=\"vx2\" value=\"2\" oninput=\"onVecInput(2)\">\n                    <input type=\"text\" id=\"vy2\" value=\"1\" oninput=\"onVecInput(2)\">\n                </div>\n                <span class=\"bracket\" style=\"font-size:42px;\">]</span>\n            </div>\n            <div class=\"info-text\" style=\"text-align:center; margin-top:6px;\">\n                = <span id=\"vecDecomp2\" class=\"hl-gold\">2</span> x&#770; + <span id=\"vecDecomp2b\" class=\"hl-gold\">1</span> y&#770;\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Presets</h3>\n            <div class=\"chip-group\" id=\"presetChips2\"></div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Result b = Ax</h3>\n            <div class=\"eq-display\" id=\"eqDisplay2\"></div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Animation</h3>\n            <div class=\"slider-row\">\n                <label>Progress</label>\n                <input type=\"range\" id=\"animSlider2\" min=\"0\" max=\"1\" step=\"0.005\" value=\"1\">\n                <span class=\"val\" id=\"animVal2\">1.00</span>\n            </div>\n            <div class=\"btn-row\">\n                <button class=\"btn primary\" id=\"animBtn2\" onclick=\"toggleAnim(2)\">&#9654; Animate</button>\n                <button class=\"btn\" onclick=\"resetAnim(2)\">Reset</button>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Key Idea</h3>\n            <div class=\"info-text\">\n                <span class=\"hl-gold\">x</span> = 2x&#770; + 1y&#770; in the <em>old</em> basis.<br>\n                <span class=\"hl-blue\">b</span> = Ax uses the <em>same</em> coefficients but with the <em>new</em> basis vectors:<br>\n                <span class=\"hl-blue\">b</span> = 2(<span class=\"hl-green\">new x&#770;</span>) + 1(<span class=\"hl-red\">new y&#770;</span>)\n            </div>\n        </div>\n    </div>\n    <div class=\"canvas-wrap\">\n        <canvas id=\"c2\"></canvas>\n    </div>\n</div>\n</div>\n\n<!-- ===================== TAB 3: MATRIX × MATRIX ===================== -->\n<div class=\"tab-content\" id=\"tab2\">\n<div class=\"main-row\">\n    <div class=\"sidebar\">\n        <div class=\"panel\">\n            <h3>Matrix B (applied second)</h3>\n            <div class=\"matrix-outer\">\n                <span class=\"bracket\">[</span>\n                <div class=\"matrix-grid\">\n                    <div class=\"col-label col1-label\">new x&#770;</div>\n                    <div class=\"col-label col2-label\">new y&#770;</div>\n                    <input type=\"text\" id=\"m3Ba\" class=\"mat-col1\" value=\"0\" oninput=\"onMatInput(3)\">\n                    <input type=\"text\" id=\"m3Bb\" class=\"mat-col2\" value=\"-1\" oninput=\"onMatInput(3)\">\n                    <input type=\"text\" id=\"m3Bc\" class=\"mat-col1\" value=\"1\" oninput=\"onMatInput(3)\">\n                    <input type=\"text\" id=\"m3Bd\" class=\"mat-col2\" value=\"0\" oninput=\"onMatInput(3)\">\n                </div>\n                <span class=\"bracket\">]</span>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Matrix A (applied first)</h3>\n            <div class=\"matrix-outer\">\n                <span class=\"bracket\">[</span>\n                <div class=\"matrix-grid\">\n                    <div class=\"col-label col1-label\">new x&#770;</div>\n                    <div class=\"col-label col2-label\">new y&#770;</div>\n                    <input type=\"text\" id=\"m3Aa\" class=\"mat-col1\" value=\"2\" oninput=\"onMatInput(3)\">\n                    <input type=\"text\" id=\"m3Ab\" class=\"mat-col2\" value=\"0\" oninput=\"onMatInput(3)\">\n                    <input type=\"text\" id=\"m3Ac\" class=\"mat-col1\" value=\"0\" oninput=\"onMatInput(3)\">\n                    <input type=\"text\" id=\"m3Ad\" class=\"mat-col2\" value=\"1\" oninput=\"onMatInput(3)\">\n                </div>\n                <span class=\"bracket\">]</span>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Product BA =</h3>\n            <div class=\"eq-display\" id=\"eqDisplay3\"></div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Presets</h3>\n            <div class=\"chip-group\" id=\"presetChips3\"></div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Animation</h3>\n            <div class=\"slider-row\">\n                <label>Progress</label>\n                <input type=\"range\" id=\"animSlider3\" min=\"0\" max=\"1\" step=\"0.005\" value=\"1\">\n                <span class=\"val\" id=\"animVal3\">1.00</span>\n            </div>\n            <div class=\"btn-row\">\n                <button class=\"btn primary\" id=\"animBtn3\" onclick=\"toggleAnim(3)\">&#9654; Animate</button>\n                <button class=\"btn\" onclick=\"resetAnim(3)\">Reset</button>\n            </div>\n            <div class=\"toggle-row\" style=\"margin-top:8px;\">\n                <input type=\"checkbox\" id=\"togShowA3\" checked><label for=\"togShowA3\">Show A intermediate</label>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Key Idea</h3>\n            <div class=\"info-text\">\n                Applying <strong>A</strong> first, then <strong>B</strong>, is the same as applying <strong>BA</strong> in one step. Matrix multiplication composes transformations.\n            </div>\n        </div>\n    </div>\n    <div class=\"canvas-wrap\">\n        <canvas id=\"c3\"></canvas>\n    </div>\n</div>\n</div>\n\n<!-- ===================== TAB 4: LORENTZ BOOST ===================== -->\n<div class=\"tab-content\" id=\"tab3\">\n<div class=\"main-row\">\n    <div class=\"sidebar\">\n        <div class=\"panel\">\n            <h3>Velocity Parameter</h3>\n            <div style=\"display:flex; align-items:center; gap:8px; margin:6px 0;\">\n                <label style=\"font-size:12px; color:#aab; white-space:nowrap;\">β =</label>\n                <span class=\"val\" id=\"betaVal\" style=\"font-size:15px; min-width:42px; text-align:center;\">0.60</span>\n            </div>\n            <div style=\"margin:4px 0;\">\n                <input type=\"range\" id=\"betaSlider\" min=\"-0.99\" max=\"0.99\" step=\"0.01\" value=\"0.6\" style=\"width:100%; accent-color:#7eb8da;\">\n            </div>\n            <div style=\"text-align:center; margin-top:6px;\">\n                <span class=\"info-text\" style=\"font-size:12px;\">γ = <span id=\"gammaVal\" class=\"hl-blue\">1.25</span> &nbsp; γβ = <span id=\"gammaBetaVal\" class=\"hl-blue\">0.75</span></span>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3 id=\"lorentzLabel\">Forward Lorentz Transform (Λ)</h3>\n            <div id=\"lorentzMatrixWrap\" style=\"display:flex; justify-content:center; margin:8px 0;\">\n                <div class=\"matrix-outer\">\n                    <span class=\"bracket\">[</span>\n                    <div style=\"display:grid; grid-template-columns:1fr 1fr; gap:2px 14px; padding:4px 8px; text-align:center;\">\n                        <div class=\"col-label\" style=\"color:#aab; font-size:8px;\">t</div>\n                        <div class=\"col-label\" style=\"color:#aab; font-size:8px;\">x</div>\n                        <span id=\"lm00\" style=\"font-family:monospace; font-size:16px; color:#6ecf6e;\">γ</span>\n                        <span id=\"lm01\" style=\"font-family:monospace; font-size:16px; color:#e07050;\">−γβ</span>\n                        <span id=\"lm10\" style=\"font-family:monospace; font-size:16px; color:#6ecf6e;\">−γβ</span>\n                        <span id=\"lm11\" style=\"font-family:monospace; font-size:16px; color:#e07050;\">γ</span>\n                    </div>\n                    <span class=\"bracket\">]</span>\n                </div>\n            </div>\n            <div class=\"eq-display\" id=\"lorentzMatrixNum\" style=\"margin-top:4px;\"></div>\n            <div style=\"text-align:center; margin-top:6px;\">\n                <span class=\"info-text\">det = <span id=\"detVal4\" class=\"hl-blue\">1.00</span></span>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Common β Values</h3>\n            <div class=\"chip-group\" id=\"betaChips\"></div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Animation</h3>\n            <div class=\"slider-row\">\n                <label>Progress</label>\n                <input type=\"range\" id=\"animSlider4\" min=\"0\" max=\"1\" step=\"0.005\" value=\"1\">\n                <span class=\"val\" id=\"animVal4\">1.00</span>\n            </div>\n            <div class=\"btn-row\">\n                <button class=\"btn primary\" id=\"animBtn4\" onclick=\"toggleAnim(4)\">&#9654; Animate</button>\n                <button class=\"btn\" onclick=\"resetAnim(4)\">Reset</button>\n            </div>\n            <div class=\"toggle-row\" style=\"margin-top:8px;\">\n                <input type=\"checkbox\" id=\"togGrid4\" checked><label for=\"togGrid4\">Show transformed grid</label>\n            </div>\n            <div class=\"toggle-row\">\n                <input type=\"checkbox\" id=\"togLightLine4\" checked><label for=\"togLightLine4\">Show light line (45°)</label>\n            </div>\n        </div>\n\n        <div class=\"panel\">\n            <h3>Key Idea</h3>\n            <div class=\"info-text\">\n                The Lorentz boost squeezes both axes <em>toward</em> the 45° light line. Faster speeds (larger |β|) squeeze more.<br><br>\n                <span class=\"hl-green\">new x̂</span> → the new spatial basis<br>\n                <span class=\"hl-red\">new t̂</span> → the new temporal basis<br><br>\n                β &gt; 0: forward transform Λ (S → S′)<br>\n                β &lt; 0: inverse transform Λ⁻¹ (S′ → S)<br><br>\n                The grid shows how the primed coordinate system appears on an unprimed spacetime diagram.\n            </div>\n        </div>\n    </div>\n    <div class=\"canvas-wrap\">\n        <canvas id=\"c4\"></canvas>\n    </div>\n</div>\n</div>\n\n<script>\n// ======================== GLOBALS ========================\nconst DPR = window.devicePixelRatio || 1;\nconst COL_X = '#6ecf6e';\nconst COL_Y = '#e07050';\nconst COL_VEC = '#e8c050';\nconst COL_RES = '#50a0e8';\nconst COL_GRID_OLD = 'rgba(90,140,200,0.15)';\nconst COL_GRID_NEW = 'rgba(180,140,255,0.18)';\nconst COL_AXIS_OLD = 'rgba(90,140,200,0.5)';\n\nconst anims = {\n    1: { playing: false, t: 1, raf: null },\n    2: { playing: false, t: 1, raf: null },\n    3: { playing: false, t: 1, raf: null },\n    4: { playing: false, t: 1, raf: null },\n};\n\nlet activeTab = 0;\n\n// ======================== PAN / ZOOM STATE ========================\n// Per-canvas view state: center (world coords) and zoom (pixels per unit)\nconst views = {\n    c1: { cx: 0, cy: 0, zoom: 0 },\n    c2: { cx: 0, cy: 0, zoom: 0 },\n    c3: { cx: 0, cy: 0, zoom: 0 },\n    c4: { cx: 0, cy: 0, zoom: 0 },\n};\nconst panState = { active: false, canvasId: null, startSx: 0, startSy: 0, startCx: 0, startCy: 0 };\n\nconst selectedBasis = { c1: null, c2: null, c3: null, c4: null };\n\nfunction getCanvasId() { return 'c' + (activeTab + 1); }\n\nfunction getView(cid) {\n    const v = views[cid];\n    return v;\n}\n\nfunction defaultZoom(W, H) { return Math.min(W, H) / 12; }\n\nfunction getScale(cid, W, H) {\n    const v = views[cid];\n    return v.zoom > 0 ? v.zoom : defaultZoom(W, H);\n}\n\n// ======================== PRESETS ========================\nconst PRESETS_1 = [\n    { name: 'Identity', m: [1,0,0,1] },\n    { name: 'Rotation 90°', m: [0,-1,1,0] },\n    { name: 'Rotation 45°', m: [0.707,-0.707,0.707,0.707] },\n    { name: 'Rotation 30°', m: [0.866,-0.5,0.5,0.866] },\n    { name: 'Scale ×2', m: [2,0,0,2] },\n    { name: 'Scale x×2', m: [2,0,0,1] },\n    { name: 'Shear x', m: [1,1,0,1] },\n    { name: 'Shear y', m: [1,0,1,1] },\n    { name: 'Reflect x', m: [1,0,0,-1] },\n    { name: 'Reflect y', m: [-1,0,0,1] },\n    { name: 'Reflect y=x', m: [0,1,1,0] },\n    { name: 'Squeeze', m: [2,0,0,0.5] },\n    { name: 'Boost 45°', m: () => { const b=3/5, g=1/Math.sqrt(1-b*b); return [g, b*g, b*g, g]; } },\n    { name: 'Boost 135°', m: () => { const b=3/5, g=1/Math.sqrt(1-b*b); return [g, -b*g, -b*g, g]; } },\n];\n\nfunction buildChips(containerId, presets, tabNum) {\n    const el = document.getElementById(containerId);\n    el.innerHTML = '';\n    presets.forEach(p => {\n        const chip = document.createElement('span');\n        chip.className = 'chip';\n        chip.textContent = p.name;\n        chip.onclick = () => applyPreset(p, tabNum);\n        el.appendChild(chip);\n    });\n}\n\nfunction applyPreset(preset, tabNum) {\n    const m = typeof preset.m === 'function' ? preset.m() : preset.m;\n    if (tabNum === 1) setMatInputs('m1', m);\n    else if (tabNum === 2) setMatInputs('m2', m);\n    else if (tabNum === 3) setMatInputs('m3B', m);\n    onMatInput(tabNum);\n}\n\nfunction setMatInputs(prefix, m) {\n    document.getElementById(prefix + 'a').value = fmtN(m[0]);\n    document.getElementById(prefix + 'b').value = fmtN(m[1]);\n    document.getElementById(prefix + 'c').value = fmtN(m[2]);\n    document.getElementById(prefix + 'd').value = fmtN(m[3]);\n}\n\nfunction fmtN(v) {\n    if (Math.abs(v - Math.round(v)) < 0.0001) return Math.round(v).toString();\n    return v.toFixed(3);\n}\n\nfunction getMatValues(prefix) {\n    const p = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };\n    return [\n        p(document.getElementById(prefix + 'a').value),\n        p(document.getElementById(prefix + 'b').value),\n        p(document.getElementById(prefix + 'c').value),\n        p(document.getElementById(prefix + 'd').value),\n    ];\n}\n\n// ======================== CANVAS SETUP ========================\nfunction setupCanvas(id) {\n    const canvas = document.getElementById(id);\n    const rect = canvas.parentElement.getBoundingClientRect();\n    const w = rect.width;\n    const h = Math.min(w * 0.75, window.innerHeight - 160);\n    canvas.style.height = h + 'px';\n    canvas.width = w * DPR;\n    canvas.height = h * DPR;\n    const ctx = canvas.getContext('2d');\n    ctx.scale(DPR, DPR);\n    return { canvas, ctx, W: w, H: h };\n}\n\n// ======================== COORDINATE TRANSFORMS ========================\nfunction worldToScreen(x, y, W, H, scale, v) {\n    return { x: W / 2 + (x - v.cx) * scale, y: H / 2 - (y - v.cy) * scale };\n}\n\nfunction screenToWorld(sx, sy, W, H, scale, v) {\n    return { x: (sx - W / 2) / scale + v.cx, y: -(sy - H / 2) / scale + v.cy };\n}\n\nfunction lerp(a, b, t) { return a + (b - a) * t; }\n\nfunction lerpMat(I, M, t) {\n    return [lerp(I[0], M[0], t), lerp(I[1], M[1], t), lerp(I[2], M[2], t), lerp(I[3], M[3], t)];\n}\n\nfunction matMul(A, B) {\n    return [\n        A[0]*B[0] + A[1]*B[2], A[0]*B[1] + A[1]*B[3],\n        A[2]*B[0] + A[3]*B[2], A[2]*B[1] + A[3]*B[3],\n    ];\n}\n\nfunction matVec(M, v) {\n    return [M[0]*v[0] + M[1]*v[1], M[2]*v[0] + M[3]*v[1]];\n}\n\n// ======================== DRAWING HELPERS ========================\nfunction drawGrid(ctx, W, H, scale, v, M, color, alpha) {\n    const range = Math.ceil(Math.max(W, H) / scale) + 5;\n    ctx.save();\n    ctx.strokeStyle = color;\n    ctx.globalAlpha = alpha;\n    ctx.lineWidth = 0.8;\n    for (let i = -range; i <= range; i++) {\n        ctx.beginPath();\n        for (let j = -range; j <= range; j++) {\n            const tx = M[0] * i + M[1] * j;\n            const ty = M[2] * i + M[3] * j;\n            const sp = worldToScreen(tx, ty, W, H, scale, v);\n            if (j === -range) ctx.moveTo(sp.x, sp.y); else ctx.lineTo(sp.x, sp.y);\n        }\n        ctx.stroke();\n    }\n    for (let j = -range; j <= range; j++) {\n        ctx.beginPath();\n        for (let i = -range; i <= range; i++) {\n            const tx = M[0] * i + M[1] * j;\n            const ty = M[2] * i + M[3] * j;\n            const sp = worldToScreen(tx, ty, W, H, scale, v);\n            if (i === -range) ctx.moveTo(sp.x, sp.y); else ctx.lineTo(sp.x, sp.y);\n        }\n        ctx.stroke();\n    }\n    ctx.restore();\n}\n\nfunction drawAxes(ctx, W, H, scale, v, M, color, lineWidth) {\n    ctx.save();\n    ctx.strokeStyle = color;\n    ctx.lineWidth = lineWidth;\n    const range = Math.ceil(Math.max(W, H) / scale) + 5;\n    const x1 = worldToScreen(M[0]*(-range), M[2]*(-range), W, H, scale, v);\n    const x2 = worldToScreen(M[0]*range, M[2]*range, W, H, scale, v);\n    ctx.beginPath(); ctx.moveTo(x1.x, x1.y); ctx.lineTo(x2.x, x2.y); ctx.stroke();\n    const y1 = worldToScreen(M[1]*(-range), M[3]*(-range), W, H, scale, v);\n    const y2 = worldToScreen(M[1]*range, M[3]*range, W, H, scale, v);\n    ctx.beginPath(); ctx.moveTo(y1.x, y1.y); ctx.lineTo(y2.x, y2.y); ctx.stroke();\n    ctx.restore();\n}\n\nfunction drawArrow(ctx, W, H, scale, v, fx, fy, tx, ty, color, lineWidth, headSize) {\n    const sp1 = worldToScreen(fx, fy, W, H, scale, v);\n    const sp2 = worldToScreen(tx, ty, W, H, scale, v);\n    const angle = Math.atan2(sp2.y - sp1.y, sp2.x - sp1.x);\n    ctx.save();\n    ctx.strokeStyle = color; ctx.fillStyle = color;\n    ctx.lineWidth = lineWidth; ctx.lineCap = 'round';\n    ctx.shadowColor = color; ctx.shadowBlur = 8;\n    ctx.beginPath(); ctx.moveTo(sp1.x, sp1.y); ctx.lineTo(sp2.x, sp2.y); ctx.stroke();\n    ctx.beginPath();\n    ctx.moveTo(sp2.x, sp2.y);\n    ctx.lineTo(sp2.x - headSize * Math.cos(angle - 0.35), sp2.y - headSize * Math.sin(angle - 0.35));\n    ctx.lineTo(sp2.x - headSize * Math.cos(angle + 0.35), sp2.y - headSize * Math.sin(angle + 0.35));\n    ctx.closePath(); ctx.fill();\n    ctx.restore();\n}\n\nfunction drawLabel(ctx, W, H, scale, v, wx, wy, text, color, offsetX, offsetY) {\n    const sp = worldToScreen(wx, wy, W, H, scale, v);\n    ctx.save();\n    ctx.fillStyle = color;\n    ctx.font = '600 13px -apple-system, sans-serif';\n    ctx.textAlign = 'center';\n    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;\n    ctx.fillText(text, sp.x + (offsetX || 0), sp.y + (offsetY || 0));\n    ctx.restore();\n}\n\nfunction drawUnitCircle(ctx, W, H, scale, v, M, color) {\n    ctx.save();\n    ctx.strokeStyle = color; ctx.lineWidth = 1.5;\n    ctx.globalAlpha = 0.6; ctx.setLineDash([4, 3]);\n    ctx.beginPath();\n    const steps = 120;\n    for (let i = 0; i <= steps; i++) {\n        const theta = (i / steps) * Math.PI * 2;\n        const cx = Math.cos(theta), cy = Math.sin(theta);\n        const tx = M[0]*cx + M[1]*cy, ty = M[2]*cx + M[3]*cy;\n        const sp = worldToScreen(tx, ty, W, H, scale, v);\n        if (i === 0) ctx.moveTo(sp.x, sp.y); else ctx.lineTo(sp.x, sp.y);\n    }\n    ctx.stroke();\n    ctx.restore();\n}\n\nfunction drawAxisLabels(ctx, W, H, scale, v) {\n    ctx.save();\n    ctx.fillStyle = 'rgba(120,150,200,0.5)';\n    ctx.font = '9px SF Mono, monospace';\n    const rangeX = Math.ceil(W / (2 * scale)) + Math.ceil(Math.abs(v.cx)) + 2;\n    const rangeY = Math.ceil(H / (2 * scale)) + Math.ceil(Math.abs(v.cy)) + 2;\n    ctx.textAlign = 'center';\n    for (let i = -rangeX; i <= rangeX; i++) {\n        if (i === 0) continue;\n        const sp = worldToScreen(i, 0, W, H, scale, v);\n        if (sp.x > 10 && sp.x < W - 10 && sp.y > -20 && sp.y < H + 20) {\n            // Clamp label to visible area\n            const ly = Math.max(12, Math.min(H - 4, sp.y + 14));\n            ctx.fillText(i, sp.x, ly);\n            ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.lineWidth = 1;\n            ctx.beginPath(); ctx.moveTo(sp.x, sp.y - 3); ctx.lineTo(sp.x, sp.y + 3); ctx.stroke();\n        }\n    }\n    for (let i = -rangeY; i <= rangeY; i++) {\n        if (i === 0) continue;\n        const sp = worldToScreen(0, i, W, H, scale, v);\n        if (sp.y > 10 && sp.y < H - 10 && sp.x > -20 && sp.x < W + 20) {\n            const lx = Math.max(20, Math.min(W - 4, sp.x - 8));\n            ctx.textAlign = 'right';\n            ctx.fillText(i, lx, sp.y + 4);\n            ctx.strokeStyle = 'rgba(120,150,200,0.3)'; ctx.lineWidth = 1;\n            ctx.beginPath(); ctx.moveTo(sp.x - 3, sp.y); ctx.lineTo(sp.x + 3, sp.y); ctx.stroke();\n        }\n    }\n    ctx.restore();\n}\n\n// ======================== COMPONENT TRIANGLE ========================\nfunction drawComponentTriangle(ctx, W, H, scale, v, vx, vy, color) {\n    // Triangle: origin → (vx, 0) → (vx, vy) → origin\n    const o = worldToScreen(0, 0, W, H, scale, v);\n    const px = worldToScreen(vx, 0, W, H, scale, v);\n    const pt = worldToScreen(vx, vy, W, H, scale, v);\n\n    // Semi-transparent filled triangle\n    ctx.save();\n    ctx.globalAlpha = 0.12;\n    ctx.fillStyle = color;\n    ctx.beginPath();\n    ctx.moveTo(o.x, o.y); ctx.lineTo(px.x, px.y); ctx.lineTo(pt.x, pt.y);\n    ctx.closePath(); ctx.fill();\n    ctx.restore();\n\n    // Dashed outline\n    ctx.save();\n    ctx.setLineDash([5, 3]);\n    ctx.strokeStyle = color;\n    ctx.globalAlpha = 0.5;\n    ctx.lineWidth = 1.5;\n    ctx.beginPath();\n    ctx.moveTo(o.x, o.y); ctx.lineTo(px.x, px.y); ctx.lineTo(pt.x, pt.y); ctx.closePath();\n    ctx.stroke();\n    ctx.restore();\n\n    // Labels on legs\n    ctx.save();\n    ctx.font = '600 12px SF Mono, Fira Code, monospace';\n    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;\n\n    // Horizontal leg label (x component)\n    const hMid = { x: (o.x + px.x) / 2, y: (o.y + px.y) / 2 };\n    ctx.fillStyle = color;\n    ctx.textAlign = 'center';\n    ctx.fillText(fmtN(vx), hMid.x, hMid.y + (vy >= 0 ? 16 : -8));\n\n    // Vertical leg label (y component)\n    const vMid = { x: (px.x + pt.x) / 2, y: (px.y + pt.y) / 2 };\n    ctx.textAlign = 'left';\n    ctx.fillText(fmtN(vy), vMid.x + 8, vMid.y + 4);\n    ctx.restore();\n}\n\n// ======================== TAB 1: RENDER ========================\nfunction renderTab1() {\n    const { ctx, W, H } = setupCanvas('c1');\n    const v = getView('c1');\n    const scale = getScale('c1', W, H);\n    const M = getMatValues('m1');\n    const t = anims[1].t;\n    const Mt = lerpMat([1,0,0,1], M, t);\n\n    const det = M[0]*M[3] - M[1]*M[2];\n    document.getElementById('detVal').textContent = det.toFixed(2);\n\n    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);\n    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);\n    drawAxisLabels(ctx, W, H, scale, v);\n\n    if (document.getElementById('togGrid1').checked) {\n        drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 1);\n    }\n\n    if (document.getElementById('togUnitCircle1').checked) {\n        drawUnitCircle(ctx, W, H, scale, v, [1,0,0,1], 'rgba(100,140,200,0.3)');\n        drawUnitCircle(ctx, W, H, scale, v, Mt, '#b08aff');\n    }\n\n    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);\n\n    if (document.getElementById('togBasis1').checked) {\n        if (t > 0.01) {\n            drawArrow(ctx, W, H, scale, v, 0, 0, 1, 0, 'rgba(110,207,110,0.25)', 2, 8);\n            drawArrow(ctx, W, H, scale, v, 0, 0, 0, 1, 'rgba(224,112,80,0.25)', 2, 8);\n        }\n\n        // Component triangles for selected basis\n        if (selectedBasis.c1 === 'x') {\n            drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);\n        }\n        if (selectedBasis.c1 === 'y') {\n            drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);\n        }\n\n        drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 3, 10);\n        drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 3, 10);\n        drawLabel(ctx, W, H, scale, v, Mt[0], Mt[2], 'new x\\u0302', COL_X, 14, -8);\n        drawLabel(ctx, W, H, scale, v, Mt[1], Mt[3], 'new y\\u0302', COL_Y, 14, -8);\n    }\n}\n\n// ======================== TAB 2: RENDER ========================\nfunction renderTab2() {\n    const { ctx, W, H } = setupCanvas('c2');\n    const v = getView('c2');\n    const scale = getScale('c2', W, H);\n    const M = getMatValues('m2');\n    const t = anims[2].t;\n    const Mt = lerpMat([1,0,0,1], M, t);\n\n    const vx = parseFloat(document.getElementById('vx2').value) || 0;\n    const vy = parseFloat(document.getElementById('vy2').value) || 0;\n\n    document.getElementById('vecDecomp2').textContent = fmtN(vx);\n    document.getElementById('vecDecomp2b').textContent = fmtN(vy);\n\n    const b = matVec(M, [vx, vy]);\n    const bt = matVec(Mt, [vx, vy]);\n\n    const eqEl = document.getElementById('eqDisplay2');\n    eqEl.innerHTML =\n        `<span style=\"color:${COL_RES}\">b</span> = ` +\n        `<span style=\"color:${COL_VEC}\">${fmtN(vx)}</span>` +\n        `(<span style=\"color:${COL_X}\">${fmtN(M[0])}, ${fmtN(M[2])}</span>) + ` +\n        `<span style=\"color:${COL_VEC}\">${fmtN(vy)}</span>` +\n        `(<span style=\"color:${COL_Y}\">${fmtN(M[1])}, ${fmtN(M[3])}</span>)<br>` +\n        `<span style=\"color:${COL_RES}\">b</span> = ` +\n        `(<span style=\"color:${COL_RES}\">${fmtN(b[0])}, ${fmtN(b[1])}</span>)`;\n\n    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);\n    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);\n    drawAxisLabels(ctx, W, H, scale, v);\n\n    drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 0.7);\n    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);\n\n    // Component triangles for selected basis\n    if (selectedBasis.c2 === 'x') {\n        drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);\n    }\n    if (selectedBasis.c2 === 'y') {\n        drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);\n    }\n\n    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 2.5, 9);\n    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 2.5, 9);\n\n    if (t > 0.5) {\n        const compAlpha = Math.min(1, (t - 0.5) * 2);\n        ctx.save(); ctx.globalAlpha = compAlpha * 0.35;\n        const cx = vx * Mt[0], cy = vx * Mt[2];\n        drawArrow(ctx, W, H, scale, v, 0, 0, cx, cy, COL_X, 2, 7);\n        const dx = vy * Mt[1], dy = vy * Mt[3];\n        drawArrow(ctx, W, H, scale, v, cx, cy, cx + dx, cy + dy, COL_Y, 2, 7);\n        ctx.restore();\n    }\n\n    if (t < 0.99) {\n        drawArrow(ctx, W, H, scale, v, 0, 0, vx, vy, 'rgba(232,192,80,0.3)', 2, 8);\n    }\n\n    drawArrow(ctx, W, H, scale, v, 0, 0, bt[0], bt[1], COL_RES, 3, 10);\n    drawLabel(ctx, W, H, scale, v, bt[0], bt[1], 'b = Ax', COL_RES, 0, -12);\n\n    if (t < 0.5) {\n        drawLabel(ctx, W, H, scale, v, vx, vy, 'x', COL_VEC, 10, -8);\n    }\n}\n\n// ======================== TAB 3: RENDER ========================\nfunction renderTab3() {\n    const { ctx, W, H } = setupCanvas('c3');\n    const v = getView('c3');\n    const scale = getScale('c3', W, H);\n    const A = getMatValues('m3A');\n    const B = getMatValues('m3B');\n    const BA = matMul(B, A);\n    const t = anims[3].t;\n    const showIntermediate = document.getElementById('togShowA3').checked;\n\n    const eqEl = document.getElementById('eqDisplay3');\n    eqEl.innerHTML =\n        `BA = <span style=\"color:${COL_RES}\">[${fmtN(BA[0])}, ${fmtN(BA[1])}; ${fmtN(BA[2])}, ${fmtN(BA[3])}]</span>`;\n\n    let Mt;\n    if (t <= 0.5) {\n        Mt = lerpMat([1,0,0,1], A, t * 2);\n    } else {\n        Mt = lerpMat(A, BA, (t - 0.5) * 2);\n    }\n\n    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);\n    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);\n    drawAxisLabels(ctx, W, H, scale, v);\n\n    if (showIntermediate && t > 0.5) {\n        const alpha = Math.max(0.15, 1 - (t - 0.5) * 2);\n        drawGrid(ctx, W, H, scale, v, A, 'rgba(110,207,110,0.12)', alpha);\n        drawAxes(ctx, W, H, scale, v, A, 'rgba(110,207,110,0.25)', 1);\n    }\n\n    drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 1);\n    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);\n\n    // Component triangles for selected basis\n    if (selectedBasis.c3 === 'x') {\n        drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);\n    }\n    if (selectedBasis.c3 === 'y') {\n        drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);\n    }\n\n    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 3, 10);\n    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 3, 10);\n\n    ctx.save();\n    ctx.fillStyle = '#aab';\n    ctx.font = '600 14px -apple-system, sans-serif';\n    ctx.textAlign = 'center';\n    ctx.shadowColor = '#000'; ctx.shadowBlur = 6;\n    if (t <= 0.5) ctx.fillText('Applying A...', W / 2, H - 20);\n    else if (t < 1) ctx.fillText('Applying B...', W / 2, H - 20);\n    else { ctx.fillStyle = COL_RES; ctx.fillText('BA = combined transformation', W / 2, H - 20); }\n    ctx.restore();\n}\n\n// ======================== TAB 4: LORENTZ BOOST ========================\nfunction getLorentzMatrix(beta) {\n    if (Math.abs(beta) >= 1) return [Infinity, Infinity, Infinity, Infinity];\n    const g = 1 / Math.sqrt(1 - beta * beta);\n    // Visualization shows how primed axes sit in unprimed frame = Λ⁻¹\n    // Λ⁻¹ in (x,t) ordering: [[γ, γβ], [γβ, γ]]\n    // This makes axes collapse toward 45° for positive β, matching spacetime diagrams\n    return [g, beta * g, beta * g, g];\n}\n\nfunction drawAxisLabelsSpacetime(ctx, W, H, scale, v) {\n    // Same as drawAxisLabels but label x-axis as \"x\" and y-axis as \"t\"\n    drawAxisLabels(ctx, W, H, scale, v);\n    // Add axis name labels\n    ctx.save();\n    ctx.fillStyle = 'rgba(120,150,200,0.7)';\n    ctx.font = '600 14px -apple-system, sans-serif';\n    const right = worldToScreen(Math.floor((W/2)/scale + v.cx) - 0.3, 0, W, H, scale, v);\n    const top = worldToScreen(0, Math.floor((H/2)/scale + v.cy) - 0.3, W, H, scale, v);\n    ctx.textAlign = 'left';\n    if (right.x < W - 30) ctx.fillText('x', W - 18, right.y + 16);\n    ctx.textAlign = 'center';\n    if (top.y > 10) ctx.fillText('t', top.x - 16, 18);\n    ctx.restore();\n}\n\nfunction drawLightLine(ctx, W, H, scale, v) {\n    ctx.save();\n    ctx.strokeStyle = 'rgba(200,168,78,0.5)';\n    ctx.lineWidth = 1.5;\n    ctx.setLineDash([6, 4]);\n    const range = Math.max(W, H) / scale + 10;\n    // t = x line\n    const p1 = worldToScreen(-range, -range, W, H, scale, v);\n    const p2 = worldToScreen(range, range, W, H, scale, v);\n    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();\n    // t = -x line\n    const p3 = worldToScreen(-range, range, W, H, scale, v);\n    const p4 = worldToScreen(range, -range, W, H, scale, v);\n    ctx.beginPath(); ctx.moveTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.stroke();\n    ctx.restore();\n}\n\nfunction renderTab4() {\n    const { ctx, W, H } = setupCanvas('c4');\n    const v = getView('c4');\n    const scale = getScale('c4', W, H);\n    const beta = parseFloat(document.getElementById('betaSlider').value) || 0;\n    const absBeta = Math.abs(beta);\n    const gamma = absBeta < 1 ? 1 / Math.sqrt(1 - beta * beta) : Infinity;\n\n    // Update sidebar\n    document.getElementById('betaVal').textContent = beta.toFixed(2);\n    document.getElementById('gammaVal').textContent = gamma === Infinity ? '∞' : gamma.toFixed(4);\n    const gb = gamma === Infinity ? Infinity : gamma * Math.abs(beta);\n    document.getElementById('gammaBetaVal').textContent = gb === Infinity ? '∞' : gb.toFixed(4);\n\n    const M = getLorentzMatrix(beta);\n    const t = anims[4].t;\n    const Mt = lerpMat([1,0,0,1], M, t);\n\n    // Label & symbolic matrix\n    const labelEl = document.getElementById('lorentzLabel');\n    const gStr = gamma === Infinity ? '∞' : gamma.toFixed(4);\n    const gbStr = gb === Infinity ? '∞' : gb.toFixed(4);\n    if (beta >= 0) {\n        labelEl.textContent = 'Forward Lorentz Transform (Λ)';\n        document.getElementById('lm00').textContent = 'γ';\n        document.getElementById('lm01').textContent = '−γβ';\n        document.getElementById('lm10').textContent = '−γβ';\n        document.getElementById('lm11').textContent = 'γ';\n    } else {\n        labelEl.textContent = 'Inverse Lorentz Transform (Λ⁻¹)';\n        document.getElementById('lm00').textContent = 'γ';\n        document.getElementById('lm01').textContent = 'γβ';\n        document.getElementById('lm10').textContent = 'γβ';\n        document.getElementById('lm11').textContent = 'γ';\n    }\n\n    // Numerical matrix\n    const numEl = document.getElementById('lorentzMatrixNum');\n    if (beta >= 0) {\n        numEl.innerHTML =\n            `= [<span style=\"color:${COL_X}\">${gStr}</span>, <span style=\"color:${COL_Y}\">−${gbStr}</span>; ` +\n            `<span style=\"color:${COL_X}\">−${gbStr}</span>, <span style=\"color:${COL_Y}\">${gStr}</span>]`;\n    } else {\n        numEl.innerHTML =\n            `= [<span style=\"color:${COL_X}\">${gStr}</span>, <span style=\"color:${COL_Y}\">${gbStr}</span>; ` +\n            `<span style=\"color:${COL_X}\">${gbStr}</span>, <span style=\"color:${COL_Y}\">${gStr}</span>]`;\n    }\n\n    // Det\n    const det = M[0]*M[3] - M[1]*M[2];\n    document.getElementById('detVal4').textContent = isFinite(det) ? det.toFixed(2) : '∞';\n\n    // Draw\n    drawGrid(ctx, W, H, scale, v, [1,0,0,1], COL_GRID_OLD, 1);\n    drawAxes(ctx, W, H, scale, v, [1,0,0,1], COL_AXIS_OLD, 1);\n    drawAxisLabelsSpacetime(ctx, W, H, scale, v);\n\n    if (document.getElementById('togLightLine4').checked) {\n        drawLightLine(ctx, W, H, scale, v);\n    }\n\n    if (document.getElementById('togGrid4').checked) {\n        drawGrid(ctx, W, H, scale, v, Mt, COL_GRID_NEW, 1);\n    }\n\n    drawAxes(ctx, W, H, scale, v, Mt, 'rgba(180,140,255,0.35)', 1.5);\n\n    // Component triangles\n    if (selectedBasis.c4 === 'x') {\n        drawComponentTriangle(ctx, W, H, scale, v, Mt[0], Mt[2], COL_X);\n    }\n    if (selectedBasis.c4 === 'y') {\n        drawComponentTriangle(ctx, W, H, scale, v, Mt[1], Mt[3], COL_Y);\n    }\n\n    // Old basis (faint)\n    if (t > 0.01) {\n        drawArrow(ctx, W, H, scale, v, 0, 0, 1, 0, 'rgba(110,207,110,0.25)', 2, 8);\n        drawArrow(ctx, W, H, scale, v, 0, 0, 0, 1, 'rgba(224,112,80,0.25)', 2, 8);\n    }\n\n    // New basis\n    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[0], Mt[2], COL_X, 3, 10);\n    drawArrow(ctx, W, H, scale, v, 0, 0, Mt[1], Mt[3], COL_Y, 3, 10);\n    drawLabel(ctx, W, H, scale, v, Mt[0], Mt[2], \"new x\\u0302\", COL_X, 14, -8);\n    drawLabel(ctx, W, H, scale, v, Mt[1], Mt[3], \"new t\\u0302\", COL_Y, 14, -8);\n}\n\n// Beta chip presets\nconst BETA_PRESETS = [\n    { label: '3/5', val: 3/5 },\n    { label: '4/5', val: 4/5 },\n    { label: '5/13', val: 5/13 },\n    { label: '12/13', val: 12/13 },\n    { label: '0.5', val: 0.5 },\n    { label: '0.9', val: 0.9 },\n    { label: '0.99', val: 0.99 },\n    { label: '−3/5', val: -3/5 },\n    { label: '−4/5', val: -4/5 },\n    { label: '−5/13', val: -5/13 },\n    { label: '−12/13', val: -12/13 },\n    { label: '−0.5', val: -0.5 },\n    { label: '−0.9', val: -0.9 },\n    { label: '−0.99', val: -0.99 },\n];\n\nfunction buildBetaChips() {\n    const el = document.getElementById('betaChips');\n    el.innerHTML = '';\n    BETA_PRESETS.forEach(p => {\n        const chip = document.createElement('span');\n        chip.className = 'chip';\n        chip.textContent = 'β = ' + p.label;\n        chip.onclick = () => {\n            document.getElementById('betaSlider').value = p.val;\n            document.getElementById('betaVal').textContent = p.val.toFixed(2);\n            render();\n        };\n        el.appendChild(chip);\n    });\n}\n\n// ======================== RENDER DISPATCH ========================\nfunction render() {\n    if (activeTab === 0) renderTab1();\n    else if (activeTab === 1) renderTab2();\n    else if (activeTab === 2) renderTab3();\n    else if (activeTab === 3) renderTab4();\n}\n\n// ======================== TABS ========================\nfunction switchTab(idx) {\n    activeTab = idx;\n    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));\n    document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));\n    render();\n}\n\n// ======================== INPUTS ========================\nfunction onMatInput(tabNum) { render(); }\nfunction onVecInput(tabNum) { render(); }\n\n// ======================== ANIMATION ========================\nfunction toggleAnim(tabNum) {\n    const a = anims[tabNum];\n    if (a.playing) {\n        a.playing = false; cancelAnimationFrame(a.raf);\n        document.getElementById('animBtn' + tabNum).innerHTML = '&#9654; Animate';\n    } else {\n        a.playing = true; a.t = 0;\n        document.getElementById('animBtn' + tabNum).innerHTML = '&#9724; Stop';\n        const startTime = performance.now();\n        const duration = tabNum === 3 ? 3000 : 1500;\n        function step(now) {\n            if (!a.playing) return;\n            a.t = Math.min(1, (now - startTime) / duration);\n            document.getElementById('animSlider' + tabNum).value = a.t;\n            document.getElementById('animVal' + tabNum).textContent = a.t.toFixed(2);\n            render();\n            if (a.t < 1) a.raf = requestAnimationFrame(step);\n            else { a.playing = false; document.getElementById('animBtn' + tabNum).innerHTML = '&#9654; Animate'; }\n        }\n        a.raf = requestAnimationFrame(step);\n    }\n}\n\nfunction resetAnim(tabNum) {\n    const a = anims[tabNum];\n    a.playing = false; cancelAnimationFrame(a.raf); a.t = 0;\n    document.getElementById('animSlider' + tabNum).value = 0;\n    document.getElementById('animVal' + tabNum).textContent = '0.00';\n    document.getElementById('animBtn' + tabNum).innerHTML = '&#9654; Animate';\n    render();\n}\n\n[1, 2, 3, 4].forEach(n => {\n    document.getElementById('animSlider' + n).addEventListener('input', e => {\n        anims[n].t = parseFloat(e.target.value);\n        document.getElementById('animVal' + n).textContent = anims[n].t.toFixed(2);\n        if (anims[n].playing) {\n            anims[n].playing = false; cancelAnimationFrame(anims[n].raf);\n            document.getElementById('animBtn' + n).innerHTML = '&#9654; Animate';\n        }\n        render();\n    });\n});\n\n['togGrid1', 'togBasis1', 'togUnitCircle1', 'togShowA3', 'togGrid4', 'togLightLine4'].forEach(id => {\n    document.getElementById(id).addEventListener('change', render);\n});\n\n// Beta slider for tab 4\ndocument.getElementById('betaSlider').addEventListener('input', e => {\n    document.getElementById('betaVal').textContent = parseFloat(e.target.value).toFixed(2);\n    render();\n});\n\n// ======================== PAN / ZOOM / CLICK HANDLERS ========================\nfunction getActiveCanvas() { return document.getElementById(getCanvasId()); }\n\nfunction canvasMouseDown(e) {\n    const cid = getCanvasId();\n    const canvas = document.getElementById(cid);\n    const rect = canvas.getBoundingClientRect();\n    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;\n    const v = getView(cid);\n    panState.active = true;\n    panState.canvasId = cid;\n    panState.startSx = sx; panState.startSy = sy;\n    panState.startCx = v.cx; panState.startCy = v.cy;\n    panState.moved = false;\n}\n\nfunction canvasMouseMove(e) {\n    if (!panState.active) return;\n    const cid = panState.canvasId;\n    const canvas = document.getElementById(cid);\n    const rect = canvas.getBoundingClientRect();\n    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;\n    const W = rect.width, H = parseFloat(canvas.style.height);\n    const scale = getScale(cid, W, H);\n    const v = getView(cid);\n    const dx = sx - panState.startSx, dy = sy - panState.startSy;\n    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) panState.moved = true;\n    v.cx = panState.startCx - dx / scale;\n    v.cy = panState.startCy + dy / scale;\n    render();\n}\n\nfunction canvasMouseUp(e) {\n    if (!panState.active) return;\n    const cid = panState.canvasId;\n    panState.active = false;\n    if (panState.moved) return; // was a drag, not a click\n\n    // Click: check if near a basis vector tip for decomposition\n    const canvas = document.getElementById(cid);\n    const rect = canvas.getBoundingClientRect();\n    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;\n    const W = rect.width, H = parseFloat(canvas.style.height);\n    const scale = getScale(cid, W, H);\n    const v = getView(cid);\n\n    // Get current animated matrix for this tab\n    let Mt;\n    const tabNum = activeTab + 1;\n    const t = anims[tabNum].t;\n    if (tabNum === 1) {\n        Mt = lerpMat([1,0,0,1], getMatValues('m1'), t);\n    } else if (tabNum === 2) {\n        Mt = lerpMat([1,0,0,1], getMatValues('m2'), t);\n    } else if (tabNum === 3) {\n        const A = getMatValues('m3A'), B = getMatValues('m3B'), BA = matMul(B, A);\n        if (t <= 0.5) Mt = lerpMat([1,0,0,1], A, t * 2);\n        else Mt = lerpMat(A, BA, (t - 0.5) * 2);\n    } else {\n        const beta = parseFloat(document.getElementById('betaSlider').value) || 0;\n        Mt = lerpMat([1,0,0,1], getLorentzMatrix(beta), t);\n    }\n\n    // Check distance to basis vector tips\n    const tipX = worldToScreen(Mt[0], Mt[2], W, H, scale, v);\n    const tipY = worldToScreen(Mt[1], Mt[3], W, H, scale, v);\n    const distX = Math.sqrt((sx - tipX.x) ** 2 + (sy - tipX.y) ** 2);\n    const distY = Math.sqrt((sx - tipY.x) ** 2 + (sy - tipY.y) ** 2);\n\n    // Also check midpoints of the vectors (more forgiving)\n    const midX = worldToScreen(Mt[0]/2, Mt[2]/2, W, H, scale, v);\n    const midY = worldToScreen(Mt[1]/2, Mt[3]/2, W, H, scale, v);\n    const distMidX = Math.sqrt((sx - midX.x) ** 2 + (sy - midX.y) ** 2);\n    const distMidY = Math.sqrt((sx - midY.x) ** 2 + (sy - midY.y) ** 2);\n\n    const threshold = 25;\n    const nearX = Math.min(distX, distMidX) < threshold;\n    const nearY = Math.min(distY, distMidY) < threshold;\n\n    if (nearX && (!nearY || Math.min(distX, distMidX) <= Math.min(distY, distMidY))) {\n        selectedBasis[cid] = selectedBasis[cid] === 'x' ? null : 'x';\n    } else if (nearY) {\n        selectedBasis[cid] = selectedBasis[cid] === 'y' ? null : 'y';\n    } else {\n        selectedBasis[cid] = null;\n    }\n    render();\n}\n\nfunction canvasWheel(e) {\n    e.preventDefault();\n    const cid = getCanvasId();\n    const canvas = document.getElementById(cid);\n    const rect = canvas.getBoundingClientRect();\n    const sx = e.clientX - rect.left, sy = e.clientY - rect.top;\n    const W = rect.width, H = parseFloat(canvas.style.height);\n    const v = getView(cid);\n    const oldScale = getScale(cid, W, H);\n\n    // Zoom toward mouse position\n    const worldBefore = screenToWorld(sx, sy, W, H, oldScale, v);\n\n    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;\n    const newScale = Math.max(10, Math.min(oldScale * factor, 2000));\n    v.zoom = newScale;\n\n    const worldAfter = screenToWorld(sx, sy, W, H, newScale, v);\n    v.cx -= (worldAfter.x - worldBefore.x);\n    v.cy -= (worldAfter.y - worldBefore.y);\n\n    render();\n}\n\n// Attach to all canvases\n['c1', 'c2', 'c3', 'c4'].forEach(id => {\n    const c = document.getElementById(id);\n    c.addEventListener('mousedown', canvasMouseDown);\n    c.addEventListener('wheel', canvasWheel, { passive: false });\n});\ndocument.addEventListener('mousemove', canvasMouseMove);\ndocument.addEventListener('mouseup', canvasMouseUp);\n\n// ======================== INIT ========================\nfunction init() {\n    buildChips('presetChips1', PRESETS_1, 1);\n    buildChips('presetChips2', PRESETS_1, 2);\n    buildChips('presetChips3', PRESETS_1, 3);\n    buildBetaChips();\n    render();\n}\n\nwindow.addEventListener('resize', render);\nwindow.addEventListener('load', init);\n</script>\n</body>\n</html>\n","__sim_name":"lorentz.html"}</script>
 </body>
 </html>

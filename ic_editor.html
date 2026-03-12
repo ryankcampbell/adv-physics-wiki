@@ -1454,13 +1454,21 @@ async function initMode() {
       'No published IC found for this concept yet. Your teacher may share a direct link.';
   }
 
-  // ── Load IC data from published IC HTML ──────────────────────
-  if (icEntries.length) {
-    try {
-      const icHtml = await fetch(icEntries[0].url).then(r => r.text());
-      const m = icHtml.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
-      if (m) _applyDraft(JSON.parse(m[1]));
-    } catch(e) {}
+  // ── Load IC data from server-saved draft (connect-src 'self' blocks GitHub Pages fetch) ──
+  if (CONCEPT_ID) {
+    const _stokAt = localStorage.getItem('student-session-token');
+    if (_stokAt) {
+      try {
+        const r = await fetch(`/api/student/draft/${CONCEPT_ID}`, {
+          headers: { 'Authorization': `Bearer ${_stokAt}` }
+        });
+        if (r.ok) {
+          const draftHtml = await r.text();
+          const m = draftHtml.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
+          if (m) _applyDraft(JSON.parse(m[1]));
+        }
+      } catch(e) {}
+    }
   }
 
   // Lock all IC core fields
@@ -1472,7 +1480,7 @@ async function initMode() {
     if (saved && Object.keys(saved).length) {
       applyATDraft(saved);
     } else {
-      // No localStorage draft — try server-saved submission
+      // No localStorage draft — try server-saved AT submission
       const _stok4 = localStorage.getItem('student-session-token');
       if (_stok4 && CONCEPT_ID) {
         fetch(`/api/student/draft/${CONCEPT_ID}`, {
