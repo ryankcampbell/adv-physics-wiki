@@ -1663,7 +1663,10 @@ app.get('/api/student/draft/:slug', requireStudentToken, (req, res) => {
 });
 
 // GET /api/admin/draft/:studentName/:slug — admin preview of any student's draft
-app.get('/api/admin/draft/:studentName/:slug', requireAdmin, (req, res) => {
+// Accepts token via Authorization header OR ?token= query param (needed for iframe src)
+app.get('/api/admin/draft/:studentName/:slug', (req, res) => {
+  const token = req.headers.authorization?.slice(7) || req.query.token;
+  if (!token || !adminSessions.has(token)) return res.status(401).json({ error: 'Admin auth required' });
   const slug = req.params.slug.replace(/[^a-z0-9_-]/gi, '').slice(0, 80);
   const filename = draftFilename(req.params.studentName, slug);
   const filepath = path.join(DRAFTS_DIR, filename);

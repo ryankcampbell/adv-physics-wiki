@@ -2001,29 +2001,28 @@ async function viewStudentDraft(student, slug) {
   iframe.src = '';
   modal.style.display = 'flex';
 
+  // Check the draft exists first, then load via direct URL so nested
+  // iframe src paths (e.g. ../../sims/spacetime.html) resolve correctly.
   try {
     const r = await adminFetch(`/api/admin/draft/${encodeURIComponent(student)}/${encodeURIComponent(slug)}`);
     if (r.status === 404) {
-      const blob = new Blob(['<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#94a3b8">No draft saved yet for this student / concept.</body>'], { type: 'text/html' });
-      iframe.src = URL.createObjectURL(blob);
+      iframe.srcdoc = '<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#94a3b8">No draft saved yet for this student / concept.</body>';
       return;
     }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const html = await r.text();
-    const blob = new Blob([html], { type: 'text/html' });
-    iframe.src = URL.createObjectURL(blob);
+    // Use direct URL with token query param so relative paths resolve against localhost:3000
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
+    iframe.src = `/api/admin/draft/${encodeURIComponent(student)}/${encodeURIComponent(slug)}?token=${encodeURIComponent(token)}`;
   } catch (e) {
-    const blob = new Blob([`<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#fca5a5">Error loading draft: ${e.message}</body>`], { type: 'text/html' });
-    iframe.src = URL.createObjectURL(blob);
+    iframe.srcdoc = `<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#fca5a5">Error loading draft: ${e.message}</body>`;
   }
 }
 
 function closeDraftModal() {
   const modal = document.getElementById('draft-modal');
   const iframe = document.getElementById('draft-modal-iframe');
-  // Revoke old blob URL to free memory
-  if (iframe.src && iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
   iframe.src = '';
+  iframe.srcdoc = '';
   modal.style.display = 'none';
 }
 
