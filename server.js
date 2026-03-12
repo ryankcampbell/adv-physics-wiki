@@ -14,11 +14,11 @@ app.use(express.json({ limit: '20mb' }));
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com unpkg.com cdn.plot.ly; " +
-    "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com unpkg.com; " +
-    "img-src 'self' data: blob:; " +
-    "font-src 'self' cdnjs.cloudflare.com; " +
-    "connect-src 'self'; " +        // allows fetch to our own /api/* only
+    "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com unpkg.com cdn.plot.ly https://accounts.google.com/gsi/client; " +
+    "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com unpkg.com https://accounts.google.com/gsi/style; " +
+    "img-src 'self' data: blob: https://lh3.googleusercontent.com; " +
+    "font-src 'self' cdn.jsdelivr.net cdnjs.cloudflare.com; " +
+    "connect-src 'self' https://accounts.google.com https://www.googleapis.com; " +        // allows fetch to our own /api/* only
     "frame-src 'self' blob: https://ryankcampbell.github.io; " + // blob: for admin draft preview; github.io for reference IC
     "frame-ancestors 'self';"       // prevents clickjacking
   );
@@ -361,7 +361,7 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     const actionLabel = isRevision ? 'Revision' : (fileType === 'hw' ? 'Publish' : `Approve-${fileType.toUpperCase()}`);
 
     execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json state/workflow.json`, { cwd: __dirname });
-    execSync(`git commit -m "${actionLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname });
+    try { execSync(`git commit -m "${actionLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname }); } catch(_) { /* nothing new to commit */ }
     if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
     execSync('git push', { cwd: __dirname });
     if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
@@ -1110,12 +1110,12 @@ app.get('/api/student/topics', requireStudentToken, (req, res) => {
 
 // Start a new topic
 app.post('/api/student/topic/start', requireStudentToken, (req, res) => {
-  const { module, title } = req.body;
+  const { module, title, concept_id } = req.body;
   if (!title?.trim()) return res.status(400).json({ error: 'Title required' });
   const wf = readWorkflow();
   const nameKey = req.studentName.toLowerCase();
   wf[nameKey] = wf[nameKey] || {};
-  const slug = slugify(title);
+  const slug = concept_id ? concept_id.replace(/[^a-z0-9_-]/gi, '').toLowerCase() : slugify(title);
   if (wf[nameKey][slug]) return res.status(409).json({ error: 'A topic with that title already exists.' });
   wf[nameKey][slug] = {
     slug, title: title.trim(), module: module?.trim() || 'General',

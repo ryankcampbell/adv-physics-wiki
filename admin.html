@@ -1047,7 +1047,7 @@ function renderDriveList(files) {
     // Auto-detect concept from IC/AT/HW filename
     if (fileType === 'ic') {
       const cleanStem = stem.toLowerCase().replace(/^ic[_-]/, '');
-      const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase()));
+      const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase() + '_') || cleanStem === c.id.toLowerCase());
       if (matched) {
         const conceptSel = row.querySelector('.drive-concept-sel');
         const labelInp  = row.querySelector('.drive-label-inp');
@@ -1059,7 +1059,7 @@ function renderDriveList(files) {
 
     if (fileType === 'at' || fileType === 'hw') {
       const cleanStem = stem.toLowerCase().replace(/^(at|hw)[_-]/, '');
-      const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase()));
+      const matched = allConcepts.find(c => cleanStem.startsWith(c.id.toLowerCase() + '_') || cleanStem === c.id.toLowerCase());
       if (matched) {
         const conceptSel = row.querySelector('.drive-concept-sel');
         const labelInp  = row.querySelector('.drive-label-inp');

@@ -205,11 +205,14 @@
 <div class="modal-overlay" id="new-modal">
   <div class="modal">
     <h2>Start a new Insight Card</h2>
-    <label>Module / Unit</label>
-    <input type="text" id="new-module" placeholder="e.g. Special Relativity" list="module-suggestions">
-    <datalist id="module-suggestions"></datalist>
-    <label>Topic title</label>
-    <input type="text" id="new-title" placeholder="e.g. Time Dilation">
+    <label>Module</label>
+    <select id="new-module" onchange="populateConceptDropdown()" style="width:100%;padding:10px 12px;border-radius:7px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.9rem;margin-bottom:14px">
+      <option value="">— Select a module —</option>
+    </select>
+    <label>Concept</label>
+    <select id="new-concept" onchange="conceptSelected()" style="width:100%;padding:10px 12px;border-radius:7px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-size:0.9rem;margin-bottom:14px">
+      <option value="">— Select a module first —</option>
+    </select>
     <div class="modal-error" id="new-error"></div>
     <div class="modal-btns">
       <button class="cancel" onclick="closeNewModal()">Cancel</button>
@@ -372,7 +375,7 @@ async function populateModuleSuggestions(topics) {
 // ── New topic modal ────────────────────────────────────────────────
 function openNewModal() {
   document.getElementById('new-module').value = '';
-  document.getElementById('new-title').value = '';
+  document.getElementById('new-concept').innerHTML = '<option value="">— Select a module first —</option>';
   document.getElementById('new-error').textContent = '';
   document.getElementById('new-modal').classList.add('open');
   document.getElementById('new-module').focus();
@@ -381,33 +384,73 @@ function closeNewModal() {
   document.getElementById('new-modal').classList.remove('open');
 }
 
+// ── Module / concept dropdowns ─────────────────────────────────────
+const MODULE_FILES = [
+  { file: 'modules/special_relativity.json',  label: 'Special Relativity' },
+  { file: 'modules/geometric_optics.json',    label: 'Geometric Optics' },
+  { file: 'modules/physical_optics.json',     label: 'Physical Optics' },
+  { file: 'modules/quantum_spin.json',        label: 'Quantum Spin' },
+];
+let _moduleCache = {};
+
+async function loadModuleDropdown() {
+  const sel = document.getElementById('new-module');
+  for (const m of MODULE_FILES) {
+    const opt = document.createElement('option');
+    opt.value = m.file;
+    opt.textContent = m.label;
+    sel.appendChild(opt);
+  }
+}
+
+async function populateConceptDropdown() {
+  const moduleFile = document.getElementById('new-module').value;
+  const conceptSel = document.getElementById('new-concept');
+  conceptSel.innerHTML = '<option value="">— Select a concept —</option>';
+  if (!moduleFile) return;
+  if (!_moduleCache[moduleFile]) {
+    const r = await fetch(moduleFile);
+    _moduleCache[moduleFile] = await r.json();
+  }
+  const mod = _moduleCache[moduleFile];
+  (mod.concepts || []).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = JSON.stringify({ id: c.id, name: c.name, module: mod.module });
+    opt.textContent = c.name;
+    conceptSel.appendChild(opt);
+  });
+}
+
+function conceptSelected() {
+  document.getElementById('new-error').textContent = '';
+}
+
 async function startTopic() {
-  const module = document.getElementById('new-module').value.trim();
-  const title  = document.getElementById('new-title').value.trim();
-  const errEl  = document.getElementById('new-error');
-  if (!title) { errEl.textContent = 'Please enter a topic title.'; return; }
+  const conceptVal = document.getElementById('new-concept').value;
+  const errEl = document.getElementById('new-error');
+  if (!conceptVal) { errEl.textContent = 'Please select a concept.'; return; }
+  const { id, name, module } = JSON.parse(conceptVal);
 
   try {
     const r = await fetch('/api/student/topic/start', {
       method: 'POST',
       headers: authHeaders(),
-      body: JSON.stringify({ module, title })
+      body: JSON.stringify({ module, title: name, concept_id: id })
     });
     const data = await r.json();
     if (!r.ok) { errEl.textContent = data.error || 'Could not start topic.'; return; }
     closeNewModal();
-    window.location.href = `ic_editor.html?concept=${data.slug}&name=${encodeURIComponent(title)}`;
+    window.location.href = `ic_editor.html?concept=${data.slug}&name=${encodeURIComponent(name)}`;
   } catch(e) {
     errEl.textContent = 'Connection error.';
   }
 }
 
+loadModuleDropdown();
+
 // ── Keyboard ───────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeNewModal(); closeBugModal(); }
-});
-document.getElementById('new-title').addEventListener('keydown', e => {
-  if (e.key === 'Enter') startTopic();
 });
 
 // ── Bug Report ─────────────────────────────────────────────────────
