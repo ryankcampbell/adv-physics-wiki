@@ -1663,16 +1663,16 @@ app.get('/api/student/draft/:slug', requireStudentToken, (req, res) => {
 });
 
 // GET /api/admin/draft/:studentName/:slug — admin preview of any student's draft
-// Accepts token via Authorization header OR ?token= query param (needed for iframe src)
-app.get('/api/admin/draft/:studentName/:slug', (req, res) => {
-  const token = req.headers.authorization?.slice(7) || req.query.token;
-  if (!token || !adminSessions.has(token)) return res.status(401).json({ error: 'Admin auth required' });
+app.get('/api/admin/draft/:studentName/:slug', requireAdmin, (req, res) => {
   const slug = req.params.slug.replace(/[^a-z0-9_-]/gi, '').slice(0, 80);
   const filename = draftFilename(req.params.studentName, slug);
   const filepath = path.join(DRAFTS_DIR, filename);
   if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'No saved draft found' });
+  // Inject <base> so relative paths (e.g. ../../sims/foo.html) resolve against localhost
+  let html = fs.readFileSync(filepath, 'utf8');
+  html = html.replace(/(<head[^>]*>)/i, '$1<base href="http://localhost:3000/">');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.send(fs.readFileSync(filepath, 'utf8'));
+  res.send(html);
 });
 
 // ── HW Question Bank ───────────────────────────────────────────────

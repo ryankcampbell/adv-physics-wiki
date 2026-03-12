@@ -2001,8 +2001,6 @@ async function viewStudentDraft(student, slug) {
   iframe.src = '';
   modal.style.display = 'flex';
 
-  // Check the draft exists first, then load via direct URL so nested
-  // iframe src paths (e.g. ../../sims/spacetime.html) resolve correctly.
   try {
     const r = await adminFetch(`/api/admin/draft/${encodeURIComponent(student)}/${encodeURIComponent(slug)}`);
     if (r.status === 404) {
@@ -2010,9 +2008,9 @@ async function viewStudentDraft(student, slug) {
       return;
     }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    // Use direct URL with token query param so relative paths resolve against localhost:3000
-    const token = localStorage.getItem(ADMIN_TOKEN_KEY) || '';
-    iframe.src = `/api/admin/draft/${encodeURIComponent(student)}/${encodeURIComponent(slug)}?token=${encodeURIComponent(token)}`;
+    const html = await r.text();
+    const blob = new Blob([html], { type: 'text/html' });
+    iframe.src = URL.createObjectURL(blob);
   } catch (e) {
     iframe.srcdoc = `<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#fca5a5">Error loading draft: ${e.message}</body>`;
   }
@@ -2021,6 +2019,7 @@ async function viewStudentDraft(student, slug) {
 function closeDraftModal() {
   const modal = document.getElementById('draft-modal');
   const iframe = document.getElementById('draft-modal-iframe');
+  if (iframe.src && iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
   iframe.src = '';
   iframe.srcdoc = '';
   modal.style.display = 'none';
