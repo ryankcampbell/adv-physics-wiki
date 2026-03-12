@@ -1232,11 +1232,20 @@ async function onToken(tok) {
     document.getElementById('btn-submit').textContent='✓ Submitted';
     document.getElementById('btn-submit').disabled=true;
     setTimeout(closeModal, 2000);
+    // Save submitted HTML server-side before clearing localStorage —
+    // allows restore if teacher sends back for revision
+    const _stok = localStorage.getItem('student-session-token');
+    if (_stok && CONCEPT_ID) {
+      fetch(`/api/student/draft/${CONCEPT_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${_stok}` },
+        body: JSON.stringify({ html })
+      }).catch(() => {});
+    }
     if (MODE === 'ic' && CONCEPT_ID) localStorage.removeItem('ic-draft-' + CONCEPT_ID);
     if (MODE === 'at' && CONCEPT_ID) localStorage.removeItem('at-draft-' + CONCEPT_ID);
     if (MODE === 'hw' && CONCEPT_ID) localStorage.removeItem('hw-draft-' + CONCEPT_ID);
     // Notify server pipeline if student is logged in via portal
-    const _stok = localStorage.getItem('student-session-token');
     if (_stok && CONCEPT_ID) {
       fetch(`/api/student/topic/${CONCEPT_ID}/submit`, {
         method: 'POST',
@@ -1259,6 +1268,32 @@ async function initMode() {
       document.getElementById('f-title').value = _conceptName;
     }
     update();
+
+    // If no localStorage draft, try restoring from server-saved submission
+    if (CONCEPT_ID && !localStorage.getItem('ic-draft-' + CONCEPT_ID)) {
+      const _stok3 = localStorage.getItem('student-session-token');
+      if (_stok3) {
+        fetch(`/api/student/draft/${CONCEPT_ID}`, {
+          headers: { 'Authorization': `Bearer ${_stok3}` }
+        }).then(r => r.ok ? r.text() : null).then(html => {
+          if (!html) return;
+          const m = html.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
+          if (!m) return;
+          try {
+            _applyDraft(JSON.parse(m[1]));
+            update();
+            const banner = document.getElementById('feedback-banner');
+            if (banner) banner.innerHTML += ' <span style="font-size:0.78rem;opacity:0.65">(Previous submission restored)</span>';
+            else {
+              const b = document.createElement('div');
+              b.style.cssText = 'background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.82rem;color:#166534';
+              b.textContent = '✓ Previous submission restored from server.';
+              document.getElementById('form-panel')?.prepend(b);
+            }
+          } catch(e) {}
+        }).catch(() => {});
+      }
+    }
 
     // Show teacher feedback banner + submitted IC toggle if concept is in needs_revision
     if (CONCEPT_ID) {
@@ -1434,7 +1469,21 @@ async function initMode() {
   // ── AT mode: load saved AT draft + show AT workspace button ────
   if (MODE === 'at') {
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
-    if (saved && Object.keys(saved).length) applyATDraft(saved);
+    if (saved && Object.keys(saved).length) {
+      applyATDraft(saved);
+    } else {
+      // No localStorage draft — try server-saved submission
+      const _stok4 = localStorage.getItem('student-session-token');
+      if (_stok4 && CONCEPT_ID) {
+        fetch(`/api/student/draft/${CONCEPT_ID}`, {
+          headers: { 'Authorization': `Bearer ${_stok4}` }
+        }).then(r => r.ok ? r.text() : null).then(html => {
+          if (!html) return;
+          const m = html.match(/<script[^>]+id="at-source-data"[^>]*>([\s\S]*?)<\/script>/i);
+          if (m) { try { applyATDraft(JSON.parse(m[1])); } catch(e) {} }
+        }).catch(() => {});
+      }
+    }
 
     // Show the AT workspace button and update its state
     const btnAT = document.getElementById('btn-at-workspace');
@@ -1478,7 +1527,20 @@ async function initMode() {
 
     // Load saved HW draft
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
-    if (saved && Object.keys(saved).length) applyHWDraft(saved);
+    if (saved && Object.keys(saved).length) {
+      applyHWDraft(saved);
+    } else {
+      const _stok5 = localStorage.getItem('student-session-token');
+      if (_stok5 && CONCEPT_ID) {
+        fetch(`/api/student/draft/${CONCEPT_ID}`, {
+          headers: { 'Authorization': `Bearer ${_stok5}` }
+        }).then(r => r.ok ? r.text() : null).then(html => {
+          if (!html) return;
+          const m = html.match(/<script[^>]+id="hw-source-data"[^>]*>([\s\S]*?)<\/script>/i);
+          if (m) { try { applyHWDraft(JSON.parse(m[1])); } catch(e) {} }
+        }).catch(() => {});
+      }
+    }
 
     // Start with one empty question if none
     setTimeout(() => {
