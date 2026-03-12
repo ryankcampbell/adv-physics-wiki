@@ -66,6 +66,7 @@
   },
   {
     "concept_id": "clock_sync",
-    "status": "in_progress"
+    "status": "in_progress",
+    "at_status": "submitted"
   }
 ]
