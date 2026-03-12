@@ -835,7 +835,7 @@
         <span id="draft-modal-title" style="font-size:0.85rem;font-weight:600;color:#e2e8f0;flex:1"></span>
         <button onclick="closeDraftModal()" style="background:#334155;color:#e2e8f0;border:none;border-radius:5px;padding:5px 12px;cursor:pointer;font-size:0.82rem">✕ Close</button>
       </div>
-      <iframe id="draft-modal-iframe" sandbox="allow-scripts" style="flex:1;border:none;width:100%"></iframe>
+      <iframe id="draft-modal-iframe" sandbox="allow-scripts allow-same-origin" style="flex:1;border:none;width:100%"></iframe>
     </div>
   </div>
 
@@ -1944,9 +1944,9 @@ async function loadPipeline() {
 
     let rows = '';
     students.forEach(student => {
-      const topics = Object.values(wf[student]);
-      if (!topics.length) return;
-      topics.forEach((topic, i) => {
+      const entries = Object.entries(wf[student]);
+      if (!entries.length) return;
+      entries.forEach(([slug, topic], i) => {
         const key = `${topic.stage}+${topic.status}`;
         const [label, cls] = P_BADGE[key] || [topic.status, 'p-draft'];
         const canAdvance = topic.stage !== 'complete' && topic.status === 'submitted';
@@ -1957,9 +1957,9 @@ async function loadPipeline() {
           <td><span style="font-size:0.72rem;color:#94a3b8">${topic.module}</span><br>${topic.title}</td>
           <td><span class="p-stage ${cls}">${label}</span></td>
           <td>
-            ${canAdvance ? `<button class="p-advance-btn" onclick="pAdvance('${student}','${topic.slug}')">→ ${nextLabel}</button>` : ''}
-            ${canSendBack ? `<button class="p-back-btn" onclick="pSendBack('${student}','${topic.slug}')">Send back</button>` : ''}
-            <button class="p-back-btn" onclick="viewStudentDraft('${student}','${topic.slug}')" style="background:#1e293b;color:#7eb8da;border-color:#334155" title="Preview last submission">View Draft</button>
+            ${canAdvance ? `<button class="p-advance-btn" onclick="pAdvance('${student}','${slug}')">→ ${nextLabel}</button>` : ''}
+            ${canSendBack ? `<button class="p-back-btn" onclick="pSendBack('${student}','${slug}')">Send back</button>` : ''}
+            <button class="p-back-btn" onclick="viewStudentDraft('${student}','${slug}')" style="background:#1e293b;color:#7eb8da;border-color:#334155" title="Preview last submission">View Draft</button>
             ${topic.revision_notes ? `<div style="font-size:0.7rem;color:#dc2626;margin-top:3px">📋 ${topic.revision_notes}</div>` : ''}
           </td>
         </tr>`;
