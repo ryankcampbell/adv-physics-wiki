@@ -1998,7 +1998,7 @@ async function viewStudentDraft(student, slug) {
   const iframe = document.getElementById('draft-modal-iframe');
 
   title.textContent = `Draft preview — ${student} / ${slug}`;
-  iframe.src = '';
+  iframe.srcdoc = '<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#94a3b8">Loading…</body>';
   modal.style.display = 'flex';
 
   try {
@@ -2009,8 +2009,7 @@ async function viewStudentDraft(student, slug) {
     }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const html = await r.text();
-    const blob = new Blob([html], { type: 'text/html' });
-    iframe.src = URL.createObjectURL(blob);
+    iframe.srcdoc = html;
   } catch (e) {
     iframe.srcdoc = `<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#fca5a5">Error loading draft: ${e.message}</body>`;
   }
@@ -2019,8 +2018,6 @@ async function viewStudentDraft(student, slug) {
 function closeDraftModal() {
   const modal = document.getElementById('draft-modal');
   const iframe = document.getElementById('draft-modal-iframe');
-  if (iframe.src && iframe.src.startsWith('blob:')) URL.revokeObjectURL(iframe.src);
-  iframe.src = '';
   iframe.srcdoc = '';
   modal.style.display = 'none';
 }
