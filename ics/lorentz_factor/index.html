@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IC: The Lorentz Factor γ | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-approved{background:rgba(34,197,94,0.3);color:#86efac}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.eq-block{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin:16px 0;text-align:center;font-size:1.05rem}
+.step{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:14px 18px;margin-bottom:10px}
+.step-num{display:inline-block;background:#1e3a5f;color:white;border-radius:50%;width:22px;height:22px;text-align:center;font-size:.75rem;font-weight:700;line-height:22px;margin-right:8px}
+/* Sim styles */
+#sim-container{background:#0f172a;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#e2e8f0}
+.sim-title{text-align:center;font-size:1rem;font-weight:700;color:#7eb8da;margin-bottom:20px;letter-spacing:.04em}
+.sim-controls{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.sim-controls label{font-size:.82rem;color:#94a3b8;white-space:nowrap}
+#v-slider{flex:1;min-width:180px;accent-color:#7eb8da}
+#v-display{font-size:.9rem;font-weight:700;color:#7eb8da;min-width:70px}
+.sim-readouts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.readout{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px 16px;text-align:center}
+.readout-label{font-size:.68rem;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.readout-val{font-size:1.4rem;font-weight:700;color:#e2e8f0}
+.readout-val.highlight{color:#7eb8da}
+canvas{display:block;width:100%;border-radius:6px}
+.sim-note{font-size:.75rem;color:#475569;text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="ic-title">The Lorentz Factor γ: One Number to Rule All of Special Relativity</div>
+  <div class="ic-meta">
+    <span>by Alex Rodriguez</span>
+    <span class="badge badge-approved">Published</span>
+    <span>Special Relativity</span>
+  </div>
+</div>
+
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q">Where does the Lorentz factor γ come from, and why does a single number control both time dilation and length contraction?</p>
+
+<h2>Explainer</h2>
+
+<p>Special relativity rests on two postulates: the laws of physics are the same in all inertial frames, and the speed of light <em>c</em> is the same for every observer regardless of relative motion. These two simple rules collide head-on with Newtonian intuition — and the collision produces γ.</p>
+
+<p><strong>The light-clock thought experiment.</strong> Imagine a clock built from two mirrors with a photon bouncing between them. In its rest frame, the photon travels a distance <em>L</em> each tick, so the tick period is <em>t₀ = L/c</em>.</p>
+
+<p>Now watch this clock fly past you horizontally at speed <em>v</em>. In your frame, the photon still travels at <em>c</em> (second postulate), but it traces a diagonal path — both forward with the clock and upward between the mirrors. By Pythagoras:</p>
+
+<div class="eq-block" id="eq1"></div>
+
+<p>where <em>t'</em> is the tick duration in your frame. Solving for <em>t'</em>:</p>
+
+<div class="eq-block" id="eq2"></div>
+
+<p>The factor out front is γ. It emerges directly from insisting light travels at <em>c</em> in every frame.</p>
+
+<div class="step">
+  <span class="step-num">1</span><strong>Define β = v/c</strong> (the velocity as a fraction of light speed, always between 0 and 1 for massive objects).
+</div>
+<div class="step">
+  <span class="step-num">2</span><strong>γ = 1/√(1 − β²)</strong>. At v = 0, γ = 1 (no relativistic effects). As v → c, γ → ∞.
+</div>
+<div class="step">
+  <span class="step-num">3</span><strong>Time dilation:</strong> t' = γ t₀. Moving clocks run slow by exactly γ.
+</div>
+<div class="step">
+  <span class="step-num">4</span><strong>Length contraction:</strong> L' = L₀/γ. Moving rulers shorten by exactly γ.
+</div>
+
+<p>The same γ appears in both effects because both follow from the same geometric constraint on how spacetime intervals must behave to keep <em>c</em> constant. It also appears in relativistic momentum (<em>p = γmv</em>) and energy (<em>E = γmc²</em>), which is why it truly governs all of special relativity.</p>
+
+<p><strong>Why can't you reach c?</strong> As <em>v → c</em>, γ → ∞, so the relativistic kinetic energy <em>K = (γ − 1)mc²</em> also diverges. Reaching exactly <em>c</em> would require infinite energy. This is a physical impossibility for any object with mass — not an engineering limitation.</p>
+
+<h2>Simulation</h2>
+
+<div class="sim-wrap">
+  <div id="sim-container">
+    <div class="sim-title">Lorentz Factor Explorer</div>
+    <div class="sim-controls">
+      <label for="v-slider">v / c</label>
+      <input type="range" id="v-slider" min="0" max="0.9999" step="0.001" value="0.5">
+      <span id="v-display">0.500 c</span>
+    </div>
+    <div class="sim-readouts">
+      <div class="readout">
+        <div class="readout-label">Lorentz Factor γ</div>
+        <div class="readout-val highlight" id="out-gamma">1.155</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">Time dilation t'/t₀</div>
+        <div class="readout-val" id="out-time">1.155×</div>
+      </div>
+      <div class="readout">
+        <div class="readout-label">Length contraction L'/L₀</div>
+        <div class="readout-val" id="out-length">0.866×</div>
+      </div>
+    </div>
+    <canvas id="sim-canvas" height="200"></canvas>
+    <div class="sim-note">Drag the slider to explore. Notice how γ rises slowly at first, then shoots up steeply near v = c.</div>
+  </div>
+  <div class="sim-caption">Interactive: γ as a function of velocity. The curve is the heart of special relativity.</div>
+</div>
+
+<h2>Citations</h2>
+
+<div class="citation">
+  <a href="https://www.feynmanlectures.caltech.edu/I_15.html" target="_blank">Feynman Lectures on Physics, Vol. I §15 — Special Relativity</a>
+  <div class="purpose">Primary source for the light-clock derivation and the physical meaning of γ. Feynman's treatment is unusually clear about why both postulates together force the existence of γ.</div>
+</div>
+
+<div class="citation">
+  <a href="https://www.fourmilab.ch/etexts/einstein/specrel/www/" target="_blank">Einstein, "On the Electrodynamics of Moving Bodies" (1905)</a>
+  <div class="purpose">Original paper. §4 derives the transformation of clock rates directly from the postulates — this is where γ first appears, though Einstein didn't call it that.</div>
+</div>
+
+<div class="citation">
+  <a href="https://hyperphysics.phy-astr.gsu.edu/hbase/Relativ/ltrans.html" target="_blank">HyperPhysics — Lorentz Transformation</a>
+  <div class="purpose">Used to cross-check the numerical values of γ at specific velocities and to verify that the same factor appears in length contraction as in time dilation.</div>
+</div>
+
+<h2>Anchor Question</h2>
+<div class="anchor-box">
+  A muon created in the upper atmosphere at 15 km altitude travels at <em>v = 0.998c</em>. In the muon's rest frame, what is its maximum "lifespan distance" — and why does this differ from what a ground observer measures? Use γ explicitly in your answer.
+</div>
+
+<div class="ic-footer">
+  <span>Alex Rodriguez — Advanced Physics Wiki</span>
+  <span>Special Relativity · Lorentz Factor</span>
+</div>
+
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="initPage()"></script>
+
+<script>
+function initPage() {
+  // Render KaTeX equations
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left:'$$', right:'$$', display:true},
+      {left:'$', right:'$', display:false}
+    ]
+  });
+
+  document.getElementById('eq1').innerHTML = '';
+  katex.render('(ct\')^2 = (ct_0)^2 + (vt\')^2', document.getElementById('eq1'), {displayMode: true});
+  document.getElementById('eq2').innerHTML = '';
+  katex.render('t\' = \\frac{t_0}{\\sqrt{1 - v^2/c^2}} = \\gamma \\, t_0', document.getElementById('eq2'), {displayMode: true});
+
+  // Simulation
+  const slider   = document.getElementById('v-slider');
+  const vDisplay = document.getElementById('v-display');
+  const outGamma = document.getElementById('out-gamma');
+  const outTime  = document.getElementById('out-time');
+  const outLen   = document.getElementById('out-length');
+  const canvas   = document.getElementById('sim-canvas');
+  const ctx      = canvas.getContext('2d');
+
+  function gamma(beta) { return 1 / Math.sqrt(1 - beta * beta); }
+
+  function drawCurve(currentBeta) {
+    const W = canvas.parentElement.clientWidth || 800;
+    canvas.width  = W;
+    canvas.height = 200;
+    const w = canvas.width, h = canvas.height;
+    const padL = 52, padR = 16, padT = 14, padB = 32;
+    const gMax = 10;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    for (let g = 1; g <= gMax; g += 2) {
+      const y = padT + (h - padT - padB) * (1 - g / gMax);
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    }
+    for (let b = 0; b <= 10; b += 2) {
+      const x = padL + (w - padL - padR) * b / 10;
+      ctx.beginPath(); ctx.moveTo(x, padT); ctx.lineTo(x, h - padB); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, h - padB); ctx.lineTo(w - padR, h - padB); ctx.stroke();
+
+    // Axis labels
+    ctx.fillStyle = '#64748b';
+    ctx.font = '11px system-ui';
+    ctx.textAlign = 'center';
+    for (let b = 0; b <= 10; b += 2) {
+      const x = padL + (w - padL - padR) * b / 10;
+      ctx.fillText((b / 10).toFixed(1), x, h - padB + 14);
+    }
+    ctx.fillText('v / c', padL + (w - padL - padR) / 2, h - 2);
+    ctx.textAlign = 'right';
+    ctx.fillText('γ', padL - 6, padT + 4);
+    for (let g = 2; g <= gMax; g += 2) {
+      const y = padT + (h - padT - padB) * (1 - g / gMax);
+      ctx.fillText(g, padL - 6, y + 4);
+    }
+
+    // γ curve
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first = true;
+    for (let i = 0; i <= 999; i++) {
+      const b = i / 1000 * 0.9999;
+      const g = Math.min(gamma(b), gMax);
+      const x = padL + (w - padL - padR) * b;
+      const y = padT + (h - padT - padB) * (1 - g / gMax);
+      first ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      first = false;
+    }
+    ctx.stroke();
+
+    // Current point
+    const cg  = gamma(currentBeta);
+    const cx  = padL + (w - padL - padR) * currentBeta;
+    const cgy = Math.min(cg, gMax);
+    const cy  = padT + (h - padT - padB) * (1 - cgy / gMax);
+
+    // Dashed crosshairs
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = 'rgba(126,184,218,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, padT); ctx.lineTo(cx, h - padB); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padL, cy); ctx.lineTo(w - padR, cy); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Dot
+    ctx.fillStyle = '#7eb8da';
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.stroke();
+  }
+
+  function update() {
+    const beta = parseFloat(slider.value);
+    const g    = gamma(beta);
+    vDisplay.textContent = beta.toFixed(3) + ' c';
+    outGamma.textContent = g < 100 ? g.toFixed(3) : g.toFixed(1);
+    outTime.textContent  = (g < 100 ? g.toFixed(3) : g.toFixed(1)) + '×';
+    outLen.textContent   = (1 / g).toFixed(3) + '×';
+    drawCurve(beta);
+  }
+
+  slider.addEventListener('input', update);
+  window.addEventListener('resize', update);
+  update();
+}
+</script>
+
+</body>
+</html>

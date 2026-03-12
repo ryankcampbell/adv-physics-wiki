@@ -1,17 +1,17 @@
 [
   {
-    "concept_id": "spacetime_diagrams",
-    "type": "ic",
-    "title": "Spacetime Diagrams: Drawing Relativity on Paper",
-    "author": "Jimmy Chen",
-    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/spacetime_diagrams/index.html"
-  },
-  {
     "concept_id": "lorentz_transformation",
     "type": "ic",
     "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
     "author": "Sadie Park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_transformation/index.html"
+  },
+  {
+    "concept_id": "lorentz_factor",
+    "type": "ic",
+    "title": "The Lorentz Factor \u03b3: One Number to Rule All of Special Relativity",
+    "author": "Alex Rodriguez",
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_factor/index.html"
   },
   {
     "concept_id": "em_waves",
