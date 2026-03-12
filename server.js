@@ -1668,9 +1668,11 @@ app.get('/api/admin/draft/:studentName/:slug', requireAdmin, (req, res) => {
   const filename = draftFilename(req.params.studentName, slug);
   const filepath = path.join(DRAFTS_DIR, filename);
   if (!fs.existsSync(filepath)) return res.status(404).json({ error: 'No saved draft found' });
-  // Inject <base> so relative paths (e.g. ../../sims/foo.html) resolve against localhost
+  // Inject <base> so relative paths resolve, plus a resize trigger so canvas sims
+  // render correctly when loaded inside a double-nested srcdoc iframe context.
   let html = fs.readFileSync(filepath, 'utf8');
-  html = html.replace(/(<head[^>]*>)/i, '$1<base href="http://localhost:3000/">');
+  const inject = `<base href="http://localhost:3000/"><script>window.addEventListener('load',function(){document.querySelectorAll('iframe').forEach(function(f){f.addEventListener('load',function(){setTimeout(function(){try{f.contentWindow.dispatchEvent(new Event('resize'));}catch(e){}},150);});});});<\/script>`;
+  html = html.replace(/(<head[^>]*>)/i, '$1' + inject);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(html);
 });
