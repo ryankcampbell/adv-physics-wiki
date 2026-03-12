@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IC: The Lorentz Transformation as a Matrix: Rotating Through Spacetime | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-pending{background:rgba(234,88,12,0.3);color:#fdba74}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">&#8592; Concept Navigator</a>
+  <div class="ic-title">The Lorentz Transformation as a Matrix: Rotating Through Spacetime</div>
+  <div class="ic-meta"><span>by Sadie Park</span><span class="badge badge-pending">Pending Review</span></div>
+</div>
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+  <iframe src="../../sims/lorentz.html" style="width:100%;height:100%;border:none"></iframe>
+</div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+<div class="citation"><a href="../../sims/sr.html">A. Rodriguez &#8212; Galilean Velocity Addition and the Problem with Light</a><div class="purpose"><strong>Purpose:</strong> We used Rodriguez&#8217;s result that Galilean addition breaks down for light to motivate why the transformation law for coordinates must also change &#8212; the Galilean boost is the direct coordinate analogue of Galilean velocity addition. If the velocity rule fails, the coordinate rule must fail too.</div></div>
+<div class="citation"><a href="../spacetime_diagrams/index.html">Jimmy Chen &#8212; Spacetime Diagrams: Drawing Relativity on Paper</a><div class="purpose"><strong>Purpose:</strong> The spacetime diagram gave us the geometric picture of what the Lorentz transformation does: it tilts the coordinate axes, which is exactly the hyperbolic rotation interpretation we use in our explainer. Without the diagram it would have been harder to see why the transformation mixes space and time.</div></div>
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<div class="ic-footer">
+  <span>Advanced Physics &middot; NWA &middot; Sadie Park</span>
+  <span>Status: Pending Review</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"What does the Lorentz transformation actually transform \u2014 and why is it fundamentally different from a Galilean boost, even though it reduces to one at low speeds?");
+setMath('sim-cap',"Enter an event\u2019s $(ct, x)$ coordinates in frame S and a velocity $\\beta$. The transformation is computed step by step, showing each matrix element. Verify that $\\Delta s^2$ is the same in both frames.");
+setMath('anchor',"The Lorentz transformation is the mathematical engine of the twin paradox resolution: it is the tool applied at each leg of the traveling twin\u2019s journey to convert between the rocket frame and Earth frame, and the asymmetry in proper time falls directly out of those calculations. Time dilation follows from the $ct$-row of the matrix evaluated at $\\Delta x' = 0$ (giving $\\Delta t = \\gamma\\,\\Delta\\tau$), and length contraction follows from the $x$-row evaluated at $\\Delta t' = 0$. Every quantitative result in special relativity \u2014 from the relativistic Doppler shift to the energy-momentum relation \u2014 ultimately traces back to applying this matrix.");
+
+(function(){
+  const el=document.getElementById('expl');
+  const paras="Start with what we already know. In Newtonian mechanics, when frame $S'$ moves at constant velocity $v$ along the $x$-axis relative to frame $S$, the Galilean transformation tells us: $x' = x - vt$ and, crucially, $t' = t$. Time is the same for every observer. Space transforms, but time is left completely untouched \u2014 it is a universal background parameter that ticks identically for everyone.\n\nSpecial relativity dismantles that picture. The two postulates \u2014 that the laws of physics are the same in all inertial frames, and that the speed of light $c$ is constant for all observers \u2014 force us to abandon absolute simultaneity. If the same light pulse must travel at $c$ as measured by both $S$ and $S'$, then the transformation connecting them cannot leave time alone. Space and time must mix.\n\nThe result is the Lorentz transformation. Writing coordinates as a four-vector $(ct,\\, x)$ \u2014 we use $ct$ so both components carry units of length \u2014 the transformation is a matrix multiplication:\n$$\\begin{pmatrix} ct' \\\\\\\\ x' \\end{pmatrix} = \\begin{pmatrix} \\gamma & -\\gamma\\beta \\\\\\\\ -\\gamma\\beta & \\gamma \\end{pmatrix} \\begin{pmatrix} ct \\\\\\\\ x \\end{pmatrix}$$\nwhere $\\beta = v\/c$ and $\\gamma = 1\/\\!\\sqrt{1 - \\beta^2}$. Both rows involve $\\gamma$ and $\\gamma\\beta$: the new time $ct'$ depends on the old spatial coordinate $x$, and the new position $x'$ depends on the old time $ct$. This is the mixing that the Galilean transformation never had.\n\nThere is a deep geometric reason this works. The Lorentz transformation is a hyperbolic rotation of spacetime: instead of rotating by an ordinary angle $\\theta$, it rotates by rapidity $\\varphi = \\tanh^{-1}(\\beta)$. Ordinary rotations preserve Euclidean distance. Lorentz boosts preserve the spacetime interval:\n$$\\Delta s^2 = -(c\\,\\Delta t)^2 + \\Delta x^2 = -(c\\,\\Delta t')^2 + \\Delta x'^2$$\nThe minus sign on the time term makes the geometry pseudo-Euclidean (Minkowskian). Because $\\Delta s^2$ is the same for all inertial observers, it encodes what is absolute: if two events are causally connected ($\\Delta s^2 < 0$, time-like separation), every frame agrees on their time-ordering.\n\nFinally, when $\\beta \\to 0$: $\\gamma \\to 1$ and $\\gamma\\beta \\to 0$. The matrix approaches the identity for the time row ($ct' \\approx ct$) and gives $x' \\approx x - vt$ for the space row \u2014 the Galilean transformation exactly. The Galilean boost is the Lorentz transformation in the regime where corrections of order $\\beta^2$ are negligible.".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='\uD83D\uDCCB Copy citation link';
+  document.body.appendChild(bar);
+  let hideTimer;
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='\u2713 Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='\uD83D\uDCCB Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
+})();
+</script>
+<script type="application/json" id="ic-source-data">{"f-author":"Sadie Park","f-title":"The Lorentz Transformation as a Matrix: Rotating Through Spacetime","f-rq":"What does the Lorentz transformation actually transform \u2014 and why is it fundamentally different from a Galilean boost, even though it reduces to one at low speeds?","f-expl":"Start with what we already know. In Newtonian mechanics, when frame $S'$ moves at constant velocity $v$ along the $x$-axis relative to frame $S$, the Galilean transformation tells us: $x' = x - vt$ and, crucially, $t' = t$. Time is the same for every observer. Space transforms, but time is left completely untouched \u2014 it is a universal background parameter that ticks identically for everyone.\n\nSpecial relativity dismantles that picture. The two postulates \u2014 that the laws of physics are the same in all inertial frames, and that the speed of light $c$ is constant for all observers \u2014 force us to abandon absolute simultaneity. If the same light pulse must travel at $c$ as measured by both $S$ and $S'$, then the transformation connecting them cannot leave time alone. Space and time must mix.\n\nThe result is the Lorentz transformation. Writing coordinates as a four-vector $(ct,\\, x)$ \u2014 we use $ct$ so both components carry units of length \u2014 the transformation is a matrix multiplication:\n$$\\begin{pmatrix} ct' \\\\ x' \\end{pmatrix} = \\begin{pmatrix} \\gamma & -\\gamma\\beta \\\\ -\\gamma\\beta & \\gamma \\end{pmatrix} \\begin{pmatrix} ct \\\\ x \\end{pmatrix}$$\nwhere $\\beta = v\/c$ and $\\gamma = 1\/\\!\\sqrt{1 - \\beta^2}$. Both rows involve $\\gamma$ and $\\gamma\\beta$: the new time $ct'$ depends on the old spatial coordinate $x$, and the new position $x'$ depends on the old time $ct$. This is the mixing that the Galilean transformation never had.\n\nThere is a deep geometric reason this works. The Lorentz transformation is a hyperbolic rotation of spacetime: instead of rotating by an ordinary angle $\\theta$, it rotates by rapidity $\\varphi = \\tanh^{-1}(\\beta)$. Ordinary rotations preserve Euclidean distance. Lorentz boosts preserve the spacetime interval:\n$$\\Delta s^2 = -(c\\,\\Delta t)^2 + \\Delta x^2 = -(c\\,\\Delta t')^2 + \\Delta x'^2$$\nThe minus sign on the time term makes the geometry pseudo-Euclidean (Minkowskian). Because $\\Delta s^2$ is the same for all inertial observers, it encodes what is absolute: if two events are causally connected ($\\Delta s^2 < 0$, time-like separation), every frame agrees on their time-ordering.\n\nFinally, when $\\beta \\to 0$: $\\gamma \\to 1$ and $\\gamma\\beta \\to 0$. The matrix approaches the identity for the time row ($ct' \\approx ct$) and gives $x' \\approx x - vt$ for the space row \u2014 the Galilean transformation exactly. The Galilean boost is the Lorentz transformation in the regime where corrections of order $\\beta^2$ are negligible.","f-sim-cap":"Enter an event\u2019s $(ct, x)$ coordinates in frame S and a velocity $\\beta$. The transformation is computed step by step, showing each matrix element. Verify that $\\Delta s^2$ is the same in both frames.","f-lc1t":"\u03b2 = 0 (identity \u2014 zero relative velocity)","f-lc1e":"When \u03b2 = 0, \u03b3 = 1 and \u03b3\u03b2 = 0, so the matrix becomes the 2\u00d72 identity. Output equals input: ct' = ct, x' = x. If S' is not moving relative to S, the two frames are the same frame and every event must have identical coordinates in both.","f-lc1o":"Setting \u03b2 = 0 in the simulation confirms the output matches the input exactly. \u2713","f-lc2t":"Spacetime interval preservation at \u03b2 = 3\/5","f-lc2e":"The Lorentz transformation must preserve \u0394s\u00b2 = \u2212(ct)\u00b2 + x\u00b2 for any event. For (ct = 5, x = 4): \u0394s\u00b2 = \u221225 + 16 = \u22129 in frame S. After transformation, the same event should give \u0394s\u00b2 = \u22129 in frame S'.","f-lc2o":"Computed ct' = 3.25, x' = 1.25. In S': \u0394s\u00b2 = \u2212(3.25)\u00b2 + (1.25)\u00b2 = \u221210.5625 + 1.5625 = \u22129. Interval preserved. \u2713","f-scs":"Event: (ct = 5, x = 4), \u03b2 = 3\/5, \u03b3 = 5\/4.","f-scp":"$$ct' = \\gamma(ct - \\beta x) = \\tfrac{5}{4}\\!\\left(5 - \\tfrac{3}{5}\\cdot 4\\right) = \\tfrac{5}{4}(2.6) = 3.25$$\n$$x' = \\gamma(x - \\beta\\,ct) = \\tfrac{5}{4}\\!\\left(4 - \\tfrac{3}{5}\\cdot 5\\right) = \\tfrac{5}{4}(1) = 1.25$$","f-scr":"(ct', x') = (3.25, 1.25). Verified by hand against the matrix formula and confirmed with the simulation. \u2713","f-anchor":"The Lorentz transformation is the mathematical engine of the twin paradox resolution: it is the tool applied at each leg of the traveling twin\u2019s journey to convert between the rocket frame and Earth frame, and the asymmetry in proper time falls directly out of those calculations. Time dilation follows from the $ct$-row of the matrix evaluated at $\\Delta x' = 0$ (giving $\\Delta t = \\gamma\\,\\Delta\\tau$), and length contraction follows from the $x$-row evaluated at $\\Delta t' = 0$. Every quantitative result in special relativity \u2014 from the relativistic Doppler shift to the energy-momentum relation \u2014 ultimately traces back to applying this matrix.","__cits":[{"t":"A. Rodriguez \u2014 Galilean Velocity Addition and the Problem with Light","u":"..\/..\/sims\/sr.html","p":"We used Rodriguez\u2019s result that Galilean addition breaks down for light to motivate why the transformation law for coordinates must also change \u2014 the Galilean boost is the direct coordinate analogue of Galilean velocity addition. If the velocity rule fails, the coordinate rule must fail too."},{"t":"Jimmy Chen \u2014 Spacetime Diagrams: Drawing Relativity on Paper","u":"..\/spacetime_diagrams\/index.html","p":"The spacetime diagram gave us the geometric picture of what the Lorentz transformation does: it tilts the coordinate axes, which is exactly the hyperbolic rotation interpretation we use in our explainer. Without the diagram it would have been harder to see why the transformation mixes space and time."}]}</script>
+</body>
+</html>
