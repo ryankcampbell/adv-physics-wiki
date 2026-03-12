@@ -63,5 +63,9 @@
     "concept_id": "spacetime_diagrams",
     "status": "needs_revision",
     "feedback": "The Minkowski diagram and worldline derivation are solid — two fixes before publishing: (1) label the ct and x axes on your diagram, and (2) specify which inertial frame the diagram is drawn in (S or S′)."
+  },
+  {
+    "concept_id": "clock_sync",
+    "status": "in_progress"
   }
 ]

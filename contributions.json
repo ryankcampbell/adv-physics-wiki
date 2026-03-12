@@ -9,7 +9,7 @@
   {
     "concept_id": "lorentz_factor",
     "type": "ic",
-    "title": "The Lorentz Factor \u03b3: One Number to Rule All of Special Relativity",
+    "title": "The Lorentz Factor γ: One Number to Rule All of Special Relativity",
     "author": "Alex Rodriguez",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_factor/index.html"
   },
@@ -19,5 +19,12 @@
     "title": "Light as an Electromagnetic Wave",
     "author": "Max Brunsfeld",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/em_waves/max_brunsfeld.html"
+  },
+  {
+    "concept_id": "clock_sync",
+    "type": "ic-draft",
+    "title": "Clock Synchronization",
+    "author": "Sadie Park",
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/clock_sync/hronization_sadie_park.html"
   }
 ]
