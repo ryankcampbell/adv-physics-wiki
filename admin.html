@@ -833,6 +833,7 @@
     <div style="background:#1e293b;border:1px solid #334155;border-radius:10px;width:92vw;height:90vh;display:flex;flex-direction:column;overflow:hidden">
       <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #334155;flex-shrink:0">
         <span id="draft-modal-title" style="font-size:0.85rem;font-weight:600;color:#e2e8f0;flex:1"></span>
+        <a id="draft-modal-link" href="#" target="_blank" style="font-size:0.78rem;color:#7eb8da;text-decoration:none;white-space:nowrap;display:none">Open full IC ↗</a>
         <button onclick="closeDraftModal()" style="background:#334155;color:#e2e8f0;border:none;border-radius:5px;padding:5px 12px;cursor:pointer;font-size:0.82rem">✕ Close</button>
       </div>
       <iframe id="draft-modal-iframe" style="flex:1;border:none;width:100%"></iframe>
@@ -2001,6 +2002,14 @@ async function viewStudentDraft(student, slug) {
   iframe.srcdoc = '<body style="font-family:sans-serif;padding:32px;background:#0f172a;color:#94a3b8">Loading…</body>';
   modal.style.display = 'flex';
 
+  // Show "Open full IC" link if a published IC exists at the standard path
+  const link = document.getElementById('draft-modal-link');
+  const icUrl = `http://localhost:3000/ics/${encodeURIComponent(slug)}/index.html`;
+  fetch(icUrl, { method: 'HEAD' }).then(r => {
+    if (r.ok) { link.href = icUrl; link.style.display = 'inline'; }
+    else link.style.display = 'none';
+  }).catch(() => { link.style.display = 'none'; });
+
   try {
     const r = await adminFetch(`/api/admin/draft/${encodeURIComponent(student)}/${encodeURIComponent(slug)}`);
     if (r.status === 404) {
@@ -2019,6 +2028,7 @@ function closeDraftModal() {
   const modal = document.getElementById('draft-modal');
   const iframe = document.getElementById('draft-modal-iframe');
   iframe.srcdoc = '';
+  document.getElementById('draft-modal-link').style.display = 'none';
   modal.style.display = 'none';
 }
 
