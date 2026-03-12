@@ -650,6 +650,7 @@ const SESS_KEY = `at-session-${SLUG}`;
 let icData  = null;   // loaded from localStorage
 let session = null;   // at-session object
 let activeTab = null; // currently visible tool id
+const _initializedTabs = new Set(); // tracks per-page-load init (not persisted)
 
 // ── Init ─────────────────────────────────────────────────────────
 function init() {
@@ -811,20 +812,21 @@ function switchTab(id) {
   if (pane) pane.classList.add('active');
   const doneEl = document.getElementById(`done-${id}`);
   if (doneEl) doneEl.classList.toggle('visible', session.completed.includes(id));
-  // Initialize tool on first open
+  // Initialize tool on first open (per page load, not persisted)
   if (!session.tools) session.tools = {};
-  if (!session.tools[id]?._initialized) {
+  if (!_initializedTabs.has(id)) {
     if (!session.tools[id]) session.tools[id] = {};
-    session.tools[id]._initialized = true;
-    if (id === 'caseBuilder')      cb_init();
-    if (id === 'measurementTable') mt_init();
+    _initializedTabs.add(id);
+    if (id === 'caseBuilder')       cb_init();
+    if (id === 'measurementTable')  mt_init();
     if (id === 'statisticalSpread') ss_init();
-    if (id === 'claimAudit')       ca_init();
-    if (id === 'litReview')        lr_init();
+    if (id === 'claimAudit')        ca_init();
+    if (id === 'litReview')         lr_init();
   } else {
     // Re-render on revisit for tools that need it
     if (id === 'caseBuilder')      cb_renderActiveCases();
     if (id === 'measurementTable') mt_renderTable();
+    if (id === 'litReview' && document.getElementById('lr-s1-library').style.display !== 'none') lr_loadLibrary();
   }
 }
 
@@ -895,6 +897,12 @@ function sendChat() {
   const tok = localStorage.getItem(SIM_TOKEN_KEY);
   if (!tok) {
     appendChatMsg('system', 'Log in via student.html to use Socratic Chat.');
+    return;
+  }
+
+  // Guard: session is null until tools are selected
+  if (!session) {
+    appendChatMsg('system', 'Select your 3 investigation tools first, then chat will be ready.');
     return;
   }
 
@@ -971,6 +979,15 @@ function sendChat() {
               fullText += obj.delta;
               bubble.textContent = fullText;
               msgsEl.scrollTop = msgsEl.scrollHeight;
+            } else if (obj.type === 'done') {
+              document.getElementById('chat-thinking').classList.remove('visible');
+              session.socratiLog.push({ role: 'assistant', content: fullText, ts: new Date().toISOString() });
+              saveSession();
+              _chatBusy = false;
+              document.getElementById('btn-chat-send').disabled = false;
+              updateTurnsDisplay();
+              resetNudgeTimer();
+              return; // stop pumping — connection will close on its own
             } else if (obj.type === 'error') {
               bubble.textContent = 'Error: ' + obj.message;
               _chatBusy = false;

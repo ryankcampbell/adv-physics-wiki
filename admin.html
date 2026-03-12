@@ -1573,15 +1573,34 @@ function toggleResources() {
 async function populateResConceptSelector() {
   const sel = document.getElementById('res-concept-sel');
   const currentVal = sel.value;
-  // Pull concept list from the currently loaded module
   sel.innerHTML = '<option value="">— select concept —</option>';
-  if (!mod || !mod.concepts) return;
-  mod.concepts.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.name;
-    sel.appendChild(opt);
-  });
+
+  const MODULE_FILES = [
+    'modules/special_relativity.json',
+    'modules/quantum_spin.json',
+    'modules/geometric_optics.json',
+    'modules/physical_optics.json'
+  ];
+
+  try {
+    const results = await Promise.allSettled(MODULE_FILES.map(f => fetch(f).then(r => r.json())));
+    results.forEach(r => {
+      if (r.status !== 'fulfilled') return;
+      const m = r.value;
+      const grp = document.createElement('optgroup');
+      grp.label = m.name || m.module || '';
+      (m.concepts || []).forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        grp.appendChild(opt);
+      });
+      if (grp.children.length) sel.appendChild(grp);
+    });
+  } catch(e) {
+    console.warn('Could not load modules for resource selector', e);
+  }
+
   if (currentVal) sel.value = currentVal;
 }
 

@@ -1350,7 +1350,7 @@ app.post('/api/at/chat', requireSimToken, async (req, res) => {
       messages: messages.slice(-12)   // keep context window manageable
     });
     stream.on('text', text => send({ type: 'text', delta: text }));
-    stream.on('finalMessage', () => send({ type: 'done' }));
+    stream.on('finalMessage', () => { send({ type: 'done' }); res.end(); });
     stream.on('error', err => { send({ type: 'error', message: err.message }); res.end(); });
   } catch(err) {
     send({ type: 'error', message: err.message });
@@ -1472,10 +1472,37 @@ app.post('/api/at/fetch-url', requireSimToken, async (req, res) => {
       reqOut.on('error', reject);
       reqOut.on('timeout', () => { reqOut.destroy(); reject(new Error('Timeout')); });
     });
-    // Strip HTML tags, collapse whitespace, cap at 50KB
-    const stripped = text.replace(/<style[\s\S]*?<\/style>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'')
-      .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0, 50000);
     const titleMatch = text.match(/<title[^>]*>([^<]+)<\/title>/i);
+
+    // Try to extract main content only (skip nav/sidebar/footer noise)
+    let content = text;
+    // Wikipedia: grab article body
+    const wpMatch = content.match(/<div[^>]+id="mw-content-text"[\s\S]*?>([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>\s*<div[^>]+id="catlinks"/i)
+      || content.match(/<div[^>]+id="mw-content-text"[\s\S]*?>([\s\S]{500,})/i);
+    if (wpMatch) content = wpMatch[1];
+    else {
+      // Generic: prefer <main> or <article>
+      const mainMatch = content.match(/<main[\s\S]*?>([\s\S]*?)<\/main>/i)
+        || content.match(/<article[\s\S]*?>([\s\S]*?)<\/article>/i);
+      if (mainMatch) content = mainMatch[1];
+      else {
+        // Remove obvious chrome before stripping
+        content = content
+          .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+          .replace(/<header[\s\S]*?<\/header>/gi, '')
+          .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+          .replace(/<aside[\s\S]*?<\/aside>/gi, '');
+      }
+    }
+
+    // Strip HTML tags, collapse whitespace, cap at 50KB
+    const stripped = content
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 50000);
     res.json({ text: stripped, title: titleMatch?.[1]?.trim() || hostname });
   } catch(err) {
     res.status(502).json({ error: err.message });
