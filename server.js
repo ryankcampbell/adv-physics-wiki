@@ -1674,7 +1674,7 @@ app.get('/api/admin/draft/:studentName/:slug', requireAdmin, (req, res) => {
   // Rewrite relative sim src paths to absolute localhost URLs
   html = html.replace(/src="\.\.\/\.\.\/sims\//g, 'src="http://localhost:3000/sims/');
   // Inject resize trigger so canvas sims render after load in nested srcdoc context
-  const inject = `<script>window.addEventListener('load',function(){document.querySelectorAll('iframe').forEach(function(f){f.addEventListener('load',function(){setTimeout(function(){try{f.contentWindow.dispatchEvent(new Event('resize'));}catch(e){}},200);});});});<\/script>`;
+  const inject = `<script>window.addEventListener('load',function(){document.querySelectorAll('iframe').forEach(function(f){setTimeout(function(){try{f.contentWindow.dispatchEvent(new Event('resize'));}catch(e){}},100);});});<\/script>`;
   html = html.replace(/(<\/head>)/i, inject + '$1');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(html);
