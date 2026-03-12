@@ -1025,7 +1025,9 @@ function renderDriveList(files) {
       const labelInp = row.querySelector('.drive-label-inp');
       const conceptId = this.value;
       if (conceptId) {
-        const stripped = stem.replace(new RegExp('^' + conceptId + '[_-]?', 'i'), '').trim();
+        // Strip type prefix (IC_/AT_/HW_) then concept_id prefix to get author slug
+        const noType = stem.replace(/^(ic|at|hw)[_-]/i, '');
+        const stripped = noType.replace(new RegExp('^' + conceptId + '[_-]?', 'i'), '').trim();
         labelInp.value = stripped || stem;
       } else {
         labelInp.value = stem;
@@ -1960,7 +1962,7 @@ async function loadPipeline() {
             ${canAdvance ? `<button class="p-advance-btn" onclick="pAdvance('${student}','${slug}')">→ ${nextLabel}</button>` : ''}
             ${canSendBack ? `<button class="p-back-btn" onclick="pSendBack('${student}','${slug}')">Send back</button>` : ''}
             ${topic.stage === 'ic' || topic.stage === 'complete'
-              ? `<a href="http://localhost:3000/ics/${encodeURIComponent(slug)}/index.html" target="_blank" class="p-back-btn" style="background:#1e293b;color:#7eb8da;border-color:#334155;text-decoration:none;display:inline-block">View IC ↗</a>`
+              ? (() => { const _c = (currentContribs||[]).find(c => c.concept_id === slug && (c.type==='ic'||c.type==='ic-draft'||!c.type)); const _u = _c ? _c.url.replace('https://ryankcampbell.github.io/adv-physics-wiki','http://localhost:3000') : `http://localhost:3000/ics/${encodeURIComponent(slug)}/index.html`; return `<a href="${_u}" target="_blank" class="p-back-btn" style="background:#1e293b;color:#7eb8da;border-color:#334155;text-decoration:none;display:inline-block">View IC ↗</a>`; })()
               : `<button class="p-back-btn" onclick="viewStudentDraft('${student}','${slug}')" style="background:#1e293b;color:#7eb8da;border-color:#334155">View Draft</button>`
             }
             ${topic.revision_notes ? `<div style="font-size:0.7rem;color:#dc2626;margin-top:3px">📋 ${topic.revision_notes}</div>` : ''}
