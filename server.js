@@ -272,10 +272,24 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     );
     const html = result.data;
 
-    // 2. Write to ics/[conceptId]/[filename]
-    const dir = path.join(__dirname, 'ics', conceptId);
+    // Parse canonical meta tags embedded by ic_editor at submission time.
+    // These use the student's login session name and the workflow.json slug (URL param),
+    // so they are always authoritative — no filename parsing needed.
+    const metaStudent = html.match(/<meta name="adv-physics-student" content="([^"]+)"/i)?.[1]?.trim() || null;
+    const metaSlug    = html.match(/<meta name="adv-physics-slug" content="([^"]+)"/i)?.[1]?.trim()    || null;
+    // resolvedConceptId: prefer meta slug (canonical) over admin-panel conceptId (from filename)
+    const resolvedConceptId = metaSlug || conceptId;
+    // Re-check existing IC entry with resolved concept ID (may differ from filename-parsed one)
+    const resolvedIcEntry = existingContribs.find(
+      c => c.concept_id === resolvedConceptId && (c.type === 'ic' || c.type === 'ic-draft')
+    );
+    const resolvedFilename = (fileType === 'ic' && resolvedIcEntry)
+      ? resolvedIcEntry.url.split('/').pop() : filename;
+
+    // 2. Write to ics/[resolvedConceptId]/[resolvedFilename]
+    const dir = path.join(__dirname, 'ics', resolvedConceptId);
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, filename), html);
+    fs.writeFileSync(path.join(dir, resolvedFilename), html);
 
     // 3. Extract title & author from HTML
     const titleRe = fileType === 'at' ? /<title>AT:\s*([^|<]+)/i
@@ -283,9 +297,10 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
                   :                     /<title>IC:\s*([^|<]+)/i;
     const titleM  = html.match(titleRe);
     const authorM = html.match(/by\s+([^<]+)<\/span>/i);
-    const entryTitle  = titleM  ? titleM[1].trim()  : conceptId.replace(/_/g, ' ');
-    const entryAuthor = authorM ? authorM[1].trim()  : (label || 'Unknown');
-    const entryUrl    = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${conceptId}/${filename}`;
+    const entryTitle  = titleM  ? titleM[1].trim()  : resolvedConceptId.replace(/_/g, ' ');
+    // Prefer meta tag student name (exact, from login session) over HTML body regex (fragile)
+    const entryAuthor = metaStudent || (authorM ? authorM[1].trim() : (label || 'Unknown'));
+    const entryUrl    = `https://ryankcampbell.github.io/adv-physics-wiki/ics/${resolvedConceptId}/${resolvedFilename}`;
 
     // 4. Update state/state.json (used by IC editor feedback banner as fallback)
     const statePath = path.join(__dirname, 'state', 'state.json');
@@ -314,16 +329,16 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     let contribs = [...existingContribs];
     if (fileType === 'ic' || isRevision) {
       // IC file (approve or revision): upsert with ic-draft
-      const icIdx = contribs.findIndex(c => c.concept_id === conceptId && (c.type === 'ic' || c.type === 'ic-draft'));
-      const icEntry = { concept_id: conceptId, type: 'ic-draft', title: entryTitle, author: entryAuthor, url: entryUrl };
+      const icIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && (c.type === 'ic' || c.type === 'ic-draft'));
+      const icEntry = { concept_id: resolvedConceptId, type: 'ic-draft', title: entryTitle, author: entryAuthor, url: entryUrl };
       if (icIdx >= 0) contribs[icIdx] = icEntry; else contribs.push(icEntry);
     } else if (fileType === 'hw' && !isRevision) {
       // HW final approval: flip ic-draft → ic so concept node turns green
-      const icIdx = contribs.findIndex(c => c.concept_id === conceptId && c.type === 'ic-draft');
+      const icIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && c.type === 'ic-draft');
       if (icIdx >= 0) contribs[icIdx] = { ...contribs[icIdx], type: 'ic' };
       // Also add hw entry for concept viewer
-      const hwEntry = { concept_id: conceptId, type: 'hw', title: entryTitle, author: entryAuthor, url: entryUrl };
-      const hwIdx = contribs.findIndex(c => c.concept_id === conceptId && c.type === 'hw');
+      const hwEntry = { concept_id: resolvedConceptId, type: 'hw', title: entryTitle, author: entryAuthor, url: entryUrl };
+      const hwIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && c.type === 'hw');
       if (hwIdx >= 0) contribs[hwIdx] = hwEntry; else contribs.push(hwEntry);
     }
     fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
@@ -332,27 +347,50 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     const wf = readWorkflow();
     const authorKey = entryAuthor.toLowerCase().trim();
     for (const [studentName, topics] of Object.entries(wf)) {
-      if (!topics[conceptId]) continue;
-      const firstName = studentName.split(' ')[0];
-      if (!authorKey.includes(firstName)) continue;
+      if (!topics[resolvedConceptId]) continue;
+      // Prefer exact full-name match from meta tag; fall back to first-name for old submissions
+      if (metaStudent) {
+        if (studentName.toLowerCase() !== metaStudent.toLowerCase()) continue;
+      } else {
+        const firstName = studentName.split(' ')[0];
+        if (!authorKey.includes(firstName)) continue;
+      }
 
       if (isRevision) {
         // Send to revision: set needs_revision + store notes for workspace card + IC editor
-        topics[conceptId].status         = 'needs_revision';
-        topics[conceptId].revision_notes = feedback || '';
+        topics[resolvedConceptId].status         = 'needs_revision';
+        topics[resolvedConceptId].revision_notes = feedback || '';
       } else {
         // Approve: advance stage
         const stageMap = { ic: 'at', at: 'hw', hw: 'complete' };
         const next = stageMap[fileType];
         if (next) {
-          topics[conceptId].stage          = next;
-          topics[conceptId].status         = next === 'complete' ? 'complete' : 'draft';
-          topics[conceptId].revision_notes = '';
+          topics[resolvedConceptId].stage          = next;
+          topics[resolvedConceptId].status         = next === 'complete' ? 'complete' : 'draft';
+          topics[resolvedConceptId].revision_notes = '';
         }
       }
-      topics[conceptId].updated_at = new Date().toISOString().slice(0, 10);
+      topics[resolvedConceptId].updated_at = new Date().toISOString().slice(0, 10);
     }
     writeWorkflow(wf);
+
+    // 6b. Seed AT draft: when IC is approved, write the IC HTML as the student's
+    //     draft so ic-source-data is available when they open the AT editor.
+    if (fileType === 'ic' && !isRevision) {
+      const wf2 = readWorkflow();
+      for (const [studentName, topics] of Object.entries(wf2)) {
+        if (!topics[resolvedConceptId]) continue;
+        if (metaStudent) {
+          if (studentName.toLowerCase() !== metaStudent.toLowerCase()) continue;
+        } else {
+          const firstName = studentName.split(' ')[0].toLowerCase();
+          if (!entryAuthor.toLowerCase().includes(firstName)) continue;
+        }
+        const draftFile = path.join(DRAFTS_DIR, draftFilename(studentName, resolvedConceptId));
+        fs.writeFileSync(draftFile, html, 'utf8');
+        break;
+      }
+    }
 
     // 7. Git commit + push
     const token = process.env.GITHUB_TOKEN;
@@ -360,8 +398,8 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
     const actionLabel = isRevision ? 'Revision' : (fileType === 'hw' ? 'Publish' : `Approve-${fileType.toUpperCase()}`);
 
-    execSync(`git add "ics/${conceptId}/${filename}" state/state.json contributions.json state/workflow.json`, { cwd: __dirname });
-    try { execSync(`git commit -m "${actionLabel}: ${conceptId}/${safeLabel}"`, { cwd: __dirname }); } catch(_) { /* nothing new to commit */ }
+    execSync(`git add "ics/${resolvedConceptId}/${resolvedFilename}" state/state.json contributions.json state/workflow.json`, { cwd: __dirname });
+    try { execSync(`git commit -m "${actionLabel}: ${resolvedConceptId}/${safeLabel}"`, { cwd: __dirname }); } catch(_) { /* nothing new to commit */ }
     if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
     execSync('git push', { cwd: __dirname });
     if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
@@ -986,6 +1024,12 @@ app.get('/api/sim/log', requireAdmin, (req, res) => {
   res.json(readSimLog());
 });
 
+// Public: expose non-sensitive settings to student clients
+app.get('/api/public/settings', (req, res) => {
+  const s = readSimSettings();
+  res.json({ fullATEnabled: !!s.fullATEnabled });
+});
+
 // ── Route: Settings — model + password (admin) ───────────────────
 app.get('/api/sim/settings', requireAdmin, (req, res) => {
   res.json(readSimSettings());
@@ -998,6 +1042,9 @@ app.post('/api/sim/settings', requireAdmin, (req, res) => {
     if (!SIM_MODELS[req.body.model]) return res.status(400).json({ error: 'Unknown model key' });
     updated.model = req.body.model;
     console.log(`[sim] Model switched to ${req.body.model}`);
+  }
+  if (req.body.fullATEnabled !== undefined) {
+    updated.fullATEnabled = !!req.body.fullATEnabled;
   }
   if (req.body.password !== undefined) {
     if (!req.body.password.trim()) return res.status(400).json({ error: 'Password cannot be empty' });

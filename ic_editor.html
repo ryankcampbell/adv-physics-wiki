@@ -558,6 +558,20 @@ function _applyDraft(d) {
   if (Array.isArray(d.__cits) && d.__cits.length) { _restoreCits(d.__cits); }
 }
 
+// Pre-fill the stage-appropriate name field from the logged-in student session.
+// Only fills if the field is currently empty (draft restore takes priority when present).
+// Locks the field to prevent attribution errors when student is logged in.
+function _autofillNames() {
+  const sname = localStorage.getItem('student-name');
+  if (!sname) return;
+  const loggedIn = !!localStorage.getItem('student-session-token');
+  const targetId = MODE === 'at' ? 'at-authors' : MODE === 'hw' ? 'hw-authors' : 'f-author';
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  if (!el.value.trim()) el.value = sname;
+  if (loggedIn) el.readOnly = true;
+}
+
 function save() {
   localStorage.setItem(DRAFT_KEY, JSON.stringify(_draftObj()));
   document.getElementById('save-badge').textContent = 'Saved ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -570,6 +584,7 @@ function load() {
     else if (MODE === 'hw') applyHWDraft(d);
     else _applyDraft(d);
   } catch(e) {}
+  _autofillNames();
 }
 
 function _restoreSim(html, name) {
@@ -747,6 +762,9 @@ function genHTML() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="${esc(localStorage.getItem('student-name') || author)}">
+<meta name="adv-physics-slug" content="${esc(CONCEPT_ID)}">
+<meta name="adv-physics-stage" content="ic">
 <title>IC: ${esc(title)} | Advanced Physics Wiki</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <style>
@@ -904,6 +922,9 @@ function genATHTML() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="${esc(localStorage.getItem('student-name') || atAuthors)}">
+<meta name="adv-physics-slug" content="${esc(CONCEPT_ID)}">
+<meta name="adv-physics-stage" content="at">
 <title>AT: ${esc(title)} | by ${esc(atAuthors)}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <style>
@@ -1077,6 +1098,9 @@ function genHWHTML() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="${esc(localStorage.getItem('student-name') || hwAuthors)}">
+<meta name="adv-physics-slug" content="${esc(CONCEPT_ID)}">
+<meta name="adv-physics-stage" content="hw">
 <title>HW: ${esc(title)} | by ${esc(hwAuthors)}</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <style>
@@ -1281,6 +1305,7 @@ async function initMode() {
           if (!m) return;
           try {
             _applyDraft(JSON.parse(m[1]));
+            _autofillNames();
             update();
             const banner = document.getElementById('feedback-banner');
             if (banner) banner.innerHTML += ' <span style="font-size:0.78rem;opacity:0.65">(Previous submission restored)</span>';
@@ -1345,6 +1370,7 @@ async function initMode() {
                       if (Array.isArray(ld.__cits) && ld.__cits.length) { _restoreCits(ld.__cits); }
                     } catch(e) {}  // overlay saved progress
                   }
+                  _autofillNames();
                   update();
                   const banner = document.getElementById('feedback-banner');
                   if (banner) banner.innerHTML += ' <span style="font-size:0.78rem;opacity:0.65">(Previous submission restored)</span>';
@@ -1454,8 +1480,10 @@ async function initMode() {
       'No published IC found for this concept yet. Your teacher may share a direct link.';
   }
 
-  // ── Load IC data from server-saved draft (connect-src 'self' blocks GitHub Pages fetch) ──
+  // ── Load IC data into sections 1–5 ──
+  // Try: (1) server draft ic-source-data, (2) published local IC file
   if (CONCEPT_ID) {
+    let icLoaded = false;
     const _stokAt = localStorage.getItem('student-session-token');
     if (_stokAt) {
       try {
@@ -1465,6 +1493,18 @@ async function initMode() {
         if (r.ok) {
           const draftHtml = await r.text();
           const m = draftHtml.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
+          if (m) { _applyDraft(JSON.parse(m[1])); icLoaded = true; }
+        }
+      } catch(e) {}
+    }
+    // Fallback: fetch from published local IC file (GitHub Pages URL → local path)
+    if (!icLoaded && _icFirstUrl) {
+      try {
+        const localUrl = _icFirstUrl.replace(/^https?:\/\/[^/]+\/adv-physics-wiki/, '');
+        const r = await fetch(localUrl);
+        if (r.ok) {
+          const html = await r.text();
+          const m = html.match(/<script[^>]+id="ic-source-data"[^>]*>([\s\S]*?)<\/script>/i);
           if (m) _applyDraft(JSON.parse(m[1]));
         }
       } catch(e) {}
@@ -1479,6 +1519,7 @@ async function initMode() {
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
     if (saved && Object.keys(saved).length) {
       applyATDraft(saved);
+      _autofillNames();
     } else {
       // No localStorage draft — try server-saved AT submission
       const _stok4 = localStorage.getItem('student-session-token');
@@ -1489,14 +1530,21 @@ async function initMode() {
           if (!html) return;
           const m = html.match(/<script[^>]+id="at-source-data"[^>]*>([\s\S]*?)<\/script>/i);
           if (m) { try { applyATDraft(JSON.parse(m[1])); } catch(e) {} }
+          _autofillNames();
         }).catch(() => {});
+      } else {
+        _autofillNames();
       }
     }
 
-    // Show the AT workspace button and update its state
-    const btnAT = document.getElementById('btn-at-workspace');
-    if (btnAT) btnAT.style.display = 'inline-block';
-    prefillFromATSession();
+    // Show the AT workspace button only if full AT mode is enabled
+    fetch('/api/public/settings').then(r => r.json()).then(s => {
+      if (s.fullATEnabled) {
+        const btnAT = document.getElementById('btn-at-workspace');
+        if (btnAT) btnAT.style.display = 'inline-block';
+        prefillFromATSession();
+      }
+    }).catch(() => {});
   }
 
   // ── HW mode: load AT data → populate verification read-only ──
@@ -1537,6 +1585,7 @@ async function initMode() {
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}');
     if (saved && Object.keys(saved).length) {
       applyHWDraft(saved);
+      _autofillNames();
     } else {
       const _stok5 = localStorage.getItem('student-session-token');
       if (_stok5 && CONCEPT_ID) {
@@ -1546,7 +1595,10 @@ async function initMode() {
           if (!html) return;
           const m = html.match(/<script[^>]+id="hw-source-data"[^>]*>([\s\S]*?)<\/script>/i);
           if (m) { try { applyHWDraft(JSON.parse(m[1])); } catch(e) {} }
+          _autofillNames();
         }).catch(() => {});
+      } else {
+        _autofillNames();
       }
     }
 
