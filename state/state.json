@@ -68,5 +68,10 @@
     "concept_id": "clock_sync",
     "status": "in_progress",
     "at_status": "submitted"
+  },
+  {
+    "concept_id": "galilean_velocity",
+    "status": "submitted",
+    "claimed_by": "Addition Sadie Park"
   }
 ]
