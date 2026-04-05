@@ -26,5 +26,12 @@
     "title": "Clock Synchronization",
     "author": "Sadie Park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/clock_sync/sadie_park.html"
+  },
+  {
+    "concept_id": "galilean_velocity_addition",
+    "type": "ic-draft",
+    "title": "Galilean Velocity Addition",
+    "author": "sadie park",
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/galilean_velocity_addition/addition_sadie_park.html"
   }
 ]

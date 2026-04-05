@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="galilean_velocity_addition">
+<meta name="adv-physics-stage" content="ic">
+<title>IC: Galilean Velocity Addition | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-pending{background:rgba(234,88,12,0.3);color:#fdba74}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="ic-title">Galilean Velocity Addition</div>
+  <div class="ic-meta"><span>by sadie park</span><span class="badge badge-pending">Pending Review</span></div>
+</div>
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+        <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+  <meta charset=&quot;UTF-8&quot;>
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  <title>Galilean Velocity Transformation</title>
+  <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;
+    onload=&quot;renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})&quot;></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+      margin: 0; padding: 15px;
+      background: #1a1a2e; color: #eee;
+    }
+    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
+    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }
+    
+    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .canvas-wrap { flex: 1; min-width: 0; }
+    
+    .panel { background: #252540; padding: 12px; border-radius: 8px; }
+    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;
+                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }
+    
+    .slider-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .slider-row label { font-size: 11px; color: #aab; min-width: 100px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }
+    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 50px;
+                       text-align: right; font-family: monospace; }
+    
+    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;
+               font-family: monospace; font-size: 12px; line-height: 1.8; margin-top: 6px; }
+    .readout-row { display: flex; justify-content: space-between; margin: 4px 0; }
+    .readout-label { color: #8899aa; }
+    .readout-value { color: #7eb8da; font-weight: bold; }
+    
+    canvas { display: block; width: 100%; height: auto; border-radius: 8px; background: #0d0d1a; margin-bottom: 8px; }
+    
+    .frame-label { font-size: 11px; color: #8899aa; margin-top: 8px; margin-bottom: 4px; }
+    .equation { background: #1a1a2e; padding: 10px; border-radius: 6px; margin-top: 6px;
+                font-size: 12px; text-align: center; color: #c8d8e8; }
+  </style>
+</head>
+<body>
+  <h1>Galilean Velocity Transformation</h1>
+  <p class=&quot;subtitle&quot;>Watch how velocity changes between reference frames</p>
+  
+  <div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+      <div class=&quot;panel&quot;>
+        <h3>Ball Velocity (Frame S)</h3>
+        <div class=&quot;slider-row&quot;>
+          <label>u:</label>
+          <input type=&quot;range&quot; id=&quot;uSlider&quot; min=&quot;-100&quot; max=&quot;100&quot; value=&quot;30&quot; step=&quot;2&quot;>
+          <span class=&quot;val&quot; id=&quot;uVal&quot;>30 m/s</span>
+        </div>
+      </div>
+      
+      <div class=&quot;panel&quot;>
+        <h3>Frame S' Velocity</h3>
+        <div class=&quot;slider-row&quot;>
+          <label>v:</label>
+          <input type=&quot;range&quot; id=&quot;vSlider&quot; min=&quot;-60&quot; max=&quot;60&quot; value=&quot;20&quot; step=&quot;2&quot;>
+          <span class=&quot;val&quot; id=&quot;vVal&quot;>20 m/s</span>
+        </div>
+      </div>
+      
+      <div class=&quot;panel&quot;>
+        <h3>Transformation</h3>
+        <div class=&quot;equation&quot;>$$u' = u - v$$</div>
+        <div class=&quot;readout&quot;>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>u (Frame S):</span>
+            <span class=&quot;readout-value&quot; id=&quot;readoutU&quot;>30 m/s</span>
+          </div>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>v (Frame vel):</span>
+            <span class=&quot;readout-value&quot; id=&quot;readoutV&quot;>20 m/s</span>
+          </div>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>u' (Frame S'):</span>
+            <span class=&quot;readout-value&quot; id=&quot;readoutUPrime&quot;>10 m/s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class=&quot;canvas-wrap&quot;>
+      <div class=&quot;frame-label&quot;>Frame S (Stationary)</div>
+      <canvas id=&quot;canvasS&quot; width=&quot;800&quot; height=&quot;120&quot;></canvas>
+      
+      <div class=&quot;frame-label&quot;>Frame S' (Moving at v = <span id=&quot;frameVelLabel&quot;>20</span> m/s)</div>
+      <canvas id=&quot;canvasSPrime&quot; width=&quot;800&quot; height=&quot;120&quot;></canvas>
+    </div>
+  </div>
+
+  <script>
+    const uSlider = document.getElementById('uSlider');
+    const vSlider = document.getElementById('vSlider');
+    
+    const uVal = document.getElementById('uVal');
+    const vVal = document.getElementById('vVal');
+    
+    const readoutU = document.getElementById('readoutU');
+    const readoutV = document.getElementById('readoutV');
+    const readoutUPrime = document.getElementById('readoutUPrime');
+    const frameVelLabel = document.getElementById('frameVelLabel');
+    
+    const canvasS = document.getElementById('canvasS');
+    const ctxS = canvasS.getContext('2d');
+    
+    const canvasSPrime = document.getElementById('canvasSPrime');
+    const ctxSPrime = canvasSPrime.getContext('2d');
+
+    let t = 0;
+    const ballRadius = 8;
+    const pixelsPerMeter = 3; // 3 pixels per m/s of velocity displayed
+
+    function update() {
+      const u = parseFloat(uSlider.value);
+      const v = parseFloat(vSlider.value);
+      const uPrime = u - v;
+
+      // Update display
+      uVal.textContent = u + ' m/s';
+      vVal.textContent = v + ' m/s';
+      readoutU.textContent = u + ' m/s';
+      readoutV.textContent = v + ' m/s';
+      readoutUPrime.textContent = uPrime + ' m/s';
+      frameVelLabel.textContent = v;
+
+      // Position in Frame S: x = u * t
+      const xS = 400 + u * pixelsPerMeter * (t % 10) / 10;
+
+      // Position in Frame S': x' = u' * t (or equivalently, x - v*t relative to origin)
+      const xSPrime = 400 + uPrime * pixelsPerMeter * (t % 10) / 10;
+
+      // Draw Frame S
+      ctxS.clearRect(0, 0, canvasS.width, canvasS.height);
+      
+      // Draw grid/axis
+      ctxS.strokeStyle = '#3a3a5a';
+      ctxS.lineWidth = 1;
+      ctxS.beginPath();
+      ctxS.moveTo(0, 60);
+      ctxS.lineTo(canvasS.width, 60);
+      ctxS.stroke();
+
+      // Draw origin marker
+      ctxS.fillStyle = '#5a5a8a';
+      ctxS.fillRect(50, 55, 2, 10);
+
+      // Draw ball in Frame S
+      ctxS.fillStyle = '#6ecf6e';
+      ctxS.beginPath();
+      ctxS.arc(xS, 60, ballRadius, 0, Math.PI * 2);
+      ctxS.fill();
+
+      // Velocity vector for Frame S
+      ctxS.strokeStyle = '#7eb8da';
+      ctxS.lineWidth = 2;
+      ctxS.beginPath();
+      ctxS.moveTo(xS, 60);
+      ctxS.lineTo(xS + u * pixelsPerMeter * 0.5, 60);
+      ctxS.stroke();
+      
+      ctxS.fillStyle = '#7eb8da';
+      ctxS.font = '12px monospace';
+      ctxS.textAlign = 'center';
+      ctxS.fillText('u = ' + u + ' m/s', canvasS.width - 80, 20);
+
+      // Draw Frame S'
+      ctxSPrime.clearRect(0, 0, canvasSPrime.width, canvasSPrime.height);
+      
+      // Draw grid/axis
+      ctxSPrime.strokeStyle = '#3a3a5a';
+      ctxSPrime.lineWidth = 1;
+      ctxSPrime.beginPath();
+      ctxSPrime.moveTo(0, 60);
+      ctxSPrime.lineTo(canvasSPrime.width, 60);
+      ctxSPrime.stroke();
+
+      // Draw origin marker
+      ctxSPrime.fillStyle = '#5a5a8a';
+      ctxSPrime.fillRect(50, 55, 2, 10);
+
+      // Draw ball in Frame S'
+      ctxSPrime.fillStyle = '#6ecf6e';
+      ctxSPrime.beginPath();
+      ctxSPrime.arc(xSPrime, 60, ballRadius, 0, Math.PI * 2);
+      ctxSPrime.fill();
+
+      // Velocity vector for Frame S'
+      ctxSPrime.strokeStyle = '#e8c050';
+      ctxSPrime.lineWidth = 2;
+      ctxSPrime.beginPath();
+      ctxSPrime.moveTo(xSPrime, 60);
+      ctxSPrime.lineTo(xSPrime + uPrime * pixelsPerMeter * 0.5, 60);
+      ctxSPrime.stroke();
+
+      ctxSPrime.fillStyle = '#e8c050';
+      ctxSPrime.font = '12px monospace';
+      ctxSPrime.textAlign = 'center';
+      ctxSPrime.fillText(&quot;u' = &quot; + uPrime + ' m/s', canvasSPrime.width - 80, 20);
+
+      // Frame S' reference motion (dashed line showing frame velocity)
+      ctxSPrime.strokeStyle = '#b08aff';
+      ctxSPrime.lineWidth = 1;
+      ctxSPrime.setLineDash([4, 4]);
+      ctxSPrime.beginPath();
+      ctxSPrime.moveTo(50, 85);
+      ctxSPrime.lineTo(50 + v * pixelsPerMeter * 0.5, 85);
+      ctxSPrime.stroke();
+      ctxSPrime.setLineDash([]);
+      
+      ctxSPrime.fillStyle = '#b08aff';
+      ctxSPrime.font = '11px monospace';
+      ctxSPrime.fillText('v = ' + v + ' m/s', 50 + v * pixelsPerMeter * 0.25, 100);
+    }
+
+    function animate() {
+      update();
+      t += 1;
+      requestAnimationFrame(animate);
+    }
+
+    uSlider.addEventListener('input', update);
+    vSlider.addEventListener('input', update);
+
+    animate();
+  </script>
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+       </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<div class="ic-footer">
+  <span>Advanced Physics · NWA · sadie park</span>
+  <span>Status: Pending Review</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"What is the relative velocity of an object in another IRF?");
+setMath('sim-cap',"");
+setMath('anchor',"its showes awesome.");
+
+(function(){
+  const el=document.getElementById('expl');
+  const paras="The galilean velocity transform is that u' = u-v. We made a simulation to compare the velocity in two frames s, and s'. S' is moving in the +x direction.".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let hideTimer;
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
+})();
+</script>
+<script type="application/json" id="ic-source-data">{"f-author":"sadie park","f-title":"Galilean Velocity Addition","f-rq":"What is the relative velocity of an object in another IRF?","f-expl":"The galilean velocity transform is that u' = u-v. We made a simulation to compare the velocity in two frames s, and s'. S' is moving in the +x direction.","f-sim-cap":"","f-lc1t":"","f-lc1e":"","f-lc1o":"","f-lc2t":"","f-lc2e":"","f-lc2o":"","f-scs":"","f-scp":"","f-scr":"","f-anchor":"its showes awesome.","__sim_html":"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<script>\n/* Physics sim security preamble — do not remove */\n(function(){\n  'use strict';\n  // Null out network APIs so sims cannot phone home\n  window.fetch       = function(){ return Promise.reject('fetch disabled'); };\n  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };\n  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };\n  // Block dynamic code execution vectors\n  window.eval        = function(){ throw new Error('eval disabled'); };\n  window.Function    = function(){ throw new Error('Function constructor disabled'); };\n  // Block navigation away from the page\n  window.open        = function(){ return null; };\n  Object.freeze(window.location);\n})();\n<\/script>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Galilean Velocity Transformation<\/title>\n  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css\">\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js\"><\/script>\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js\"\n    onload=\"renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})\"><\/script>\n  <style>\n    * { box-sizing: border-box; }\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n      margin: 0; padding: 15px;\n      background: #1a1a2e; color: #eee;\n    }\n    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }\n    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }\n    \n    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }\n    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }\n    .canvas-wrap { flex: 1; min-width: 0; }\n    \n    .panel { background: #252540; padding: 12px; border-radius: 8px; }\n    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;\n                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }\n    \n    .slider-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }\n    .slider-row label { font-size: 11px; color: #aab; min-width: 100px; }\n    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }\n    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 50px;\n                       text-align: right; font-family: monospace; }\n    \n    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;\n               font-family: monospace; font-size: 12px; line-height: 1.8; margin-top: 6px; }\n    .readout-row { display: flex; justify-content: space-between; margin: 4px 0; }\n    .readout-label { color: #8899aa; }\n    .readout-value { color: #7eb8da; font-weight: bold; }\n    \n    canvas { display: block; width: 100%; height: auto; border-radius: 8px; background: #0d0d1a; margin-bottom: 8px; }\n    \n    .frame-label { font-size: 11px; color: #8899aa; margin-top: 8px; margin-bottom: 4px; }\n    .equation { background: #1a1a2e; padding: 10px; border-radius: 6px; margin-top: 6px;\n                font-size: 12px; text-align: center; color: #c8d8e8; }\n  <\/style>\n<\/head>\n<body>\n  <h1>Galilean Velocity Transformation<\/h1>\n  <p class=\"subtitle\">Watch how velocity changes between reference frames<\/p>\n  \n  <div class=\"main-row\">\n    <div class=\"sidebar\">\n      <div class=\"panel\">\n        <h3>Ball Velocity (Frame S)<\/h3>\n        <div class=\"slider-row\">\n          <label>u:<\/label>\n          <input type=\"range\" id=\"uSlider\" min=\"-100\" max=\"100\" value=\"30\" step=\"2\">\n          <span class=\"val\" id=\"uVal\">30 m/s<\/span>\n        <\/div>\n      <\/div>\n      \n      <div class=\"panel\">\n        <h3>Frame S' Velocity<\/h3>\n        <div class=\"slider-row\">\n          <label>v:<\/label>\n          <input type=\"range\" id=\"vSlider\" min=\"-60\" max=\"60\" value=\"20\" step=\"2\">\n          <span class=\"val\" id=\"vVal\">20 m/s<\/span>\n        <\/div>\n      <\/div>\n      \n      <div class=\"panel\">\n        <h3>Transformation<\/h3>\n        <div class=\"equation\">$$u' = u - v$$<\/div>\n        <div class=\"readout\">\n          <div class=\"readout-row\">\n            <span class=\"readout-label\">u (Frame S):<\/span>\n            <span class=\"readout-value\" id=\"readoutU\">30 m/s<\/span>\n          <\/div>\n          <div class=\"readout-row\">\n            <span class=\"readout-label\">v (Frame vel):<\/span>\n            <span class=\"readout-value\" id=\"readoutV\">20 m/s<\/span>\n          <\/div>\n          <div class=\"readout-row\">\n            <span class=\"readout-label\">u' (Frame S'):<\/span>\n            <span class=\"readout-value\" id=\"readoutUPrime\">10 m/s<\/span>\n          <\/div>\n        <\/div>\n      <\/div>\n    <\/div>\n    \n    <div class=\"canvas-wrap\">\n      <div class=\"frame-label\">Frame S (Stationary)<\/div>\n      <canvas id=\"canvasS\" width=\"800\" height=\"120\"><\/canvas>\n      \n      <div class=\"frame-label\">Frame S' (Moving at v = <span id=\"frameVelLabel\">20<\/span> m/s)<\/div>\n      <canvas id=\"canvasSPrime\" width=\"800\" height=\"120\"><\/canvas>\n    <\/div>\n  <\/div>\n\n  <script>\n    const uSlider = document.getElementById('uSlider');\n    const vSlider = document.getElementById('vSlider');\n    \n    const uVal = document.getElementById('uVal');\n    const vVal = document.getElementById('vVal');\n    \n    const readoutU = document.getElementById('readoutU');\n    const readoutV = document.getElementById('readoutV');\n    const readoutUPrime = document.getElementById('readoutUPrime');\n    const frameVelLabel = document.getElementById('frameVelLabel');\n    \n    const canvasS = document.getElementById('canvasS');\n    const ctxS = canvasS.getContext('2d');\n    \n    const canvasSPrime = document.getElementById('canvasSPrime');\n    const ctxSPrime = canvasSPrime.getContext('2d');\n\n    let t = 0;\n    const ballRadius = 8;\n    const pixelsPerMeter = 3; // 3 pixels per m/s of velocity displayed\n\n    function update() {\n      const u = parseFloat(uSlider.value);\n      const v = parseFloat(vSlider.value);\n      const uPrime = u - v;\n\n      // Update display\n      uVal.textContent = u + ' m/s';\n      vVal.textContent = v + ' m/s';\n      readoutU.textContent = u + ' m/s';\n      readoutV.textContent = v + ' m/s';\n      readoutUPrime.textContent = uPrime + ' m/s';\n      frameVelLabel.textContent = v;\n\n      // Position in Frame S: x = u * t\n      const xS = 400 + u * pixelsPerMeter * (t % 10) / 10;\n\n      // Position in Frame S': x' = u' * t (or equivalently, x - v*t relative to origin)\n      const xSPrime = 400 + uPrime * pixelsPerMeter * (t % 10) / 10;\n\n      // Draw Frame S\n      ctxS.clearRect(0, 0, canvasS.width, canvasS.height);\n      \n      // Draw grid/axis\n      ctxS.strokeStyle = '#3a3a5a';\n      ctxS.lineWidth = 1;\n      ctxS.beginPath();\n      ctxS.moveTo(0, 60);\n      ctxS.lineTo(canvasS.width, 60);\n      ctxS.stroke();\n\n      // Draw origin marker\n      ctxS.fillStyle = '#5a5a8a';\n      ctxS.fillRect(50, 55, 2, 10);\n\n      // Draw ball in Frame S\n      ctxS.fillStyle = '#6ecf6e';\n      ctxS.beginPath();\n      ctxS.arc(xS, 60, ballRadius, 0, Math.PI * 2);\n      ctxS.fill();\n\n      // Velocity vector for Frame S\n      ctxS.strokeStyle = '#7eb8da';\n      ctxS.lineWidth = 2;\n      ctxS.beginPath();\n      ctxS.moveTo(xS, 60);\n      ctxS.lineTo(xS + u * pixelsPerMeter * 0.5, 60);\n      ctxS.stroke();\n      \n      ctxS.fillStyle = '#7eb8da';\n      ctxS.font = '12px monospace';\n      ctxS.textAlign = 'center';\n      ctxS.fillText('u = ' + u + ' m/s', canvasS.width - 80, 20);\n\n      // Draw Frame S'\n      ctxSPrime.clearRect(0, 0, canvasSPrime.width, canvasSPrime.height);\n      \n      // Draw grid/axis\n      ctxSPrime.strokeStyle = '#3a3a5a';\n      ctxSPrime.lineWidth = 1;\n      ctxSPrime.beginPath();\n      ctxSPrime.moveTo(0, 60);\n      ctxSPrime.lineTo(canvasSPrime.width, 60);\n      ctxSPrime.stroke();\n\n      // Draw origin marker\n      ctxSPrime.fillStyle = '#5a5a8a';\n      ctxSPrime.fillRect(50, 55, 2, 10);\n\n      // Draw ball in Frame S'\n      ctxSPrime.fillStyle = '#6ecf6e';\n      ctxSPrime.beginPath();\n      ctxSPrime.arc(xSPrime, 60, ballRadius, 0, Math.PI * 2);\n      ctxSPrime.fill();\n\n      // Velocity vector for Frame S'\n      ctxSPrime.strokeStyle = '#e8c050';\n      ctxSPrime.lineWidth = 2;\n      ctxSPrime.beginPath();\n      ctxSPrime.moveTo(xSPrime, 60);\n      ctxSPrime.lineTo(xSPrime + uPrime * pixelsPerMeter * 0.5, 60);\n      ctxSPrime.stroke();\n\n      ctxSPrime.fillStyle = '#e8c050';\n      ctxSPrime.font = '12px monospace';\n      ctxSPrime.textAlign = 'center';\n      ctxSPrime.fillText(\"u' = \" + uPrime + ' m/s', canvasSPrime.width - 80, 20);\n\n      // Frame S' reference motion (dashed line showing frame velocity)\n      ctxSPrime.strokeStyle = '#b08aff';\n      ctxSPrime.lineWidth = 1;\n      ctxSPrime.setLineDash([4, 4]);\n      ctxSPrime.beginPath();\n      ctxSPrime.moveTo(50, 85);\n      ctxSPrime.lineTo(50 + v * pixelsPerMeter * 0.5, 85);\n      ctxSPrime.stroke();\n      ctxSPrime.setLineDash([]);\n      \n      ctxSPrime.fillStyle = '#b08aff';\n      ctxSPrime.font = '11px monospace';\n      ctxSPrime.fillText('v = ' + v + ' m/s', 50 + v * pixelsPerMeter * 0.25, 100);\n    }\n\n    function animate() {\n      update();\n      t += 1;\n      requestAnimationFrame(animate);\n    }\n\n    uSlider.addEventListener('input', update);\n    vSlider.addEventListener('input', update);\n\n    animate();\n  <\/script>\n<\/body>\n<\/html>","__sim_name":"ai-sim.html","__cits":[]}</script>
+</body>
+</html>
