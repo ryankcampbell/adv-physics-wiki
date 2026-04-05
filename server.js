@@ -286,8 +286,11 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     const resolvedIcEntry = existingContribs.find(
       c => c.concept_id === resolvedConceptId && (c.type === 'ic' || c.type === 'ic-draft')
     );
-    const resolvedFilename = (resolvedFileType === 'ic' && resolvedIcEntry)
-      ? resolvedIcEntry.url.split('/').pop() : filename;
+    // IC: reuse existing filename if one exists (prevents duplicate entries).
+    // AT/HW: always prefix with type so they never overwrite the IC file.
+    const resolvedFilename = resolvedFileType === 'ic'
+      ? (resolvedIcEntry ? resolvedIcEntry.url.split('/').pop() : filename)
+      : `${resolvedFileType}_${safeLabel}.html`;
 
     // 2. Write to ics/[resolvedConceptId]/[resolvedFilename]
     const dir = path.join(__dirname, 'ics', resolvedConceptId);
@@ -1935,7 +1938,8 @@ app.patch('/api/admin/hw/questions/:id', requireAdmin, (req, res) => {
   if (typeof admin_notes === 'string') qs[idx].admin_notes = admin_notes.slice(0, 500);
   writeQuestions(qs);
 
-  // On approval: publish the IC to the wiki (ic-draft → ic) and advance workflow to complete
+  // On approval: publish the IC to the wiki (ic-draft → ic) and advance workflow to complete.
+  // File writes are synchronous (fast), git push runs async so the HTTP response is immediate.
   if (status === 'approved') {
     const q = qs[idx];
     try {
@@ -1959,19 +1963,23 @@ app.patch('/api/admin/hw/questions/:id', requireAdmin, (req, res) => {
         break;
       }
       writeWorkflow(wf);
-
-      // 3. Git commit + push so concept map updates on GitHub Pages
-      const token = process.env.GITHUB_TOKEN;
-      const user  = process.env.GITHUB_USER || 'ryankcampbell';
-      const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
-      execSync(`git add contributions.json state/workflow.json`, { cwd: __dirname });
-      try { execSync(`git commit -m "Publish: ${q.concept_slug} — HW approved, IC now certified"`, { cwd: __dirname }); } catch(_) {}
-      if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
-      execSync('git push', { cwd: __dirname });
-      if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
     } catch(e) {
       console.error('HW approve publish error:', e.message);
     }
+
+    // 3. Git commit + push in background so approve button responds immediately
+    setImmediate(() => {
+      try {
+        const token = process.env.GITHUB_TOKEN;
+        const user  = process.env.GITHUB_USER || 'ryankcampbell';
+        const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
+        execSync(`git add contributions.json state/workflow.json`, { cwd: __dirname });
+        try { execSync(`git commit -m "Publish: ${q.concept_slug} — HW approved, IC now certified"`, { cwd: __dirname }); } catch(_) {}
+        if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
+        execSync('git push', { cwd: __dirname });
+        if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
+      } catch(e) { console.error('HW approve git push error:', e.message); }
+    });
   }
 
   res.json({ ok: true });
