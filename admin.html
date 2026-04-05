@@ -984,8 +984,8 @@ function renderDriveList(files) {
     row.dataset.stem = stem;
     row.dataset.fileType = fileType;
 
-    const date = new Date(f.modifiedTime || f.createdTime)
-      .toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const _d = new Date(f.modifiedTime || f.createdTime);
+    const date = isNaN(_d) ? '—' : _d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
     const conceptOptions = allConcepts.map(c =>
       `<option value="${c.id}">${c.name}</option>`
@@ -1196,8 +1196,11 @@ async function publishFile(fileId, btn) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Unknown error');
 
-    // Replace publish button with green success badge
-    btn.outerHTML = '<button class="btn-published">✓ Published</button>';
+    // Replace publish button with green success badge, remove row from inbox
+    const row = document.querySelector(`.drive-row[data-file-id="${fileId}"]`);
+    if (row) row.remove();
+    // Refresh pipeline so stage badges update
+    if (typeof loadPipeline === 'function' && pipelineOpen) loadPipeline();
     // Reload module table so state reflects submitted
     loadModule(document.getElementById('module-sel').value);
   } catch(e) {
@@ -2325,6 +2328,8 @@ async function setQStatus(id, status) {
     const badge = document.getElementById('qstatus-' + id);
     if (badge) { badge.textContent = status; badge.className = 'q-status-badge ' + status; }
     loadQBankBadge();
+    // Refresh pipeline — approval advances student to complete
+    if (status === 'approved' && typeof loadPipeline === 'function' && pipelineOpen) loadPipeline();
   } catch(err) { alert('Error: ' + err.message); }
 }
 

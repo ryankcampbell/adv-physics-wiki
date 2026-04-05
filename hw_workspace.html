@@ -559,6 +559,15 @@ async function submitQuestion() {
       saveSession();
       setStatus('✓ Submitted! Your teacher will review it.', 'ok');
       btn.textContent = '✓ Submitted';
+      // Offer to write another question
+      const another = document.createElement('button');
+      another.textContent = '+ Write another question';
+      another.style.cssText = 'margin-top:10px;padding:8px 18px;background:#7c3aed;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.9rem';
+      another.onclick = () => {
+        localStorage.removeItem('hw-session-' + SLUG);
+        location.reload();
+      };
+      document.getElementById('submit-area').appendChild(another);
     }
   } catch(err) {
     setStatus('Network error — try again.', 'err');

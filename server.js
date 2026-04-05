@@ -407,6 +407,12 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     execSync('git push', { cwd: __dirname });
     if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
 
+    // Auto-dismiss the approved file from the inbox
+    if (!isRevision) {
+      const dismissed = readDismissed();
+      if (!dismissed.includes(fileId)) { dismissed.push(fileId); writeDismissed(dismissed); }
+    }
+
     res.json({ success: true, url: entryUrl, author: entryAuthor, title: entryTitle, type: resolvedFileType, action: actionLabel });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -1928,6 +1934,46 @@ app.patch('/api/admin/hw/questions/:id', requireAdmin, (req, res) => {
   qs[idx].status = status;
   if (typeof admin_notes === 'string') qs[idx].admin_notes = admin_notes.slice(0, 500);
   writeQuestions(qs);
+
+  // On approval: publish the IC to the wiki (ic-draft → ic) and advance workflow to complete
+  if (status === 'approved') {
+    const q = qs[idx];
+    try {
+      // 1. Flip ic-draft → ic in contributions.json so concept node turns green
+      const contribPath = path.join(__dirname, 'contributions.json');
+      const contribs = fs.existsSync(contribPath)
+        ? JSON.parse(fs.readFileSync(contribPath, 'utf8')) : [];
+      const icIdx = contribs.findIndex(c => c.concept_id === q.concept_slug && c.type === 'ic-draft');
+      if (icIdx >= 0) contribs[icIdx] = { ...contribs[icIdx], type: 'ic' };
+      fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
+
+      // 2. Advance student workflow to complete
+      const wf = readWorkflow();
+      const studentKey = q.student.toLowerCase().trim();
+      for (const [name, topics] of Object.entries(wf)) {
+        if (name.toLowerCase() !== studentKey) continue;
+        if (!topics[q.concept_slug]) continue;
+        topics[q.concept_slug].stage      = 'complete';
+        topics[q.concept_slug].status     = 'complete';
+        topics[q.concept_slug].updated_at = new Date().toISOString().slice(0, 10);
+        break;
+      }
+      writeWorkflow(wf);
+
+      // 3. Git commit + push so concept map updates on GitHub Pages
+      const token = process.env.GITHUB_TOKEN;
+      const user  = process.env.GITHUB_USER || 'ryankcampbell';
+      const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
+      execSync(`git add contributions.json state/workflow.json`, { cwd: __dirname });
+      try { execSync(`git commit -m "Publish: ${q.concept_slug} — HW approved, IC now certified"`, { cwd: __dirname }); } catch(_) {}
+      if (token) execSync(`git remote set-url origin https://${user}:${token}@github.com/${user}/${repo}.git`, { cwd: __dirname });
+      execSync('git push', { cwd: __dirname });
+      if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
+    } catch(e) {
+      console.error('HW approve publish error:', e.message);
+    }
+  }
+
   res.json({ ok: true });
 });
 
