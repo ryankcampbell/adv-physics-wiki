@@ -277,13 +277,16 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     // so they are always authoritative — no filename parsing needed.
     const metaStudent = html.match(/<meta name="adv-physics-student" content="([^"]+)"/i)?.[1]?.trim() || null;
     const metaSlug    = html.match(/<meta name="adv-physics-slug" content="([^"]+)"/i)?.[1]?.trim()    || null;
+    const metaStage   = html.match(/<meta name="adv-physics-stage" content="([^"]+)"/i)?.[1]?.trim()   || null;
+    // fileType: prefer meta stage (canonical) — label has AT_/HW_ prefix stripped so getFileType(label) is unreliable
+    const resolvedFileType = (['ic','at','hw'].includes(metaStage) ? metaStage : fileType);
     // resolvedConceptId: prefer meta slug (canonical) over admin-panel conceptId (from filename)
     const resolvedConceptId = metaSlug || conceptId;
     // Re-check existing IC entry with resolved concept ID (may differ from filename-parsed one)
     const resolvedIcEntry = existingContribs.find(
       c => c.concept_id === resolvedConceptId && (c.type === 'ic' || c.type === 'ic-draft')
     );
-    const resolvedFilename = (fileType === 'ic' && resolvedIcEntry)
+    const resolvedFilename = (resolvedFileType === 'ic' && resolvedIcEntry)
       ? resolvedIcEntry.url.split('/').pop() : filename;
 
     // 2. Write to ics/[resolvedConceptId]/[resolvedFilename]
@@ -292,9 +295,9 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     fs.writeFileSync(path.join(dir, resolvedFilename), html);
 
     // 3. Extract title & author from HTML
-    const titleRe = fileType === 'at' ? /<title>AT:\s*([^|<]+)/i
-                  : fileType === 'hw' ? /<title>HW:\s*([^|<]+)/i
-                  :                     /<title>IC:\s*([^|<]+)/i;
+    const titleRe = resolvedFileType === 'at' ? /<title>AT:\s*([^|<]+)/i
+                  : resolvedFileType === 'hw' ? /<title>HW:\s*([^|<]+)/i
+                  :                             /<title>IC:\s*([^|<]+)/i;
     const titleM  = html.match(titleRe);
     const authorM = html.match(/by\s+([^<]+)<\/span>/i);
     const entryTitle  = titleM  ? titleM[1].trim()  : resolvedConceptId.replace(/_/g, ' ');
@@ -314,8 +317,8 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     } else {
       // On any approval, clear revision state
       delete stateEntry.feedback;
-      if (fileType === 'ic') stateEntry.status = 'in_progress';
-      if (fileType === 'hw') { stateEntry.status = 'complete'; delete stateEntry.at_status; }
+      if (resolvedFileType === 'ic') stateEntry.status = 'in_progress';
+      if (resolvedFileType === 'hw') { stateEntry.status = 'complete'; delete stateEntry.at_status; }
     }
     if (stateIdx >= 0) state[stateIdx] = stateEntry; else state.push(stateEntry);
     fs.mkdirSync(path.join(__dirname, 'state'), { recursive: true });
@@ -327,12 +330,12 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     //    AT approve  → no contributions.json change
     //    any revision → add/update with type='ic-draft' (so "View Submitted IC" works in editor)
     let contribs = [...existingContribs];
-    if (fileType === 'ic' || isRevision) {
+    if (resolvedFileType === 'ic' || isRevision) {
       // IC file (approve or revision): upsert with ic-draft
       const icIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && (c.type === 'ic' || c.type === 'ic-draft'));
       const icEntry = { concept_id: resolvedConceptId, type: 'ic-draft', title: entryTitle, author: entryAuthor, url: entryUrl };
       if (icIdx >= 0) contribs[icIdx] = icEntry; else contribs.push(icEntry);
-    } else if (fileType === 'hw' && !isRevision) {
+    } else if (resolvedFileType === 'hw' && !isRevision) {
       // HW final approval: flip ic-draft → ic so concept node turns green
       const icIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && c.type === 'ic-draft');
       if (icIdx >= 0) contribs[icIdx] = { ...contribs[icIdx], type: 'ic' };
@@ -363,7 +366,7 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
       } else {
         // Approve: advance stage
         const stageMap = { ic: 'at', at: 'hw', hw: 'complete' };
-        const next = stageMap[fileType];
+        const next = stageMap[resolvedFileType];
         if (next) {
           topics[resolvedConceptId].stage          = next;
           topics[resolvedConceptId].status         = next === 'complete' ? 'complete' : 'draft';
@@ -376,7 +379,7 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
 
     // 6b. Seed AT draft: when IC is approved, write the IC HTML as the student's
     //     draft so ic-source-data is available when they open the AT editor.
-    if (fileType === 'ic' && !isRevision) {
+    if (resolvedFileType === 'ic' && !isRevision) {
       const wf2 = readWorkflow();
       for (const [studentName, topics] of Object.entries(wf2)) {
         if (!topics[resolvedConceptId]) continue;
@@ -396,7 +399,7 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     const token = process.env.GITHUB_TOKEN;
     const user  = process.env.GITHUB_USER || 'ryankcampbell';
     const repo  = process.env.GITHUB_REPO || 'adv-physics-wiki';
-    const actionLabel = isRevision ? 'Revision' : (fileType === 'hw' ? 'Publish' : `Approve-${fileType.toUpperCase()}`);
+    const actionLabel = isRevision ? 'Revision' : (resolvedFileType === 'hw' ? 'Publish' : `Approve-${resolvedFileType.toUpperCase()}`);
 
     execSync(`git add "ics/${resolvedConceptId}/${resolvedFilename}" state/state.json contributions.json state/workflow.json`, { cwd: __dirname });
     try { execSync(`git commit -m "${actionLabel}: ${resolvedConceptId}/${safeLabel}"`, { cwd: __dirname }); } catch(_) { /* nothing new to commit */ }
@@ -404,7 +407,7 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
     execSync('git push', { cwd: __dirname });
     if (token) execSync(`git remote set-url origin https://github.com/${user}/${repo}.git`, { cwd: __dirname });
 
-    res.json({ success: true, url: entryUrl, author: entryAuthor, title: entryTitle, type: fileType, action: actionLabel });
+    res.json({ success: true, url: entryUrl, author: entryAuthor, title: entryTitle, type: resolvedFileType, action: actionLabel });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
