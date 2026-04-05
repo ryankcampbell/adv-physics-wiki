@@ -611,6 +611,17 @@
           <span id="sim-model-status"></span>
         </div>
         <div class="sim-control-group">
+          <label>AT Investigation Mode</label>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:6px;font-weight:normal;text-transform:none;font-size:0.83rem;cursor:pointer">
+              <input type="checkbox" id="full-at-toggle" onchange="setFullAT(this.checked)" style="width:16px;height:16px;cursor:pointer">
+              Enable full AT investigation workspace
+            </label>
+            <span id="full-at-status" style="font-size:0.75rem;color:#16a34a"></span>
+          </div>
+          <div style="font-size:0.72rem;color:#94a3b8;margin-top:3px">Off = students fill verification fields directly in the editor. On = full 5-tool workspace.</div>
+        </div>
+        <div class="sim-control-group">
           <label>Class password</label>
           <div class="sim-pw-row">
             <input id="sim-pw-input" type="text" spellcheck="false" />
@@ -1785,6 +1796,9 @@ async function loadSimLog() {
     const radio = document.querySelector(`input[name="sim-model"][value="${settings.model}"]`);
     if (radio) radio.checked = true;
 
+    // Sync full AT toggle
+    document.getElementById('full-at-toggle').checked = !!settings.fullATEnabled;
+
     // Show current password
     document.getElementById('sim-pw-input').value = settings.password || '';
 
@@ -1912,6 +1926,17 @@ async function setSimModel(model) {
     body: JSON.stringify({ model })
   });
   el.textContent = 'Saved';
+  setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+async function setFullAT(enabled) {
+  const el = document.getElementById('full-at-status');
+  el.textContent = 'Saving…';
+  await adminFetch('/api/sim/settings', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fullATEnabled: enabled })
+  });
+  el.textContent = enabled ? 'Full workspace enabled' : 'Simple mode active';
   setTimeout(() => { el.textContent = ''; }, 2500);
 }
 

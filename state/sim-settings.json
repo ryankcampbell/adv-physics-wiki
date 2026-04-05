@@ -2,6 +2,7 @@
   "model": "haiku",
   "password": "frogtoad6563",
   "adminPassword": "nwaphysics",
+  "fullATEnabled": false,
   "students": {
     "ryan campbell": 20,
     "jimmy chen": {

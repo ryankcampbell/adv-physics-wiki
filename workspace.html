@@ -258,19 +258,20 @@ function getBadge(stage, status) {
   return STAGE_LABELS[key] || { text: `${stage} / ${status}`, cls: 'badge-draft' };
 }
 
+let _fullATEnabled = false; // loaded on startup
+
 function editorUrl(topic) {
   const s = topic.slug;
   const t = encodeURIComponent(topic.title);
   if (topic.stage === 'ic') return `ic_editor.html?concept=${s}&name=${t}`;
   if (topic.stage === 'at') {
-    const atSess = JSON.parse(localStorage.getItem(`at-session-${s}`) || 'null');
-    const doneCount  = (atSess?.completed  || []).length;
-    const totalCount = (atSess?.selectedTools || []).length;
-    // All tools done → go to ic_editor to review + submit
-    if (atSess && totalCount > 0 && doneCount >= totalCount) return `ic_editor.html?at=${s}`;
-    // Tools in progress → go directly to AT workspace
-    if (atSess?.selectedTools?.length) return `at_workspace.html?concept=${s}`;
-    // No session yet → go to ic_editor to launch AT investigation
+    if (_fullATEnabled) {
+      const atSess = JSON.parse(localStorage.getItem(`at-session-${s}`) || 'null');
+      const doneCount  = (atSess?.completed  || []).length;
+      const totalCount = (atSess?.selectedTools || []).length;
+      if (atSess && totalCount > 0 && doneCount >= totalCount) return `ic_editor.html?at=${s}`;
+      if (atSess?.selectedTools?.length) return `at_workspace.html?concept=${s}`;
+    }
     return `ic_editor.html?at=${s}`;
   }
   if (topic.stage === 'hw') return `hw_workspace.html?concept=${s}`;
@@ -531,6 +532,7 @@ function logout() {
   window.location.href = 'index.html';
 }
 
+fetch('/api/public/settings').then(r => r.json()).then(s => { _fullATEnabled = !!s.fullATEnabled; }).catch(() => {});
 loadTopics();
 </script>
 </body>
