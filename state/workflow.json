@@ -37,6 +37,16 @@
       "revision_notes": "",
       "created_at": "2026-04-05",
       "updated_at": "2026-04-05"
+    },
+    "time_dilation": {
+      "slug": "time_dilation",
+      "title": "Time Dilation",
+      "module": "General",
+      "stage": "at",
+      "status": "draft",
+      "revision_notes": "",
+      "created_at": "2026-04-05",
+      "updated_at": "2026-04-05"
     }
   },
   "alex rodriguez": {
@@ -67,18 +77,6 @@
       "status": "draft",
       "created_at": "2026-03-03",
       "updated_at": "2026-03-08"
-    }
-  },
-  "_test_student_": {
-    "test_topic": {
-      "slug": "test_topic",
-      "title": "_Test Topic_",
-      "module": "Test Module",
-      "stage": "hw",
-      "status": "needs_revision",
-      "revision_notes": "Fix the sim",
-      "created_at": "2026-04-05",
-      "updated_at": "2026-04-05"
     }
   }
 }
