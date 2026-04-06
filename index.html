@@ -862,7 +862,7 @@ async function startTopicFromNavigator(slug, title, module) {
   const r = await fetch('/api/student/topic/start', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${studentToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ module, title })
+    body: JSON.stringify({ module, title, concept_id: slug })
   });
   const data = await r.json();
   if (r.ok) window.location.href = `ic_editor.html?concept=${data.slug}&name=${encodeURIComponent(title)}`;
