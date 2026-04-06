@@ -664,5 +664,46 @@
     ],
     "totalInputTokens": 4037,
     "totalOutputTokens": 5545
+  },
+  {
+    "token": "506ad095-69ba-4484-b7e4-6135e19078b1",
+    "studentName": "sadie park",
+    "startedAt": "2026-04-06T16:01:46.517Z",
+    "turns": [
+      {
+        "timestamp": "2026-04-06T16:01:46.517Z",
+        "inputTokens": 1782,
+        "outputTokens": 4645,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-04-06T16:02:48.297Z",
+        "inputTokens": 5199,
+        "outputTokens": 161,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": true
+      },
+      {
+        "timestamp": "2026-04-06T18:51:10.305Z",
+        "inputTokens": 1756,
+        "outputTokens": 4303,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-04-06T18:52:57.969Z",
+        "inputTokens": 4854,
+        "outputTokens": 6201,
+        "hasSim": true,
+        "model": "claude-sonnet-4-6",
+        "patched": false
+      }
+    ],
+    "totalInputTokens": 13591,
+    "totalOutputTokens": 15310
   }
 ]

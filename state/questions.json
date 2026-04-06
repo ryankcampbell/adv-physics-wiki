@@ -1,5 +1,66 @@
 [
   {
+    "id": "ab137d6f-b003-479a-a617-d1319f6e648f",
+    "student": "sadie park",
+    "concept_slug": "galilean_frames",
+    "module": "Reference Frames",
+    "title": "A train moves east at 20 m/s relative to the ground. A passe",
+    "stem": "A train moves east at 20 m/s relative to the ground. A passenger on the train throws a ball forward (east) at 5 m/s relative to themselves.",
+    "parts": [
+      {
+        "label": "a",
+        "prompt": "What is the velocity of the ball as measured by an observer standing on the ground?",
+        "answer": "25 m/s"
+      },
+      {
+        "label": "b",
+        "prompt": "If a second observer is moving west at 10 m/s relative to the ground, what velocity do they measure for the ball?",
+        "answer": "35 m/s"
+      }
+    ],
+    "difficulty": "medium",
+    "tags": [
+      "reference frames",
+      "relative velocity",
+      "1D motion"
+    ],
+    "figure_dataurl": null,
+    "status": "approved",
+    "admin_notes": "",
+    "created_at": "2026-04-06"
+  },
+  {
+    "id": "c07214d9-1967-445f-b475-302c8f4dc391",
+    "student": "sadie park",
+    "concept_slug": "the_spacetime_interval",
+    "module": "The Spacetime Interval",
+    "title": "Two events occur in spacetime. Event A is at position x = 0",
+    "stem": "Two events occur in spacetime. Event A is at position x = 0 light-seconds at time t = 0 seconds. Event B is at position x = 5 light-seconds at time t = 3 seconds.",
+    "parts": [
+      {
+        "label": "a",
+        "prompt": "Calculate the spacetime interval Δs² between Event A and Event B using the formula Δs² = −Δt² + Δx².",
+        "answer": "$\\Delta s^2_ = -(3)^2+ (5)^2=16"
+      },
+      {
+        "label": "b",
+        "prompt": "Is the separation between these two events space-like, time-like, or light-like? Justify your answer using the value of Δs² you found in part (a).",
+        "answer": "spacelike"
+      }
+    ],
+    "difficulty": "medium",
+    "tags": [
+      "spacetime interval",
+      "special relativity",
+      "spacetime diagram",
+      "classification"
+    ],
+    "figure_dataurl": null,
+    "status": "approved",
+    "admin_notes": "",
+    "created_at": "2026-04-06"
+  },
+  {
     "id": "73513ae7-ca33-4665-bdcb-8f795359eb35",
     "student": "sadie park",
     "concept_slug": "rel_velocity_addition",
