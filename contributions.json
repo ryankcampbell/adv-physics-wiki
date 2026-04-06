@@ -43,7 +43,7 @@
   },
   {
     "concept_id": "rel_velocity_addition",
-    "type": "ic-draft",
+    "type": "ic",
     "title": "Relativistic Velocity Addition",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/rel_velocity_addition/sadie_park.html"

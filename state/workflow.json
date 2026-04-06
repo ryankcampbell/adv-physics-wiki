@@ -52,8 +52,8 @@
       "slug": "rel_velocity_addition",
       "title": "Relativistic Velocity Addition",
       "module": "Special Relativity",
-      "stage": "hw",
-      "status": "draft",
+      "stage": "complete",
+      "status": "complete",
       "revision_notes": "",
       "created_at": "2026-04-06",
       "updated_at": "2026-04-06"
