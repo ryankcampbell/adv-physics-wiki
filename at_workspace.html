@@ -667,9 +667,11 @@ function init() {
   document.getElementById('hdr-concept').textContent = title;
   document.getElementById('ref-bar-title').textContent = title;
 
-  // Load reference IC if we have a URL
+  // Load reference IC if we have a URL.
+  // Convert GitHub Pages URL to local server path (avoids CDN lag after IC approval).
   if (icData?.icUrl) {
-    document.getElementById('ref-frame').src = icData.icUrl;
+    const localUrl = icData.icUrl.replace(/^https?:\/\/[^/]+\/adv-physics-wiki/, '');
+    document.getElementById('ref-frame').src = localUrl || icData.icUrl;
   }
 
   // Show picker or resume session
@@ -932,7 +934,7 @@ function sendChat() {
 
   const icContext = {
     conceptTitle: icData?.conceptTitle || session.conceptTitle || SLUG.replace(/_/g,' '),
-    rq:           icData?.researchQuestion || '',
+    rq:           icData?.rq || '',
     explainer:    (icData?.explainer || '').slice(0, 500)
   };
 
@@ -1128,7 +1130,7 @@ async function cb_loadProposals() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
       body: JSON.stringify({
         conceptTitle: icData?.conceptTitle || SLUG,
-        rq:           icData?.researchQuestion || '',
+        rq:           icData?.rq || '',
         explainer:    icData?.explainer || '',
         simCaption:   icData?.simCaption || ''
       })
@@ -1599,7 +1601,7 @@ async function ca_loadClaims() {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tok}` },
       body: JSON.stringify({
         explainer:    icData?.explainer || '',
-        rq:           icData?.researchQuestion || '',
+        rq:           icData?.rq || '',
         conceptTitle: icData?.conceptTitle || SLUG
       })
     });
