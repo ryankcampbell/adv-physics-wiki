@@ -16,10 +16,9 @@
   },
   {
     "concept_id": "time_dilation",
-    "status": "in_progress",
     "claimed_by": "Sadie Park",
     "team": [
-      "L. Martinez & K. Johnson"
+      "Sadie Park"
     ],
     "at_status": "submitted"
   },
@@ -38,10 +37,9 @@
   },
   {
     "concept_id": "rel_velocity_addition",
-    "status": "in_progress",
     "claimed_by": "Sadie Park",
     "team": [
-      "B. Williams & T. Lee"
+      "Sadie Park"
     ],
     "adversarial_team": [
       "M. Chen",
@@ -68,17 +66,19 @@
   },
   {
     "concept_id": "clock_sync",
-    "status": "in_progress",
     "at_status": "submitted"
   },
   {
     "concept_id": "galilean_velocity",
-    "status": "in_progress",
     "claimed_by": "Addition Sadie Park",
+    "team": [
+      "Addition Sadie Park"
+    ],
     "at_status": "submitted"
   },
   {
     "concept_id": "spacetime_interval",
-    "status": "in_progress"
+    "status": "in_progress",
+    "at_status": "certified"
   }
 ]
