@@ -99,7 +99,7 @@
   },
   {
     "concept_id": "galilean_frames",
-    "type": "ic-draft",
+    "type": "ic",
     "title": "Reference Frames",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/galilean_frames/sadie_park.html"
@@ -110,5 +110,12 @@
     "title": "Reference Frames",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/galilean_frames/at_sadie_park.html"
+  },
+  {
+    "concept_id": "galilean_frames",
+    "type": "hw",
+    "title": "A train moves east at 20 m/s relative to the ground. A passe",
+    "author": "sadie park",
+    "url": "/api/public/hw-page/galilean_frames"
   }
 ]
