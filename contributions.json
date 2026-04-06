@@ -78,7 +78,7 @@
   },
   {
     "concept_id": "the_spacetime_interval",
-    "type": "ic-draft",
+    "type": "ic",
     "title": "The Spacetime Interval",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/the_spacetime_interval/the_spacetime_interval_sadie_park.html"
@@ -89,5 +89,12 @@
     "title": "The Spacetime Interval",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/the_spacetime_interval/at_the_spacetime_interval_sadie_park.html"
+  },
+  {
+    "concept_id": "the_spacetime_interval",
+    "type": "hw",
+    "title": "Two events occur in spacetime. Event A is at position x = 0",
+    "author": "sadie park",
+    "url": "/api/public/hw-page/the_spacetime_interval"
   }
 ]
