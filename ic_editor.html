@@ -1474,7 +1474,10 @@ async function initMode() {
     <iframe id="ref-frame" style="display:none;flex:1;border:none;width:100%"></iframe>`;
 
   if (icEntries.length) {
-    loadRefURL(icEntries[0].url);
+    // Prefer local server path (avoids GitHub Pages CDN lag after IC approval).
+    // Static files are served from the project root, so strip the GitHub Pages prefix.
+    const refLocalUrl = icEntries[0].url.replace(/^https?:\/\/[^/]+\/adv-physics-wiki/, '');
+    loadRefURL(refLocalUrl || icEntries[0].url);
   } else {
     document.getElementById('ref-loading').textContent =
       'No published IC found for this concept yet. Your teacher may share a direct link.';
@@ -1513,6 +1516,25 @@ async function initMode() {
 
   // Lock all IC core fields
   lockICFields();
+
+  // In simple AT mode (fullATEnabled=false), launchATWorkspace() is never called so at-ic- is
+  // never set. Save the bundle here so hw_workspace.html has IC context regardless of AT path.
+  if (MODE === 'at' && CONCEPT_ID) {
+    setTimeout(() => {
+      const _atBundle = {
+        conceptSlug:  CONCEPT_ID,
+        conceptTitle: _conceptName,
+        icUrl:        _icFirstUrl || null,
+        rq:           document.getElementById('f-rq')?.value    || '',
+        explainer:    document.getElementById('f-expl')?.value  || '',
+        module:       document.getElementById('f-title')?.value || '',
+        simCaption:   document.getElementById('f-sim-cap')?.value || '',
+      };
+      if (_atBundle.rq || _atBundle.conceptTitle) {
+        localStorage.setItem(`at-ic-${CONCEPT_ID}`, JSON.stringify(_atBundle));
+      }
+    }, 800);
+  }
 
   // ── AT mode: load saved AT draft + show AT workspace button ────
   if (MODE === 'at') {
@@ -1614,13 +1636,16 @@ async function initMode() {
 // ══════════════════════════════════════════════════════════════════
 
 function launchATWorkspace() {
-  // Bundle current IC data for at_workspace to load
+  // Bundle current IC data for at_workspace + hw_workspace to load.
+  // Field names must match server's ctx.rq / ctx.explainer / ctx.module expectations.
   const bundle = {
-    conceptSlug:      CONCEPT_ID,
-    conceptTitle:     _conceptName,
-    icUrl:            _icFirstUrl || null,
-    researchQuestion: document.getElementById('f-rq')?.value  || '',
-    explainer:        document.getElementById('f-expl')?.value || '',
+    conceptSlug:  CONCEPT_ID,
+    conceptTitle: _conceptName,
+    icUrl:        _icFirstUrl || null,
+    rq:           document.getElementById('f-rq')?.value      || '',
+    explainer:    document.getElementById('f-expl')?.value    || '',
+    module:       document.getElementById('f-title')?.value   || '',
+    simCaption:   document.getElementById('f-sim-cap')?.value || '',
   };
   localStorage.setItem(`at-ic-${CONCEPT_ID}`, JSON.stringify(bundle));
   window.location.href = `at_workspace.html?concept=${encodeURIComponent(CONCEPT_ID)}`;

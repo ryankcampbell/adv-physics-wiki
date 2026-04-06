@@ -329,8 +329,8 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
 
     // 5. Update contributions.json
     //    IC approve  → add/update with type='ic-draft' (AT editor can find it; node stays dark)
-    //    HW approve  → flip existing ic-draft → 'ic' (concept node turns green)
-    //    AT approve  → no contributions.json change
+    //    AT approve  → add/update with type='at' (concept.html AT tab)
+    //    HW approve  → flip existing ic-draft → 'ic' (node turns green) + add/update type='hw'
     //    any revision → add/update with type='ic-draft' (so "View Submitted IC" works in editor)
     let contribs = [...existingContribs];
     if (resolvedFileType === 'ic' || isRevision) {
@@ -338,12 +338,17 @@ app.post('/api/publish', requireAdmin, async (req, res) => {
       const icIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && (c.type === 'ic' || c.type === 'ic-draft'));
       const icEntry = { concept_id: resolvedConceptId, type: 'ic-draft', title: entryTitle, author: entryAuthor, url: entryUrl };
       if (icIdx >= 0) contribs[icIdx] = icEntry; else contribs.push(icEntry);
+    } else if (resolvedFileType === 'at' && !isRevision) {
+      // AT approval: add/update AT entry so concept.html AT tab shows this submission
+      const atIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && c.type === 'at');
+      const atEntry = { concept_id: resolvedConceptId, type: 'at', title: entryTitle, author: entryAuthor, url: entryUrl };
+      if (atIdx >= 0) contribs[atIdx] = atEntry; else contribs.push(atEntry);
     } else if (resolvedFileType === 'hw' && !isRevision) {
       // HW final approval: flip ic-draft → ic so concept node turns green
       const icIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && c.type === 'ic-draft');
       if (icIdx >= 0) contribs[icIdx] = { ...contribs[icIdx], type: 'ic' };
-      // Also add hw entry for concept viewer
-      const hwEntry = { concept_id: resolvedConceptId, type: 'hw', title: entryTitle, author: entryAuthor, url: entryUrl };
+      // Add/update hw entry pointing to public server page (questions rendered server-side)
+      const hwEntry = { concept_id: resolvedConceptId, type: 'hw', title: entryTitle, author: entryAuthor, url: `/api/public/hw-page/${resolvedConceptId}` };
       const hwIdx = contribs.findIndex(c => c.concept_id === resolvedConceptId && c.type === 'hw');
       if (hwIdx >= 0) contribs[hwIdx] = hwEntry; else contribs.push(hwEntry);
     }
@@ -1040,6 +1045,44 @@ app.get('/api/sim/log', requireAdmin, (req, res) => {
 app.get('/api/public/settings', (req, res) => {
   const s = readSimSettings();
   res.json({ fullATEnabled: !!s.fullATEnabled });
+});
+
+// Public: rendered HTML page of approved HW questions for a concept (used by concept.html HW tab)
+app.get('/api/public/hw-page/:slug', (req, res) => {
+  const slug = req.params.slug.replace(/[^a-z0-9_-]/gi, '').slice(0, 80);
+  const qs = readQuestions().filter(q => q.concept_slug === slug && q.status === 'approved');
+  const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const conceptName = slug.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+  const body = qs.length === 0
+    ? '<div class="empty">No approved questions yet for this concept.</div>'
+    : qs.map((q, i) => `
+    <div class="q-card">
+      <div class="q-title">${i+1}. ${esc(q.title)}</div>
+      <div class="q-stem">${esc(q.stem)}</div>
+      ${(q.parts||[]).map(p => `<div class="q-part"><span class="q-part-label">(${esc(p.label)})</span> ${esc(p.prompt)}</div>`).join('')}
+      ${q.figure_dataurl ? `<div class="q-fig"><img src="${esc(q.figure_dataurl)}" style="max-width:100%;border-radius:4px;margin-top:8px"></div>` : ''}
+      <div class="q-meta">By ${esc(q.student)} &nbsp;·&nbsp; ${esc(q.difficulty||'')}&nbsp;
+        ${(q.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}
+      </div>
+    </div>`).join('');
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>HW: ${esc(conceptName)}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;padding:20px;max-width:820px;margin:0 auto}
+  h2{font-size:1rem;font-weight:700;color:#0369a1;margin:0 0 16px}
+  .q-card{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .q-title{font-weight:700;font-size:0.93rem;margin-bottom:8px;color:#0f172a}
+  .q-stem{font-size:0.87rem;line-height:1.7;color:#1e293b;margin-bottom:10px}
+  .q-part{margin:6px 0 6px 14px;font-size:0.86rem;color:#334155}
+  .q-part-label{font-weight:600;color:#475569}
+  .q-meta{font-size:0.74rem;color:#94a3b8;margin-top:10px;border-top:1px solid #f1f5f9;padding-top:8px}
+  .tag{display:inline-block;background:#f1f5f9;border-radius:4px;padding:1px 7px;font-size:0.7rem;color:#64748b;margin:1px 2px}
+  .empty{text-align:center;color:#94a3b8;padding:48px;font-size:0.9rem}
+</style></head>
+<body>
+<h2>HW Questions — ${esc(conceptName)}</h2>
+${body}
+</body></html>`);
 });
 
 // ── Route: Settings — model + password (admin) ───────────────────
@@ -1944,11 +1987,15 @@ app.patch('/api/admin/hw/questions/:id', requireAdmin, (req, res) => {
     const q = qs[idx];
     try {
       // 1. Flip ic-draft → ic in contributions.json so concept node turns green
+      //    Also add/update type:'hw' entry so concept.html HW tab shows this concept's questions
       const contribPath = path.join(__dirname, 'contributions.json');
       const contribs = fs.existsSync(contribPath)
         ? JSON.parse(fs.readFileSync(contribPath, 'utf8')) : [];
       const icIdx = contribs.findIndex(c => c.concept_id === q.concept_slug && c.type === 'ic-draft');
       if (icIdx >= 0) contribs[icIdx] = { ...contribs[icIdx], type: 'ic' };
+      const hwEntry = { concept_id: q.concept_slug, type: 'hw', title: q.title, author: q.student, url: `/api/public/hw-page/${q.concept_slug}` };
+      const hwIdx = contribs.findIndex(c => c.concept_id === q.concept_slug && c.type === 'hw');
+      if (hwIdx >= 0) contribs[hwIdx] = hwEntry; else contribs.push(hwEntry);
       fs.writeFileSync(contribPath, JSON.stringify(contribs, null, 2));
 
       // 2. Advance student workflow to complete

@@ -35,6 +35,13 @@
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/galilean_velocity_addition/addition_sadie_park.html"
   },
   {
+    "concept_id": "galilean_velocity_addition",
+    "type": "hw",
+    "title": "Thre relativity of nile boats.",
+    "author": "sadie park",
+    "url": "/api/public/hw-page/galilean_velocity_addition"
+  },
+  {
     "concept_id": "time_dilation",
     "type": "ic",
     "title": "Time Dilation",
@@ -42,10 +49,31 @@
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/time_dilation/sadie_park.html"
   },
   {
+    "concept_id": "time_dilation",
+    "type": "hw",
+    "title": "An astronaut travels from Earth to Alpha Centauri",
+    "author": "sadie park",
+    "url": "/api/public/hw-page/time_dilation"
+  },
+  {
     "concept_id": "rel_velocity_addition",
     "type": "ic",
     "title": "Relativistic Velocity Addition",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/rel_velocity_addition/sadie_park.html"
+  },
+  {
+    "concept_id": "rel_velocity_addition",
+    "type": "at",
+    "title": "Relativistic Velocity Addition",
+    "author": "sadie park",
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/rel_velocity_addition/at_sadie_park.html"
+  },
+  {
+    "concept_id": "rel_velocity_addition",
+    "type": "hw",
+    "title": "Space Cows -- mooo!",
+    "author": "sadie park",
+    "url": "/api/public/hw-page/rel_velocity_addition"
   }
 ]
