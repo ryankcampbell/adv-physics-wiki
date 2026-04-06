@@ -80,5 +80,10 @@
     "concept_id": "spacetime_interval",
     "status": "in_progress",
     "at_status": "certified"
+  },
+  {
+    "concept_id": "galilean_frames",
+    "status": "submitted",
+    "claimed_by": "Sadie Park"
   }
 ]
