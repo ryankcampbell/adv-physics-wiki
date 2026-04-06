@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="rel_velocity_addition">
+<meta name="adv-physics-stage" content="at">
+<title>AT: Relativistic Velocity Addition | by sadie park</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fef2f2;color:#0f172a;line-height:1.7}
+.at-header{background:#7c2d12;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.at-title{font-size:1.4rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.at-meta{font-size:.82rem;color:rgba(255,255,255,0.65)}
+.at-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+h2.at-sec{border-color:#fca5a5;color:#991b1b}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.v-card{background:white;border:1px solid #fca5a5;border-radius:8px;padding:16px 20px;margin-bottom:12px}
+.v-card h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#dc2626;margin-bottom:8px}
+.verdict-box{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px}
+.at-footer{margin-top:60px;padding-top:20px;border-top:1px solid #fca5a5;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="at-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="at-title">Adversarial Test Report — Relativistic Velocity Addition</div>
+  <div class="at-meta">Reviewed by <strong style="color:white">sadie park</strong> &nbsp;·&nbsp; IC by sadie park</div>
+</div>
+<div class="at-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:480px;background:#0f172a;border-radius:6px;overflow:hidden">
+        <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+  <meta charset=&quot;UTF-8&quot;>
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  <title>Relativistic Velocity Addition</title>
+  <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;
+    onload=&quot;renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})&quot;></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+      margin: 0; padding: 15px;
+      background: #1a1a2e; color: #eee;
+    }
+    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
+    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }
+    
+    .main-row { display: flex; gap: 14px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
+    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .canvas-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+    
+    canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; }
+    #plotCanvas { height: 320px; }
+    #readoutCanvas { height: 100px; }
+    
+    .panel { background: #252540; padding: 12px; border-radius: 8px; }
+    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;
+                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }
+    
+    .slider-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+    .slider-row label { font-size: 11px; color: #aab; min-width: 85px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }
+    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 65px;
+                       text-align: right; font-family: monospace; }
+    
+    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;
+               font-family: monospace; font-size: 11px; line-height: 1.6; margin-top: 6px; }
+    .readout-row { display: flex; justify-content: space-between; margin: 3px 0; }
+    .readout-label { color: #8899aa; }
+    .readout-value { color: #7eb8da; font-weight: bold; }
+    
+    .caption { text-align: center; font-size: 11px; color: #667; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<h1>Relativistic Velocity Addition</h1>
+<p class=&quot;subtitle&quot;>Transform velocities between inertial reference frames</p>
+
+<div class=&quot;main-row&quot;>
+  <!-- SIDEBAR: Controls -->
+  <div class=&quot;sidebar&quot;>
+    <div class=&quot;panel&quot;>
+      <h3>Frame S (Lab Frame)</h3>
+      <div class=&quot;slider-row&quot;>
+        <label>$u$ (object $\beta$)</label>
+        <input type=&quot;range&quot; id=&quot;betaU&quot; min=&quot;0&quot; max=&quot;0.99&quot; step=&quot;0.01&quot; value=&quot;0.6&quot;>
+        <span class=&quot;val&quot; id=&quot;betaUVal&quot;>0.60</span>
+      </div>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$u$ (m/s)</span>
+          <span class=&quot;readout-value&quot; id=&quot;uMs&quot;>1.80×10⁸</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$\gamma_u$</span>
+          <span class=&quot;readout-value&quot; id=&quot;gammaU&quot;>1.25</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot;>
+      <h3>Frame S' (Moving Frame)</h3>
+      <div class=&quot;slider-row&quot;>
+        <label>$v$ (frame $\beta$)</label>
+        <input type=&quot;range&quot; id=&quot;betaV&quot; min=&quot;0&quot; max=&quot;0.99&quot; step=&quot;0.01&quot; value=&quot;0.3&quot;>
+        <span class=&quot;val&quot; id=&quot;betaVVal&quot;>0.30</span>
+      </div>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$v$ (m/s)</span>
+          <span class=&quot;readout-value&quot; id=&quot;vMs&quot;>9.00×10⁷</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$\gamma_v$</span>
+          <span class=&quot;readout-value&quot; id=&quot;gammaV&quot;>1.05</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot;>
+      <h3>Transformed Velocity</h3>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$u'$ ($\beta$)</span>
+          <span class=&quot;readout-value&quot; id=&quot;betaUprime&quot;>0.43</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$u'$ (m/s)</span>
+          <span class=&quot;readout-value&quot; id=&quot;uprimeMs&quot;>1.29×10⁸</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$\gamma_{u'}$</span>
+          <span class=&quot;readout-value&quot; id=&quot;gammaUprime&quot;>1.11</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot; style=&quot;background: #2a2a45; font-size: 10px; line-height: 1.5; color: #9aa;&quot;>
+      <strong>Formula:</strong><br>
+      $$u' = \frac{u - v}{1 - \beta_u \beta_v}$$
+      where $c = 3.00 \times 10^8$ m/s
+    </div>
+  </div>
+
+  <!-- CANVAS: Plots -->
+  <div class=&quot;canvas-wrap&quot;>
+    <canvas id=&quot;plotCanvas&quot;></canvas>
+    <canvas id=&quot;readoutCanvas&quot;></canvas>
+    <p class=&quot;caption&quot;>Top: $u'(\beta_v)$ transformation curve with current state marked. Bottom: velocity composition diagram.</p>
+  </div>
+</div>
+
+<script>
+const c = 3.0e8; // speed of light in m/s
+
+// Get elements
+const betaUSlider = document.getElementById('betaU');
+const betaVSlider = document.getElementById('betaV');
+const betaUVal = document.getElementById('betaUVal');
+const betaVVal = document.getElementById('betaVVal');
+
+const uMs = document.getElementById('uMs');
+const gammaU = document.getElementById('gammaU');
+const vMs = document.getElementById('vMs');
+const gammaV = document.getElementById('gammaV');
+const betaUprime = document.getElementById('betaUprime');
+const uprimeMs = document.getElementById('uprimeMs');
+const gammaUprime = document.getElementById('gammaUprime');
+
+const plotCanvas = document.getElementById('plotCanvas');
+const readoutCanvas = document.getElementById('readoutCanvas');
+
+// Set explicit dimensions
+plotCanvas.width = 900;
+plotCanvas.height = 320;
+readoutCanvas.width = 900;
+readoutCanvas.height = 100;
+
+const plotCtx = plotCanvas.getContext('2d');
+const readoutCtx = readoutCanvas.getContext('2d');
+
+function lorentzGamma(beta) {
+  return 1 / Math.sqrt(1 - beta * beta);
+}
+
+function relativistic_u_prime(beta_u, beta_v) {
+  // u' = (u - v) / (1 - beta_u * beta_v) in units of c
+  return (beta_u - beta_v) / (1 - beta_u * beta_v);
+}
+
+function formatSci(val, prec = 2) {
+  if (Math.abs(val) < 1e-10) return '0';
+  const exp = Math.floor(Math.log10(Math.abs(val)));
+  const man = val / Math.pow(10, exp);
+  return man.toFixed(prec) + '×10<sup>' + exp + '</sup>';
+}
+
+function formatSciPlain(val, prec = 2) {
+  if (Math.abs(val) < 1e-10) return '0';
+  const exp = Math.floor(Math.log10(Math.abs(val)));
+  const man = val / Math.pow(10, exp);
+  return man.toFixed(prec) + 'e' + exp;
+}
+
+function updateReadouts() {
+  const beta_u = parseFloat(betaUSlider.value);
+  const beta_v = parseFloat(betaVSlider.value);
+
+  betaUVal.textContent = beta_u.toFixed(2);
+  betaVVal.textContent = beta_v.toFixed(2);
+
+  const u_ms = beta_u * c;
+  const v_ms = beta_v * c;
+  const gamma_u = lorentzGamma(beta_u);
+  const gamma_v = lorentzGamma(beta_v);
+
+  uMs.textContent = formatSciPlain(u_ms);
+  vMs.textContent = formatSciPlain(v_ms);
+  gammaU.textContent = gamma_u.toFixed(2);
+  gammaV.textContent = gamma_v.toFixed(2);
+
+  const beta_uprime = relativistic_u_prime(beta_u, beta_v);
+  const u_prime_ms = beta_uprime * c;
+  const gamma_uprime = lorentzGamma(Math.abs(beta_uprime));
+
+  betaUprime.textContent = beta_uprime.toFixed(2);
+  uprimeMs.textContent = formatSciPlain(u_prime_ms);
+  gammaUprime.textContent = gamma_uprime.toFixed(2);
+
+  drawPlots(beta_u, beta_v, beta_uprime);
+  drawReadout(beta_u, beta_v, beta_uprime);
+}
+
+function drawPlots(beta_u, beta_v, beta_uprime) {
+  const w = plotCanvas.width;
+  const h = plotCanvas.height;
+  const pad = 40;
+
+  plotCtx.fillStyle = '#0d0d1a';
+  plotCtx.fillRect(0, 0, w, h);
+
+  // Draw axes
+  plotCtx.strokeStyle = '#3a3a5a';
+  plotCtx.lineWidth = 1;
+  plotCtx.beginPath();
+  plotCtx.moveTo(pad, h - pad);
+  plotCtx.lineTo(w - 20, h - pad);
+  plotCtx.stroke();
+  plotCtx.beginPath();
+  plotCtx.moveTo(pad, h - pad);
+  plotCtx.lineTo(pad, 20);
+  plotCtx.stroke();
+
+  // Axis labels
+  plotCtx.fillStyle = '#667';
+  plotCtx.font = '11px monospace';
+  plotCtx.textAlign = 'center';
+  plotCtx.fillText('β_v', w - 30, h - 15);
+  plotCtx.save();
+  plotCtx.translate(15, h / 2);
+  plotCtx.rotate(-Math.PI / 2);
+  plotCtx.fillText(&quot;u' (β)&quot;, 0, 0);
+  plotCtx.restore();
+
+  // Grid
+  plotCtx.strokeStyle = '#2a2a45';
+  plotCtx.lineWidth = 0.5;
+  for (let i = 0; i <= 10; i++) {
+    const x = pad + (i / 10) * (w - pad - 20);
+    const y = h - pad - (i / 10) * (h - pad - 20);
+    plotCtx.beginPath();
+    plotCtx.moveTo(x, h - pad + 3);
+    plotCtx.lineTo(x, h - pad - 3);
+    plotCtx.stroke();
+    plotCtx.beginPath();
+    plotCtx.moveTo(pad - 3, y);
+    plotCtx.lineTo(pad + 3, y);
+    plotCtx.stroke();
+    if (i > 0) {
+      plotCtx.fillStyle = '#556';
+      plotCtx.font = '9px monospace';
+      plotCtx.textAlign = 'center';
+      plotCtx.fillText((i / 10).toFixed(1), x, h - pad + 12);
+    }
+  }
+
+  // Draw transformation curve for current beta_u
+  plotCtx.strokeStyle = '#7eb8da';
+  plotCtx.lineWidth = 2;
+  plotCtx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const bv = (i / 200) * 0.99;
+    const bup = relativistic_u_prime(beta_u, bv);
+    const px = pad + (bv / 0.99) * (w - pad - 20);
+    const py = h - pad - ((bup + 1.0) / 2.0) * (h - pad - 20); // normalize to [-1, 1]
+    if (i === 0) plotCtx.moveTo(px, py);
+    else plotCtx.lineTo(px, py);
+  }
+  plotCtx.stroke();
+
+  // Mark current state
+  const px = pad + (beta_v / 0.99) * (w - pad - 20);
+  const py = h - pad - ((beta_uprime + 1.0) / 2.0) * (h - pad - 20);
+  plotCtx.fillStyle = '#e8c050';
+  plotCtx.beginPath();
+  plotCtx.arc(px, py, 6, 0, 2 * Math.PI);
+  plotCtx.fill();
+  plotCtx.strokeStyle = '#fff';
+  plotCtx.lineWidth = 2;
+  plotCtx.stroke();
+}
+
+function drawReadout(beta_u, beta_v, beta_uprime) {
+  const w = readoutCanvas.width;
+  const h = readoutCanvas.height;
+
+  readoutCtx.fillStyle = '#0d0d1a';
+  readoutCtx.fillRect(0, 0, w, h);
+
+  // Draw frame diagram
+  const y = h / 2;
+  const sx = 80, ex = w - 80;
+
+  // Frame S
+  readoutCtx.strokeStyle = '#6ecf6e';
+  readoutCtx.lineWidth = 2;
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(sx, y - 15);
+  readoutCtx.lineTo(sx, y + 15);
+  readoutCtx.stroke();
+  readoutCtx.fillStyle = '#6ecf6e';
+  readoutCtx.font = 'bold 12px monospace';
+  readoutCtx.textAlign = 'center';
+  readoutCtx.fillText('S', sx, y - 25);
+  readoutCtx.font = '10px monospace';
+  readoutCtx.fillStyle = '#8899aa';
+  readoutCtx.fillText('Lab', sx, y + 30);
+
+  // Arrow for v
+  const vmid = sx + (ex - sx) * 0.35;
+  readoutCtx.strokeStyle = '#e07050';
+  readoutCtx.lineWidth = 2;
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(sx + 30, y);
+  readoutCtx.lineTo(vmid - 10, y);
+  readoutCtx.stroke();
+  // arrowhead
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(vmid - 10, y);
+  readoutCtx.lineTo(vmid - 18, y - 4);
+  readoutCtx.lineTo(vmid - 18, y + 4);
+  readoutCtx.closePath();
+  readoutCtx.fill();
+  readoutCtx.fillStyle = '#e07050';
+  readoutCtx.font = 'bold 11px monospace';
+  readoutCtx.textAlign = 'center';
+  readoutCtx.fillText(&quot;v = &quot; + beta_v.toFixed(2) + &quot;c&quot;, vmid, y - 12);
+
+  // Frame S'
+  readoutCtx.strokeStyle = '#b08aff';
+  readoutCtx.lineWidth = 2;
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(ex, y - 15);
+  readoutCtx.lineTo(ex, y + 15);
+  readoutCtx.stroke();
+  readoutCtx.fillStyle = '#b08aff';
+  readoutCtx.font = 'bold 12px monospace';
+  readoutCtx.textAlign = 'center';
+  readoutCtx.fillText(&quot;S'&quot;, ex, y - 25);
+  readoutCtx.font = '10px monospace';
+  readoutCtx.fillStyle = '#8899aa';
+  readoutCtx.fillText('Moving', ex, y + 30);
+
+  // Object velocity in S
+  readoutCtx.fillStyle = '#7eb8da';
+  readoutCtx.font = '10px monospace';
+  readoutCtx.textAlign = 'left';
+  readoutCtx.fillText(&quot;In S: u = &quot; + beta_u.toFixed(2) + &quot;c&quot;, 10, 18);
+  readoutCtx.fillText(&quot;In S': u' = &quot; + beta_uprime.toFixed(2) + &quot;c&quot;, 10, 35);
+}
+
+// Event listeners
+betaUSlider.addEventListener('input', updateReadouts);
+betaVSlider.addEventListener('input', updateReadouts);
+
+// Initial draw
+updateReadouts();
+</script>
+
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+       </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+<p style="color:#94a3b8;font-style:italic">No citations.</p>
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<h2 class="at-sec">Verification</h2>
+<div class="v-card"><h3 id="lc1t"></h3>
+  <p><strong>Expected:</strong> <span id="lc1e"></span></p>
+  <p><strong>Observed:</strong> <span id="lc1o"></span></p></div>
+<div class="v-card"><h3 id="lc2t"></h3>
+  <p><strong>Expected:</strong> <span id="lc2e"></span></p>
+  <p><strong>Observed:</strong> <span id="lc2o"></span></p></div>
+<div class="v-card"><h3>Quantitative Spot-Check</h3>
+  <p><strong>Setup:</strong> <span id="scs"></span></p>
+  <p><strong>Predicted:</strong> <span id="scp"></span></p>
+  <p><strong>Result:</strong> <span id="scr"></span></p></div>
+
+<h2 class="at-sec">Overall Verdict</h2>
+<div class="verdict-box">
+  <div style="font-size:1.1rem;font-weight:700;color:#15803d;margin-bottom:10px">✓ Pass — no significant errors found</div>
+  
+</div>
+
+<div class="at-footer">
+  <span>Advanced Physics · NWA · Adversarial Test by sadie park</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"How do velocities add in relativity?");
+setMath('sim-cap',"");
+setMath('lc1t',"$\\beta_u = 0, beta_v=0$");setMath('lc1e',"u' = 0");setMath('lc1o',"yep");
+setMath('lc2t',"Limiting Case 2");setMath('lc2e',"");setMath('lc2o',"");
+setMath('scs',"");setMath('scp',"");setMath('scr',"");
+setMath('anchor',"Well were showing how velocities work with relativity.");
+(function(){
+  const el=document.getElementById('expl');
+  const paras="$u^{'} = \\frac{u-v}{1-\\beta_u\\beta_v}$".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#7c2d12;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let t;
+  document.addEventListener('mouseup',()=>{clearTimeout(t);const s=window.getSelection();if(s&&s.toString().trim().length>3)bar.style.bottom='28px';else t=setTimeout(()=>bar.style.bottom='-60px',400);});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied!';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2000);}).catch(()=>prompt('Copy:',url));});
+})();
+</script>
+<script type="application/json" id="at-source-data">{"verification":{"lc1t":"$\\beta_u = 0, beta_v=0$","lc1e":"u' = 0","lc1o":"yep","lc2t":"","lc2e":"","lc2o":"","scs":"","scp":"","scr":"","authors":"sadie park","verdict":"pass","summary":""},"toolSession":{},"socratiLog":[],"sessionMeta":{"selectedTools":[],"completed":[]}}</script>
+</body>
+</html>
