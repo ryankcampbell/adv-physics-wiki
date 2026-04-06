@@ -47,6 +47,16 @@
       "revision_notes": "",
       "created_at": "2026-04-05",
       "updated_at": "2026-04-05"
+    },
+    "rel_velocity_addition": {
+      "slug": "rel_velocity_addition",
+      "title": "Relativistic Velocity Addition",
+      "module": "Special Relativity",
+      "stage": "at",
+      "status": "draft",
+      "revision_notes": "",
+      "created_at": "2026-04-06",
+      "updated_at": "2026-04-06"
     }
   },
   "alex rodriguez": {
@@ -77,18 +87,6 @@
       "status": "draft",
       "created_at": "2026-03-03",
       "updated_at": "2026-03-08"
-    }
-  },
-  "_test_student_": {
-    "test_topic": {
-      "slug": "test_topic",
-      "title": "_Test Topic_",
-      "module": "Test Module",
-      "stage": "hw",
-      "status": "needs_revision",
-      "revision_notes": "Fix the sim",
-      "created_at": "2026-04-05",
-      "updated_at": "2026-04-05"
     }
   }
 }

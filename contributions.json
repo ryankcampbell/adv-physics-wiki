@@ -40,5 +40,12 @@
     "title": "Time Dilation",
     "author": "sadie park",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/time_dilation/sadie_park.html"
+  },
+  {
+    "concept_id": "rel_velocity_addition",
+    "type": "ic-draft",
+    "title": "Relativistic Velocity Addition",
+    "author": "sadie park",
+    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/rel_velocity_addition/sadie_park.html"
   }
 ]

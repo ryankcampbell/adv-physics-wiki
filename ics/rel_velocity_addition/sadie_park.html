@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="rel_velocity_addition">
+<meta name="adv-physics-stage" content="ic">
+<title>IC: Relativistic Velocity Addition | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-pending{background:rgba(234,88,12,0.3);color:#fdba74}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="ic-title">Relativistic Velocity Addition</div>
+  <div class="ic-meta"><span>by sadie park</span><span class="badge badge-pending">Pending Review</span></div>
+</div>
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+        <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+  <meta charset=&quot;UTF-8&quot;>
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  <title>Relativistic Velocity Addition</title>
+  <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;
+    onload=&quot;renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})&quot;></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+      margin: 0; padding: 15px;
+      background: #1a1a2e; color: #eee;
+    }
+    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
+    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }
+    
+    .main-row { display: flex; gap: 14px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
+    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .canvas-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+    
+    canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; }
+    #plotCanvas { height: 320px; }
+    #readoutCanvas { height: 100px; }
+    
+    .panel { background: #252540; padding: 12px; border-radius: 8px; }
+    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;
+                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }
+    
+    .slider-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+    .slider-row label { font-size: 11px; color: #aab; min-width: 85px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }
+    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 65px;
+                       text-align: right; font-family: monospace; }
+    
+    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;
+               font-family: monospace; font-size: 11px; line-height: 1.6; margin-top: 6px; }
+    .readout-row { display: flex; justify-content: space-between; margin: 3px 0; }
+    .readout-label { color: #8899aa; }
+    .readout-value { color: #7eb8da; font-weight: bold; }
+    
+    .caption { text-align: center; font-size: 11px; color: #667; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<h1>Relativistic Velocity Addition</h1>
+<p class=&quot;subtitle&quot;>Transform velocities between inertial reference frames</p>
+
+<div class=&quot;main-row&quot;>
+  <!-- SIDEBAR: Controls -->
+  <div class=&quot;sidebar&quot;>
+    <div class=&quot;panel&quot;>
+      <h3>Frame S (Lab Frame)</h3>
+      <div class=&quot;slider-row&quot;>
+        <label>$u$ (object $\beta$)</label>
+        <input type=&quot;range&quot; id=&quot;betaU&quot; min=&quot;0&quot; max=&quot;0.99&quot; step=&quot;0.01&quot; value=&quot;0.6&quot;>
+        <span class=&quot;val&quot; id=&quot;betaUVal&quot;>0.60</span>
+      </div>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$u$ (m/s)</span>
+          <span class=&quot;readout-value&quot; id=&quot;uMs&quot;>1.80×10⁸</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$\gamma_u$</span>
+          <span class=&quot;readout-value&quot; id=&quot;gammaU&quot;>1.25</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot;>
+      <h3>Frame S' (Moving Frame)</h3>
+      <div class=&quot;slider-row&quot;>
+        <label>$v$ (frame $\beta$)</label>
+        <input type=&quot;range&quot; id=&quot;betaV&quot; min=&quot;0&quot; max=&quot;0.99&quot; step=&quot;0.01&quot; value=&quot;0.3&quot;>
+        <span class=&quot;val&quot; id=&quot;betaVVal&quot;>0.30</span>
+      </div>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$v$ (m/s)</span>
+          <span class=&quot;readout-value&quot; id=&quot;vMs&quot;>9.00×10⁷</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$\gamma_v$</span>
+          <span class=&quot;readout-value&quot; id=&quot;gammaV&quot;>1.05</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot;>
+      <h3>Transformed Velocity</h3>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$u'$ ($\beta$)</span>
+          <span class=&quot;readout-value&quot; id=&quot;betaUprime&quot;>0.43</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$u'$ (m/s)</span>
+          <span class=&quot;readout-value&quot; id=&quot;uprimeMs&quot;>1.29×10⁸</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>$\gamma_{u'}$</span>
+          <span class=&quot;readout-value&quot; id=&quot;gammaUprime&quot;>1.11</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot; style=&quot;background: #2a2a45; font-size: 10px; line-height: 1.5; color: #9aa;&quot;>
+      <strong>Formula:</strong><br>
+      $$u' = \frac{u - v}{1 - \beta_u \beta_v}$$
+      where $c = 3.00 \times 10^8$ m/s
+    </div>
+  </div>
+
+  <!-- CANVAS: Plots -->
+  <div class=&quot;canvas-wrap&quot;>
+    <canvas id=&quot;plotCanvas&quot;></canvas>
+    <canvas id=&quot;readoutCanvas&quot;></canvas>
+    <p class=&quot;caption&quot;>Top: $u'(\beta_v)$ transformation curve with current state marked. Bottom: velocity composition diagram.</p>
+  </div>
+</div>
+
+<script>
+const c = 3.0e8; // speed of light in m/s
+
+// Get elements
+const betaUSlider = document.getElementById('betaU');
+const betaVSlider = document.getElementById('betaV');
+const betaUVal = document.getElementById('betaUVal');
+const betaVVal = document.getElementById('betaVVal');
+
+const uMs = document.getElementById('uMs');
+const gammaU = document.getElementById('gammaU');
+const vMs = document.getElementById('vMs');
+const gammaV = document.getElementById('gammaV');
+const betaUprime = document.getElementById('betaUprime');
+const uprimeMs = document.getElementById('uprimeMs');
+const gammaUprime = document.getElementById('gammaUprime');
+
+const plotCanvas = document.getElementById('plotCanvas');
+const readoutCanvas = document.getElementById('readoutCanvas');
+
+// Set explicit dimensions
+plotCanvas.width = 900;
+plotCanvas.height = 320;
+readoutCanvas.width = 900;
+readoutCanvas.height = 100;
+
+const plotCtx = plotCanvas.getContext('2d');
+const readoutCtx = readoutCanvas.getContext('2d');
+
+function lorentzGamma(beta) {
+  return 1 / Math.sqrt(1 - beta * beta);
+}
+
+function relativistic_u_prime(beta_u, beta_v) {
+  // u' = (u - v) / (1 - beta_u * beta_v) in units of c
+  return (beta_u - beta_v) / (1 - beta_u * beta_v);
+}
+
+function formatSci(val, prec = 2) {
+  if (Math.abs(val) < 1e-10) return '0';
+  const exp = Math.floor(Math.log10(Math.abs(val)));
+  const man = val / Math.pow(10, exp);
+  return man.toFixed(prec) + '×10<sup>' + exp + '</sup>';
+}
+
+function formatSciPlain(val, prec = 2) {
+  if (Math.abs(val) < 1e-10) return '0';
+  const exp = Math.floor(Math.log10(Math.abs(val)));
+  const man = val / Math.pow(10, exp);
+  return man.toFixed(prec) + 'e' + exp;
+}
+
+function updateReadouts() {
+  const beta_u = parseFloat(betaUSlider.value);
+  const beta_v = parseFloat(betaVSlider.value);
+
+  betaUVal.textContent = beta_u.toFixed(2);
+  betaVVal.textContent = beta_v.toFixed(2);
+
+  const u_ms = beta_u * c;
+  const v_ms = beta_v * c;
+  const gamma_u = lorentzGamma(beta_u);
+  const gamma_v = lorentzGamma(beta_v);
+
+  uMs.textContent = formatSciPlain(u_ms);
+  vMs.textContent = formatSciPlain(v_ms);
+  gammaU.textContent = gamma_u.toFixed(2);
+  gammaV.textContent = gamma_v.toFixed(2);
+
+  const beta_uprime = relativistic_u_prime(beta_u, beta_v);
+  const u_prime_ms = beta_uprime * c;
+  const gamma_uprime = lorentzGamma(Math.abs(beta_uprime));
+
+  betaUprime.textContent = beta_uprime.toFixed(2);
+  uprimeMs.textContent = formatSciPlain(u_prime_ms);
+  gammaUprime.textContent = gamma_uprime.toFixed(2);
+
+  drawPlots(beta_u, beta_v, beta_uprime);
+  drawReadout(beta_u, beta_v, beta_uprime);
+}
+
+function drawPlots(beta_u, beta_v, beta_uprime) {
+  const w = plotCanvas.width;
+  const h = plotCanvas.height;
+  const pad = 40;
+
+  plotCtx.fillStyle = '#0d0d1a';
+  plotCtx.fillRect(0, 0, w, h);
+
+  // Draw axes
+  plotCtx.strokeStyle = '#3a3a5a';
+  plotCtx.lineWidth = 1;
+  plotCtx.beginPath();
+  plotCtx.moveTo(pad, h - pad);
+  plotCtx.lineTo(w - 20, h - pad);
+  plotCtx.stroke();
+  plotCtx.beginPath();
+  plotCtx.moveTo(pad, h - pad);
+  plotCtx.lineTo(pad, 20);
+  plotCtx.stroke();
+
+  // Axis labels
+  plotCtx.fillStyle = '#667';
+  plotCtx.font = '11px monospace';
+  plotCtx.textAlign = 'center';
+  plotCtx.fillText('β_v', w - 30, h - 15);
+  plotCtx.save();
+  plotCtx.translate(15, h / 2);
+  plotCtx.rotate(-Math.PI / 2);
+  plotCtx.fillText(&quot;u' (β)&quot;, 0, 0);
+  plotCtx.restore();
+
+  // Grid
+  plotCtx.strokeStyle = '#2a2a45';
+  plotCtx.lineWidth = 0.5;
+  for (let i = 0; i <= 10; i++) {
+    const x = pad + (i / 10) * (w - pad - 20);
+    const y = h - pad - (i / 10) * (h - pad - 20);
+    plotCtx.beginPath();
+    plotCtx.moveTo(x, h - pad + 3);
+    plotCtx.lineTo(x, h - pad - 3);
+    plotCtx.stroke();
+    plotCtx.beginPath();
+    plotCtx.moveTo(pad - 3, y);
+    plotCtx.lineTo(pad + 3, y);
+    plotCtx.stroke();
+    if (i > 0) {
+      plotCtx.fillStyle = '#556';
+      plotCtx.font = '9px monospace';
+      plotCtx.textAlign = 'center';
+      plotCtx.fillText((i / 10).toFixed(1), x, h - pad + 12);
+    }
+  }
+
+  // Draw transformation curve for current beta_u
+  plotCtx.strokeStyle = '#7eb8da';
+  plotCtx.lineWidth = 2;
+  plotCtx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const bv = (i / 200) * 0.99;
+    const bup = relativistic_u_prime(beta_u, bv);
+    const px = pad + (bv / 0.99) * (w - pad - 20);
+    const py = h - pad - ((bup + 1.0) / 2.0) * (h - pad - 20); // normalize to [-1, 1]
+    if (i === 0) plotCtx.moveTo(px, py);
+    else plotCtx.lineTo(px, py);
+  }
+  plotCtx.stroke();
+
+  // Mark current state
+  const px = pad + (beta_v / 0.99) * (w - pad - 20);
+  const py = h - pad - ((beta_uprime + 1.0) / 2.0) * (h - pad - 20);
+  plotCtx.fillStyle = '#e8c050';
+  plotCtx.beginPath();
+  plotCtx.arc(px, py, 6, 0, 2 * Math.PI);
+  plotCtx.fill();
+  plotCtx.strokeStyle = '#fff';
+  plotCtx.lineWidth = 2;
+  plotCtx.stroke();
+}
+
+function drawReadout(beta_u, beta_v, beta_uprime) {
+  const w = readoutCanvas.width;
+  const h = readoutCanvas.height;
+
+  readoutCtx.fillStyle = '#0d0d1a';
+  readoutCtx.fillRect(0, 0, w, h);
+
+  // Draw frame diagram
+  const y = h / 2;
+  const sx = 80, ex = w - 80;
+
+  // Frame S
+  readoutCtx.strokeStyle = '#6ecf6e';
+  readoutCtx.lineWidth = 2;
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(sx, y - 15);
+  readoutCtx.lineTo(sx, y + 15);
+  readoutCtx.stroke();
+  readoutCtx.fillStyle = '#6ecf6e';
+  readoutCtx.font = 'bold 12px monospace';
+  readoutCtx.textAlign = 'center';
+  readoutCtx.fillText('S', sx, y - 25);
+  readoutCtx.font = '10px monospace';
+  readoutCtx.fillStyle = '#8899aa';
+  readoutCtx.fillText('Lab', sx, y + 30);
+
+  // Arrow for v
+  const vmid = sx + (ex - sx) * 0.35;
+  readoutCtx.strokeStyle = '#e07050';
+  readoutCtx.lineWidth = 2;
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(sx + 30, y);
+  readoutCtx.lineTo(vmid - 10, y);
+  readoutCtx.stroke();
+  // arrowhead
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(vmid - 10, y);
+  readoutCtx.lineTo(vmid - 18, y - 4);
+  readoutCtx.lineTo(vmid - 18, y + 4);
+  readoutCtx.closePath();
+  readoutCtx.fill();
+  readoutCtx.fillStyle = '#e07050';
+  readoutCtx.font = 'bold 11px monospace';
+  readoutCtx.textAlign = 'center';
+  readoutCtx.fillText(&quot;v = &quot; + beta_v.toFixed(2) + &quot;c&quot;, vmid, y - 12);
+
+  // Frame S'
+  readoutCtx.strokeStyle = '#b08aff';
+  readoutCtx.lineWidth = 2;
+  readoutCtx.beginPath();
+  readoutCtx.moveTo(ex, y - 15);
+  readoutCtx.lineTo(ex, y + 15);
+  readoutCtx.stroke();
+  readoutCtx.fillStyle = '#b08aff';
+  readoutCtx.font = 'bold 12px monospace';
+  readoutCtx.textAlign = 'center';
+  readoutCtx.fillText(&quot;S'&quot;, ex, y - 25);
+  readoutCtx.font = '10px monospace';
+  readoutCtx.fillStyle = '#8899aa';
+  readoutCtx.fillText('Moving', ex, y + 30);
+
+  // Object velocity in S
+  readoutCtx.fillStyle = '#7eb8da';
+  readoutCtx.font = '10px monospace';
+  readoutCtx.textAlign = 'left';
+  readoutCtx.fillText(&quot;In S: u = &quot; + beta_u.toFixed(2) + &quot;c&quot;, 10, 18);
+  readoutCtx.fillText(&quot;In S': u' = &quot; + beta_uprime.toFixed(2) + &quot;c&quot;, 10, 35);
+}
+
+// Event listeners
+betaUSlider.addEventListener('input', updateReadouts);
+betaVSlider.addEventListener('input', updateReadouts);
+
+// Initial draw
+updateReadouts();
+</script>
+
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+       </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<div class="ic-footer">
+  <span>Advanced Physics · NWA · sadie park</span>
+  <span>Status: Pending Review</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"How do velocities add in relativity?");
+setMath('sim-cap',"");
+setMath('anchor',"Well were showing how velocities work with relativity.");
+
+(function(){
+  const el=document.getElementById('expl');
+  const paras="$u^{'} = \\frac{u-v}{1-\\beta_u\\beta_v}$".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let hideTimer;
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
+})();
+</script>
+<script type="application/json" id="ic-source-data">{"f-author":"sadie park","f-title":"Relativistic Velocity Addition","f-rq":"How do velocities add in relativity?","f-expl":"$u^{'} = \\frac{u-v}{1-\\beta_u\\beta_v}$","f-sim-cap":"","f-lc1t":"","f-lc1e":"","f-lc1o":"","f-lc2t":"","f-lc2e":"","f-lc2o":"","f-scs":"","f-scp":"","f-scr":"","f-anchor":"Well were showing how velocities work with relativity.","__sim_html":"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<script>\n/* Physics sim security preamble — do not remove */\n(function(){\n  'use strict';\n  // Null out network APIs so sims cannot phone home\n  window.fetch       = function(){ return Promise.reject('fetch disabled'); };\n  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };\n  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };\n  // Block dynamic code execution vectors\n  window.eval        = function(){ throw new Error('eval disabled'); };\n  window.Function    = function(){ throw new Error('Function constructor disabled'); };\n  // Block navigation away from the page\n  window.open        = function(){ return null; };\n  Object.freeze(window.location);\n})();\n<\/script>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Relativistic Velocity Addition<\/title>\n  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css\">\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js\"><\/script>\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js\"\n    onload=\"renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})\"><\/script>\n  <style>\n    * { box-sizing: border-box; }\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n      margin: 0; padding: 15px;\n      background: #1a1a2e; color: #eee;\n    }\n    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }\n    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }\n    \n    .main-row { display: flex; gap: 14px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }\n    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }\n    .canvas-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }\n    \n    canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; }\n    #plotCanvas { height: 320px; }\n    #readoutCanvas { height: 100px; }\n    \n    .panel { background: #252540; padding: 12px; border-radius: 8px; }\n    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;\n                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }\n    \n    .slider-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; }\n    .slider-row label { font-size: 11px; color: #aab; min-width: 85px; }\n    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }\n    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 65px;\n                       text-align: right; font-family: monospace; }\n    \n    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;\n               font-family: monospace; font-size: 11px; line-height: 1.6; margin-top: 6px; }\n    .readout-row { display: flex; justify-content: space-between; margin: 3px 0; }\n    .readout-label { color: #8899aa; }\n    .readout-value { color: #7eb8da; font-weight: bold; }\n    \n    .caption { text-align: center; font-size: 11px; color: #667; margin-top: 8px; }\n  <\/style>\n<\/head>\n<body>\n\n<h1>Relativistic Velocity Addition<\/h1>\n<p class=\"subtitle\">Transform velocities between inertial reference frames<\/p>\n\n<div class=\"main-row\">\n  <!-- SIDEBAR: Controls -->\n  <div class=\"sidebar\">\n    <div class=\"panel\">\n      <h3>Frame S (Lab Frame)<\/h3>\n      <div class=\"slider-row\">\n        <label>$u$ (object $\\beta$)<\/label>\n        <input type=\"range\" id=\"betaU\" min=\"0\" max=\"0.99\" step=\"0.01\" value=\"0.6\">\n        <span class=\"val\" id=\"betaUVal\">0.60<\/span>\n      <\/div>\n      <div class=\"readout\">\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$u$ (m/s)<\/span>\n          <span class=\"readout-value\" id=\"uMs\">1.80×10⁸<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$\\gamma_u$<\/span>\n          <span class=\"readout-value\" id=\"gammaU\">1.25<\/span>\n        <\/div>\n      <\/div>\n    <\/div>\n\n    <div class=\"panel\">\n      <h3>Frame S' (Moving Frame)<\/h3>\n      <div class=\"slider-row\">\n        <label>$v$ (frame $\\beta$)<\/label>\n        <input type=\"range\" id=\"betaV\" min=\"0\" max=\"0.99\" step=\"0.01\" value=\"0.3\">\n        <span class=\"val\" id=\"betaVVal\">0.30<\/span>\n      <\/div>\n      <div class=\"readout\">\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$v$ (m/s)<\/span>\n          <span class=\"readout-value\" id=\"vMs\">9.00×10⁷<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$\\gamma_v$<\/span>\n          <span class=\"readout-value\" id=\"gammaV\">1.05<\/span>\n        <\/div>\n      <\/div>\n    <\/div>\n\n    <div class=\"panel\">\n      <h3>Transformed Velocity<\/h3>\n      <div class=\"readout\">\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$u'$ ($\\beta$)<\/span>\n          <span class=\"readout-value\" id=\"betaUprime\">0.43<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$u'$ (m/s)<\/span>\n          <span class=\"readout-value\" id=\"uprimeMs\">1.29×10⁸<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">$\\gamma_{u'}$<\/span>\n          <span class=\"readout-value\" id=\"gammaUprime\">1.11<\/span>\n        <\/div>\n      <\/div>\n    <\/div>\n\n    <div class=\"panel\" style=\"background: #2a2a45; font-size: 10px; line-height: 1.5; color: #9aa;\">\n      <strong>Formula:<\/strong><br>\n      $$u' = \\frac{u - v}{1 - \\beta_u \\beta_v}$$\n      where $c = 3.00 \\times 10^8$ m/s\n    <\/div>\n  <\/div>\n\n  <!-- CANVAS: Plots -->\n  <div class=\"canvas-wrap\">\n    <canvas id=\"plotCanvas\"><\/canvas>\n    <canvas id=\"readoutCanvas\"><\/canvas>\n    <p class=\"caption\">Top: $u'(\\beta_v)$ transformation curve with current state marked. Bottom: velocity composition diagram.<\/p>\n  <\/div>\n<\/div>\n\n<script>\nconst c = 3.0e8; // speed of light in m/s\n\n// Get elements\nconst betaUSlider = document.getElementById('betaU');\nconst betaVSlider = document.getElementById('betaV');\nconst betaUVal = document.getElementById('betaUVal');\nconst betaVVal = document.getElementById('betaVVal');\n\nconst uMs = document.getElementById('uMs');\nconst gammaU = document.getElementById('gammaU');\nconst vMs = document.getElementById('vMs');\nconst gammaV = document.getElementById('gammaV');\nconst betaUprime = document.getElementById('betaUprime');\nconst uprimeMs = document.getElementById('uprimeMs');\nconst gammaUprime = document.getElementById('gammaUprime');\n\nconst plotCanvas = document.getElementById('plotCanvas');\nconst readoutCanvas = document.getElementById('readoutCanvas');\n\n// Set explicit dimensions\nplotCanvas.width = 900;\nplotCanvas.height = 320;\nreadoutCanvas.width = 900;\nreadoutCanvas.height = 100;\n\nconst plotCtx = plotCanvas.getContext('2d');\nconst readoutCtx = readoutCanvas.getContext('2d');\n\nfunction lorentzGamma(beta) {\n  return 1 / Math.sqrt(1 - beta * beta);\n}\n\nfunction relativistic_u_prime(beta_u, beta_v) {\n  // u' = (u - v) / (1 - beta_u * beta_v) in units of c\n  return (beta_u - beta_v) / (1 - beta_u * beta_v);\n}\n\nfunction formatSci(val, prec = 2) {\n  if (Math.abs(val) < 1e-10) return '0';\n  const exp = Math.floor(Math.log10(Math.abs(val)));\n  const man = val / Math.pow(10, exp);\n  return man.toFixed(prec) + '×10<sup>' + exp + '<\/sup>';\n}\n\nfunction formatSciPlain(val, prec = 2) {\n  if (Math.abs(val) < 1e-10) return '0';\n  const exp = Math.floor(Math.log10(Math.abs(val)));\n  const man = val / Math.pow(10, exp);\n  return man.toFixed(prec) + 'e' + exp;\n}\n\nfunction updateReadouts() {\n  const beta_u = parseFloat(betaUSlider.value);\n  const beta_v = parseFloat(betaVSlider.value);\n\n  betaUVal.textContent = beta_u.toFixed(2);\n  betaVVal.textContent = beta_v.toFixed(2);\n\n  const u_ms = beta_u * c;\n  const v_ms = beta_v * c;\n  const gamma_u = lorentzGamma(beta_u);\n  const gamma_v = lorentzGamma(beta_v);\n\n  uMs.textContent = formatSciPlain(u_ms);\n  vMs.textContent = formatSciPlain(v_ms);\n  gammaU.textContent = gamma_u.toFixed(2);\n  gammaV.textContent = gamma_v.toFixed(2);\n\n  const beta_uprime = relativistic_u_prime(beta_u, beta_v);\n  const u_prime_ms = beta_uprime * c;\n  const gamma_uprime = lorentzGamma(Math.abs(beta_uprime));\n\n  betaUprime.textContent = beta_uprime.toFixed(2);\n  uprimeMs.textContent = formatSciPlain(u_prime_ms);\n  gammaUprime.textContent = gamma_uprime.toFixed(2);\n\n  drawPlots(beta_u, beta_v, beta_uprime);\n  drawReadout(beta_u, beta_v, beta_uprime);\n}\n\nfunction drawPlots(beta_u, beta_v, beta_uprime) {\n  const w = plotCanvas.width;\n  const h = plotCanvas.height;\n  const pad = 40;\n\n  plotCtx.fillStyle = '#0d0d1a';\n  plotCtx.fillRect(0, 0, w, h);\n\n  // Draw axes\n  plotCtx.strokeStyle = '#3a3a5a';\n  plotCtx.lineWidth = 1;\n  plotCtx.beginPath();\n  plotCtx.moveTo(pad, h - pad);\n  plotCtx.lineTo(w - 20, h - pad);\n  plotCtx.stroke();\n  plotCtx.beginPath();\n  plotCtx.moveTo(pad, h - pad);\n  plotCtx.lineTo(pad, 20);\n  plotCtx.stroke();\n\n  // Axis labels\n  plotCtx.fillStyle = '#667';\n  plotCtx.font = '11px monospace';\n  plotCtx.textAlign = 'center';\n  plotCtx.fillText('β_v', w - 30, h - 15);\n  plotCtx.save();\n  plotCtx.translate(15, h / 2);\n  plotCtx.rotate(-Math.PI / 2);\n  plotCtx.fillText(\"u' (β)\", 0, 0);\n  plotCtx.restore();\n\n  // Grid\n  plotCtx.strokeStyle = '#2a2a45';\n  plotCtx.lineWidth = 0.5;\n  for (let i = 0; i <= 10; i++) {\n    const x = pad + (i / 10) * (w - pad - 20);\n    const y = h - pad - (i / 10) * (h - pad - 20);\n    plotCtx.beginPath();\n    plotCtx.moveTo(x, h - pad + 3);\n    plotCtx.lineTo(x, h - pad - 3);\n    plotCtx.stroke();\n    plotCtx.beginPath();\n    plotCtx.moveTo(pad - 3, y);\n    plotCtx.lineTo(pad + 3, y);\n    plotCtx.stroke();\n    if (i > 0) {\n      plotCtx.fillStyle = '#556';\n      plotCtx.font = '9px monospace';\n      plotCtx.textAlign = 'center';\n      plotCtx.fillText((i / 10).toFixed(1), x, h - pad + 12);\n    }\n  }\n\n  // Draw transformation curve for current beta_u\n  plotCtx.strokeStyle = '#7eb8da';\n  plotCtx.lineWidth = 2;\n  plotCtx.beginPath();\n  for (let i = 0; i <= 200; i++) {\n    const bv = (i / 200) * 0.99;\n    const bup = relativistic_u_prime(beta_u, bv);\n    const px = pad + (bv / 0.99) * (w - pad - 20);\n    const py = h - pad - ((bup + 1.0) / 2.0) * (h - pad - 20); // normalize to [-1, 1]\n    if (i === 0) plotCtx.moveTo(px, py);\n    else plotCtx.lineTo(px, py);\n  }\n  plotCtx.stroke();\n\n  // Mark current state\n  const px = pad + (beta_v / 0.99) * (w - pad - 20);\n  const py = h - pad - ((beta_uprime + 1.0) / 2.0) * (h - pad - 20);\n  plotCtx.fillStyle = '#e8c050';\n  plotCtx.beginPath();\n  plotCtx.arc(px, py, 6, 0, 2 * Math.PI);\n  plotCtx.fill();\n  plotCtx.strokeStyle = '#fff';\n  plotCtx.lineWidth = 2;\n  plotCtx.stroke();\n}\n\nfunction drawReadout(beta_u, beta_v, beta_uprime) {\n  const w = readoutCanvas.width;\n  const h = readoutCanvas.height;\n\n  readoutCtx.fillStyle = '#0d0d1a';\n  readoutCtx.fillRect(0, 0, w, h);\n\n  // Draw frame diagram\n  const y = h / 2;\n  const sx = 80, ex = w - 80;\n\n  // Frame S\n  readoutCtx.strokeStyle = '#6ecf6e';\n  readoutCtx.lineWidth = 2;\n  readoutCtx.beginPath();\n  readoutCtx.moveTo(sx, y - 15);\n  readoutCtx.lineTo(sx, y + 15);\n  readoutCtx.stroke();\n  readoutCtx.fillStyle = '#6ecf6e';\n  readoutCtx.font = 'bold 12px monospace';\n  readoutCtx.textAlign = 'center';\n  readoutCtx.fillText('S', sx, y - 25);\n  readoutCtx.font = '10px monospace';\n  readoutCtx.fillStyle = '#8899aa';\n  readoutCtx.fillText('Lab', sx, y + 30);\n\n  // Arrow for v\n  const vmid = sx + (ex - sx) * 0.35;\n  readoutCtx.strokeStyle = '#e07050';\n  readoutCtx.lineWidth = 2;\n  readoutCtx.beginPath();\n  readoutCtx.moveTo(sx + 30, y);\n  readoutCtx.lineTo(vmid - 10, y);\n  readoutCtx.stroke();\n  // arrowhead\n  readoutCtx.beginPath();\n  readoutCtx.moveTo(vmid - 10, y);\n  readoutCtx.lineTo(vmid - 18, y - 4);\n  readoutCtx.lineTo(vmid - 18, y + 4);\n  readoutCtx.closePath();\n  readoutCtx.fill();\n  readoutCtx.fillStyle = '#e07050';\n  readoutCtx.font = 'bold 11px monospace';\n  readoutCtx.textAlign = 'center';\n  readoutCtx.fillText(\"v = \" + beta_v.toFixed(2) + \"c\", vmid, y - 12);\n\n  // Frame S'\n  readoutCtx.strokeStyle = '#b08aff';\n  readoutCtx.lineWidth = 2;\n  readoutCtx.beginPath();\n  readoutCtx.moveTo(ex, y - 15);\n  readoutCtx.lineTo(ex, y + 15);\n  readoutCtx.stroke();\n  readoutCtx.fillStyle = '#b08aff';\n  readoutCtx.font = 'bold 12px monospace';\n  readoutCtx.textAlign = 'center';\n  readoutCtx.fillText(\"S'\", ex, y - 25);\n  readoutCtx.font = '10px monospace';\n  readoutCtx.fillStyle = '#8899aa';\n  readoutCtx.fillText('Moving', ex, y + 30);\n\n  // Object velocity in S\n  readoutCtx.fillStyle = '#7eb8da';\n  readoutCtx.font = '10px monospace';\n  readoutCtx.textAlign = 'left';\n  readoutCtx.fillText(\"In S: u = \" + beta_u.toFixed(2) + \"c\", 10, 18);\n  readoutCtx.fillText(\"In S': u' = \" + beta_uprime.toFixed(2) + \"c\", 10, 35);\n}\n\n// Event listeners\nbetaUSlider.addEventListener('input', updateReadouts);\nbetaVSlider.addEventListener('input', updateReadouts);\n\n// Initial draw\nupdateReadouts();\n<\/script>\n\n<\/body>\n<\/html>","__sim_name":"ai-sim.html","__cits":[]}</script>
+</body>
+</html>
