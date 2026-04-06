@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="galilean_frames">
+<meta name="adv-physics-stage" content="ic">
+<title>IC: Reference Frames | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-pending{background:rgba(234,88,12,0.3);color:#fdba74}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="ic-title">Reference Frames</div>
+  <div class="ic-meta"><span>by sadie park</span><span class="badge badge-pending">Pending Review</span></div>
+</div>
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+        <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window./* XHR blocked */ Object = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+  <meta charset=&quot;UTF-8&quot;>
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  <title>Galilean Relativity - Reference Frames</title>
+  <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;
+    onload=&quot;renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})&quot;></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+      margin: 0; padding: 15px;
+      background: #1a1a2e; color: #eee;
+    }
+    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
+    .subtitle { text-align: center; font-size: 12px; color: #778; margin-bottom: 12px; }
+
+    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+    .sidebar { width: 270px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .canvas-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+
+    canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; }
+    #canvasS  { height: 200px; }
+    #canvasSP { height: 200px; }
+
+    .panel { background: #252540; padding: 12px; border-radius: 8px; }
+    .panel h3 { margin: 0 0 8px; font-size: 13px;
+                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }
+    .panel-s  h3 { color: #7eb8da; }
+    .panel-sp h3 { color: #b08aff; }
+    .panel-eq h3 { color: #e8c050; }
+
+    .slider-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .slider-row label { font-size: 11px; color: #aab; min-width: 90px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }
+    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 70px; text-align: right; font-family: monospace; }
+
+    .readout { background: #1a1a2e; border-radius: 6px; padding: 8px 10px;
+               font-family: monospace; font-size: 11px; line-height: 1.9; margin-top: 6px; }
+    .readout-row { display: flex; justify-content: space-between; }
+    .readout-label { color: #8899aa; }
+    .rv-s  { color: #7eb8da; font-weight: bold; }
+    .rv-sp { color: #b08aff; font-weight: bold; }
+
+    .canvas-label { font-size: 12px; color: #778; margin: 0; padding: 3px 6px; }
+
+    .eq-box { font-size: 12px; color: #ddd; padding: 4px 0; text-align: center; }
+    .eq-box .katex { font-size: 1.1em; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 4px; }
+    button {
+      flex: 1; padding: 7px; border: none; border-radius: 6px;
+      background: #3a3a6a; color: #c8d8e8; font-size: 12px; cursor: pointer;
+    }
+    button:hover { background: #4a4a8a; }
+    button.active { background: #5566aa; }
+
+    .caption { text-align: center; font-size: 11px; color: #556; margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<h1>Galilean Relativity: Reference Frames</h1>
+<p class=&quot;subtitle&quot;>The same physical scenario as seen from two different inertial frames</p>
+
+<div class=&quot;main-row&quot;>
+  <!-- SIDEBAR -->
+  <div class=&quot;sidebar&quot;>
+
+    <div class=&quot;panel panel-s&quot;>
+      <h3>Controls</h3>
+      <div class=&quot;slider-row&quot;>
+        <label>Time t (s)</label>
+        <input type=&quot;range&quot; id=&quot;timeSlider&quot; min=&quot;0&quot; max=&quot;10&quot; step=&quot;0.05&quot; value=&quot;0&quot;>
+        <span class=&quot;val&quot; id=&quot;timeVal&quot;>0.00 s</span>
+      </div>
+      <div class=&quot;slider-row&quot;>
+        <label>Frame S' speed</label>
+        <input type=&quot;range&quot; id=&quot;vSlider&quot; min=&quot;-30&quot; max=&quot;30&quot; step=&quot;1&quot; value=&quot;10&quot;>
+        <span class=&quot;val&quot; id=&quot;vVal&quot;>+10 m/s</span>
+      </div>
+      <div class=&quot;slider-row&quot;>
+        <label>Ball velocity</label>
+        <input type=&quot;range&quot; id=&quot;ballVSlider&quot; min=&quot;-30&quot; max=&quot;30&quot; step=&quot;1&quot; value=&quot;5&quot;>
+        <span class=&quot;val&quot; id=&quot;ballVVal&quot;>+5 m/s</span>
+      </div>
+      <div class=&quot;btn-row&quot;>
+        <button id=&quot;playBtn&quot;>▶ Play</button>
+        <button id=&quot;resetBtn&quot;>↺ Reset</button>
+      </div>
+    </div>
+
+    <div class=&quot;panel panel-s&quot;>
+      <h3>Frame S — Stationary Observer</h3>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>Time t</span>
+          <span class=&quot;rv-s&quot; id=&quot;s_t&quot;>0.00 s</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>Ball position x</span>
+          <span class=&quot;rv-s&quot; id=&quot;s_x&quot;>0.00 m</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>Ball velocity u</span>
+          <span class=&quot;rv-s&quot; id=&quot;s_u&quot;>+5.00 m/s</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>S' origin x</span>
+          <span class=&quot;rv-s&quot; id=&quot;s_orig&quot;>0.00 m</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel panel-sp&quot;>
+      <h3>Frame S' — Moving Observer</h3>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>Time t'</span>
+          <span class=&quot;rv-sp&quot; id=&quot;sp_t&quot;>0.00 s</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>Ball position x'</span>
+          <span class=&quot;rv-sp&quot; id=&quot;sp_x&quot;>0.00 m</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>Ball velocity u'</span>
+          <span class=&quot;rv-sp&quot; id=&quot;sp_u&quot;>−5.00 m/s</span>
+        </div>
+        <div class=&quot;readout-row&quot;>
+          <span class=&quot;readout-label&quot;>S origin x'</span>
+          <span class=&quot;rv-sp&quot; id=&quot;sp_orig&quot;>0.00 m</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel panel-eq&quot;>
+      <h3>Galilean Transformations</h3>
+      <div class=&quot;eq-box&quot;>$$t' = t$$</div>
+      <div class=&quot;eq-box&quot;>$$x' = x - vt$$</div>
+      <div class=&quot;eq-box&quot;>$$u' = u - v$$</div>
+    </div>
+
+  </div>
+
+  <!-- CANVASES -->
+  <div class=&quot;canvas-col&quot;>
+    <p class=&quot;canvas-label&quot;>📍 Frame S &amp;nbsp;—&amp;nbsp; stationary observer's view</p>
+    <canvas id=&quot;canvasS&quot;></canvas>
+
+    <p class=&quot;canvas-label&quot;>📍 Frame S' &amp;nbsp;—&amp;nbsp; moving observer's view (co-moving with S')</p>
+    <canvas id=&quot;canvasSP&quot;></canvas>
+
+    <p class=&quot;caption&quot;>
+      Both frames show the <span style=&quot;color:#6ecf6e&quot;>ball</span> and each other's origin.
+      S' moves at velocity <i>v</i> relative to S.
+      Galilean velocity addition: $u' = u - v$.
+    </p>
+  </div>
+</div>
+
+<script>
+  // ── Canvas setup ──────────────────────────────────────────────
+  const cS  = document.getElementById('canvasS');
+  const cSP = document.getElementById('canvasSP');
+  const ctxS  = cS.getContext('2d');
+  const ctxSP = cSP.getContext('2d');
+
+  function resizeCanvases() {
+    const w = cS.clientWidth;
+    cS.width  = w; cS.height  = cS.clientHeight;
+    cSP.width = w; cSP.height = cSP.clientHeight;
+  }
+  resizeCanvases();
+  window.addEventListener('resize', () => { resizeCanvases(); draw(); });
+
+  // ── State ─────────────────────────────────────────────────────
+  const state = {
+    t: 0,
+    v: 10,       // S' velocity relative to S (m/s)
+    u: 5,        // ball velocity in S (m/s)
+    x0_ball: 0,  // ball position in S at t=0
+    x0_sp: 0,    // S' origin in S at t=0
+    playing: false,
+    lastTime: null
+  };
+
+  // ── Sliders ───────────────────────────────────────────────────
+  const timeSlider  = document.getElementById('timeSlider');
+  const vSlider     = document.getElementById('vSlider');
+  const ballVSlider = document.getElementById('ballVSlider');
+
+  timeSlider.addEventListener('input', e => {
+    state.t = parseFloat(e.target.value);
+    document.getElementById('timeVal').textContent = state.t.toFixed(2) + ' s';
+    update();
+  });
+
+  vSlider.addEventListener('input', e => {
+    state.v = parseFloat(e.target.value);
+    const sign = state.v >= 0 ? '+' : '';
+    document.getElementById('vVal').textContent = sign + state.v.toFixed(0) + ' m/s';
+    update();
+  });
+
+  ballVSlider.addEventListener('input', e => {
+    state.u = parseFloat(e.target.value);
+    const sign = state.u >= 0 ? '+' : '';
+    document.getElementById('ballVVal').textContent = sign + state.u.toFixed(0) + ' m/s';
+    update();
+  });
+
+  // ── Play / Reset ──────────────────────────────────────────────
+  const playBtn  = document.getElementById('playBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  playBtn.addEventListener('click', () => {
+    state.playing = !state.playing;
+    playBtn.textContent = state.playing ? '⏸ Pause' : '▶ Play';
+    playBtn.classList.toggle('active', state.playing);
+    if (state.playing) { state.lastTime = null; requestAnimationFrame(tick); }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    state.t = 0;
+    state.playing = false;
+    playBtn.textContent = '▶ Play';
+    playBtn.classList.remove('active');
+    timeSlider.value = 0;
+    document.getElementById('timeVal').textContent = '0.00 s';
+    update();
+  });
+
+  function tick(ts) {
+    if (!state.playing) return;
+    if (state.lastTime === null) state.lastTime = ts;
+    const dt = (ts - state.lastTime) / 1000;
+    state.lastTime = ts;
+    state.t = Math.min(state.t + dt, parseFloat(timeSlider.max));
+    timeSlider.value = state.t;
+    document.getElementById('timeVal').textContent = state.t.toFixed(2) + ' s';
+    if (state.t >= parseFloat(timeSlider.max)) {
+      state.playing = false;
+      playBtn.textContent = '▶ Play';
+      playBtn.classList.remove('active');
+    }
+    update();
+    if (state.playing) requestAnimationFrame(tick);
+  }
+
+  // ── Core math ─────────────────────────────────────────────────
+  function getPositions() {
+    const t = state.t, v = state.v, u = state.u;
+    const x_ball = state.x0_ball + u * t;   // ball in S
+    const x_sp   = state.x0_sp  + v * t;    // S' origin in S
+    const x_prime_ball = x_ball - v * t;     // ball in S'  (= x_ball - x_sp since x0_sp=0)
+    const u_prime = u - v;                   // velocity in S'
+    return { t, x_ball, x_sp, x_prime_ball, u_prime };
+  }
+
+  // ── Readouts ──────────────────────────────────────────────────
+  function updateReadouts(p) {
+    const fmt = n => (n >= 0 ? '+' : '') + n.toFixed(2);
+    document.getElementById('s_t').textContent    = p.t.toFixed(2)          + ' s';
+    document.getElementById('s_x').textContent    = fmt(p.x_ball)           + ' m';
+    document.getElementById('s_u').textContent    = fmt(state.u)            + ' m/s';
+    document.getElementById('s_orig').textContent = fmt(p.x_sp)             + ' m';
+
+    document.getElementById('sp_t').textContent    = p.t.toFixed(2)         + ' s';
+    document.getElementById('sp_x').textContent    = fmt(p.x_prime_ball)    + ' m';
+    document.getElementById('sp_u').textContent    = fmt(p.u_prime)         + ' m/s';
+    document.getElementById('sp_orig').textContent = fmt(-p.x_sp)           + ' m';
+  }
+
+  // ── Drawing helpers ───────────────────────────────────────────
+  const WORLD_HALF = 80; // metres visible each side of centre
+
+  function worldToScreen(ctx_canvas, xWorld) {
+    // maps world metres → canvas pixels, centred
+    const W = ctx_canvas.canvas.width;
+    return W / 2 + (xWorld / WORLD_HALF) * (W / 2 - 30);
+  }
+
+  function drawFrame(ctx_c, originWorldX, ballWorldX, label, frameColor, otherLabel, otherColor) {
+    const W = ctx_c.canvas.width;
+    const H = ctx_c.canvas.height;
+    const midY = H / 2;
+
+    ctx_c.clearRect(0, 0, W, H);
+
+    // Background gradient
+    const bg = ctx_c.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#0d0d1a');
+    bg.addColorStop(1, '#13132a');
+    ctx_c.fillStyle = bg;
+    ctx_c.fillRect(0, 0, W, H);
+
+    // ---- Axis line ----
+    ctx_c.strokeStyle = '#334';
+    ctx_c.lineWidth = 1;
+    ctx_c.beginPath();
+    ctx_c.moveTo(30, midY);
+    ctx_c.lineTo(W - 30, midY);
+    ctx_c.stroke();
+
+    // ---- Tick marks &amp; labels ----
+    ctx_c.fillStyle = '#556';
+    ctx_c.font = '10px monospace';
+    ctx_c.textAlign = 'center';
+    for (let xm = -80; xm <= 80; xm += 10) {
+      const sx = worldToScreen(ctx_c, xm);
+      if (sx < 32 || sx > W - 32) continue;
+      const major = (xm % 20 === 0);
+      ctx_c.strokeStyle = major ? '#445' : '#334';
+      ctx_c.lineWidth = 1;
+      ctx_c.beginPath();
+      ctx_c.moveTo(sx, midY - (major ? 6 : 3));
+      ctx_c.lineTo(sx, midY + (major ? 6 : 3));
+      ctx_c.stroke();
+      if (major) {
+        ctx_c.fillStyle = '#556';
+        ctx_c.fillText(xm, sx, midY + 17);
+      }
+    }
+
+    // ---- x-axis arrow &amp; label ----
+    const axEnd = W - 30;
+    ctx_c.strokeStyle = '#445';
+    ctx_c.lineWidth = 1.5;
+    ctx_c.beginPath();
+    ctx_c.moveTo(axEnd - 8, midY - 4);
+    ctx_c.lineTo(axEnd, midY);
+    ctx_c.lineTo(axEnd - 8, midY + 4);
+    ctx_c.stroke();
+    ctx_c.fillStyle = '#7eb8da';
+    ctx_c.font = '12px sans-serif';
+    ctx_c.textAlign = 'left';
+    ctx_c.fillText('x (m)', axEnd - 28, midY - 8);
+
+    // ---- Origin of THIS frame ----
+    const originSX = worldToScreen(ctx_c, 0);
+    ctx_c.strokeStyle = frameColor;
+    ctx_c.lineWidth = 2;
+    ctx_c.setLineDash([5, 4]);
+    ctx_c.beginPath();
+    ctx_c.moveTo(originSX, midY - 28);
+    ctx_c.lineTo(originSX, midY + 28);
+    ctx_c.stroke();
+    ctx_c.setLineDash([]);
+    ctx_c.fillStyle = frameColor;
+    ctx_c.font = 'bold 11px sans-serif';
+    ctx_c.textAlign = 'center';
+    ctx_c.fillText(label + ' origin (x=0)', originSX, midY - 33);
+
+    // ---- Other frame origin ----
+    const otherSX = worldToScreen(ctx_c, originWorldX);
+    if (otherSX > 32 &amp;&amp; otherSX < W - 32) {
+      // flag pole
+      ctx_c.strokeStyle = otherColor;
+      ctx_c.lineWidth = 2;
+      ctx_c.beginPath();
+      ctx_c.moveTo(otherSX, midY - 22);
+      ctx_c.lineTo(otherSX, midY + 22);
+      ctx_c.stroke();
+      // flag
+      ctx_c.fillStyle = otherColor;
+      ctx_c.beginPath();
+      ctx_c.moveTo(otherSX, midY - 22);
+      ctx_c.lineTo(otherSX + 18, midY - 15);
+      ctx_c.lineTo(otherSX, midY - 8);
+      ctx_c.closePath();
+      ctx_c.fill();
+      ctx_c.font = 'bold 10px sans-serif';
+      ctx_c.textAlign = 'center';
+      ctx_c.fillText(otherLabel, otherSX, midY + 33);
+    }
+
+    // ---- Ball ----
+    const ballSX = worldToScreen(ctx_c, ballWorldX);
+    // Shadow
+    ctx_c.fillStyle = 'rgba(110,207,110,0.15)';
+    ctx_c.beginPath();
+    ctx_c.arc(ballSX, midY, 22, 0, Math.PI * 2);
+    ctx_c.fill();
+    // Ball
+    const grad = ctx_c.createRadialGradient(ballSX - 4, midY - 4, 2, ballSX, midY, 14);
+    grad.addColorStop(0, '#a0ffaa');
+    grad.addColorStop(1, '#2a8a2a');
+    ctx_c.fillStyle = grad;
+    ctx_c.beginPath();
+    ctx_c.arc(ballSX, midY, 14, 0, Math.PI * 2);
+    ctx_c.fill();
+    ctx_c.strokeStyle = '#6ecf6e';
+    ctx_c.lineWidth = 1.5;
+    ctx_c.stroke();
+
+    // ---- Frame label ----
+    ctx_c.fillStyle = frameColor;
+    ctx_c.font = 'bold 13px sans-serif';
+    ctx_c.textAlign = 'left';
+    ctx_c.fillText(label, 12, 18);
+  }
+
+  // ── Main update ───────────────────────────────────────────────
+  function update() {
+    const p = getPositions();
+    updateReadouts(p);
+    draw(p);
+  }
+
+  function draw(p) {
+    if (!p) p = getPositions();
+
+    // Frame S: our &quot;camera&quot; is fixed. Ball at x_ball, S' origin at x_sp.
+    drawFrame(
+      ctxS,
+      p.x_sp,          // where S' origin appears in S
+      p.x_ball,        // ball position in S coords
+      'S',
+      '#7eb8da',
+      &quot;S' origin&quot;,
+      '#b08aff'
+    );
+
+    // Frame S': camera co-moves with S'. Shift everything by -x_sp.
+    // Ball in S' coords = x_ball - x_sp = x_prime_ball
+    // S origin in S' coords = 0 - x_sp = -x_sp
+    drawFrame(
+      ctxSP,
+      -p.x_sp,          // where S origin appears in S' (= -vt)
+      p.x_prime_ball,   // ball in S' coords
+      &quot;S'&quot;,
+      '#b08aff',
+      'S origin',
+      '#7eb8da'
+    );
+  }
+
+  update();
+</script>
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+       </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<div class="ic-footer">
+  <span>Advanced Physics · NWA · sadie park</span>
+  <span>Status: Pending Review</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"bop");
+setMath('sim-cap',"");
+setMath('anchor',"beep.");
+
+(function(){
+  const el=document.getElementById('expl');
+  const paras="asdflj".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let hideTimer;
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
+})();
+</script>
+<script type="application/json" id="ic-source-data">{"f-author":"sadie park","f-title":"Reference Frames","f-rq":"bop","f-expl":"asdflj","f-sim-cap":"","f-lc1t":"","f-lc1e":"","f-lc1o":"","f-lc2t":"","f-lc2e":"","f-lc2o":"","f-scs":"","f-scp":"","f-scr":"","f-anchor":"beep.","__sim_html":"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<script>\n/* Physics sim security preamble — do not remove */\n(function(){\n  'use strict';\n  // Null out network APIs so sims cannot phone home\n  window.fetch       = function(){ return Promise.reject('fetch disabled'); };\n  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };\n  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };\n  // Block dynamic code execution vectors\n  window.eval        = function(){ throw new Error('eval disabled'); };\n  window.Function    = function(){ throw new Error('Function constructor disabled'); };\n  // Block navigation away from the page\n  window.open        = function(){ return null; };\n  Object.freeze(window.location);\n})();\n<\/script>\n<script>\n/* Physics sim security preamble — do not remove */\n(function(){\n  'use strict';\n  window.fetch       = function(){ return Promise.reject('fetch disabled'); };\n  window./* XHR blocked */ Object = function(){ throw new Error('XHR disabled'); };\n  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };\n  window.eval        = function(){ throw new Error('eval disabled'); };\n  window.Function    = function(){ throw new Error('Function constructor disabled'); };\n  window.open        = function(){ return null; };\n  Object.freeze(window.location);\n})();\n<\/script>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Galilean Relativity - Reference Frames<\/title>\n  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css\">\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js\"><\/script>\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js\"\n    onload=\"renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})\"><\/script>\n  <style>\n    * { box-sizing: border-box; }\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n      margin: 0; padding: 15px;\n      background: #1a1a2e; color: #eee;\n    }\n    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }\n    .subtitle { text-align: center; font-size: 12px; color: #778; margin-bottom: 12px; }\n\n    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }\n    .sidebar { width: 270px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }\n    .canvas-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }\n\n    canvas { display: block; width: 100%; border-radius: 8px; background: #0d0d1a; }\n    #canvasS  { height: 200px; }\n    #canvasSP { height: 200px; }\n\n    .panel { background: #252540; padding: 12px; border-radius: 8px; }\n    .panel h3 { margin: 0 0 8px; font-size: 13px;\n                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }\n    .panel-s  h3 { color: #7eb8da; }\n    .panel-sp h3 { color: #b08aff; }\n    .panel-eq h3 { color: #e8c050; }\n\n    .slider-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }\n    .slider-row label { font-size: 11px; color: #aab; min-width: 90px; }\n    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }\n    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 70px; text-align: right; font-family: monospace; }\n\n    .readout { background: #1a1a2e; border-radius: 6px; padding: 8px 10px;\n               font-family: monospace; font-size: 11px; line-height: 1.9; margin-top: 6px; }\n    .readout-row { display: flex; justify-content: space-between; }\n    .readout-label { color: #8899aa; }\n    .rv-s  { color: #7eb8da; font-weight: bold; }\n    .rv-sp { color: #b08aff; font-weight: bold; }\n\n    .canvas-label { font-size: 12px; color: #778; margin: 0; padding: 3px 6px; }\n\n    .eq-box { font-size: 12px; color: #ddd; padding: 4px 0; text-align: center; }\n    .eq-box .katex { font-size: 1.1em; }\n\n    .btn-row { display: flex; gap: 8px; margin-top: 4px; }\n    button {\n      flex: 1; padding: 7px; border: none; border-radius: 6px;\n      background: #3a3a6a; color: #c8d8e8; font-size: 12px; cursor: pointer;\n    }\n    button:hover { background: #4a4a8a; }\n    button.active { background: #5566aa; }\n\n    .caption { text-align: center; font-size: 11px; color: #556; margin-top: 2px; }\n  <\/style>\n<\/head>\n<body>\n\n<h1>Galilean Relativity: Reference Frames<\/h1>\n<p class=\"subtitle\">The same physical scenario as seen from two different inertial frames<\/p>\n\n<div class=\"main-row\">\n  <!-- SIDEBAR -->\n  <div class=\"sidebar\">\n\n    <div class=\"panel panel-s\">\n      <h3>Controls<\/h3>\n      <div class=\"slider-row\">\n        <label>Time t (s)<\/label>\n        <input type=\"range\" id=\"timeSlider\" min=\"0\" max=\"10\" step=\"0.05\" value=\"0\">\n        <span class=\"val\" id=\"timeVal\">0.00 s<\/span>\n      <\/div>\n      <div class=\"slider-row\">\n        <label>Frame S' speed<\/label>\n        <input type=\"range\" id=\"vSlider\" min=\"-30\" max=\"30\" step=\"1\" value=\"10\">\n        <span class=\"val\" id=\"vVal\">+10 m/s<\/span>\n      <\/div>\n      <div class=\"slider-row\">\n        <label>Ball velocity<\/label>\n        <input type=\"range\" id=\"ballVSlider\" min=\"-30\" max=\"30\" step=\"1\" value=\"5\">\n        <span class=\"val\" id=\"ballVVal\">+5 m/s<\/span>\n      <\/div>\n      <div class=\"btn-row\">\n        <button id=\"playBtn\">▶ Play<\/button>\n        <button id=\"resetBtn\">↺ Reset<\/button>\n      <\/div>\n    <\/div>\n\n    <div class=\"panel panel-s\">\n      <h3>Frame S — Stationary Observer<\/h3>\n      <div class=\"readout\">\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">Time t<\/span>\n          <span class=\"rv-s\" id=\"s_t\">0.00 s<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">Ball position x<\/span>\n          <span class=\"rv-s\" id=\"s_x\">0.00 m<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">Ball velocity u<\/span>\n          <span class=\"rv-s\" id=\"s_u\">+5.00 m/s<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">S' origin x<\/span>\n          <span class=\"rv-s\" id=\"s_orig\">0.00 m<\/span>\n        <\/div>\n      <\/div>\n    <\/div>\n\n    <div class=\"panel panel-sp\">\n      <h3>Frame S' — Moving Observer<\/h3>\n      <div class=\"readout\">\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">Time t'<\/span>\n          <span class=\"rv-sp\" id=\"sp_t\">0.00 s<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">Ball position x'<\/span>\n          <span class=\"rv-sp\" id=\"sp_x\">0.00 m<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">Ball velocity u'<\/span>\n          <span class=\"rv-sp\" id=\"sp_u\">−5.00 m/s<\/span>\n        <\/div>\n        <div class=\"readout-row\">\n          <span class=\"readout-label\">S origin x'<\/span>\n          <span class=\"rv-sp\" id=\"sp_orig\">0.00 m<\/span>\n        <\/div>\n      <\/div>\n    <\/div>\n\n    <div class=\"panel panel-eq\">\n      <h3>Galilean Transformations<\/h3>\n      <div class=\"eq-box\">$$t' = t$$<\/div>\n      <div class=\"eq-box\">$$x' = x - vt$$<\/div>\n      <div class=\"eq-box\">$$u' = u - v$$<\/div>\n    <\/div>\n\n  <\/div>\n\n  <!-- CANVASES -->\n  <div class=\"canvas-col\">\n    <p class=\"canvas-label\">📍 Frame S &nbsp;—&nbsp; stationary observer's view<\/p>\n    <canvas id=\"canvasS\"><\/canvas>\n\n    <p class=\"canvas-label\">📍 Frame S' &nbsp;—&nbsp; moving observer's view (co-moving with S')<\/p>\n    <canvas id=\"canvasSP\"><\/canvas>\n\n    <p class=\"caption\">\n      Both frames show the <span style=\"color:#6ecf6e\">ball<\/span> and each other's origin.\n      S' moves at velocity <i>v<\/i> relative to S.\n      Galilean velocity addition: $u' = u - v$.\n    <\/p>\n  <\/div>\n<\/div>\n\n<script>\n  // ── Canvas setup ──────────────────────────────────────────────\n  const cS  = document.getElementById('canvasS');\n  const cSP = document.getElementById('canvasSP');\n  const ctxS  = cS.getContext('2d');\n  const ctxSP = cSP.getContext('2d');\n\n  function resizeCanvases() {\n    const w = cS.clientWidth;\n    cS.width  = w; cS.height  = cS.clientHeight;\n    cSP.width = w; cSP.height = cSP.clientHeight;\n  }\n  resizeCanvases();\n  window.addEventListener('resize', () => { resizeCanvases(); draw(); });\n\n  // ── State ─────────────────────────────────────────────────────\n  const state = {\n    t: 0,\n    v: 10,       // S' velocity relative to S (m/s)\n    u: 5,        // ball velocity in S (m/s)\n    x0_ball: 0,  // ball position in S at t=0\n    x0_sp: 0,    // S' origin in S at t=0\n    playing: false,\n    lastTime: null\n  };\n\n  // ── Sliders ───────────────────────────────────────────────────\n  const timeSlider  = document.getElementById('timeSlider');\n  const vSlider     = document.getElementById('vSlider');\n  const ballVSlider = document.getElementById('ballVSlider');\n\n  timeSlider.addEventListener('input', e => {\n    state.t = parseFloat(e.target.value);\n    document.getElementById('timeVal').textContent = state.t.toFixed(2) + ' s';\n    update();\n  });\n\n  vSlider.addEventListener('input', e => {\n    state.v = parseFloat(e.target.value);\n    const sign = state.v >= 0 ? '+' : '';\n    document.getElementById('vVal').textContent = sign + state.v.toFixed(0) + ' m/s';\n    update();\n  });\n\n  ballVSlider.addEventListener('input', e => {\n    state.u = parseFloat(e.target.value);\n    const sign = state.u >= 0 ? '+' : '';\n    document.getElementById('ballVVal').textContent = sign + state.u.toFixed(0) + ' m/s';\n    update();\n  });\n\n  // ── Play / Reset ──────────────────────────────────────────────\n  const playBtn  = document.getElementById('playBtn');\n  const resetBtn = document.getElementById('resetBtn');\n\n  playBtn.addEventListener('click', () => {\n    state.playing = !state.playing;\n    playBtn.textContent = state.playing ? '⏸ Pause' : '▶ Play';\n    playBtn.classList.toggle('active', state.playing);\n    if (state.playing) { state.lastTime = null; requestAnimationFrame(tick); }\n  });\n\n  resetBtn.addEventListener('click', () => {\n    state.t = 0;\n    state.playing = false;\n    playBtn.textContent = '▶ Play';\n    playBtn.classList.remove('active');\n    timeSlider.value = 0;\n    document.getElementById('timeVal').textContent = '0.00 s';\n    update();\n  });\n\n  function tick(ts) {\n    if (!state.playing) return;\n    if (state.lastTime === null) state.lastTime = ts;\n    const dt = (ts - state.lastTime) / 1000;\n    state.lastTime = ts;\n    state.t = Math.min(state.t + dt, parseFloat(timeSlider.max));\n    timeSlider.value = state.t;\n    document.getElementById('timeVal').textContent = state.t.toFixed(2) + ' s';\n    if (state.t >= parseFloat(timeSlider.max)) {\n      state.playing = false;\n      playBtn.textContent = '▶ Play';\n      playBtn.classList.remove('active');\n    }\n    update();\n    if (state.playing) requestAnimationFrame(tick);\n  }\n\n  // ── Core math ─────────────────────────────────────────────────\n  function getPositions() {\n    const t = state.t, v = state.v, u = state.u;\n    const x_ball = state.x0_ball + u * t;   // ball in S\n    const x_sp   = state.x0_sp  + v * t;    // S' origin in S\n    const x_prime_ball = x_ball - v * t;     // ball in S'  (= x_ball - x_sp since x0_sp=0)\n    const u_prime = u - v;                   // velocity in S'\n    return { t, x_ball, x_sp, x_prime_ball, u_prime };\n  }\n\n  // ── Readouts ──────────────────────────────────────────────────\n  function updateReadouts(p) {\n    const fmt = n => (n >= 0 ? '+' : '') + n.toFixed(2);\n    document.getElementById('s_t').textContent    = p.t.toFixed(2)          + ' s';\n    document.getElementById('s_x').textContent    = fmt(p.x_ball)           + ' m';\n    document.getElementById('s_u').textContent    = fmt(state.u)            + ' m/s';\n    document.getElementById('s_orig').textContent = fmt(p.x_sp)             + ' m';\n\n    document.getElementById('sp_t').textContent    = p.t.toFixed(2)         + ' s';\n    document.getElementById('sp_x').textContent    = fmt(p.x_prime_ball)    + ' m';\n    document.getElementById('sp_u').textContent    = fmt(p.u_prime)         + ' m/s';\n    document.getElementById('sp_orig').textContent = fmt(-p.x_sp)           + ' m';\n  }\n\n  // ── Drawing helpers ───────────────────────────────────────────\n  const WORLD_HALF = 80; // metres visible each side of centre\n\n  function worldToScreen(ctx_canvas, xWorld) {\n    // maps world metres → canvas pixels, centred\n    const W = ctx_canvas.canvas.width;\n    return W / 2 + (xWorld / WORLD_HALF) * (W / 2 - 30);\n  }\n\n  function drawFrame(ctx_c, originWorldX, ballWorldX, label, frameColor, otherLabel, otherColor) {\n    const W = ctx_c.canvas.width;\n    const H = ctx_c.canvas.height;\n    const midY = H / 2;\n\n    ctx_c.clearRect(0, 0, W, H);\n\n    // Background gradient\n    const bg = ctx_c.createLinearGradient(0, 0, 0, H);\n    bg.addColorStop(0, '#0d0d1a');\n    bg.addColorStop(1, '#13132a');\n    ctx_c.fillStyle = bg;\n    ctx_c.fillRect(0, 0, W, H);\n\n    // ---- Axis line ----\n    ctx_c.strokeStyle = '#334';\n    ctx_c.lineWidth = 1;\n    ctx_c.beginPath();\n    ctx_c.moveTo(30, midY);\n    ctx_c.lineTo(W - 30, midY);\n    ctx_c.stroke();\n\n    // ---- Tick marks & labels ----\n    ctx_c.fillStyle = '#556';\n    ctx_c.font = '10px monospace';\n    ctx_c.textAlign = 'center';\n    for (let xm = -80; xm <= 80; xm += 10) {\n      const sx = worldToScreen(ctx_c, xm);\n      if (sx < 32 || sx > W - 32) continue;\n      const major = (xm % 20 === 0);\n      ctx_c.strokeStyle = major ? '#445' : '#334';\n      ctx_c.lineWidth = 1;\n      ctx_c.beginPath();\n      ctx_c.moveTo(sx, midY - (major ? 6 : 3));\n      ctx_c.lineTo(sx, midY + (major ? 6 : 3));\n      ctx_c.stroke();\n      if (major) {\n        ctx_c.fillStyle = '#556';\n        ctx_c.fillText(xm, sx, midY + 17);\n      }\n    }\n\n    // ---- x-axis arrow & label ----\n    const axEnd = W - 30;\n    ctx_c.strokeStyle = '#445';\n    ctx_c.lineWidth = 1.5;\n    ctx_c.beginPath();\n    ctx_c.moveTo(axEnd - 8, midY - 4);\n    ctx_c.lineTo(axEnd, midY);\n    ctx_c.lineTo(axEnd - 8, midY + 4);\n    ctx_c.stroke();\n    ctx_c.fillStyle = '#7eb8da';\n    ctx_c.font = '12px sans-serif';\n    ctx_c.textAlign = 'left';\n    ctx_c.fillText('x (m)', axEnd - 28, midY - 8);\n\n    // ---- Origin of THIS frame ----\n    const originSX = worldToScreen(ctx_c, 0);\n    ctx_c.strokeStyle = frameColor;\n    ctx_c.lineWidth = 2;\n    ctx_c.setLineDash([5, 4]);\n    ctx_c.beginPath();\n    ctx_c.moveTo(originSX, midY - 28);\n    ctx_c.lineTo(originSX, midY + 28);\n    ctx_c.stroke();\n    ctx_c.setLineDash([]);\n    ctx_c.fillStyle = frameColor;\n    ctx_c.font = 'bold 11px sans-serif';\n    ctx_c.textAlign = 'center';\n    ctx_c.fillText(label + ' origin (x=0)', originSX, midY - 33);\n\n    // ---- Other frame origin ----\n    const otherSX = worldToScreen(ctx_c, originWorldX);\n    if (otherSX > 32 && otherSX < W - 32) {\n      // flag pole\n      ctx_c.strokeStyle = otherColor;\n      ctx_c.lineWidth = 2;\n      ctx_c.beginPath();\n      ctx_c.moveTo(otherSX, midY - 22);\n      ctx_c.lineTo(otherSX, midY + 22);\n      ctx_c.stroke();\n      // flag\n      ctx_c.fillStyle = otherColor;\n      ctx_c.beginPath();\n      ctx_c.moveTo(otherSX, midY - 22);\n      ctx_c.lineTo(otherSX + 18, midY - 15);\n      ctx_c.lineTo(otherSX, midY - 8);\n      ctx_c.closePath();\n      ctx_c.fill();\n      ctx_c.font = 'bold 10px sans-serif';\n      ctx_c.textAlign = 'center';\n      ctx_c.fillText(otherLabel, otherSX, midY + 33);\n    }\n\n    // ---- Ball ----\n    const ballSX = worldToScreen(ctx_c, ballWorldX);\n    // Shadow\n    ctx_c.fillStyle = 'rgba(110,207,110,0.15)';\n    ctx_c.beginPath();\n    ctx_c.arc(ballSX, midY, 22, 0, Math.PI * 2);\n    ctx_c.fill();\n    // Ball\n    const grad = ctx_c.createRadialGradient(ballSX - 4, midY - 4, 2, ballSX, midY, 14);\n    grad.addColorStop(0, '#a0ffaa');\n    grad.addColorStop(1, '#2a8a2a');\n    ctx_c.fillStyle = grad;\n    ctx_c.beginPath();\n    ctx_c.arc(ballSX, midY, 14, 0, Math.PI * 2);\n    ctx_c.fill();\n    ctx_c.strokeStyle = '#6ecf6e';\n    ctx_c.lineWidth = 1.5;\n    ctx_c.stroke();\n\n    // ---- Frame label ----\n    ctx_c.fillStyle = frameColor;\n    ctx_c.font = 'bold 13px sans-serif';\n    ctx_c.textAlign = 'left';\n    ctx_c.fillText(label, 12, 18);\n  }\n\n  // ── Main update ───────────────────────────────────────────────\n  function update() {\n    const p = getPositions();\n    updateReadouts(p);\n    draw(p);\n  }\n\n  function draw(p) {\n    if (!p) p = getPositions();\n\n    // Frame S: our \"camera\" is fixed. Ball at x_ball, S' origin at x_sp.\n    drawFrame(\n      ctxS,\n      p.x_sp,          // where S' origin appears in S\n      p.x_ball,        // ball position in S coords\n      'S',\n      '#7eb8da',\n      \"S' origin\",\n      '#b08aff'\n    );\n\n    // Frame S': camera co-moves with S'. Shift everything by -x_sp.\n    // Ball in S' coords = x_ball - x_sp = x_prime_ball\n    // S origin in S' coords = 0 - x_sp = -x_sp\n    drawFrame(\n      ctxSP,\n      -p.x_sp,          // where S origin appears in S' (= -vt)\n      p.x_prime_ball,   // ball in S' coords\n      \"S'\",\n      '#b08aff',\n      'S origin',\n      '#7eb8da'\n    );\n  }\n\n  update();\n<\/script>\n<\/body>\n<\/html>","__sim_name":"ai-sim.html","__cits":[]}</script>
+</body>
+</html>
