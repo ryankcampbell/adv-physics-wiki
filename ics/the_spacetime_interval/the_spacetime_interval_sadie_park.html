@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="the_spacetime_interval">
+<meta name="adv-physics-stage" content="ic">
+<title>IC: The Spacetime Interval | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-pending{background:rgba(234,88,12,0.3);color:#fdba74}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="ic-title">The Spacetime Interval</div>
+  <div class="ic-meta"><span>by sadie park</span><span class="badge badge-pending">Pending Review</span></div>
+</div>
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+        <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window./* XHR blocked */ Object = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+  <meta charset=&quot;UTF-8&quot;>
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  <title>Spacetime Interval Explorer</title>
+  <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;
+    onload=&quot;renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})&quot;></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+      margin: 0; padding: 15px;
+      background: #1a1a2e; color: #eee;
+    }
+    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
+    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }
+
+    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .canvas-wrap { flex: 1; min-width: 0; }
+    canvas { display: block; width: 100%; height: 500px; border-radius: 8px; background: #0d0d1a; max-width: 100%; }
+
+    .panel { background: #252540; padding: 12px; border-radius: 8px; }
+    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;
+                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }
+
+    .btn { padding: 7px 16px; border: none; border-radius: 6px; font-size: 12px;
+           cursor: pointer; background: #3a3a6a; color: #ccc; margin: 4px 0; width: 100%; }
+    .btn:hover { background: #5a5a8a; color: #fff; }
+    .btn.primary { background: #4a6a9a; color: #fff; }
+    .btn.primary:hover { background: #6a8aba; }
+    .btn:disabled { background: #1a1a2a; color: #666; cursor: not-allowed; }
+
+    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;
+               font-family: monospace; font-size: 12px; line-height: 1.8; margin-top: 6px; }
+    .readout-row { display: flex; justify-content: space-between; }
+    .readout-label { color: #8899aa; }
+    .readout-value { color: #7eb8da; font-weight: bold; }
+
+    .choice-group { margin: 8px 0; }
+    .choice-btn { padding: 8px 12px; border: 2px solid #3a3a5a; border-radius: 6px;
+                  background: #1a1a2e; color: #aaa; font-size: 11px; cursor: pointer;
+                  width: 100%; text-align: left; margin: 3px 0; transition: all 0.2s; }
+    .choice-btn:hover { border-color: #7eb8da; color: #7eb8da; }
+    .choice-btn.selected { border-color: #7eb8da; background: #2a3a5a; color: #7eb8da; }
+    .choice-btn.correct { border-color: #6ecf6e; background: #1a3a1a; color: #6ecf6e; }
+    .choice-btn.incorrect { border-color: #e07050; background: #3a1a1a; color: #e07050; }
+
+    .message { padding: 10px; border-radius: 6px; font-size: 11px; margin-top: 6px; }
+    .message.correct { background: #1a3a1a; color: #6ecf6e; border-left: 3px solid #6ecf6e; }
+    .message.incorrect { background: #3a1a1a; color: #e07050; border-left: 3px solid #e07050; }
+
+    .instructions { font-size: 11px; color: #888; margin-bottom: 8px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <h1>Spacetime Interval Explorer</h1>
+  <p class=&quot;subtitle&quot;>Measure the separation between two events in spacetime</p>
+
+  <div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+      <div class=&quot;panel&quot;>
+        <h3>How to Use</h3>
+        <div class=&quot;instructions&quot;>
+          1. Click two points on the diagram<br>
+          2. Press &quot;Measure&quot;<br>
+          3. Guess the separation type<br>
+          4. See if you're correct!
+        </div>
+      </div>
+
+      <div class=&quot;panel&quot;>
+        <h3>Measurements</h3>
+        <div class=&quot;readout&quot;>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>Δt:</span>
+            <span class=&quot;readout-value&quot; id=&quot;dt-val&quot;>—</span>
+          </div>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>Δx:</span>
+            <span class=&quot;readout-value&quot; id=&quot;dx-val&quot;>—</span>
+          </div>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>Δs²:</span>
+            <span class=&quot;readout-value&quot; id=&quot;ds2-val&quot;>—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class=&quot;panel&quot; id=&quot;classification-panel&quot; style=&quot;display: none;&quot;>
+        <h3>What's the separation?</h3>
+        <div class=&quot;choice-group&quot;>
+          <button class=&quot;choice-btn&quot; data-choice=&quot;timelike&quot;>Timelike (|Δs²| > 0)</button>
+          <button class=&quot;choice-btn&quot; data-choice=&quot;lightlike&quot;>Lightlike (Δs² = 0)</button>
+          <button class=&quot;choice-btn&quot; data-choice=&quot;spacelike&quot;>Spacelike (Δs² < 0)</button>
+        </div>
+        <button class=&quot;btn primary&quot; id=&quot;submit-btn&quot; style=&quot;margin-top: 10px; display: none;&quot;>Submit Answer</button>
+        <div id=&quot;feedback-msg&quot;></div>
+      </div>
+
+      <div class=&quot;panel&quot;>
+        <button class=&quot;btn primary&quot; id=&quot;measure-btn&quot;>Measure</button>
+        <button class=&quot;btn&quot; id=&quot;reset-btn&quot;>Reset</button>
+      </div>
+    </div>
+
+    <div class=&quot;canvas-wrap&quot;>
+      <canvas id=&quot;canvas&quot;></canvas>
+      <p style=&quot;font-size: 11px; color: #667; text-align: center; margin-top: 8px;&quot;>
+        Spacetime diagram showing events separated by Δt (vertical) and Δx (horizontal). The interval $\Delta s^2 = -(\Delta t)^2 + (\Delta x)^2$ determines the separation type.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = 900;
+    canvas.height = 500;
+
+    // State
+    let events = [];
+    let measured = false;
+    let selectedChoice = null;
+    let result = null;
+
+    const GRID_SIZE = 40;
+    const ORIGIN_X = canvas.width / 2;
+    const ORIGIN_Y = canvas.height / 2;
+
+    // Event listeners
+    canvas.addEventListener('click', onCanvasClick);
+    document.getElementById('measure-btn').addEventListener('click', onMeasure);
+    document.getElementById('reset-btn').addEventListener('click', onReset);
+    document.getElementById('submit-btn').addEventListener('click', onSubmit);
+
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+        e.target.classList.add('selected');
+        selectedChoice = e.target.dataset.choice;
+      });
+    });
+
+    function onCanvasClick(e) {
+      if (measured) return;
+      if (events.length >= 2) events = [];
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      const gridX = Math.round((x - ORIGIN_X) / GRID_SIZE);
+      const gridY = Math.round((y - ORIGIN_Y) / GRID_SIZE);
+
+      events.push({ gridX, gridY });
+      draw();
+    }
+
+    function onMeasure() {
+      if (events.length !== 2) {
+        alert('Please click two points on the diagram.');
+        return;
+      }
+
+      measured = true;
+      const [e1, e2] = events;
+      const dt = e2.gridY - e1.gridY;
+      const dx = e2.gridX - e1.gridX;
+      const ds2 = -(dt * dt) + (dx * dx);
+
+      // Classify
+      let type;
+      if (Math.abs(ds2) < 0.1) {
+        type = 'lightlike';
+      } else if (ds2 > 0) {
+        type = 'spacelike';
+      } else {
+        type = 'timelike';
+      }
+
+      result = { dt, dx, ds2, type };
+
+      // Update display
+      document.getElementById('dt-val').textContent = dt.toFixed(1);
+      document.getElementById('dx-val').textContent = dx.toFixed(1);
+      document.getElementById('ds2-val').textContent = ds2.toFixed(2);
+
+      // Show classification panel
+      document.getElementById('classification-panel').style.display = 'block';
+      document.getElementById('submit-btn').style.display = 'inline-block';
+
+      // Reset choice UI
+      selectedChoice = null;
+      document.querySelectorAll('.choice-btn').forEach(b => {
+        b.classList.remove('selected', 'correct', 'incorrect');
+      });
+      document.getElementById('feedback-msg').innerHTML = '';
+
+      draw();
+    }
+
+    function onSubmit() {
+      if (!selectedChoice) {
+        alert('Please select an answer.');
+        return;
+      }
+
+      const correct = selectedChoice === result.type;
+
+      // Update UI
+      const correctBtn = document.querySelector(`[data-choice=&quot;${result.type}&quot;]`);
+      const selectedBtn = document.querySelector(`[data-choice=&quot;${selectedChoice}&quot;]`);
+
+      correctBtn.classList.add('correct');
+      if (selectedChoice !== result.type) {
+        selectedBtn.classList.add('incorrect');
+      }
+
+      // Feedback message
+      const feedbackEl = document.getElementById('feedback-msg');
+      if (correct) {
+        feedbackEl.innerHTML = `<div class=&quot;message correct&quot;>✓ Correct! This is ${result.type}.</div>`;
+      } else {
+        feedbackEl.innerHTML = `<div class=&quot;message incorrect&quot;>✗ Incorrect. This is ${result.type}.</div>`;
+      }
+
+      document.getElementById('submit-btn').disabled = true;
+    }
+
+    function onReset() {
+      events = [];
+      measured = false;
+      selectedChoice = null;
+      result = null;
+
+      document.getElementById('classification-panel').style.display = 'none';
+      document.getElementById('dt-val').textContent = '—';
+      document.getElementById('dx-val').textContent = '—';
+      document.getElementById('ds2-val').textContent = '—';
+      document.querySelectorAll('.choice-btn').forEach(b => {
+        b.classList.remove('selected', 'correct', 'incorrect');
+      });
+      document.getElementById('feedback-msg').innerHTML = '';
+      document.getElementById('submit-btn').disabled = false;
+
+      draw();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw grid
+      ctx.strokeStyle = '#2a2a4a';
+      ctx.lineWidth = 1;
+      for (let i = -20; i <= 20; i++) {
+        // Vertical lines (x-axis)
+        ctx.beginPath();
+        ctx.moveTo(ORIGIN_X + i * GRID_SIZE, 0);
+        ctx.lineTo(ORIGIN_X + i * GRID_SIZE, canvas.height);
+        ctx.stroke();
+
+        // Horizontal lines (t-axis)
+        ctx.beginPath();
+        ctx.moveTo(0, ORIGIN_Y + i * GRID_SIZE);
+        ctx.lineTo(canvas.width, ORIGIN_Y + i * GRID_SIZE);
+        ctx.stroke();
+      }
+
+      // Draw light cone (worldlines at 45°)
+      ctx.strokeStyle = '#5a4a7a';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 5]);
+      const coneSize = 300;
+      // Forward light cone
+      ctx.beginPath();
+      ctx.moveTo(ORIGIN_X - coneSize, ORIGIN_Y - coneSize);
+      ctx.lineTo(ORIGIN_X, ORIGIN_Y);
+      ctx.lineTo(ORIGIN_X + coneSize, ORIGIN_Y - coneSize);
+      ctx.stroke();
+      // Backward light cone
+      ctx.beginPath();
+      ctx.moveTo(ORIGIN_X - coneSize, ORIGIN_Y + coneSize);
+      ctx.lineTo(ORIGIN_X, ORIGIN_Y);
+      ctx.lineTo(ORIGIN_X + coneSize, ORIGIN_Y + coneSize);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw axes
+      ctx.strokeStyle = '#7eb8da';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, ORIGIN_Y);
+      ctx.lineTo(canvas.width, ORIGIN_Y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ORIGIN_X, 0);
+      ctx.lineTo(ORIGIN_X, canvas.height);
+      ctx.stroke();
+
+      // Labels
+      ctx.fillStyle = '#667';
+      ctx.font = '11px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('t', ORIGIN_X + 8, 15);
+      ctx.textAlign = 'left';
+      ctx.fillText('x', canvas.width - 15, ORIGIN_Y + 12);
+
+      // Draw events
+      events.forEach((evt, idx) => {
+        const x = ORIGIN_X + evt.gridX * GRID_SIZE;
+        const y = ORIGIN_Y + evt.gridY * GRID_SIZE;
+
+        ctx.fillStyle = idx === 0 ? '#6ecf6e' : '#e8c050';
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, 2 * Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle = '#eee';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(idx + 1, x, y + 4);
+      });
+
+      // Draw connection line if both events exist
+      if (events.length === 2) {
+        const x1 = ORIGIN_X + events[0].gridX * GRID_SIZE;
+        const y1 = ORIGIN_Y + events[0].gridY * GRID_SIZE;
+        const x2 = ORIGIN_X + events[1].gridX * GRID_SIZE;
+        const y2 = ORIGIN_Y + events[1].gridY * GRID_SIZE;
+
+        ctx.strokeStyle = '#7eb8da';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        // Draw Δt and Δx indicators
+        ctx.strokeStyle = '#e8c050';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y1);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+
+    // Initial draw
+    draw();
+  </script>
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+       </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<div class="ic-footer">
+  <span>Advanced Physics · NWA · sadie park</span>
+  <span>Status: Pending Review</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"How far are two events in space-time");
+setMath('sim-cap',"");
+setMath('anchor',"Were studying stuff.");
+
+(function(){
+  const el=document.getElementById('expl');
+  const paras="The spacetime interval $\\Delta s^2 = -\\Delta t^2 + \\Delta x^2$. In this simulation we will create a spacetime diagram where an observer can click 2 places on a grid, then hit \"measure\". It shows the straightline spacetime distance between those events. The user has to select if they think its time/light/or space spearation. Then the program tells them if they are right, and what Delta S^2 is.".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s ease;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let hideTimer;
+  document.addEventListener('mouseup',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';else hideTimer=setTimeout(()=>bar.style.bottom='-60px',400);});
+  document.addEventListener('touchend',()=>{clearTimeout(hideTimer);const sel=window.getSelection();if(sel&&sel.toString().trim().length>3)bar.style.bottom='28px';});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied! Paste into the IC editor citation URL field.';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2200);}).catch(()=>{prompt('Copy this citation link:',url);});});
+})();
+</script>
+<script type="application/json" id="ic-source-data">{"f-author":"sadie park","f-title":"The Spacetime Interval","f-rq":"How far are two events in space-time","f-expl":"The spacetime interval $\\Delta s^2 = -\\Delta t^2 + \\Delta x^2$. In this simulation we will create a spacetime diagram where an observer can click 2 places on a grid, then hit \"measure\". It shows the straightline spacetime distance between those events. The user has to select if they think its time/light/or space spearation. Then the program tells them if they are right, and what Delta S^2 is.","f-sim-cap":"","f-lc1t":"","f-lc1e":"","f-lc1o":"","f-lc2t":"","f-lc2e":"","f-lc2o":"","f-scs":"","f-scp":"","f-scr":"","f-anchor":"Were studying stuff.","__sim_html":"<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<script>\n/* Physics sim security preamble — do not remove */\n(function(){\n  'use strict';\n  // Null out network APIs so sims cannot phone home\n  window.fetch       = function(){ return Promise.reject('fetch disabled'); };\n  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };\n  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };\n  // Block dynamic code execution vectors\n  window.eval        = function(){ throw new Error('eval disabled'); };\n  window.Function    = function(){ throw new Error('Function constructor disabled'); };\n  // Block navigation away from the page\n  window.open        = function(){ return null; };\n  Object.freeze(window.location);\n})();\n<\/script>\n<script>\n/* Physics sim security preamble — do not remove */\n(function(){\n  'use strict';\n  // Null out network APIs so sims cannot phone home\n  window.fetch       = function(){ return Promise.reject('fetch disabled'); };\n  window./* XHR blocked */ Object = function(){ throw new Error('XHR disabled'); };\n  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };\n  // Block dynamic code execution vectors\n  window.eval        = function(){ throw new Error('eval disabled'); };\n  window.Function    = function(){ throw new Error('Function constructor disabled'); };\n  // Block navigation away from the page\n  window.open        = function(){ return null; };\n  Object.freeze(window.location);\n})();\n<\/script>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Spacetime Interval Explorer<\/title>\n  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css\">\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js\"><\/script>\n  <script defer src=\"https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js\"\n    onload=\"renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})\"><\/script>\n  <style>\n    * { box-sizing: border-box; }\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n      margin: 0; padding: 15px;\n      background: #1a1a2e; color: #eee;\n    }\n    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }\n    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }\n\n    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }\n    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }\n    .canvas-wrap { flex: 1; min-width: 0; }\n    canvas { display: block; width: 100%; height: 500px; border-radius: 8px; background: #0d0d1a; max-width: 100%; }\n\n    .panel { background: #252540; padding: 12px; border-radius: 8px; }\n    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;\n                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }\n\n    .btn { padding: 7px 16px; border: none; border-radius: 6px; font-size: 12px;\n           cursor: pointer; background: #3a3a6a; color: #ccc; margin: 4px 0; width: 100%; }\n    .btn:hover { background: #5a5a8a; color: #fff; }\n    .btn.primary { background: #4a6a9a; color: #fff; }\n    .btn.primary:hover { background: #6a8aba; }\n    .btn:disabled { background: #1a1a2a; color: #666; cursor: not-allowed; }\n\n    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;\n               font-family: monospace; font-size: 12px; line-height: 1.8; margin-top: 6px; }\n    .readout-row { display: flex; justify-content: space-between; }\n    .readout-label { color: #8899aa; }\n    .readout-value { color: #7eb8da; font-weight: bold; }\n\n    .choice-group { margin: 8px 0; }\n    .choice-btn { padding: 8px 12px; border: 2px solid #3a3a5a; border-radius: 6px;\n                  background: #1a1a2e; color: #aaa; font-size: 11px; cursor: pointer;\n                  width: 100%; text-align: left; margin: 3px 0; transition: all 0.2s; }\n    .choice-btn:hover { border-color: #7eb8da; color: #7eb8da; }\n    .choice-btn.selected { border-color: #7eb8da; background: #2a3a5a; color: #7eb8da; }\n    .choice-btn.correct { border-color: #6ecf6e; background: #1a3a1a; color: #6ecf6e; }\n    .choice-btn.incorrect { border-color: #e07050; background: #3a1a1a; color: #e07050; }\n\n    .message { padding: 10px; border-radius: 6px; font-size: 11px; margin-top: 6px; }\n    .message.correct { background: #1a3a1a; color: #6ecf6e; border-left: 3px solid #6ecf6e; }\n    .message.incorrect { background: #3a1a1a; color: #e07050; border-left: 3px solid #e07050; }\n\n    .instructions { font-size: 11px; color: #888; margin-bottom: 8px; line-height: 1.5; }\n  <\/style>\n<\/head>\n<body>\n  <h1>Spacetime Interval Explorer<\/h1>\n  <p class=\"subtitle\">Measure the separation between two events in spacetime<\/p>\n\n  <div class=\"main-row\">\n    <div class=\"sidebar\">\n      <div class=\"panel\">\n        <h3>How to Use<\/h3>\n        <div class=\"instructions\">\n          1. Click two points on the diagram<br>\n          2. Press \"Measure\"<br>\n          3. Guess the separation type<br>\n          4. See if you're correct!\n        <\/div>\n      <\/div>\n\n      <div class=\"panel\">\n        <h3>Measurements<\/h3>\n        <div class=\"readout\">\n          <div class=\"readout-row\">\n            <span class=\"readout-label\">Δt:<\/span>\n            <span class=\"readout-value\" id=\"dt-val\">—<\/span>\n          <\/div>\n          <div class=\"readout-row\">\n            <span class=\"readout-label\">Δx:<\/span>\n            <span class=\"readout-value\" id=\"dx-val\">—<\/span>\n          <\/div>\n          <div class=\"readout-row\">\n            <span class=\"readout-label\">Δs²:<\/span>\n            <span class=\"readout-value\" id=\"ds2-val\">—<\/span>\n          <\/div>\n        <\/div>\n      <\/div>\n\n      <div class=\"panel\" id=\"classification-panel\" style=\"display: none;\">\n        <h3>What's the separation?<\/h3>\n        <div class=\"choice-group\">\n          <button class=\"choice-btn\" data-choice=\"timelike\">Timelike (|Δs²| > 0)<\/button>\n          <button class=\"choice-btn\" data-choice=\"lightlike\">Lightlike (Δs² = 0)<\/button>\n          <button class=\"choice-btn\" data-choice=\"spacelike\">Spacelike (Δs² < 0)<\/button>\n        <\/div>\n        <button class=\"btn primary\" id=\"submit-btn\" style=\"margin-top: 10px; display: none;\">Submit Answer<\/button>\n        <div id=\"feedback-msg\"><\/div>\n      <\/div>\n\n      <div class=\"panel\">\n        <button class=\"btn primary\" id=\"measure-btn\">Measure<\/button>\n        <button class=\"btn\" id=\"reset-btn\">Reset<\/button>\n      <\/div>\n    <\/div>\n\n    <div class=\"canvas-wrap\">\n      <canvas id=\"canvas\"><\/canvas>\n      <p style=\"font-size: 11px; color: #667; text-align: center; margin-top: 8px;\">\n        Spacetime diagram showing events separated by Δt (vertical) and Δx (horizontal). The interval $\\Delta s^2 = -(\\Delta t)^2 + (\\Delta x)^2$ determines the separation type.\n      <\/p>\n    <\/div>\n  <\/div>\n\n  <script>\n    const canvas = document.getElementById('canvas');\n    const ctx = canvas.getContext('2d');\n    \n    canvas.width = 900;\n    canvas.height = 500;\n\n    // State\n    let events = [];\n    let measured = false;\n    let selectedChoice = null;\n    let result = null;\n\n    const GRID_SIZE = 40;\n    const ORIGIN_X = canvas.width / 2;\n    const ORIGIN_Y = canvas.height / 2;\n\n    // Event listeners\n    canvas.addEventListener('click', onCanvasClick);\n    document.getElementById('measure-btn').addEventListener('click', onMeasure);\n    document.getElementById('reset-btn').addEventListener('click', onReset);\n    document.getElementById('submit-btn').addEventListener('click', onSubmit);\n\n    document.querySelectorAll('.choice-btn').forEach(btn => {\n      btn.addEventListener('click', (e) => {\n        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));\n        e.target.classList.add('selected');\n        selectedChoice = e.target.dataset.choice;\n      });\n    });\n\n    function onCanvasClick(e) {\n      if (measured) return;\n      if (events.length >= 2) events = [];\n\n      const rect = canvas.getBoundingClientRect();\n      const scaleX = canvas.width / rect.width;\n      const scaleY = canvas.height / rect.height;\n      const x = (e.clientX - rect.left) * scaleX;\n      const y = (e.clientY - rect.top) * scaleY;\n\n      const gridX = Math.round((x - ORIGIN_X) / GRID_SIZE);\n      const gridY = Math.round((y - ORIGIN_Y) / GRID_SIZE);\n\n      events.push({ gridX, gridY });\n      draw();\n    }\n\n    function onMeasure() {\n      if (events.length !== 2) {\n        alert('Please click two points on the diagram.');\n        return;\n      }\n\n      measured = true;\n      const [e1, e2] = events;\n      const dt = e2.gridY - e1.gridY;\n      const dx = e2.gridX - e1.gridX;\n      const ds2 = -(dt * dt) + (dx * dx);\n\n      // Classify\n      let type;\n      if (Math.abs(ds2) < 0.1) {\n        type = 'lightlike';\n      } else if (ds2 > 0) {\n        type = 'spacelike';\n      } else {\n        type = 'timelike';\n      }\n\n      result = { dt, dx, ds2, type };\n\n      // Update display\n      document.getElementById('dt-val').textContent = dt.toFixed(1);\n      document.getElementById('dx-val').textContent = dx.toFixed(1);\n      document.getElementById('ds2-val').textContent = ds2.toFixed(2);\n\n      // Show classification panel\n      document.getElementById('classification-panel').style.display = 'block';\n      document.getElementById('submit-btn').style.display = 'inline-block';\n\n      // Reset choice UI\n      selectedChoice = null;\n      document.querySelectorAll('.choice-btn').forEach(b => {\n        b.classList.remove('selected', 'correct', 'incorrect');\n      });\n      document.getElementById('feedback-msg').innerHTML = '';\n\n      draw();\n    }\n\n    function onSubmit() {\n      if (!selectedChoice) {\n        alert('Please select an answer.');\n        return;\n      }\n\n      const correct = selectedChoice === result.type;\n\n      // Update UI\n      const correctBtn = document.querySelector(`[data-choice=\"${result.type}\"]`);\n      const selectedBtn = document.querySelector(`[data-choice=\"${selectedChoice}\"]`);\n\n      correctBtn.classList.add('correct');\n      if (selectedChoice !== result.type) {\n        selectedBtn.classList.add('incorrect');\n      }\n\n      // Feedback message\n      const feedbackEl = document.getElementById('feedback-msg');\n      if (correct) {\n        feedbackEl.innerHTML = `<div class=\"message correct\">✓ Correct! This is ${result.type}.<\/div>`;\n      } else {\n        feedbackEl.innerHTML = `<div class=\"message incorrect\">✗ Incorrect. This is ${result.type}.<\/div>`;\n      }\n\n      document.getElementById('submit-btn').disabled = true;\n    }\n\n    function onReset() {\n      events = [];\n      measured = false;\n      selectedChoice = null;\n      result = null;\n\n      document.getElementById('classification-panel').style.display = 'none';\n      document.getElementById('dt-val').textContent = '—';\n      document.getElementById('dx-val').textContent = '—';\n      document.getElementById('ds2-val').textContent = '—';\n      document.querySelectorAll('.choice-btn').forEach(b => {\n        b.classList.remove('selected', 'correct', 'incorrect');\n      });\n      document.getElementById('feedback-msg').innerHTML = '';\n      document.getElementById('submit-btn').disabled = false;\n\n      draw();\n    }\n\n    function draw() {\n      ctx.clearRect(0, 0, canvas.width, canvas.height);\n\n      // Draw grid\n      ctx.strokeStyle = '#2a2a4a';\n      ctx.lineWidth = 1;\n      for (let i = -20; i <= 20; i++) {\n        // Vertical lines (x-axis)\n        ctx.beginPath();\n        ctx.moveTo(ORIGIN_X + i * GRID_SIZE, 0);\n        ctx.lineTo(ORIGIN_X + i * GRID_SIZE, canvas.height);\n        ctx.stroke();\n\n        // Horizontal lines (t-axis)\n        ctx.beginPath();\n        ctx.moveTo(0, ORIGIN_Y + i * GRID_SIZE);\n        ctx.lineTo(canvas.width, ORIGIN_Y + i * GRID_SIZE);\n        ctx.stroke();\n      }\n\n      // Draw light cone (worldlines at 45°)\n      ctx.strokeStyle = '#5a4a7a';\n      ctx.lineWidth = 1.5;\n      ctx.setLineDash([5, 5]);\n      const coneSize = 300;\n      // Forward light cone\n      ctx.beginPath();\n      ctx.moveTo(ORIGIN_X - coneSize, ORIGIN_Y - coneSize);\n      ctx.lineTo(ORIGIN_X, ORIGIN_Y);\n      ctx.lineTo(ORIGIN_X + coneSize, ORIGIN_Y - coneSize);\n      ctx.stroke();\n      // Backward light cone\n      ctx.beginPath();\n      ctx.moveTo(ORIGIN_X - coneSize, ORIGIN_Y + coneSize);\n      ctx.lineTo(ORIGIN_X, ORIGIN_Y);\n      ctx.lineTo(ORIGIN_X + coneSize, ORIGIN_Y + coneSize);\n      ctx.stroke();\n      ctx.setLineDash([]);\n\n      // Draw axes\n      ctx.strokeStyle = '#7eb8da';\n      ctx.lineWidth = 2;\n      ctx.beginPath();\n      ctx.moveTo(0, ORIGIN_Y);\n      ctx.lineTo(canvas.width, ORIGIN_Y);\n      ctx.stroke();\n      ctx.beginPath();\n      ctx.moveTo(ORIGIN_X, 0);\n      ctx.lineTo(ORIGIN_X, canvas.height);\n      ctx.stroke();\n\n      // Labels\n      ctx.fillStyle = '#667';\n      ctx.font = '11px monospace';\n      ctx.textAlign = 'right';\n      ctx.fillText('t', ORIGIN_X + 8, 15);\n      ctx.textAlign = 'left';\n      ctx.fillText('x', canvas.width - 15, ORIGIN_Y + 12);\n\n      // Draw events\n      events.forEach((evt, idx) => {\n        const x = ORIGIN_X + evt.gridX * GRID_SIZE;\n        const y = ORIGIN_Y + evt.gridY * GRID_SIZE;\n\n        ctx.fillStyle = idx === 0 ? '#6ecf6e' : '#e8c050';\n        ctx.beginPath();\n        ctx.arc(x, y, 6, 0, 2 * Math.PI);\n        ctx.fill();\n\n        ctx.fillStyle = '#eee';\n        ctx.font = 'bold 12px sans-serif';\n        ctx.textAlign = 'center';\n        ctx.fillText(idx + 1, x, y + 4);\n      });\n\n      // Draw connection line if both events exist\n      if (events.length === 2) {\n        const x1 = ORIGIN_X + events[0].gridX * GRID_SIZE;\n        const y1 = ORIGIN_Y + events[0].gridY * GRID_SIZE;\n        const x2 = ORIGIN_X + events[1].gridX * GRID_SIZE;\n        const y2 = ORIGIN_Y + events[1].gridY * GRID_SIZE;\n\n        ctx.strokeStyle = '#7eb8da';\n        ctx.lineWidth = 2;\n        ctx.beginPath();\n        ctx.moveTo(x1, y1);\n        ctx.lineTo(x2, y2);\n        ctx.stroke();\n\n        // Draw Δt and Δx indicators\n        ctx.strokeStyle = '#e8c050';\n        ctx.lineWidth = 1;\n        ctx.setLineDash([3, 3]);\n        ctx.beginPath();\n        ctx.moveTo(x1, y1);\n        ctx.lineTo(x2, y1);\n        ctx.stroke();\n        ctx.beginPath();\n        ctx.moveTo(x2, y1);\n        ctx.lineTo(x2, y2);\n        ctx.stroke();\n        ctx.setLineDash([]);\n      }\n    }\n\n    // Initial draw\n    draw();\n  <\/script>\n<\/body>\n<\/html>","__sim_name":"ai-sim.html","__cits":[]}</script>
+</body>
+</html>

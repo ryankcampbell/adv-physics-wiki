@@ -57,6 +57,26 @@
       "revision_notes": "",
       "created_at": "2026-04-06",
       "updated_at": "2026-04-06"
+    },
+    "length_contraction": {
+      "slug": "length_contraction",
+      "title": "Length Contraction",
+      "module": "General",
+      "stage": "ic",
+      "status": "draft",
+      "revision_notes": "",
+      "created_at": "2026-04-06",
+      "updated_at": "2026-04-06"
+    },
+    "the_spacetime_interval": {
+      "slug": "the_spacetime_interval",
+      "title": "The Spacetime Interval",
+      "module": "General",
+      "stage": "at",
+      "status": "draft",
+      "revision_notes": "",
+      "created_at": "2026-04-06",
+      "updated_at": "2026-04-06"
     }
   },
   "alex rodriguez": {
