@@ -1,1 +1,84 @@
-[]
+[
+  {
+    "id": "73513ae7-ca33-4665-bdcb-8f795359eb35",
+    "student": "sadie park",
+    "concept_slug": "rel_velocity_addition",
+    "module": "",
+    "title": "Space Cows -- mooo!",
+    "stem": "Bessie and Charli are two space cows traveling to the right through deep space. Farmer Frank, at rest on his space station, observes Bessie traveling to the right at 0.90c and Charli traveling to the right at 0.70c.",
+    "parts": [
+      {
+        "label": "a",
+        "prompt": "Using the relativistic velocity addition formula, calculate the velocity of Bessie as observed by Charli in Charli's own rest frame. Express your answer in terms of c.",
+        "answer": "0.2/(1-0.7*0.9) = 0.2/(1-.63) - 0.2/0.37=0.541c"
+      }
+    ],
+    "difficulty": "medium",
+    "tags": [
+      "special relativity",
+      "velocity addition",
+      "reference frames"
+    ],
+    "figure_dataurl": null,
+    "status": "approved",
+    "admin_notes": "",
+    "created_at": "2026-04-06"
+  },
+  {
+    "id": "4c8b698d-59a0-468f-8cc0-2e5507c718fe",
+    "student": "sadie park",
+    "concept_slug": "time_dilation",
+    "module": "",
+    "title": "An astronaut travels from Earth to Alpha Centauri (4.37 ligh",
+    "stem": "An astronaut travels from Earth to Alpha Centauri (4.37 light-years away) in a spaceship moving at β = 4/5 (i.e., v = 0.8c).",
+    "parts": [
+      {
+        "label": "a",
+        "prompt": "How long does the trip take according to an observer on Earth?",
+        "answer": "t=d/v = 4.37/0.8 = 5.46 yrs"
+      },
+      {
+        "label": "b",
+        "prompt": "How long does the trip take according to the astronaut on the spaceship?",
+        "answer": "tau = t'/gamma = 5.46/(5/3) = 0.6*5.46 = 3.28 yr"
+      }
+    ],
+    "difficulty": "medium",
+    "tags": [
+      "time-dilation",
+      "special-relativity",
+      "proper-time",
+      "Lorentz-factor"
+    ],
+    "figure_dataurl": null,
+    "status": "approved",
+    "admin_notes": "good qwuesiton.",
+    "created_at": "2026-04-05"
+  },
+  {
+    "id": "76da6b9d-c8a5-41f1-8fe4-858308f15bc2",
+    "student": "sadie park",
+    "concept_slug": "galilean_velocity_addition",
+    "module": "",
+    "title": "Thre relativity of nile boats.",
+    "stem": "A boat travels down the Nile River. The river current flows at v = 3 m/s north relative to the ground (frame S). The boat moves at u = 7 m/s north relative to the ground (frame S).",
+    "parts": [
+      {
+        "label": "a",
+        "prompt": "What is the boat's velocity u′ as measured in the reference frame S′ of the river current?",
+        "answer": "u' = u-v. u = 7, v=3, so u' = 7-3 = 4 m/s."
+      }
+    ],
+    "difficulty": "easy",
+    "tags": [
+      "Galilean velocity addition",
+      "1D",
+      "reference frames",
+      "N/S"
+    ],
+    "figure_dataurl": null,
+    "status": "approved",
+    "admin_notes": "",
+    "created_at": "2026-04-05"
+  }
+]

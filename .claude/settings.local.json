@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:bolt.new)"
+      "WebFetch(domain:bolt.new)",
+      "Bash(node -e \"const fs=require\\('fs'\\); const c=fs.readFileSync\\('/Users/rcampbell/Desktop/NWA/Adv_Physics/projectbased/adv-physics-wiki/state/state.json','utf8'\\); const s=JSON.parse\\(c\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node:*)"
     ]
   }
 }

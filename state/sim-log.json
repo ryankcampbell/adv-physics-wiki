@@ -588,5 +588,81 @@
     ],
     "totalInputTokens": 79637,
     "totalOutputTokens": 42264
+  },
+  {
+    "token": "23949e6e-95b3-45c6-8a9b-117072cb4618",
+    "studentName": "jimmy chen",
+    "startedAt": "2026-03-12T20:12:57.035Z",
+    "turns": [
+      {
+        "timestamp": "2026-03-12T20:12:57.035Z",
+        "inputTokens": 1757,
+        "outputTokens": 3347,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      }
+    ],
+    "totalInputTokens": 1757,
+    "totalOutputTokens": 3347
+  },
+  {
+    "token": "903346d4-261b-4bd3-b39a-006493084b62",
+    "studentName": "sadie park",
+    "startedAt": "2026-04-05T14:01:59.818Z",
+    "turns": [
+      {
+        "timestamp": "2026-04-05T14:01:59.818Z",
+        "inputTokens": 1754,
+        "outputTokens": 3631,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      }
+    ],
+    "totalInputTokens": 1754,
+    "totalOutputTokens": 3631
+  },
+  {
+    "token": "879262e0-2dd1-4ae6-972d-bcb2436f2971",
+    "studentName": "sadie park",
+    "startedAt": "2026-04-05T14:48:29.638Z",
+    "turns": [
+      {
+        "timestamp": "2026-04-05T14:48:29.638Z",
+        "inputTokens": 1768,
+        "outputTokens": 4580,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      }
+    ],
+    "totalInputTokens": 1768,
+    "totalOutputTokens": 4580
+  },
+  {
+    "token": "177c65fd-dbb8-495c-9cae-a72cb6a62d47",
+    "studentName": "sadie park",
+    "startedAt": "2026-04-06T14:27:58.616Z",
+    "turns": [
+      {
+        "timestamp": "2026-04-06T14:27:58.616Z",
+        "inputTokens": 1852,
+        "outputTokens": 327,
+        "hasSim": false,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      },
+      {
+        "timestamp": "2026-04-06T14:28:36.902Z",
+        "inputTokens": 2185,
+        "outputTokens": 5218,
+        "hasSim": true,
+        "model": "claude-haiku-4-5-20251001",
+        "patched": false
+      }
+    ],
+    "totalInputTokens": 4037,
+    "totalOutputTokens": 5545
   }
 ]

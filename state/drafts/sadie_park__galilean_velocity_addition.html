@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="galilean_velocity_addition">
+<meta name="adv-physics-stage" content="at">
+<title>AT: Galilean Velocity Addition | by sadie park</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fef2f2;color:#0f172a;line-height:1.7}
+.at-header{background:#7c2d12;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.at-title{font-size:1.4rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.at-meta{font-size:.82rem;color:rgba(255,255,255,0.65)}
+.at-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+h2.at-sec{border-color:#fca5a5;color:#991b1b}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.v-card{background:white;border:1px solid #fca5a5;border-radius:8px;padding:16px 20px;margin-bottom:12px}
+.v-card h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#dc2626;margin-bottom:8px}
+.verdict-box{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px}
+.at-footer{margin-top:60px;padding-top:20px;border-top:1px solid #fca5a5;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="at-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="at-title">Adversarial Test Report — Galilean Velocity Addition</div>
+  <div class="at-meta">Reviewed by <strong style="color:white">sadie park</strong> &nbsp;·&nbsp; IC by sadie park</div>
+</div>
+<div class="at-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:480px;background:#0f172a;border-radius:6px;overflow:hidden">
+        <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<script>
+/* Physics sim security preamble — do not remove */
+(function(){
+  'use strict';
+  // Null out network APIs so sims cannot phone home
+  window.fetch       = function(){ return Promise.reject('fetch disabled'); };
+  window.XMLHttpRequest = function(){ throw new Error('XHR disabled'); };
+  window.WebSocket   = function(){ throw new Error('WebSocket disabled'); };
+  // Block dynamic code execution vectors
+  window.eval        = function(){ throw new Error('eval disabled'); };
+  window.Function    = function(){ throw new Error('Function constructor disabled'); };
+  // Block navigation away from the page
+  window.open        = function(){ return null; };
+  Object.freeze(window.location);
+})();
+</script>
+  <meta charset=&quot;UTF-8&quot;>
+  <meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+  <title>Galilean Velocity Transformation</title>
+  <link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css&quot;>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js&quot;></script>
+  <script defer src=&quot;https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js&quot;
+    onload=&quot;renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})&quot;></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+      margin: 0; padding: 15px;
+      background: #1a1a2e; color: #eee;
+    }
+    h1 { text-align: center; font-size: 22px; color: #c8d8e8; margin: 8px 0 4px; }
+    .subtitle { text-align: center; font-size: 12px; color: #667; margin-bottom: 12px; }
+    
+    .main-row { display: flex; gap: 14px; max-width: 1200px; margin: 0 auto; align-items: flex-start; }
+    .sidebar { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+    .canvas-wrap { flex: 1; min-width: 0; }
+    
+    .panel { background: #252540; padding: 12px; border-radius: 8px; }
+    .panel h3 { margin: 0 0 8px; color: #7eb8da; font-size: 13px;
+                border-bottom: 1px solid #3a3a5a; padding-bottom: 5px; }
+    
+    .slider-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .slider-row label { font-size: 11px; color: #aab; min-width: 100px; }
+    .slider-row input[type=range] { flex: 1; accent-color: #7eb8da; }
+    .slider-row .val { font-size: 11px; color: #7eb8da; min-width: 50px;
+                       text-align: right; font-family: monospace; }
+    
+    .readout { background: #1a1a2e; border-radius: 6px; padding: 10px;
+               font-family: monospace; font-size: 12px; line-height: 1.8; margin-top: 6px; }
+    .readout-row { display: flex; justify-content: space-between; margin: 4px 0; }
+    .readout-label { color: #8899aa; }
+    .readout-value { color: #7eb8da; font-weight: bold; }
+    
+    canvas { display: block; width: 100%; height: auto; border-radius: 8px; background: #0d0d1a; margin-bottom: 8px; }
+    
+    .frame-label { font-size: 11px; color: #8899aa; margin-top: 8px; margin-bottom: 4px; }
+    .equation { background: #1a1a2e; padding: 10px; border-radius: 6px; margin-top: 6px;
+                font-size: 12px; text-align: center; color: #c8d8e8; }
+  </style>
+</head>
+<body>
+  <h1>Galilean Velocity Transformation</h1>
+  <p class=&quot;subtitle&quot;>Watch how velocity changes between reference frames</p>
+  
+  <div class=&quot;main-row&quot;>
+    <div class=&quot;sidebar&quot;>
+      <div class=&quot;panel&quot;>
+        <h3>Ball Velocity (Frame S)</h3>
+        <div class=&quot;slider-row&quot;>
+          <label>u:</label>
+          <input type=&quot;range&quot; id=&quot;uSlider&quot; min=&quot;-100&quot; max=&quot;100&quot; value=&quot;30&quot; step=&quot;2&quot;>
+          <span class=&quot;val&quot; id=&quot;uVal&quot;>30 m/s</span>
+        </div>
+      </div>
+      
+      <div class=&quot;panel&quot;>
+        <h3>Frame S' Velocity</h3>
+        <div class=&quot;slider-row&quot;>
+          <label>v:</label>
+          <input type=&quot;range&quot; id=&quot;vSlider&quot; min=&quot;-60&quot; max=&quot;60&quot; value=&quot;20&quot; step=&quot;2&quot;>
+          <span class=&quot;val&quot; id=&quot;vVal&quot;>20 m/s</span>
+        </div>
+      </div>
+      
+      <div class=&quot;panel&quot;>
+        <h3>Transformation</h3>
+        <div class=&quot;equation&quot;>$$u' = u - v$$</div>
+        <div class=&quot;readout&quot;>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>u (Frame S):</span>
+            <span class=&quot;readout-value&quot; id=&quot;readoutU&quot;>30 m/s</span>
+          </div>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>v (Frame vel):</span>
+            <span class=&quot;readout-value&quot; id=&quot;readoutV&quot;>20 m/s</span>
+          </div>
+          <div class=&quot;readout-row&quot;>
+            <span class=&quot;readout-label&quot;>u' (Frame S'):</span>
+            <span class=&quot;readout-value&quot; id=&quot;readoutUPrime&quot;>10 m/s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class=&quot;canvas-wrap&quot;>
+      <div class=&quot;frame-label&quot;>Frame S (Stationary)</div>
+      <canvas id=&quot;canvasS&quot; width=&quot;800&quot; height=&quot;120&quot;></canvas>
+      
+      <div class=&quot;frame-label&quot;>Frame S' (Moving at v = <span id=&quot;frameVelLabel&quot;>20</span> m/s)</div>
+      <canvas id=&quot;canvasSPrime&quot; width=&quot;800&quot; height=&quot;120&quot;></canvas>
+    </div>
+  </div>
+
+  <script>
+    const uSlider = document.getElementById('uSlider');
+    const vSlider = document.getElementById('vSlider');
+    
+    const uVal = document.getElementById('uVal');
+    const vVal = document.getElementById('vVal');
+    
+    const readoutU = document.getElementById('readoutU');
+    const readoutV = document.getElementById('readoutV');
+    const readoutUPrime = document.getElementById('readoutUPrime');
+    const frameVelLabel = document.getElementById('frameVelLabel');
+    
+    const canvasS = document.getElementById('canvasS');
+    const ctxS = canvasS.getContext('2d');
+    
+    const canvasSPrime = document.getElementById('canvasSPrime');
+    const ctxSPrime = canvasSPrime.getContext('2d');
+
+    let t = 0;
+    const ballRadius = 8;
+    const pixelsPerMeter = 3; // 3 pixels per m/s of velocity displayed
+
+    function update() {
+      const u = parseFloat(uSlider.value);
+      const v = parseFloat(vSlider.value);
+      const uPrime = u - v;
+
+      // Update display
+      uVal.textContent = u + ' m/s';
+      vVal.textContent = v + ' m/s';
+      readoutU.textContent = u + ' m/s';
+      readoutV.textContent = v + ' m/s';
+      readoutUPrime.textContent = uPrime + ' m/s';
+      frameVelLabel.textContent = v;
+
+      // Position in Frame S: x = u * t
+      const xS = 400 + u * pixelsPerMeter * (t % 10) / 10;
+
+      // Position in Frame S': x' = u' * t (or equivalently, x - v*t relative to origin)
+      const xSPrime = 400 + uPrime * pixelsPerMeter * (t % 10) / 10;
+
+      // Draw Frame S
+      ctxS.clearRect(0, 0, canvasS.width, canvasS.height);
+      
+      // Draw grid/axis
+      ctxS.strokeStyle = '#3a3a5a';
+      ctxS.lineWidth = 1;
+      ctxS.beginPath();
+      ctxS.moveTo(0, 60);
+      ctxS.lineTo(canvasS.width, 60);
+      ctxS.stroke();
+
+      // Draw origin marker
+      ctxS.fillStyle = '#5a5a8a';
+      ctxS.fillRect(50, 55, 2, 10);
+
+      // Draw ball in Frame S
+      ctxS.fillStyle = '#6ecf6e';
+      ctxS.beginPath();
+      ctxS.arc(xS, 60, ballRadius, 0, Math.PI * 2);
+      ctxS.fill();
+
+      // Velocity vector for Frame S
+      ctxS.strokeStyle = '#7eb8da';
+      ctxS.lineWidth = 2;
+      ctxS.beginPath();
+      ctxS.moveTo(xS, 60);
+      ctxS.lineTo(xS + u * pixelsPerMeter * 0.5, 60);
+      ctxS.stroke();
+      
+      ctxS.fillStyle = '#7eb8da';
+      ctxS.font = '12px monospace';
+      ctxS.textAlign = 'center';
+      ctxS.fillText('u = ' + u + ' m/s', canvasS.width - 80, 20);
+
+      // Draw Frame S'
+      ctxSPrime.clearRect(0, 0, canvasSPrime.width, canvasSPrime.height);
+      
+      // Draw grid/axis
+      ctxSPrime.strokeStyle = '#3a3a5a';
+      ctxSPrime.lineWidth = 1;
+      ctxSPrime.beginPath();
+      ctxSPrime.moveTo(0, 60);
+      ctxSPrime.lineTo(canvasSPrime.width, 60);
+      ctxSPrime.stroke();
+
+      // Draw origin marker
+      ctxSPrime.fillStyle = '#5a5a8a';
+      ctxSPrime.fillRect(50, 55, 2, 10);
+
+      // Draw ball in Frame S'
+      ctxSPrime.fillStyle = '#6ecf6e';
+      ctxSPrime.beginPath();
+      ctxSPrime.arc(xSPrime, 60, ballRadius, 0, Math.PI * 2);
+      ctxSPrime.fill();
+
+      // Velocity vector for Frame S'
+      ctxSPrime.strokeStyle = '#e8c050';
+      ctxSPrime.lineWidth = 2;
+      ctxSPrime.beginPath();
+      ctxSPrime.moveTo(xSPrime, 60);
+      ctxSPrime.lineTo(xSPrime + uPrime * pixelsPerMeter * 0.5, 60);
+      ctxSPrime.stroke();
+
+      ctxSPrime.fillStyle = '#e8c050';
+      ctxSPrime.font = '12px monospace';
+      ctxSPrime.textAlign = 'center';
+      ctxSPrime.fillText(&quot;u' = &quot; + uPrime + ' m/s', canvasSPrime.width - 80, 20);
+
+      // Frame S' reference motion (dashed line showing frame velocity)
+      ctxSPrime.strokeStyle = '#b08aff';
+      ctxSPrime.lineWidth = 1;
+      ctxSPrime.setLineDash([4, 4]);
+      ctxSPrime.beginPath();
+      ctxSPrime.moveTo(50, 85);
+      ctxSPrime.lineTo(50 + v * pixelsPerMeter * 0.5, 85);
+      ctxSPrime.stroke();
+      ctxSPrime.setLineDash([]);
+      
+      ctxSPrime.fillStyle = '#b08aff';
+      ctxSPrime.font = '11px monospace';
+      ctxSPrime.fillText('v = ' + v + ' m/s', 50 + v * pixelsPerMeter * 0.25, 100);
+    }
+
+    function animate() {
+      update();
+      t += 1;
+      requestAnimationFrame(animate);
+    }
+
+    uSlider.addEventListener('input', update);
+    vSlider.addEventListener('input', update);
+
+    animate();
+  </script>
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+       </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+<p style="color:#94a3b8;font-style:italic">No citations.</p>
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<h2 class="at-sec">Verification</h2>
+<div class="v-card"><h3 id="lc1t"></h3>
+  <p><strong>Expected:</strong> <span id="lc1e"></span></p>
+  <p><strong>Observed:</strong> <span id="lc1o"></span></p></div>
+<div class="v-card"><h3 id="lc2t"></h3>
+  <p><strong>Expected:</strong> <span id="lc2e"></span></p>
+  <p><strong>Observed:</strong> <span id="lc2o"></span></p></div>
+<div class="v-card"><h3>Quantitative Spot-Check</h3>
+  <p><strong>Setup:</strong> <span id="scs"></span></p>
+  <p><strong>Predicted:</strong> <span id="scp"></span></p>
+  <p><strong>Result:</strong> <span id="scr"></span></p></div>
+
+<h2 class="at-sec">Overall Verdict</h2>
+<div class="verdict-box">
+  <div style="font-size:1.1rem;font-weight:700;color:#15803d;margin-bottom:10px">✓ Pass — no significant errors found</div>
+  <p style="font-size:.9rem;color:#334155">great work.</p>
+</div>
+
+<div class="at-footer">
+  <span>Advanced Physics · NWA · Adversarial Test by sadie park</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq',"What is the relative velocity of an object in another IRF?");
+setMath('sim-cap',"");
+setMath('lc1t',"Frame s just has some blips not working sim at all. ");setMath('lc1e',"unable to ccehck. ");setMath('lc1o',"yep.");
+setMath('lc2t',"Limiting Case 2");setMath('lc2e',"");setMath('lc2o',"");
+setMath('scs',"");setMath('scp',"");setMath('scr',"");
+setMath('anchor',"its showes awesome.");
+(function(){
+  const el=document.getElementById('expl');
+  const paras="The galilean velocity transform is that u' = u-v. We made a simulation to compare the velocity in two frames s, and s'. S' is moving in the +x direction.".split(/\n\n+/);
+  el.innerHTML=paras.map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#7c2d12;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let t;
+  document.addEventListener('mouseup',()=>{clearTimeout(t);const s=window.getSelection();if(s&&s.toString().trim().length>3)bar.style.bottom='28px';else t=setTimeout(()=>bar.style.bottom='-60px',400);});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied!';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2000);}).catch(()=>prompt('Copy:',url));});
+})();
+</script>
+<script type="application/json" id="at-source-data">{"verification":{"lc1t":"Frame s just has some blips not working sim at all. ","lc1e":"unable to ccehck. ","lc1o":"yep.","lc2t":"","lc2e":"","lc2o":"","scs":"","scp":"","scr":"","authors":"sadie park","verdict":"pass","summary":"great work."},"toolSession":{},"socratiLog":[],"sessionMeta":{"selectedTools":[],"completed":[]}}</script>
+</body>
+</html>
