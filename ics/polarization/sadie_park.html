@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="polarization">
+<meta name="adv-physics-stage" content="ic">
+<title>IC: Malus's Law — Why a Polarizer Follows a Cosine² Rule | Advanced Physics Wiki</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;line-height:1.7}
+.ic-header{background:#1e3a5f;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.ic-title{font-size:1.5rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.ic-meta{font-size:.82rem;color:rgba(255,255,255,0.65);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.badge-published{background:rgba(34,197,94,0.25);color:#86efac}
+.ic-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.ic-footer{margin-top:60px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="ic-header">
+  <a href="../../index.html" class="back-link">&#8592; Concept Navigator</a>
+  <div class="ic-title">Malus's Law — Why a Polarizer Follows a Cosine² Rule</div>
+  <div class="ic-meta">
+    <span>by Sadie Park</span>
+    <span class="badge badge-published">Published</span>
+  </div>
+</div>
+<div class="ic-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+  <iframe srcdoc="<!DOCTYPE html>
+<html lang=&quot;en&quot;>
+<head>
+<meta charset=&quot;UTF-8&quot;>
+<meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;>
+<title>Malus's Law — Interactive</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;padding:14px;height:100vh;overflow:hidden}
+.layout{display:flex;gap:14px;height:calc(100vh - 28px)}
+.sidebar{width:230px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.main{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel{background:#1e293b;border-radius:8px;padding:12px;border:1px solid #334155}
+.panel h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#7eb8da;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #334155}
+.ctrl{display:flex;align-items:center;gap:8px;margin:6px 0}
+.ctrl label{font-size:.72rem;color:#94a3b8;min-width:70px}
+.ctrl input[type=range]{flex:1;accent-color:#4682b4}
+.ctrl .val{font-size:.72rem;color:#7eb8da;min-width:42px;text-align:right;font-family:monospace}
+.readout{background:#0f172a;border-radius:6px;padding:10px;font-family:monospace;font-size:.72rem;line-height:2}
+.row{display:flex;justify-content:space-between;align-items:center}
+.lbl{color:#64748b}.val2{color:#7eb8da}
+.formula-box{background:#0f172a;border-radius:6px;padding:10px;text-align:center;font-size:.8rem;color:#94a3b8;border:1px solid #334155}
+canvas{display:block;border-radius:8px;width:100%}
+.preset-row{display:flex;gap:6px;flex-wrap:wrap}
+.preset{background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:4px;padding:3px 10px;cursor:pointer;font-size:.7rem}
+.preset:hover{background:#334155;color:#e2e8f0}
+.preset.active{background:#1e40af;border-color:#3b82f6;color:#93c5fd}
+</style>
+</head>
+<body>
+<div class=&quot;layout&quot;>
+  <!-- SIDEBAR -->
+  <div class=&quot;sidebar&quot;>
+    <div class=&quot;panel&quot;>
+      <h3>Polarizer Angle</h3>
+      <div class=&quot;ctrl&quot;>
+        <label>θ</label>
+        <input type=&quot;range&quot; id=&quot;thetaSlider&quot; min=&quot;0&quot; max=&quot;180&quot; step=&quot;1&quot; value=&quot;45&quot;>
+        <span class=&quot;val&quot; id=&quot;thetaVal&quot;>45°</span>
+      </div>
+      <div class=&quot;preset-row&quot; style=&quot;margin-top:6px&quot;>
+        <button class=&quot;preset&quot; onclick=&quot;setTheta(0)&quot;>0°</button>
+        <button class=&quot;preset&quot; onclick=&quot;setTheta(30)&quot;>30°</button>
+        <button class=&quot;preset&quot; onclick=&quot;setTheta(45)&quot;>45°</button>
+        <button class=&quot;preset&quot; onclick=&quot;setTheta(60)&quot;>60°</button>
+        <button class=&quot;preset&quot; onclick=&quot;setTheta(90)&quot;>90°</button>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot;>
+      <h3>Live Values</h3>
+      <div class=&quot;readout&quot;>
+        <div class=&quot;row&quot;><span class=&quot;lbl&quot;>θ =</span><span class=&quot;val2&quot; id=&quot;rv0&quot;>45°</span></div>
+        <div class=&quot;row&quot;><span class=&quot;lbl&quot;>cos θ =</span><span class=&quot;val2&quot; id=&quot;rv1&quot;>0.707</span></div>
+        <div class=&quot;row&quot;><span class=&quot;lbl&quot;>cos²θ =</span><span class=&quot;val2&quot; id=&quot;rv2&quot;>0.500</span></div>
+        <div class=&quot;row&quot; style=&quot;border-top:1px solid #334155;margin-top:4px;padding-top:4px&quot;>
+          <span class=&quot;lbl&quot;>I / I₀ =</span>
+          <span style=&quot;color:#3cb371;font-weight:700&quot; id=&quot;rv3&quot;>0.500</span>
+        </div>
+      </div>
+    </div>
+
+    <div class=&quot;panel&quot;>
+      <h3>Malus's Law</h3>
+      <div class=&quot;formula-box&quot;>
+        <div style=&quot;color:#7eb8da;font-size:.85rem;font-family:serif;margin-bottom:6px&quot;>I = I₀ cos²θ</div>
+        <div id=&quot;formulaLive&quot; style=&quot;color:#3cb371;font-size:.78rem;font-family:monospace&quot;></div>
+      </div>
+      <div style=&quot;margin-top:8px;font-size:.68rem;color:#475569;line-height:1.5&quot;>
+        E. Louis Malus (1809) discovered this empirically looking at light reflected off a window.<br>
+        Maxwell's equations later explained <em>why</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CANVAS AREA -->
+  <div class=&quot;main&quot;>
+    <canvas id=&quot;mainCanvas&quot; height=&quot;310&quot;></canvas>
+    <canvas id=&quot;curveCanvas&quot; height=&quot;155&quot;></canvas>
+  </div>
+</div>
+
+<script>
+const mainC = document.getElementById('mainCanvas');
+const curveC = document.getElementById('curveCanvas');
+const mCtx = mainC.getContext('2d');
+const cCtx = curveC.getContext('2d');
+const slider = document.getElementById('thetaSlider');
+let theta = 45, animFrame = 0, animId;
+
+function setTheta(v){ slider.value = v; theta = v; update(); }
+
+function resize(){
+  const W = mainC.parentElement.clientWidth;
+  mainC.width = W; mainC.style.width = W+'px';
+  curveC.width = W; curveC.style.width = W+'px';
+}
+
+function update(){
+  theta = parseFloat(slider.value);
+  const rad = theta * Math.PI / 180;
+  const cosV = Math.cos(rad), cos2 = cosV*cosV;
+  document.getElementById('thetaVal').textContent = theta+'°';
+  document.getElementById('rv0').textContent = theta+'°';
+  document.getElementById('rv1').textContent = cosV.toFixed(4);
+  document.getElementById('rv2').textContent = cos2.toFixed(4);
+  document.getElementById('rv3').textContent = cos2.toFixed(4);
+  document.getElementById('formulaLive').textContent =
+    'I = I₀ × cos²('+theta+'°) = '+cos2.toFixed(4)+' I₀';
+}
+
+// ── Main canvas: beam + polarizer + output ──────────────────────────
+function drawMain(t){
+  const W = mainC.width, H = mainC.height;
+  const rad = theta * Math.PI / 180;
+  const cos2 = Math.pow(Math.cos(rad), 2);
+  mCtx.clearRect(0,0,W,H);
+  mCtx.fillStyle='#0f172a'; mCtx.fillRect(0,0,W,H);
+
+  const midY = H/2;
+  // zones
+  const srcEnd = 80, filtX = W*0.42, filtR = 52, outStart = filtX+filtR+18;
+
+  // ── Source label ──
+  mCtx.fillStyle='#475569'; mCtx.font='10px monospace'; mCtx.textAlign='center';
+  mCtx.fillText('SOURCE', srcEnd/2, 18);
+  mCtx.fillStyle='#334155'; mCtx.font='10px monospace';
+  mCtx.fillText('polarized', srcEnd/2, 30);
+  mCtx.fillText('along ↕', srcEnd/2, 42);
+
+  // ── Animated incoming beam: sinusoidal E-field ──
+  const waveAmp = 28, waveLen = 52;
+  mCtx.save();
+  mCtx.strokeStyle='rgba(78,166,236,0.7)'; mCtx.lineWidth=2; mCtx.setLineDash([]);
+  mCtx.beginPath();
+  for(let x=srcEnd; x<filtX-filtR-4; x++){
+    const phase = (x - t*1.2) * (2*Math.PI/waveLen);
+    const y = midY + waveAmp*Math.sin(phase);
+    x===srcEnd ? mCtx.moveTo(x,y) : mCtx.lineTo(x,y);
+  }
+  mCtx.stroke();
+
+  // Propagation axis line (dim)
+  mCtx.strokeStyle='#1e3a5f'; mCtx.lineWidth=1; mCtx.setLineDash([4,4]);
+  mCtx.beginPath(); mCtx.moveTo(srcEnd,midY); mCtx.lineTo(filtX-filtR-4,midY); mCtx.stroke();
+  mCtx.setLineDash([]);
+  mCtx.restore();
+
+  // Incoming arrow
+  const hLen=8, aX=filtX-filtR-8, aY=midY;
+  mCtx.strokeStyle='#4a9fd4'; mCtx.fillStyle='#4a9fd4'; mCtx.lineWidth=1.5;
+  mCtx.beginPath(); mCtx.moveTo(aX-18,aY); mCtx.lineTo(aX,aY); mCtx.stroke();
+  mCtx.beginPath(); mCtx.moveTo(aX,aY);
+  mCtx.lineTo(aX-hLen*Math.cos(-Math.PI/6),aY-hLen*Math.sin(-Math.PI/6));
+  mCtx.lineTo(aX-hLen*Math.cos(Math.PI/6),aY-hLen*Math.sin(Math.PI/6));
+  mCtx.closePath(); mCtx.fill();
+
+  // ── Polarizer circle ──
+  // Background ring
+  mCtx.beginPath(); mCtx.arc(filtX,midY,filtR,0,2*Math.PI);
+  mCtx.fillStyle='rgba(30,58,95,0.7)'; mCtx.fill();
+  mCtx.strokeStyle='#4682b4'; mCtx.lineWidth=2.5; mCtx.stroke();
+
+  // Hatching (blocked direction: perpendicular to axis)
+  const perpRad = rad + Math.PI/2;
+  for(let d=-filtR+6; d<filtR; d+=8){
+    const px = filtX + Math.cos(perpRad)*d, py = midY + Math.sin(perpRad)*d;
+    const nx = Math.cos(rad)*8, ny = Math.sin(rad)*8;
+    mCtx.save(); mCtx.strokeStyle='rgba(192,57,43,0.22)'; mCtx.lineWidth=1; mCtx.setLineDash([2,2]);
+    mCtx.beginPath(); mCtx.moveTo(px-nx,py-ny); mCtx.lineTo(px+nx,py+ny); mCtx.stroke(); mCtx.restore();
+  }
+
+  // Transmission axis (double-headed green)
+  const axLen = filtR*0.82;
+  const axX = Math.sin(rad)*axLen, axY = -Math.cos(rad)*axLen;
+  function dbl(x1,y1,x2,y2,col,w){
+    const hl=8,a=Math.atan2(y2-y1,x2-x1),a2=Math.atan2(y1-y2,x1-x2);
+    mCtx.save(); mCtx.strokeStyle=col; mCtx.fillStyle=col; mCtx.lineWidth=w; mCtx.setLineDash([]);
+    mCtx.beginPath(); mCtx.moveTo(x1,y1); mCtx.lineTo(x2,y2); mCtx.stroke();
+    [[a,x2,y2],[a2,x1,y1]].forEach(([ang,px,py])=>{
+      mCtx.beginPath(); mCtx.moveTo(px,py);
+      mCtx.lineTo(px-hl*Math.cos(ang-Math.PI/6),py-hl*Math.sin(ang-Math.PI/6));
+      mCtx.lineTo(px-hl*Math.cos(ang+Math.PI/6),py-hl*Math.sin(ang+Math.PI/6));
+      mCtx.closePath(); mCtx.fill();
+    }); mCtx.restore();
+  }
+  dbl(filtX-axX,midY-axY,filtX+axX,midY+axY,'#3cb371',2.5);
+
+  // Angle arc and label
+  if(theta>2){
+    mCtx.beginPath(); mCtx.arc(filtX,midY,22,-Math.PI/2,-Math.PI/2+rad);
+    mCtx.strokeStyle='#94a3b8'; mCtx.lineWidth=1.2; mCtx.setLineDash([]); mCtx.stroke();
+    mCtx.fillStyle='#94a3b8'; mCtx.font='11px monospace'; mCtx.textAlign='left';
+    mCtx.fillText('θ',filtX+26*Math.sin(rad/2)-3,midY-26*Math.cos(rad/2)+4);
+  }
+
+  // P label
+  mCtx.fillStyle='#7eb8da'; mCtx.font='bold 11px monospace'; mCtx.textAlign='center';
+  mCtx.fillText('Polarizer',filtX,midY+filtR+16);
+  mCtx.fillStyle='#4682b4'; mCtx.font='11px monospace';
+  mCtx.fillText(theta+'°',filtX,midY+filtR+28);
+
+  // ── Outgoing beam ──
+  const outAmp = waveAmp * Math.abs(Math.cos(rad));
+  const outAlpha = Math.max(0.06, cos2);
+
+  if(outAmp > 1){
+    // Animated wave on the transmitted side (at angle θ from vertical = sin from horiz)
+    // We show the component in the plane; simplify as vertical-like with amplitude cosθ
+    mCtx.save();
+    mCtx.strokeStyle=`rgba(78,200,140,${outAlpha*1.4})`; mCtx.lineWidth=2.5; mCtx.setLineDash([]);
+    mCtx.beginPath();
+    const outEnd = W - 30;
+    for(let x=outStart; x<outEnd; x++){
+      const phase = (x - t*1.2) * (2*Math.PI/waveLen);
+      // Oscillation perpendicular to propagation, at angle rad from vertical
+      const amp = outAmp * Math.sin(phase);
+      const y = midY + amp * Math.cos(rad);
+      const yCross = midY + amp * (-Math.sin(rad)) * 0.3; // slight 3D perspective
+      x===outStart ? mCtx.moveTo(x,y) : mCtx.lineTo(x,y);
+    }
+    mCtx.stroke();
+    mCtx.restore();
+  }
+
+  // Outgoing propagation axis
+  mCtx.strokeStyle='#1e3a5f'; mCtx.lineWidth=1; mCtx.setLineDash([4,4]);
+  mCtx.beginPath(); mCtx.moveTo(outStart,midY); mCtx.lineTo(W-30,midY); mCtx.stroke();
+  mCtx.setLineDash([]);
+
+  // ── Intensity glow box on the right ──
+  const boxX=W-70, boxW=54, boxH=90, boxY=midY-boxH/2;
+  const grad = mCtx.createLinearGradient(boxX,boxY,boxX,boxY+boxH);
+  grad.addColorStop(0,`rgba(78,200,140,${outAlpha*0.6})`);
+  grad.addColorStop(0.5,`rgba(255,220,80,${outAlpha*0.9})`);
+  grad.addColorStop(1,`rgba(78,200,140,${outAlpha*0.6})`);
+  mCtx.fillStyle=grad; mCtx.fillRect(boxX,boxY,boxW,boxH);
+  mCtx.strokeStyle=`rgba(78,200,140,${outAlpha})`; mCtx.lineWidth=1.5; mCtx.strokeRect(boxX,boxY,boxW,boxH);
+  mCtx.fillStyle='#ccc'; mCtx.font='10px monospace'; mCtx.textAlign='center';
+  mCtx.fillText('I_out',boxX+boxW/2,boxY-6);
+  mCtx.fillStyle='#3cb371'; mCtx.font='bold 11px monospace';
+  mCtx.fillText(cos2.toFixed(3),boxX+boxW/2,midY+4);
+  mCtx.fillStyle='#94a3b8'; mCtx.font='9px monospace';
+  mCtx.fillText('× I₀',boxX+boxW/2,midY+16);
+
+  // ── E-field projection diagram (bottom-left inset) ──
+  const insX=32, insY=H-80, insR=38;
+  mCtx.strokeStyle='#1e293b'; mCtx.lineWidth=1; mCtx.setLineDash([2,3]);
+  mCtx.beginPath(); mCtx.arc(insX+insR,insY+insR,insR,0,2*Math.PI); mCtx.stroke();
+  mCtx.setLineDash([]);
+
+  // Incident field (vertical, blue)
+  const iEx=0, iEy=-insR*0.85;
+  arrow(insX+insR,insY+insR,insX+insR+iEx,insY+insR+iEy,'#4a9fd4',2);
+  mCtx.fillStyle='#4a9fd4'; mCtx.font='9px monospace'; mCtx.textAlign='center';
+  mCtx.fillText('E₀',insX+insR+iEx+10,insY+insR+iEy-3);
+
+  // Transmitted component (green, along axis)
+  const tEx=Math.sin(rad)*insR*0.85*Math.cos(rad), tEy=-Math.cos(rad)*insR*0.85*Math.cos(rad);
+  if(Math.abs(Math.cos(rad))>0.04){
+    arrow(insX+insR,insY+insR,insX+insR+tEx,insY+insR+tEy,'#3cb371',2);
+    mCtx.fillStyle='#3cb371'; mCtx.font='9px monospace'; mCtx.textAlign='right';
+    mCtx.fillText('E₀cosθ',insX+insR+tEx-2,insY+insR+tEy-4);
+  }
+
+  // Axis line
+  const axx=Math.sin(rad)*insR*0.75, axy=-Math.cos(rad)*insR*0.75;
+  mCtx.strokeStyle='rgba(60,179,113,0.3)'; mCtx.lineWidth=1; mCtx.setLineDash([3,3]);
+  mCtx.beginPath(); mCtx.moveTo(insX+insR-axx,insY+insR-axy); mCtx.lineTo(insX+insR+axx,insY+insR+axy); mCtx.stroke();
+  mCtx.setLineDash([]);
+
+  mCtx.fillStyle='#475569'; mCtx.font='9px monospace'; mCtx.textAlign='center';
+  mCtx.fillText('E-field',insX+insR,insY+insR*2+14);
+  mCtx.fillText('projection',insX+insR,insY+insR*2+24);
+}
+
+function arrow(x1,y1,x2,y2,col,w){
+  const hl=7,a=Math.atan2(y2-y1,x2-x1);
+  mCtx.save(); mCtx.strokeStyle=col; mCtx.fillStyle=col; mCtx.lineWidth=w; mCtx.setLineDash([]);
+  mCtx.beginPath(); mCtx.moveTo(x1,y1); mCtx.lineTo(x2,y2); mCtx.stroke();
+  mCtx.beginPath(); mCtx.moveTo(x2,y2);
+  mCtx.lineTo(x2-hl*Math.cos(a-Math.PI/6),y2-hl*Math.sin(a-Math.PI/6));
+  mCtx.lineTo(x2-hl*Math.cos(a+Math.PI/6),y2-hl*Math.sin(a+Math.PI/6));
+  mCtx.closePath(); mCtx.fill(); mCtx.restore();
+}
+
+// ── Curve canvas: cos²θ with live dot ──────────────────────────────
+function drawCurve(){
+  const W = curveC.width, H = curveC.height;
+  const pL=48,pR=20,pT=16,pB=32;
+  const pW=W-pL-pR, pH=H-pT-pB;
+  const rad = theta*Math.PI/180;
+  const cos2 = Math.pow(Math.cos(rad),2);
+
+  cCtx.clearRect(0,0,W,H);
+  cCtx.fillStyle='#0f172a'; cCtx.fillRect(0,0,W,H);
+
+  // Grid
+  cCtx.strokeStyle='#1e293b'; cCtx.lineWidth=1;
+  [0,0.25,0.5,0.75,1].forEach(v=>{
+    const y=pT+(1-v)*pH;
+    cCtx.beginPath(); cCtx.moveTo(pL,y); cCtx.lineTo(pL+pW,y); cCtx.stroke();
+  });
+  [0,45,90,135,180].forEach(d=>{
+    const x=pL+(d/180)*pW;
+    cCtx.beginPath(); cCtx.moveTo(x,pT); cCtx.lineTo(x,pT+pH); cCtx.stroke();
+  });
+
+  // Axes
+  cCtx.strokeStyle='#334155'; cCtx.lineWidth=1.5;
+  cCtx.beginPath(); cCtx.moveTo(pL,pT); cCtx.lineTo(pL,pT+pH); cCtx.lineTo(pL+pW,pT+pH); cCtx.stroke();
+
+  // Tick labels
+  cCtx.fillStyle='#475569'; cCtx.font='10px monospace'; cCtx.textAlign='center';
+  [0,45,90,135,180].forEach(d=>{
+    cCtx.fillText(d+'°',pL+(d/180)*pW,pT+pH+14);
+  });
+  cCtx.textAlign='right';
+  [0,0.5,1].forEach(v=>{
+    cCtx.fillText(v.toFixed(1),pL-5,pT+(1-v)*pH+4);
+  });
+  cCtx.fillStyle='#475569'; cCtx.font='10px monospace'; cCtx.textAlign='center';
+  cCtx.fillText('θ (polarizer angle)',pL+pW/2,pT+pH+28);
+  cCtx.save(); cCtx.translate(14,pT+pH/2); cCtx.rotate(-Math.PI/2);
+  cCtx.fillText('I / I₀',0,0); cCtx.restore();
+
+  // cos²θ curve
+  cCtx.beginPath();
+  for(let d=0;d<=180;d++){
+    const x=pL+(d/180)*pW, y=pT+(1-Math.pow(Math.cos(d*Math.PI/180),2))*pH;
+    d===0?cCtx.moveTo(x,y):cCtx.lineTo(x,y);
+  }
+  cCtx.strokeStyle='#4682b4'; cCtx.lineWidth=2.5; cCtx.setLineDash([]); cCtx.stroke();
+
+  // Vertical guide from dot
+  const dotX=pL+(theta/180)*pW, dotY=pT+(1-cos2)*pH;
+  cCtx.strokeStyle='rgba(232,168,56,0.4)'; cCtx.lineWidth=1; cCtx.setLineDash([3,3]);
+  cCtx.beginPath(); cCtx.moveTo(dotX,dotY); cCtx.lineTo(dotX,pT+pH); cCtx.stroke();
+  cCtx.beginPath(); cCtx.moveTo(pL,dotY); cCtx.lineTo(dotX,dotY); cCtx.stroke();
+  cCtx.setLineDash([]);
+
+  // Dot
+  cCtx.beginPath(); cCtx.arc(dotX,dotY,7,0,2*Math.PI);
+  cCtx.fillStyle='#e8a838'; cCtx.fill();
+  cCtx.strokeStyle='#0f172a'; cCtx.lineWidth=2; cCtx.stroke();
+
+  // Value label
+  cCtx.fillStyle='#e8a838'; cCtx.font='bold 10px monospace'; cCtx.textAlign='left';
+  const lblX = theta<150 ? dotX+10 : dotX-80;
+  cCtx.fillText(cos2.toFixed(3)+' I₀',lblX,dotY-6);
+
+  // Legend
+  cCtx.strokeStyle='#4682b4'; cCtx.lineWidth=2.5; cCtx.setLineDash([]);
+  cCtx.beginPath(); cCtx.moveTo(pL+pW-130,pT+10); cCtx.lineTo(pL+pW-106,pT+10); cCtx.stroke();
+  cCtx.fillStyle='#7eb8da'; cCtx.font='10px monospace'; cCtx.textAlign='left';
+  cCtx.fillText('I = I₀ cos²θ',pL+pW-100,pT+14);
+}
+
+// ── Animation loop ──────────────────────────────────────────────────
+function animate(){
+  animFrame++;
+  drawMain(animFrame);
+  drawCurve();
+  animId = requestAnimationFrame(animate);
+}
+
+slider.addEventListener('input', update);
+
+window.addEventListener('load', ()=>{
+  resize();
+  update();
+  animate();
+});
+window.addEventListener('resize', ()=>{ resize(); });
+
+function setTheta(v){ slider.value=v; theta=v; update(); }
+</script>
+</body>
+</html>" style="width:100%;height:100%;border:none" sandbox="allow-scripts"></iframe>
+  </div>
+  <div class="sim-caption" id="sim-cap"></div>
+</div>
+
+<h2>Citations</h2>
+<div class="citation">
+  <a href="https://en.wikipedia.org/wiki/Malus%27s_law" target="_blank">Wikipedia — Malus's law</a>
+  <div class="purpose">Used to verify the historical context (Malus 1809) and confirm the standard derivation of I = I₀cos²θ from the projection of the electric field amplitude.</div>
+</div>
+<div class="citation">
+  <a href="https://physics.stackexchange.com/questions/98007/why-does-malus-law-apply-to-intensity-and-not-amplitude" target="_blank">Physics Stack Exchange — Why does Malus's Law apply to intensity and not amplitude?</a>
+  <div class="purpose">Helped me understand the step from E_trans = E₀cosθ to I = I₀cos²θ — specifically why squaring happens (intensity ∝ E²).</div>
+</div>
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<div class="ic-footer">
+  <span>Advanced Physics · Geometric Optics · by Sadie Park</span>
+  <span>Concept: Polarization and Malus's Law</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.textContent=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq','When polarized light passes through a polarizing filter at angle $\\theta$, does the transmitted intensity follow $I = I_0 \\cos^2\\!\\theta$ — and can that rule be derived from the geometry of the electric field alone?');
+setMath('sim-cap','Drag the slider or click a preset to change the polarizer angle. The animated wave shows the transmitted E-field amplitude (∝ cosθ). The glowing box shows intensity (∝ cos²θ). The curve below tracks your position on Malus\'s Law.');
+(function(){
+  const el=document.getElementById('expl');
+  const text=`<p>Take off your polarized sunglasses and hold one lens over a table glare. Now rotate it 90°. The glare, which was blocked, comes back completely. That 90° rotation takes you from $\\theta = 0°$ to $\\theta = 90°$ in Malus's Law, and the math says $\\cos^2(90°) = 0$ vs $\\cos^2(0°) = 1$ — a factor of zero difference. But <em>why</em> does a cosine squared appear at all?</p>
+
+<p>Light is a transverse electromagnetic wave: the electric field $\\vec{E}$ oscillates perpendicular to the direction of travel. Unpolarized light has $\\vec{E}$ pointing in all directions in that plane simultaneously. A polarizer is a material (a grid of long polymer chains, in practice) that absorbs any component of $\\vec{E}$ <em>perpendicular</em> to its transmission axis, letting through only the parallel component.</p>
+
+<p>Here is where the cosine enters. If incoming polarized light has field amplitude $E_0$ and the polarizer's transmission axis makes angle $\\theta$ with the direction of $\\vec{E}_0$, then the transmitted amplitude is simply the projection: $$E_\\text{trans} = E_0 \\cos\\theta$$ Intensity is proportional to the time-averaged square of the field: $I \\propto \\langle E^2 \\rangle$. Squaring the transmitted amplitude gives: $$\\boxed{I = I_0 \\cos^2\\!\\theta}$$ This is Malus's Law. The cosine squared comes directly from squaring the projection — it is not an empirical fit, it is a geometric fact.</p>
+
+<p>Two limiting cases confirm the formula. At $\\theta = 0°$: the polarizer axis aligns with $\\vec{E}_0$, nothing is blocked, $\\cos^2(0) = 1$, so $I = I_0$. At $\\theta = 90°$: the axis is perpendicular to $\\vec{E}_0$, the projection is zero, $\\cos^2(90°) = 0$, so $I = 0$. This is the <em>crossed polarizer</em> condition — the reason your sunglasses block glare in the first place.</p>
+
+<p>One real-world wrinkle: sunlight is unpolarized, so the first polarizer it hits cannot apply Malus's Law directly. Instead, you average over all incoming angles: $\\langle \\cos^2\\theta \\rangle = \\frac{1}{2}$, so any first polarizer cuts unpolarized intensity exactly in half. After that, the outgoing light is polarized along the polarizer's axis, and Malus's Law applies to every downstream filter.</p>`;
+  el.innerHTML=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+setMath('anchor','Take off your polarized sunglasses. Look through one lens at a bright glare off a table. Now tilt the lens 90°. Why does the glare come back? — The glare is horizontally polarized. The sunglasses have a vertical transmission axis, so at $\\theta = 90°$, Malus\'s Law gives $I = I_0\\cos^2(90°) = 0$: complete blocking. Rotate to $\\theta = 0°$ and the glare passes through at full intensity.');
+(function(){
+  const base=window.location.href.split('#')[0];
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:-60px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:white;padding:9px 20px;border-radius:24px;font-size:.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:bottom .2s;z-index:9999;white-space:nowrap;user-select:none;font-family:-apple-system,sans-serif';
+  bar.textContent='📋 Copy citation link';
+  document.body.appendChild(bar);
+  let t;
+  document.addEventListener('mouseup',()=>{clearTimeout(t);const s=window.getSelection();if(s&&s.toString().trim().length>3)bar.style.bottom='28px';else t=setTimeout(()=>bar.style.bottom='-60px',400);});
+  bar.addEventListener('click',()=>{const text=(window.getSelection()?.toString()||'').trim();if(!text){bar.style.bottom='-60px';return;}const url=base+'#:~:text='+encodeURIComponent(text.slice(0,150));navigator.clipboard.writeText(url).then(()=>{bar.textContent='✓ Copied!';setTimeout(()=>{bar.textContent='📋 Copy citation link';bar.style.bottom='-60px';},2000);}).catch(()=>prompt('Copy:',url));});
+})();
+</script>
+</body>
+</html>

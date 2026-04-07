@@ -1,5 +1,26 @@
 [
   {
+    "concept_id": "polarization",
+    "type": "ic",
+    "title": "Malus's Law — Why a Polarizer Follows a Cosine² Rule",
+    "author": "sadie park",
+    "url": "/ics/polarization/sadie_park.html"
+  },
+  {
+    "concept_id": "polarization",
+    "type": "at",
+    "title": "Malus's Law — Adversarial Test",
+    "author": "sadie park",
+    "url": "/ics/polarization/at_sadie_park.html"
+  },
+  {
+    "concept_id": "polarization",
+    "type": "hw",
+    "title": "A polarized beam passes through two polarizing filters",
+    "author": "sadie park",
+    "url": "/api/public/hw-page/polarization"
+  },
+  {
     "concept_id": "lorentz_transformation",
     "type": "ic",
     "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
@@ -12,13 +33,6 @@
     "title": "The Lorentz Factor γ: One Number to Rule All of Special Relativity",
     "author": "Alex Rodriguez",
     "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/lorentz_factor/index.html"
-  },
-  {
-    "concept_id": "em_waves",
-    "type": "ic",
-    "title": "Light as an Electromagnetic Wave",
-    "author": "Max Brunsfeld",
-    "url": "https://ryankcampbell.github.io/adv-physics-wiki/ics/em_waves/max_brunsfeld.html"
   },
   {
     "concept_id": "clock_sync",

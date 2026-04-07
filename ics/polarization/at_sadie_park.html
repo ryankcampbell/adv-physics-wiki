@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="adv-physics-student" content="sadie park">
+<meta name="adv-physics-slug" content="polarization">
+<meta name="adv-physics-stage" content="at">
+<title>AT: Malus's Law — Adversarial Test | by sadie park</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fef2f2;color:#0f172a;line-height:1.7}
+.at-header{background:#7c2d12;color:white;padding:18px 32px 22px}
+.back-link{color:rgba(255,255,255,0.55);text-decoration:none;font-size:.8rem;display:inline-block;margin-bottom:10px}
+.at-title{font-size:1.4rem;font-weight:700;line-height:1.25;margin-bottom:6px}
+.at-meta{font-size:.82rem;color:rgba(255,255,255,0.65)}
+.at-body{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#64748b;margin-top:44px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+h2.at-sec{border-color:#fca5a5;color:#991b1b}
+.research-q{background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;font-size:1.05rem;font-style:italic;color:#1e3a5f;border-radius:0 8px 8px 0}
+p{margin-bottom:14px;color:#334155;font-size:.93rem}
+.sim-wrap{background:white;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-top:8px}
+.sim-caption{padding:10px 16px;font-size:.8rem;color:#64748b;background:#f8fafc;border-top:1px solid #e2e8f0}
+.citation{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:10px}
+.citation a{color:#15803d;font-weight:600;text-decoration:none;font-size:.88rem}
+.citation .purpose{font-size:.82rem;color:#374151;margin-top:5px}
+.anchor-box{background:#f0f9ff;border-left:4px solid #0284c7;padding:14px 18px;border-radius:0 8px 8px 0;font-size:.9rem;color:#0c4a6e}
+.v-card{background:white;border:1px solid #fca5a5;border-radius:8px;padding:16px 20px;margin-bottom:12px}
+.v-card h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#dc2626;margin-bottom:8px}
+.v-card p{font-size:.88rem}
+.pass{color:#15803d;font-weight:600}
+.verdict-box{background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px}
+.at-footer{margin-top:60px;padding-top:20px;border-top:1px solid #fca5a5;font-size:.76rem;color:#94a3b8;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+<div class="at-header">
+  <a href="../../index.html" class="back-link">← Concept Navigator</a>
+  <div class="at-title">Adversarial Test Report — Malus's Law</div>
+  <div class="at-meta">Reviewed by <strong style="color:white">Sadie Park</strong> &nbsp;·&nbsp; IC by Sadie Park</div>
+</div>
+<div class="at-body">
+
+<h2>Research Question</h2>
+<p class="research-q" id="rq"></p>
+
+<h2>Explainer</h2>
+<div id="expl"></div>
+
+<h2>Simulation</h2>
+<div class="sim-wrap">
+  <div style="width:100%;height:520px;background:#0f172a;border-radius:6px;overflow:hidden">
+  <iframe src="../sadie_park.html#sim" style="width:100%;height:100%;border:none" sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
+  <div class="sim-caption">Simulation from Sadie Park's IC — tested across the full range θ = 0° to 180°.</div>
+</div>
+
+<h2>Citations</h2>
+<div class="citation">
+  <a href="https://en.wikipedia.org/wiki/Malus%27s_law" target="_blank">Wikipedia — Malus's law</a>
+  <div class="purpose">Used to cross-check the historical date (Malus 1809 ✓) and the standard formula $I = I_0\cos^2\theta$ ✓.</div>
+</div>
+
+<h2>Connection to Anchor Question</h2>
+<div class="anchor-box" id="anchor"></div>
+
+<h2 class="at-sec">Verification</h2>
+
+<div class="v-card">
+  <h3>Limiting Case 1 — θ = 0° (aligned)</h3>
+  <p><strong>Expected:</strong> Polarizer axis perfectly aligned with incoming $\vec{E}$. The full field transmits: $I = I_0\cos^2(0°) = I_0$. Output should equal input — no dimming.</p>
+  <p><strong>Observed:</strong> <span class="pass">✓ Pass.</span> Slider at 0°: the output glow box reads <code>1.000 × I₀</code> and the animated wave on the right has the same amplitude as the incoming wave. The curve dot sits at the top of the cos²θ graph at $(0°,\,1)$.</p>
+</div>
+
+<div class="v-card">
+  <h3>Limiting Case 2 — θ = 90° (crossed)</h3>
+  <p><strong>Expected:</strong> Polarizer axis perpendicular to $\vec{E}_0$. The projection is zero: $I = I_0\cos^2(90°) = 0$. No light should emerge.</p>
+  <p><strong>Observed:</strong> <span class="pass">✓ Pass.</span> Slider at 90°: output box reads <code>0.000 × I₀</code>, the transmitted wave disappears entirely, and the curve dot sits at $(90°,\,0)$ and again at $(180°,\,0)$. The simulation correctly handles both crossings.</p>
+</div>
+
+<div class="v-card">
+  <h3>Quantitative Spot-Check — θ = 60°</h3>
+  <p><strong>Setup:</strong> Set θ = 60°. By hand: $\cos(60°) = 0.5$, so $\cos^2(60°) = 0.25$. Expected $I = 0.25\,I_0$.</p>
+  <p><strong>Predicted:</strong> $I = 0.250\,I_0$</p>
+  <p><strong>Observed:</strong> <span class="pass">✓ Pass.</span> Sim output box reads <code>0.2500 × I₀</code> exactly. The live-value panel also shows cos²θ = 0.2500 and the formula reads <em>I = I₀ × cos²(60°) = 0.2500 I₀</em>. Spot-on.</p>
+</div>
+
+<div class="v-card">
+  <h3>Symmetry Check — θ vs 180° − θ</h3>
+  <p><strong>Expected:</strong> Because $\cos^2\theta = \cos^2(180°-\theta)$, the intensity at θ = 30° should equal intensity at θ = 150°. The formula is symmetric about 90°.</p>
+  <p><strong>Observed:</strong> <span class="pass">✓ Pass.</span> θ = 30° gives <code>0.7500 I₀</code>; θ = 150° gives <code>0.7500 I₀</code>. Curve is visibly symmetric. The explainer doesn't explicitly mention this symmetry but the simulation demonstrates it correctly.</p>
+</div>
+
+<div class="v-card">
+  <h3>Conceptual Check — First Polarizer and Unpolarized Light</h3>
+  <p><strong>Expected:</strong> The explainer claims any first polarizer cuts unpolarized intensity in half ($\langle\cos^2\theta\rangle = \frac{1}{2}$). This is a standard result that should be stated without derivation here, or derived explicitly if claimed.</p>
+  <p><strong>Observed:</strong> <span class="pass">✓ Pass.</span> The explainer states this correctly in the final paragraph: "any first polarizer cuts unpolarized intensity exactly in half." The reasoning (averaging $\cos^2\theta$ over all angles) is briefly but correctly explained. No errors.</p>
+</div>
+
+<h2 class="at-sec">Overall Verdict</h2>
+<div class="verdict-box">
+  <div style="font-size:1.1rem;font-weight:700;color:#15803d;margin-bottom:12px">✓ Pass — no errors found</div>
+  <p style="font-size:.9rem;color:#334155">The IC's central claim — that Malus's Law $I = I_0\cos^2\theta$ follows from the projection of the electric field amplitude — is correctly derived and clearly explained. All limiting cases check out. The simulation is accurate across the full 0°–180° range. The connection between the formula and the anchor question (sunglasses + 90° rotation) is strong and direct.</p>
+  <p style="font-size:.9rem;color:#334155;margin-top:10px"><strong>One suggestion (not a required fix):</strong> The E-field projection inset in the simulation is useful, but the IC explainer doesn't explicitly point the reader to it. A sentence like "see the inset diagram in the simulation" would help students connect the geometry to the algebra more easily.</p>
+</div>
+
+<div class="at-footer">
+  <span>Advanced Physics · NWA · Adversarial Test by Sadie Park</span>
+  <span>IC: Malus's Law by Sadie Park</span>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+function setMath(id,text){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=text;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+}
+setMath('rq','When polarized light passes through a polarizing filter at angle $\\theta$, does the transmitted intensity follow $I = I_0 \\cos^2\\!\\theta$ — and can that rule be derived from the geometry of the electric field alone?');
+setMath('anchor','Take off your polarized sunglasses. Look through one lens at a bright glare off a table. Now tilt the lens 90°. Why does the glare come back? — The glare is horizontally polarized. The sunglasses have a vertical transmission axis, so at $\\theta = 90°$, Malus\'s Law gives $I = I_0\\cos^2(90°) = 0$: complete blocking. Rotate to $\\theta = 0°$ and the glare passes through at full intensity.');
+(function(){
+  const el=document.getElementById('expl');
+  el.innerHTML=`<p>Take off your polarized sunglasses and hold one lens over a table glare. Now rotate it 90°. The glare, which was blocked, comes back completely. That 90° rotation takes you from $\\theta = 0°$ to $\\theta = 90°$ in Malus's Law, and the math says $\\cos^2(90°) = 0$ vs $\\cos^2(0°) = 1$ — a factor of zero difference. But <em>why</em> does a cosine squared appear at all?</p>
+<p>Light is a transverse electromagnetic wave: the electric field $\\vec{E}$ oscillates perpendicular to the direction of travel. Unpolarized light has $\\vec{E}$ pointing in all directions in that plane simultaneously. A polarizer is a material that absorbs any component of $\\vec{E}$ <em>perpendicular</em> to its transmission axis, letting through only the parallel component.</p>
+<p>If incoming polarized light has amplitude $E_0$ and the polarizer axis makes angle $\\theta$ with $\\vec{E}_0$, the transmitted amplitude is the projection: $$E_\\text{trans} = E_0\\cos\\theta$$ Since intensity $\\propto E^2$: $$\\boxed{I = I_0\\cos^2\\!\\theta}$$ The cosine squared comes from squaring the projection — it is geometry, not an empirical fit.</p>
+<p>At $\\theta=0°$: $\\cos^2(0)=1$, full transmission. At $\\theta=90°$: $\\cos^2(90°)=0$, complete blocking (crossed polarizers). For unpolarized light, averaging over all angles gives $\\langle\\cos^2\\theta\\rangle=\\tfrac{1}{2}$, so any first polarizer cuts unpolarized intensity exactly in half.</p>`;
+  renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+})();
+</script>
+</body>
+</html>

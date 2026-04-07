@@ -11,6 +11,16 @@
     }
   },
   "sadie park": {
+    "polarization": {
+      "slug": "polarization",
+      "title": "Malus's Law — Why a Polarizer Follows a Cosine² Rule",
+      "module": "Geometric Optics",
+      "stage": "complete",
+      "status": "complete",
+      "revision_notes": "",
+      "created_at": "2026-04-05",
+      "updated_at": "2026-04-07"
+    },
     "lorentz_transformation": {
       "module": "Special Relativity",
       "title": "The Lorentz Transformation as a Matrix: Rotating Through Spacetime",
@@ -109,14 +119,5 @@
       "updated_at": "2026-03-04"
     }
   },
-  "max brunsfeld": {
-    "em_waves": {
-      "module": "Geometric Optics",
-      "title": "Light as an Electromagnetic Wave",
-      "stage": "at",
-      "status": "draft",
-      "created_at": "2026-03-03",
-      "updated_at": "2026-03-08"
-    }
-  }
+  "max brunsfeld": {}
 }
